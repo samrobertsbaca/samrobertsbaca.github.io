@@ -1,0 +1,136 @@
+
+let headDiameter;
+let default_ppi = 300;
+let default_grid_width = default_ppi;
+
+let ear_size = .5;
+let ear_dist = 5;
+
+let mouth_weight = 10;
+
+// Function to convert CMYK to RGB
+/*function cmykToRgb(c, m, y, k) {
+    let r = 255 * (1 - c / 100) * (1 - k / 100);
+    let g = 255 * (1 - m / 100) * (1 - k / 100);
+    let b = 255 * (1 - y / 100) * (1 - k / 100);
+
+    return [Math.round(r), Math.round(g), Math.round(b)];
+}*/
+
+function cmykToRgb(cmykArray) {
+    // Extract CMYK values from the array
+    let [c, m, y, k] = cmykArray;
+
+    // Convert CMYK to RGB
+    let r = 255 * (1 - c / 100) * (1 - k / 100);
+    let g = 255 * (1 - m / 100) * (1 - k / 100);
+    let b = 255 * (1 - y / 100) * (1 - k / 100);
+
+    // Round and return the RGB values in an array
+    return [Math.round(r), Math.round(g), Math.round(b)];
+}
+
+function pointsToPixels(points, ppi = default_ppi) {
+    return points * (ppi / 72);
+}
+
+function drawGrid(mainSpacing = default_grid_width, division = 8, mainStrokeWeight = 2, subStrokeWeight = 1) {
+    // Draw main grid lines (bolder)
+    strokeWeight(mainStrokeWeight);
+    stroke(200);
+    for (let x = 0; x <= width; x += mainSpacing) {
+        line(x, 0, x, height); // Vertical lines
+    }
+    for (let y = 0; y <= height; y += mainSpacing) {
+        line(0, y, width, y); // Horizontal lines
+    }
+
+    // Draw subdivision grid lines (thinner)
+    strokeWeight(subStrokeWeight);
+    stroke(225);
+    let subSpacing = mainSpacing / division;
+    for (let x = 0; x <= width; x += subSpacing) {
+        if (x % mainSpacing !== 0) { // Avoid redrawing over main lines
+            line(x, 0, x, height); // Vertical lines
+        }
+    }
+    for (let y = 0; y <= height; y += subSpacing) {
+        if (y % mainSpacing !== 0) { // Avoid redrawing over main lines
+            line(0, y, width, y); // Horizontal lines
+        }
+    }
+}
+
+function setup() {
+  
+  //c_width = 1728;
+  c_width = default_grid_width*4;
+  createCanvas(c_width, c_width);
+  
+  //circleDiameter = width/2;
+  headDiameter = default_grid_width*2;
+  
+}
+
+function draw() {
+    background(255);
+  
+    drawGrid();
+  
+    // Calculate the radius
+    let radius = headDiameter / 2;
+  
+    // Set the stroke (outline) color of the circle
+  
+    let black = cmykToRgb([0,0,0,100])
+  
+    let white = cmykToRgb([0,0,0,0])
+    
+    let scyan = cmykToRgb([70.47, 34.1, 0, 0]);
+  
+    let magenta = cmykToRgb([0, 100, 0, 0]);
+  
+    let red = [255,0,0];
+  
+    //stroke(...black); // RGB values for color
+    noStroke()
+  
+    // Set the stroke weight (thickness) of the circle
+    strokeWeight(pointsToPixels(5)); // Pixels
+
+    // Set the fill color of the circle
+    fill(...scyan); // RGB values for color
+  
+    // Draw the circle
+    // The circle is drawn at the center of the canvas
+    circle(width / 2, height / 2, headDiameter);
+  
+    // ears
+    circle(width / 2 - width/ear_dist, height/2 - height/ear_dist, headDiameter*ear_size);
+    circle(width / 2 + width/ear_dist, height/2 - height/ear_dist, headDiameter*ear_size);
+  
+    // eyes
+    fill(...white);
+    circle(width / 2 - width/12, height/2 - height/32, headDiameter/3);
+    circle(width / 2 + width/12, height/2 - height/32, headDiameter/3);
+  
+    // pupils
+    fill(...black);
+    circle(width / 2 - width/12, height/2 - height/32, headDiameter/6);
+    circle(width / 2 + width/12, height/2 - height/32, headDiameter/6);
+  
+    // nose
+    fill(...red);
+    circle(width/2,height/2+height/20,headDiameter/5);
+  
+    // mouth
+    noFill();
+    strokeWeight(pointsToPixels(10));
+    stroke(...black);
+    curve(
+      width/2 - width/7,height/2 - height/2,
+      width/2 - width/7,height/2 + height/12,
+      width/2 + width/7,height/2 + height/12,
+      width/2 + width/7,height/2 - height/2
+    )
+}

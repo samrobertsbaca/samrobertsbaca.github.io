@@ -1,0 +1,204 @@
+let default_ppi = 150;
+let default_grid_width = default_ppi;
+let canvas_width_inches = 4;
+let canvas_height_inches = 4;
+
+let black = cmykToRgb([0, 0, 0, 100]);
+let white = cmykToRgb([0, 0, 0, 0]);
+let cyan = illustratorCmykToRgb([100, 0, 0, 0]);
+let magenta = illustratorCmykToRgb([0, 100, 0, 0]);
+let yellow = illustratorCmykToRgb([0, 0, 100, 0]);
+let red = illustratorCmykToRgb([0, 100, 100, 0]);
+let green = illustratorCmykToRgb([100, 0, 100, 0]);
+let blue = illustratorCmykToRgb([100, 100, 0, 0]);
+
+let scyan = illustratorCmykToRgb([70.47, 34.1, 0, 0]);
+let smagenta = illustratorCmykToRgb([0, 95.58, 0, 0]);
+let syellow = illustratorCmykToRgb([0, 0, 6.18, 96.54]);
+let sred = illustratorCmykToRgb([0, 91.87, 82.72, 0]);
+let sgreen = illustratorCmykToRgb([83.83, 15.16, 77.95, 0]);
+let sblue = illustratorCmykToRgb([95.68, 95.38, 0, 0]);
+
+let palette = ["f72585","b5179e","7209b7","560bad","480ca8","3a0ca3","3f37c9","4361ee","4895ef","4cc9f0"]
+
+let palette_shift1;
+let palette_shift2;
+
+let spin_angle = 0;
+
+let size_factor = 0;
+let size_amplitude = 1;
+
+let offscreen;
+
+function pointsToPixels(points, ppi = default_ppi) {
+    return points * (ppi / 72);
+}
+
+function inchesToPixels(inches, ppi = default_ppi) {
+  return inches * ppi;
+}
+
+function drawGrid(mainSpacing = default_grid_width, division = 8, mainStrokeWeight = 2, subStrokeWeight = 1) {
+    // Draw main grid lines (bolder)
+    offscreen.strokeWeight(mainStrokeWeight);
+    offscreen.stroke(200);
+    for (let x = 0; x <= width; x += mainSpacing) {
+        offscreen.line(x, 0, x, height); // Vertical lines
+    }
+    for (let y = 0; y <= height; y += mainSpacing) {
+        offscreen.line(0, y, width, y); // Horizontal lines
+    }
+
+    // Draw subdivision grid lines (thinner)
+    offscreen.strokeWeight(subStrokeWeight);
+    offscreen.stroke(225);
+    let subSpacing = mainSpacing / division;
+    for (let x = 0; x <= width; x += subSpacing) {
+        if (x % mainSpacing !== 0) { // Avoid redrawing over main lines
+            offscreen.line(x, 0, x, height); // Vertical lines
+        }
+    }
+    for (let y = 0; y <= height; y += subSpacing) {
+        if (y % mainSpacing !== 0) { // Avoid redrawing over main lines
+            offscreen.line(0, y, width, y); // Horizontal lines
+        }
+    }
+}
+
+function cmykToRgb(cmykArray) {
+    // Extract CMYK values from the array
+    let [c, m, y, k] = cmykArray;
+
+    // Convert CMYK to RGB
+    let r = 255 * (1 - c / 100) * (1 - k / 100);
+    let g = 255 * (1 - m / 100) * (1 - k / 100);
+    let b = 255 * (1 - y / 100) * (1 - k / 100);
+
+    // Round and return the RGB values in an array
+    return [Math.round(r), Math.round(g), Math.round(b)];
+}
+
+
+function illustratorCmykToRgb(cmykArray) {
+  // Placeholder for any adjustments to mimic Illustrator's CMYK to RGB conversion
+  // This may involve empirical adjustment based on observed behavior in Illustrator
+  
+  let [c, m, y, k] = cmykArray;
+  
+  let adjustedC = c; // Adjusted cyan
+  let adjustedM = m; // Adjusted magenta
+  let adjustedY = y; // Adjusted yellow
+  let adjustedK = k; // Adjusted black
+
+  // Convert CMYK to RGB
+  let r = 255 * (1 - adjustedC / 100) * (1 - adjustedK / 100);
+  let g = 255 * (1 - adjustedM / 100) * (1 - adjustedK / 100);
+  let b = 255 * (1 - adjustedY / 100) * (1 - adjustedK / 100);
+
+  return [Math.round(r), Math.round(g), Math.round(b)];
+}
+
+function hexToRgb(hex) {
+  let r = parseInt(hex.substring(0, 2), 16);
+  let g = parseInt(hex.substring(2, 4), 16);
+  let b = parseInt(hex.substring(4, 6), 16);
+  return [r, g, b];
+}
+
+
+function drawCircles(n, d, c, centerRadius,spinAngle) {
+  let centerX = width / 2;
+  let centerY = height / 2;
+  let angleStep = TWO_PI / n;
+
+  for (let i = 0; i < n; i++) {
+    let angle = i * angleStep + spinAngle;
+    let x = centerX + cos(angle) * centerRadius; // Position circles using centerRadius
+    let y = centerY + sin(angle) * centerRadius; // Position circles using centerRadius
+    
+    
+    offscreen.noStroke();
+    let rgb = c[i];
+    offscreen.fill(rgb[0], rgb[1], rgb[2], 255);
+    offscreen.circle(x, y, d); // Draw circle with diameter d
+    
+  }
+}
+
+function shiftArrayRight(arr) {
+  if (arr.length > 0) {
+    let lastElement = arr.pop();  // Remove the last element
+    arr.unshift(lastElement);     // Add it to the beginning
+  }
+  return arr;
+}
+
+
+function setup() {
+  
+  canvas_width = default_grid_width*canvas_width_inches;
+  canvas_height = default_grid_width*canvas_height_inches;
+  createCanvas(canvas_width, canvas_height);
+  
+  offscreen = createGraphics(canvas_width, canvas_height);
+  
+  /*color_array = [cyan,magenta,yellow,red,green,blue];
+  color_array_shift1 = shiftArrayRight([...color_array]);
+  color_array_shift2 = shiftArrayRight([...color_array_shift1]);*/
+  
+  palette = palette.map(palette => hexToRgb(palette));
+  palette_shift1 = shiftArrayRight([...palette]);
+  palette_shift2 = shiftArrayRight([...palette_shift1]);
+  
+}
+
+
+
+function draw() {
+  
+  background(255);
+  //drawGrid();
+  
+  let sway = size_amplitude * sin(frameCount * 0.02);
+  
+  offscreen.background(255);
+  
+  //drawGrid();
+  
+  offscreen.blendMode(BLEND);
+  
+  drawCircles(palette.length,
+              inchesToPixels(sway+1),
+              palette,
+              inchesToPixels(sway),
+              spin_angle
+             );
+  
+  drawCircles(palette.length,
+              inchesToPixels(sway*.5+.5),
+              palette_shift1,
+              inchesToPixels(sway),
+              spin_angle*1.5
+             );
+  
+  drawCircles(palette.length,
+              inchesToPixels(sway*.25+.25),
+              palette_shift2,
+              inchesToPixels(sway),
+              spin_angle*2
+             );
+  offscreen.blendMode(BLEND);
+  
+  
+  
+  image(offscreen, 0, 0);
+  
+  
+  
+  spin_angle +=sway/50;
+  if (spin_angle >= 360) {
+    spin_angle = 0;
+  }
+      
+}

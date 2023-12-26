@@ -1,0 +1,46 @@
+let default_ppi = 150;
+let default_grid_width = default_ppi;
+let canvas_width_inches = 4;
+let canvas_height_inches = 4;
+
+function setup() {
+  
+  canvas_width = default_grid_width*canvas_width_inches;
+  canvas_height = default_grid_width*canvas_height_inches;
+  createCanvas(canvas_width, canvas_height);
+  
+}
+
+
+function drawGrid(mainSpacing = default_grid_width, division = 8, mainStrokeWeight = 2, subStrokeWeight = 1) {
+    // Draw main grid lines (bolder)
+    strokeWeight(mainStrokeWeight);
+    stroke(200);
+    for (let x = 0; x <= width; x += mainSpacing) {
+        line(x, 0, x, height); // Vertical lines
+    }
+    for (let y = 0; y <= height; y += mainSpacing) {
+        line(0, y, width, y); // Horizontal lines
+    }
+
+    // Draw subdivision grid lines (thinner)
+    strokeWeight(subStrokeWeight);
+    stroke(225);
+    let subSpacing = mainSpacing / division;
+    for (let x = 0; x <= width; x += subSpacing) {
+        if (x % mainSpacing !== 0) { // Avoid redrawing over main lines
+            line(x, 0, x, height); // Vertical lines
+        }
+    }
+    for (let y = 0; y <= height; y += subSpacing) {
+        if (y % mainSpacing !== 0) { // Avoid redrawing over main lines
+            line(0, y, width, y); // Horizontal lines
+        }
+    }
+}
+
+
+function draw() {
+  background(250);
+  drawGrid();
+}

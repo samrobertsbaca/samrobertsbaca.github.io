@@ -1,0 +1,144 @@
+let default_ppi = 150;
+let default_grid_width = default_ppi;
+let canvas_width_inches = 4;
+let canvas_height_inches = 4;
+
+let black = cmykToRgb([0, 0, 0, 100]);
+let white = cmykToRgb([0, 0, 0, 0]);
+let cyan = cmykToRgb([100, 0, 0, 0]);
+let magenta = cmykToRgb([0, 100, 0, 0]);
+let yellow = cmykToRgb([0, 0, 100, 0]);
+let red = cmykToRgb([0, 100, 100, 0]);
+let green = cmykToRgb([100, 0, 100, 0]);
+let blue = cmykToRgb([100, 100, 0, 0]);
+
+let color_array;
+let color_array_shift1;
+
+let spin_angle = 0;
+
+let size_factor = 0;
+let size_amplitude = 3;
+
+function pointsToPixels(points, ppi = default_ppi) {
+    return points * (ppi / 72);
+}
+
+function inchesToPixels(inches, ppi = default_ppi) {
+  return inches * ppi;
+}
+
+function drawGrid(mainSpacing = default_grid_width, division = 8, mainStrokeWeight = 2, subStrokeWeight = 1) {
+    // Draw main grid lines (bolder)
+    strokeWeight(mainStrokeWeight);
+    stroke(200);
+    for (let x = 0; x <= width; x += mainSpacing) {
+        line(x, 0, x, height); // Vertical lines
+    }
+    for (let y = 0; y <= height; y += mainSpacing) {
+        line(0, y, width, y); // Horizontal lines
+    }
+
+    // Draw subdivision grid lines (thinner)
+    strokeWeight(subStrokeWeight);
+    stroke(225);
+    let subSpacing = mainSpacing / division;
+    for (let x = 0; x <= width; x += subSpacing) {
+        if (x % mainSpacing !== 0) { // Avoid redrawing over main lines
+            line(x, 0, x, height); // Vertical lines
+        }
+    }
+    for (let y = 0; y <= height; y += subSpacing) {
+        if (y % mainSpacing !== 0) { // Avoid redrawing over main lines
+            line(0, y, width, y); // Horizontal lines
+        }
+    }
+}
+
+function cmykToRgb(cmykArray) {
+    // Extract CMYK values from the array
+    let [c, m, y, k] = cmykArray;
+
+    // Convert CMYK to RGB
+    let r = 255 * (1 - c / 100) * (1 - k / 100);
+    let g = 255 * (1 - m / 100) * (1 - k / 100);
+    let b = 255 * (1 - y / 100) * (1 - k / 100);
+
+    // Round and return the RGB values in an array
+    return [Math.round(r), Math.round(g), Math.round(b)];
+}
+
+function drawCircles(n, d, c, centerRadius,spinAngle) {
+  let centerX = width / 2;
+  let centerY = height / 2;
+  let angleStep = TWO_PI / n;
+
+  for (let i = 0; i < n; i++) {
+    let angle = i * angleStep + spinAngle;
+    let x = centerX + cos(angle) * centerRadius; // Position circles using centerRadius
+    let y = centerY + sin(angle) * centerRadius; // Position circles using centerRadius
+
+    noStroke();
+    fill(...c[i]);
+    circle(x, y, d); // Draw circle with diameter d
+  }
+}
+
+function shiftArrayRight(arr) {
+  if (arr.length > 0) {
+    let lastElement = arr.pop();  // Remove the last element
+    arr.unshift(lastElement);     // Add it to the beginning
+  }
+  return arr;
+}
+
+
+function setup() {
+  
+  canvas_width = default_grid_width*canvas_width_inches;
+  canvas_height = default_grid_width*canvas_height_inches;
+  createCanvas(canvas_width, canvas_height);
+  
+  color_array = [cyan,magenta,yellow,red,green,blue];
+  color_array_shift1 = shiftArrayRight([...color_array]);
+  color_array_shift2 = shiftArrayRight([...color_array_shift1]);
+  
+}
+
+
+
+function draw() {
+  
+  background(255);
+  drawGrid();
+  
+  let sway = size_amplitude * sin(frameCount * 0.03);
+  
+  
+  drawCircles(sway,
+              inchesToPixels(.5),
+              color_array,
+              inchesToPixels(1),
+              spin_angle
+             );
+  
+  drawCircles(sway,
+              inchesToPixels(.35),
+              color_array_shift1,
+              inchesToPixels(1),
+              spin_angle*1.1
+             );
+  
+  drawCircles(sway,
+              inchesToPixels(.2),
+              color_array_shift2,
+              inchesToPixels(1),
+              spin_angle*1.2
+             );
+  
+  spin_angle +=0.05;
+  if (spin_angle >= 360) {
+    spin_angle = 0;
+  }
+      
+}

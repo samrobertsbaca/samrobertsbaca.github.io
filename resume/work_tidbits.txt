@@ -1,0 +1,64 @@
+Examine, clean and assess quality of data set. Apply machine learning and models to the data to predict future data.
+
+Provide a more detailed description of a project offered by a data scientist for potential clients in the first person.
+
+"Examine, clean and assess quality of data set. Apply machine learning and models to the data to predict future data."
+
+As a data scientist, I offer a comprehensive project that can help you make the most of your data. My project will involve a detailed examination and cleaning of your data set, as well as an assessment of the quality of the data. After that, I will apply various machine learning and modeling techniques to the data to make predictions about future data. My project will deliver a detailed analysis of the data and provide you with valuable insight into the potential trends and outcomes that can be expected. My expertise and experience in data science will guarantee you the highest quality of work and results.
+
+Provide both classification and clustering solutions.
+
+Classification is a machine learning technique that is used to assign labels to data points. It involves training a model on a given set of data in order to make predictions about new data points. Clustering is another machine learning technique that is used to group data points into clusters based on their similarity. It involves training a model on a given set of data in order to identify clusters of similar data points. My project will provide both classification and clustering solutions for your data set. I will use a variety of machine learning algorithms such as decision trees, support vector machines, k-nearest neighbors, and neural networks to classify and cluster the data. I will also be able to provide you with detailed reports on the accuracy of the models and the performance of the clusters.
+
+
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[node distance=5.0cm]
+        
+        \node(d)[rectangle,draw=black] {\$1 Billion industry};
+        
+        \node(e)[rectangle, draw=black, right of=d, below of=d] {Sales increased by 270\%};
+        \node(i)[rectangle, draw=black, below of=e] {Sold in most grocery stores};
+        \node(j)[rectangle,draw=black, below of=i] {Portable and convenient};
+        \node(k)[rectangle,draw=black,below of=j] {Classified as beer};
+        \node(c)[rectangle, draw=black, below of=k] {Favorable regulatory climate};
+        
+        \node(l)[rectangle,draw=black,left of=i, below of=i] {Low-carb and low-sugar};
+        \node(m)[rectangle,draw=black,below of=l] {Ingredient selection}
+        \node(b)[rectangle, draw=black, below of=m] {Health-conscious appeal};
+        
+        \node(f)[rectangle, draw=black,left of=d, below of=d] {Product appeals to millennials};
+        \node(g)[rectangle,draw=black,below of=f] {Design of packaging};
+        \node(h)[rectangle,draw=black,below of=g] {Gender-neutral marketing};
+        \node(a)[rectangle, draw=black, below of=h] {Inclusive product};
+        
+        \draw[->] (a) -- (h);
+        \draw[->] (h) -- (g);
+        \draw[->] (g) -- (f);
+        \draw[->] (f) -- (d);
+        
+        \draw[->] (b) -- (m);
+        \draw[->] (m) -- (l);
+        \draw[->] (m) -- (k);
+        \draw[->] (l) -- (f);
+        
+        \draw[->] (c) -- (k);
+        \draw[->] (k) -- (j);
+        \draw[->] (j) -- (i);
+        \draw[->] (i) -- (e);
+        \draw[->] (e) -- (d);
+        
+        
+    \end{tikzpicture}
+\end{figure}
+
+
+[decision/.style={diamond, draw, text width=4.5em, text badly centered, node distance=3.5cm, inner sep=0pt},
+		block/.style   ={rectangle, draw, text width=6em, text centered, rounded corners, minimum height=4em, minimum height=2em},
+		cloud/.style   ={draw, ellipse, minimum height=2em},
+		line/.style    ={draw,-latex'},
+		%node distance = 1em, 
+		auto]
+
+        I'm looking for a python script that will scrape Medium's tags/topics, including their frequency. The attached image shows a tag search for medium. It shows five options as well as their frequency, rounded to the nearest thousand (K). I'd like to run this script on demand and have it create a comma separated value (csv) file with all the topics in one column and their frequency in the second column. The frequency column should be in normal number format rather than round frequency (5.8K should become 5800). The file should be saved with the format MediumTopicsYYYYMMDD.csv so for January 3rd, 2023, it would be named 'MediumTopics20230103.csv'
