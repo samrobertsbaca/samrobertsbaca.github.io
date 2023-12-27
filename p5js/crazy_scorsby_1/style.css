@@ -1,0 +1,19 @@
+#sketch-holder {
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  width: 100%; /* Full width of the container */
+  text-align:center;
+}
+
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+main {
+  height: 100vh; /* Prevent vertical scrolling */
+  display: flex;
+  align-items: center; /* Align main content vertically in the middle */
+  text-align: center;
+}
