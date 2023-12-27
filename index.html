@@ -1,11 +1,64 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Sam RB</title>
+    <title>Canvas Based Website</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Ensures no scrollbars */
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <script>
+        let resumeButton;
+        let hoverOverResume = false; // Tracks if the mouse is over the resume button
+
+        function setup() {
+            let cnv = createCanvas(windowWidth, windowHeight);
+            cnv.style('display', 'block'); 
+
+            textAlign(CENTER, CENTER);
+            textSize(20);
+            resumeButton = createVector(width / 2, height / 2 + 40);
+        }
+
+        function draw() {
+            background(255);
+
+            // Title
+            fill(0);
+            textSize(32);
+            text('Welcome to My Canvas Website', width / 2, height / 2 - 20);
+
+            // Resume button
+            textSize(20);
+            if (hoverOverResume) {
+                fill(100, 100, 255); // Change color on hover
+            } else {
+                fill(0);
+            }
+            text('View My Resume', resumeButton.x, resumeButton.y);
+        }
+
+        function windowResized() {
+            resizeCanvas(windowWidth, windowHeight);
+            resumeButton.set(width / 2, height / 2 + 40);
+        }
+
+        function mouseMoved() {
+            // Check if the mouse is over the resume button
+            hoverOverResume = dist(mouseX, mouseY, resumeButton.x, resumeButton.y) < 50;
+        }
+
+        function mousePressed() {
+            if (hoverOverResume) {
+                window.location.href = './resume/index.html'; // Change this to your resume link
+            }
+        }
+    </script>
 </head>
 <body>
-    <h1>Welcome to My Website</h1>
-    <p>This is the homepage of my personal website.</p>
-    <p><a href="/resume">Click here to view my resume</a></p>
+    <script>new p5();</script>
 </body>
 </html>
