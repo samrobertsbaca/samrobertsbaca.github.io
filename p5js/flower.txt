@@ -1,0 +1,173 @@
+let default_ppi = 150;
+let default_grid_width = default_ppi;
+let canvas_width_inches = 4;
+let canvas_height_inches = 4;
+
+let red = [255,0,0];
+let black = [0,0,0];
+let white = [255,255,255];
+let scyan = cmykToRgb([70.47, 34.1, 0, 0]);
+
+let sage = [175, 189, 176];
+let darksage = [144, 171, 145];
+let eggshell = [223, 224, 202];
+let softblue = [163, 184, 196];
+let salmon = [77, 82, 99];
+let brown = [84, 63, 40];
+
+let spin_angle = 0;
+
+let constrainedBodyX;
+let constrainedBodyY;
+
+function setup() {
+  
+  canvas_width = default_grid_width*canvas_width_inches;
+  canvas_height = default_grid_width*canvas_height_inches;
+  createCanvas(canvas_width, canvas_height);
+  
+}
+
+
+function drawGrid(mainSpacing = default_grid_width, division = 8, mainStrokeWeight = 2, subStrokeWeight = 1) {
+    // Draw main grid lines (bolder)
+    strokeWeight(mainStrokeWeight);
+    stroke(200);
+    for (let x = 0; x <= width; x += mainSpacing) {
+        line(x, 0, x, height); // Vertical lines
+    }
+    for (let y = 0; y <= height; y += mainSpacing) {
+        line(0, y, width, y); // Horizontal lines
+    }
+
+    // Draw subdivision grid lines (thinner)
+    strokeWeight(subStrokeWeight);
+    stroke(225);
+    let subSpacing = mainSpacing / division;
+    for (let x = 0; x <= width; x += subSpacing) {
+        if (x % mainSpacing !== 0) { // Avoid redrawing over main lines
+            line(x, 0, x, height); // Vertical lines
+        }
+    }
+    for (let y = 0; y <= height; y += subSpacing) {
+        if (y % mainSpacing !== 0) { // Avoid redrawing over main lines
+            line(0, y, width, y); // Horizontal lines
+        }
+    }
+}
+
+function inchesToPixels(inches, ppi = default_ppi) {
+  return inches * ppi;
+}
+
+function isArrayOrArrayOfArrays(value) {
+  if (Array.isArray(value)) {
+    return value.every(item => Array.isArray(item));
+  }
+  return false; // It's not even an array
+}
+
+function drawCircles(n, d, c, centerRadius,spinAngle) {
+  let centerX = constrainedBodyX;
+  let centerY = constrainedBodyY;
+  let angleStep = TWO_PI / n;
+
+  for (let i = 0; i < n; i++) {
+    let angle = i * angleStep + spinAngle;
+    let x = centerX + cos(angle) * centerRadius; // Position circles using centerRadius
+    let y = centerY + sin(angle) * centerRadius; // Position circles using centerRadius
+    
+    
+    noStroke();
+    
+    let rgb;
+    if (isArrayOrArrayOfArrays(c)) {
+      rgb = c[i];
+    }
+    else {
+      rgb = c;
+    }
+    
+    fill(rgb[0], rgb[1], rgb[2], 255);
+    circle(x, y, d); // Draw circle with diameter d
+    
+  }
+}
+
+function cmykToRgb(cmykArray) {
+    // Extract CMYK values from the array
+    let [c, m, y, k] = cmykArray;
+
+    // Convert CMYK to RGB
+    let r = 255 * (1 - c / 100) * (1 - k / 100);
+    let g = 255 * (1 - m / 100) * (1 - k / 100);
+    let b = 255 * (1 - y / 100) * (1 - k / 100);
+
+    // Round and return the RGB values in an array
+    return [Math.round(r), Math.round(g), Math.round(b)];
+}
+
+
+
+function draw() {
+  background(250);
+  drawGrid();
+  
+  noStroke();
+  
+  let centerX = width/2;
+  let centerY = height/2;
+  
+  let body_radius = inchesToPixels(.5);
+  let radius = inchesToPixels(.10);
+  
+  // Calculate the distance between the mouse pointer and the center of the circle
+  let distance = dist(centerX, centerY, mouseX, mouseY);
+  
+  // Calculate the constrained position for the iris within the circle
+  constrainedBodyX = centerX + cos(atan2(mouseY - centerY, mouseX - centerX)) * min(distance, body_radius);
+  constrainedBodyY = centerY + sin(atan2(mouseY - centerY, mouseX - centerX)) * min(distance, body_radius);
+  
+    // Calculate the constrained position for the iris within the circle
+  let constrainedX = constrainedBodyX + cos(atan2(mouseY - constrainedBodyX, mouseX - centerX)) * min(distance, radius);
+  let constrainedY = constrainedBodyY + sin(atan2(mouseY - constrainedBodyY, mouseX - centerX)) * min(distance, radius);
+  
+  //stem
+  noFill();
+  stroke(...darksage);
+  strokeWeight(inchesToPixels(.125));
+  curve(mouseX,constrainedBodyY,constrainedBodyX,constrainedBodyY,
+       width/2,height/2 + inchesToPixels(1.5),mouseX,height/2 + inchesToPixels(1.5))
+  
+  noStroke();
+  //translate(width / 2, height / 2);
+  fill(...salmon);
+  circle(constrainedBodyX,constrainedBodyY,inchesToPixels(.75));
+  
+  fill(...white);
+  circle(constrainedBodyX,constrainedBodyY,inchesToPixels(.5));
+  
+  //pupil
+  
+  fill(...brown);
+  circle(constrainedX,constrainedY,inchesToPixels(.25));
+  
+  fill(...black);
+  circle(constrainedX,constrainedY,inchesToPixels(.15));
+  
+  //blue
+  drawCircles(5,inchesToPixels(.75),sage,inchesToPixels(.75),spin_angle);
+  
+  drawCircles(5,inchesToPixels(.5),darksage,inchesToPixels(.625),spin_angle);
+  
+  drawCircles(5,inchesToPixels(.25),eggshell,inchesToPixels(.5),spin_angle);
+  
+  fill(...white)
+  circle(constrainedX-6,constrainedY-6,12);
+  
+  spin_angle +=0.025;
+  if (spin_angle > 365) {
+    spin_angle = 0;
+  }
+  
+}
