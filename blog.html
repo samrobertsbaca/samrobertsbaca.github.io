@@ -13,23 +13,28 @@
   </head>
   <body>
 
-  <nav></nav>
+    <nav></nav>
 
-  <script src="./functional_scripts.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="./functional_scripts.js" defer></script>
 
     <script>
       document.addEventListener('DOMContentLoaded', () => {
         loadNavbar(); // now loadNavbar exists
+        initBlogIndex(); // new function to initialize blog
       });
     </script>
 
-    <main>
-        <!--<h1>www.scorsby.us</h1>!-->
-        <div class="container">
-          <img src="scorsbyface.png" alt="Centered image" style="max-width: 25%; height: auto;">
-          <p>welcome to scorsbyzone,<br>little freak</p>
-        </div>
-    </main>
+    <article>
+      <h3>blog</h3>
+      <div id="blog-index">
+        <!-- List of posts will go here -->
+      </div>
+
+      <div id="blog-content">
+        <!-- Clicked post content will render here -->
+      </div>
+    </article>
 
   <!-- Hamburger JS -->
 <script>
@@ -37,14 +42,8 @@ function toggleMenu() {
   const nav = document.getElementById('nav-links');
   nav.classList.toggle('show');
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-    document.body.style.height = "100vh";
-    document.body.style.overflow = "hidden"; // no scrolling
-    document.body.style.setProperty("background-color", "#00b4ff");
-});
-
 </script>
+
 
       <footer>
         © 2025 Scorsby Smileworks — All Rights Reserved

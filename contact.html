@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>scorsby</title>
+    <link rel="stylesheet" href="./style.css">
+    <link rel="icon" href="./favicon.webp" type="image/x-icon">
+
+    <link rel="stylesheet" href="./style.css">
+
+  </head>
+  <body>
+
+    <nav></nav>
+
+    <script src="./functional_scripts.js" defer></script>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        loadNavbar(); // now loadNavbar exists
+      });
+    </script>
+
+    <article>
+      <div class="article-header">
+        <span class="date-published" id="date-published"></span>
+      </div>
+
+      <h3>contact</h3>
+      <p>if you’d like to get in touch, please email me directly at worldofscorsby [at] gmail.com!</p>
+
+      <!-- Contact Form -->
+      <!--<form class="contact-form">
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" required>
+
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required>
+
+        <label for="message">Message</label>
+        <textarea id="message" name="message" rows="5" required></textarea>
+
+        <button type="submit">Send</button>
+      </form>
+
+      <p id="form-status" style="text-align:center; margin-top:10px; color:green;"></p>!-->
+    </article>
+
+  <!-- Hamburger JS -->
+<script>
+function toggleMenu() {
+  const nav = document.getElementById('nav-links');
+  nav.classList.toggle('show');
+}
+</script>
+
+      <footer>
+        © 2025 Scorsby Smileworks — All Rights Reserved
+      </footer>
+
+  </body>
+</html>
