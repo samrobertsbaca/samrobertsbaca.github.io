@@ -1,4 +1,3 @@
-
 window.postFiles = [
   "/blog/2025-10-09_when_life_gives_u_lemons.md",
   "/blog/2025-10-07_what_am_i.md",
