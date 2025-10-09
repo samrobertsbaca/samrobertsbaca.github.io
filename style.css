@@ -1,7 +1,7 @@
 /* ===== Fonts ===== */
 @font-face {
   font-family: 'HeaderFont';
-  src: url('fonts/PxPlus_header.ttf') format('truetype');
+  src: url('fonts/PxPlus_header2.ttf') format('truetype');
 }
 @font-face {
   font-family: 'BodyFont';
@@ -15,15 +15,64 @@ body {
   padding: 0;
   /*background-color: #00b4ff;*/
   display: flex;
+    min-height: 100vh;
   flex-direction: column;
   align-items: center;
 }
 
 main {
-  display: flex;
-      justify-content: center; /* horizontal center */
-      align-items: center;     /* vertical center */
-      height: 100vh;           /* full viewport height */
+  flex: 1;             /* takes remaining space */
+  display: flex;       /* for centering content inside main */
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 1;
+    /*color:white;*/
+    /*background: rosybrown;
+    border-radius: 8px;*/
+}
+
+#p5-container {
+  position: fixed;   /* stays in the background */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;       /* behind all content */
+  pointer-events: none; /* lets clicks pass through */
+  overflow: hidden;
+}
+
+.twitter-text img {
+  display: block;      /* ensures it’s treated as a block for centering */
+  margin: 0 auto;      /* horizontally centers the block */
+  max-width: 33%;      /* keeps your original sizing */
+  height: auto;
+  transition: transform 0.3s ease;
+}
+
+.twitter-text span{
+  display: inline-block;
+  transition: transform 0.4s ease;
+}
+
+.twitter-text h3{
+  display: inline-block;
+  transition: transform 0.4s ease;
+}
+
+/* give extra space for spaces */
+.twitter-text span.space {
+  width: 0.8em; /* tweak to taste */
+  display: inline-block;
 }
 
 /* ===== Navbar ===== */
@@ -66,15 +115,42 @@ nav ul li a {
 nav ul li a:hover { color: #007bff; }
 
 /* Hamburger */
-.hamburger { display: none; flex-direction: column; cursor: pointer; gap: 5px; }
+/* Hamburger */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  cursor: pointer;
+  gap: 5px;
+  position: absolute; /* pin it */
+  right: 20px;        /* distance from right edge */
+  top: 50%;           /* vertically center */
+  transform: translateY(-50%);
+}
 .hamburger div { width: 25px; height: 3px; background-color: #222; }
-
 /* Mobile Styles */
 @media (max-width: 768px) {
   .hamburger { display: flex; }
-  nav ul { flex-direction: column; width: 100%; display: none; }
+
+  nav ul {
+    flex-direction: column;
+    width: 100%;
+    display: none;
+    margin-top: 0px; /* push menu below nav bar */
+    background-color: #00b4ff;
+    position: absolute; /* overlay menu */
+    left: 0;
+    top: 100%;
+    z-index: 999;
+    box-shadow: 0 4px 4px rgba(0,0,0,0.1);
+  }
+
   nav ul.show { display: flex; }
-  nav ul li { width: 100%; text-align: center; margin: 10px 0; }
+
+  nav ul li {
+    width: 100%;
+    text-align: center;
+    margin: 10px 0;
+  }
 }
 
 /* ===== Main Content ===== */

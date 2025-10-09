@@ -1,37 +1,5 @@
 // functional_scripts.js
 
-window.postFiles = [
-  "/blog/2025-10-07_what_am_i.md",
-  "/blog/2025-10-05_note_to_self.md",
-  "/blog/2025-10-04_the_myth_of_separation.md",
-  "/blog/2025-10-02_naked_and_in_love.md",
-  "/blog/2025-09-29_may_we_all_die_in_peace.md",
-  "/blog/2025-09-28_awaken_one.md",
-  "/blog/2025-09-25_the_gift.md",
-  "/blog/2025-09-23_a_pantilla_crumb_of_faith.md",
-  "/blog/2025-09-22_on_tortillas_and_octaves.md",
-  "/blog/2025-09-14_words_on_words_and_weapons.md",
-  "/blog/2025-09-12_the_joy_of_chanting.md",
-  "/blog/2025-09-10_the_path_of_meta_service_learning_to_live_as_love.md",
-  "/blog/2025-09-05_simple_simple_simple.md",
-  "/blog/2025-09-04_i_got_you_babe.md",
-  "/blog/2025-09-01_just_between_you_and_me.md",
-  "/blog/2025-08-20_scorsby_and_tonkabot_discuss_love_and_nothingness.md",
-  "/blog/2025-08-03_walwan.md",
-  "/blog/2025-07-20_07202025__99__9.md",
-  "/blog/2025-05-21_notes_from_the_flappin_hearts_cafe.md",
-  "/blog/2025-05-11_happy_motherships_dayyyyyyy.md",
-  "/blog/2025-04-19_an_inquisition_between_little_and_big_scorsby.md",
-  "/blog/2025-04-07_this_one_is_worth_remembering.md",
-  "/blog/2025-03-27_marriage_is_an_eternity.md",
-  "/blog/2025-03-25_a_beglonging_without_end.md",
-  "/blog/2025-03-24_make_love_always.md",
-  "/blog/2025-03-21_we_are_the_power.md",
-  "/blog/2025-03-18_maybe_we_are_all_one_hemi.md",
-  "/blog/2025-03-17_maybe_we_are_all_one_tree.md",
-  "/blog/2025-03-06_emancipation_proclamation_for_the_new_hearth.md",
-  "/blog/2025-03-02_we_have_arrived.md",
-];
 
 
 // Hamburger toggle
@@ -72,24 +40,39 @@ function getPostDisplay(file) {
   return { date, title };
 }
 
+// Wrap headers in twitter divs for animation
+function wrapHeadersWithTwitter(container) {
+  // Select all headers in the container
+
+  // Select all h1 and images
+  container.querySelectorAll('h1').forEach(el => {
+    // wrap in a div for twitter animation
+    const wrapper = document.createElement('div');
+    wrapper.classList.add('twitter-text');
+
+    // Move element into wrapper
+    el.parentNode.replaceChild(wrapper, el);
+    wrapper.appendChild(el);
+  });
+}
+
 // Load a markdown file and render post
 async function loadBlogPost(mdFile, postName) {
   const indexContainer = document.getElementById('blog-index');
   const contentContainer = document.getElementById('blog-content');
 
-  // Hide blog list
   indexContainer.style.display = 'none';
 
-  // Fetch markdown
   const res = await fetch(mdFile);
   if (!res.ok) {
     contentContainer.innerHTML = "<p>Failed to load post.</p>";
     return;
   }
   const md = await res.text();
-
-  // Render markdown
   contentContainer.innerHTML = marked.parse(md);
+
+  // Wrap headers in twitter-text divs
+  wrapHeadersWithTwitter(contentContainer);
 
   // Add Back links at top and bottom
   const backLinkTop = document.createElement('a');
@@ -105,6 +88,9 @@ async function loadBlogPost(mdFile, postName) {
     contentContainer.innerHTML = "";
     indexContainer.style.display = "block";
     window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Clear the hash so the same link works again
+    history.pushState("", document.title, window.location.pathname + window.location.search);
   };
 
   backLinkTop.addEventListener('click', (e) => { e.preventDefault(); backHandler(); });
@@ -115,11 +101,17 @@ async function loadBlogPost(mdFile, postName) {
 
   // Scroll to top
   window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // Optional: call your twitching function here
+  startTwitterEffect(contentContainer); // make sure this function exists
 }
+
 
 // Render the blog list
 function renderBlogList(indexContainer) {
   indexContainer.innerHTML = "";
+
+  const isMobile = window.innerWidth <= 768;
 
   window.postFiles.forEach(file => {
     const { date, title } = getPostDisplay(file);
@@ -140,7 +132,15 @@ function renderBlogList(indexContainer) {
     // Title link
     const link = document.createElement('a');
     link.href = `#${postName}`;
-    link.textContent = title;
+
+    let displayTitle = title;
+    if (isMobile && title.length > 29) {
+      displayTitle = title.slice(0,29) + '…';
+      link.title = title; // tooltip shows full title
+    }
+    link.textContent = displayTitle;
+
+    //link.textContent = title;
     link.style.color = '#00b4ff';   // default link color
     link.style.textDecoration = 'underline';
     link.style.cursor = 'pointer';
@@ -173,3 +173,78 @@ document.addEventListener('DOMContentLoaded', () => {
   handleHashChange();
   window.addEventListener('hashchange', handleHashChange);
 });
+
+
+
+// twitchy
+function wrapTextNodes(element) {
+  element.childNodes.forEach(node => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const fragment = document.createDocumentFragment();
+      node.textContent.split('').forEach(char => {
+        const span = document.createElement('span');
+        span.textContent = char;
+        if (char === ' ') span.classList.add('space');
+        fragment.appendChild(span);
+      });
+      node.replaceWith(fragment);
+    } else if (node.nodeType === Node.ELEMENT_NODE) {
+      wrapTextNodes(node); // recurse into children like <h3>
+    }
+  });
+}
+
+// Usage
+const container = document.querySelector('.twitter-text');
+wrapTextNodes(container);
+
+Array.from(container.childNodes).forEach(node => {
+  if (node.nodeType === Node.TEXT_NODE) {
+    // wrap text in spans
+    const text = node.textContent;
+    const fragment = document.createDocumentFragment();
+
+    for (let char of text) {
+      const span = document.createElement('span');
+      span.textContent = char;
+      if (char === ' ') span.classList.add('space');
+      fragment.appendChild(span);
+    }
+
+    node.replaceWith(fragment);
+  } else if (node.tagName === 'IMG') {
+    // mark images for animation
+    node.classList.add('twitter-img');
+  }
+});
+
+// animate letters and images
+setInterval(() => {
+  container.querySelectorAll('span, img.twitter-img').forEach(el => {
+    const x = (Math.random() - 0.25) * 4;   // horizontal jitter
+    const y = (Math.random() - 0.25) * 4;   // vertical jitter
+    const rotate = -5 + (Math.random() - 0.25) * 20; // rotation
+    el.style.transform = `translate(${x}px, ${y}px) rotate(${rotate}deg)`;
+  });
+}, 100);
+
+function startTwitterEffect(container = document) {
+  // Step 1: wrap text nodes and images
+  const twitterDivs = container.querySelectorAll('.twitter-text');
+
+  twitterDivs.forEach(div => {
+    wrapTextNodes(div); // recursive function we made earlier
+  });
+
+  // Step 2: start animation
+  setInterval(() => {
+    twitterDivs.forEach(div => {
+      div.querySelectorAll('span, img').forEach(el => {
+        const x = (Math.random() - 0.5) * 4;   // horizontal jitter
+        const y = (Math.random() - 0.5) * 4;   // vertical jitter
+        const rotate = (Math.random() - 0.5) * 20; // random rotation
+        el.style.transform = `translate(${x}px, ${y}px) rotate(${rotate}deg)`;
+      });
+    });
+  }, 100);
+}
