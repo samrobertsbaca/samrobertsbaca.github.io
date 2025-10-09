@@ -77,12 +77,16 @@ async function loadBlogPost(mdFile, postName) {
   // Add Back links at top and bottom
   const backLinkTop = document.createElement('a');
   backLinkTop.href = "#";
-  backLinkTop.textContent = "← Back to Blog List";
+  backLinkTop.textContent = "← back to blog list";
   backLinkTop.style.display = "block";
   backLinkTop.style.textAlign = "center";
   backLinkTop.style.margin = "1em 0";
 
   const backLinkBottom = backLinkTop.cloneNode(true);
+  backLinkBottom.style.margin = "3em 0";
+
+  backLinkTop.style.color = '#00b4ff';
+  backLinkBottom.style.color = '#00b4ff';
 
   const backHandler = () => {
     contentContainer.innerHTML = "";
@@ -96,8 +100,20 @@ async function loadBlogPost(mdFile, postName) {
   backLinkTop.addEventListener('click', (e) => { e.preventDefault(); backHandler(); });
   backLinkBottom.addEventListener('click', (e) => { e.preventDefault(); backHandler(); });
 
-  contentContainer.prepend(backLinkTop);
   contentContainer.appendChild(backLinkBottom);
+  backLinkBottom.addEventListener('mouseover', () => backLinkBottom.style.color = '#551a8b');
+  backLinkBottom.addEventListener('mouseout', () => backLinkBottom.style.color = '#00b4ff');
+
+  // Check if content height is more than approx one viewport height
+  const contentHeight = contentContainer.scrollHeight;
+  const viewportHeight = window.innerHeight;
+
+  if (contentHeight > viewportHeight) {
+    // Only prepend top back link if content is longer than a viewport
+    contentContainer.prepend(backLinkTop);
+    backLinkTop.addEventListener('mouseover', () => backLinkTop.style.color = '#551a8b');
+    backLinkTop.addEventListener('mouseout', () => backLinkTop.style.color = '#00b4ff');
+  }  
 
   // Scroll to top
   window.scrollTo({ top: 0, behavior: 'smooth' });
