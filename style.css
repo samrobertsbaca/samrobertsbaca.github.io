@@ -168,6 +168,7 @@ article {
   /*box-shadow: 0 2px 10px rgba(0,0,0,0.05);*/
   position: relative;
 }
+
 article h1, article h2, article h3 { margin-top: 2rem; }
 article p { margin: 1rem 0; font-size: 1.05rem; }
 
