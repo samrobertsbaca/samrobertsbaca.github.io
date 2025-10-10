@@ -40,15 +40,26 @@ main {
     border-radius: 8px;*/
 }
 
-#p5-container, .fireworks {
+#p5-container, .fireworks, .fireworks2 {
   position: fixed;   /* stays in the background */
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: -1;       /* behind all content */
+  z-index: 0;       /* behind all content */
   pointer-events: none; /* lets clicks pass through */
   overflow: hidden;
+}
+
+canvas#fireworks {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  background: transparent; /* or black if you want deep space */
+  z-index: -1;
 }
 
 .twitter-text img {
