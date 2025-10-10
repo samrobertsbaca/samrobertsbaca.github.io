@@ -1,6 +1,5 @@
 window.postFiles = [
   "/blog/2025-10-09_when_life_gives_u_lemons.md",
-  "/blog/2025-10-07_what_am_i.md",
   "/blog/2025-10-05_note_to_self.md",
   "/blog/2025-10-04_the_myth_of_separation.md",
   "/blog/2025-10-02_naked_and_in_love.md",
