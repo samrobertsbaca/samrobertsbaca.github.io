@@ -35,12 +35,12 @@ main {
     transform: translate(-50%, -50%);
     text-align: center;
     z-index: 1;
-    /*color:white;*/
+    color:white;
     /*background: rosybrown;
     border-radius: 8px;*/
 }
 
-#p5-container {
+#p5-container, .fireworks {
   position: fixed;   /* stays in the background */
   top: 0;
   left: 0;

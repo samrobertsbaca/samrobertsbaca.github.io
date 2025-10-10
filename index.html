@@ -18,6 +18,34 @@
 
   <nav></nav>
 
+  <div id="fireworks"></div>
+
+    <!-- jsDelivr  -->
+          <script type="text/javascript">
+              (function (c, l, a, r, i, t, y) {
+                  c[a] =
+                      c[a] ||
+                      function () {
+                          (c[a].q = c[a].q || []).push(arguments);
+                      };
+                  t = l.createElement(r);
+                  t.async = 1;
+                  t.src = "https://www.clarity.ms/tag/" + i;
+                  y = l.getElementsByTagName(r)[0];
+                  y.parentNode.insertBefore(t, y);
+              })(window, document, "clarity", "script", "8q4bxin4tm");
+          </script>
+          <script src="https://cdn.jsdelivr.net/npm/@tsparticles/preset-stars@3.2.0/tsparticles.preset.stars.bundle.min.js"></script>
+          <script type="text/javascript">
+              (async (engine) => {
+                  await loadStarsPreset(engine);
+
+                  await engine.load({ id: "fireworks", options: { preset: "stars" } });
+              })(tsParticles);
+          </script>
+
+
+
   <!--<div id="p5-container"></div>-->
 
   <script src="./functional_scripts.js" defer></script>
@@ -33,7 +61,7 @@
         <!--<h1>www.scorsby.us</h1>-->
         <div class="container">
           <div class="twitter-text"><img src="scorsbyface.png" alt="Centered image" style="max-width: 33%; height: auto;">
-            <br>welcome to<br>scorsbyzone,<br>little freak</div>
+            <br>welcome to the<br>scorsbyzone,<br>little freak</div>
         </div>
     </main>
 
