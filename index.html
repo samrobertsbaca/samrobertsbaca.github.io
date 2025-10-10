@@ -14,9 +14,9 @@
     <script src="js/scorsbypus/scorsbypus.js" defer></script>-->
 
   </head>
-  <body>
+  <body class="homepage">
 
-  <nav></nav>
+  <nav id="main-nav"></nav>
 
   <div id="fireworks2"></div>
   <!--<div id="fireworks"></div>-->
@@ -35,11 +35,12 @@
   lightSpeedTailLength: 0.3,
   // 💙 Star color section
     starColor: {
-      base: [0, 180, 255], // light blue base color
+      base: [0, 0, 0], // light blue base color
       additional: [
-        [255, 255, 255] // deep sky blue
+        [0, 180, 255],
+        [255,255,255] // deep sky blue
       ],
-      mix: { min: 0.3, max: .5 } // blends different blues
+      mix: { min: 0.3, max: 1 } // blends different blues
     },
   isInitialLightSpeed: true
 }).start()
@@ -75,9 +76,8 @@ function toggleMenu() {
 document.addEventListener('DOMContentLoaded', () => {
     document.body.style.height = "100vh";
     document.body.style.overflow = "hidden"; // no scrolling
-    document.body.style.setProperty("background-color", "#00b4ff");
-    document.body.navbar.style.setProperty('background-color', 'transparent', 'important')
-});
+    document.body.style.setProperty("background-color", "#000000");
+  });
 
 
 </script>
