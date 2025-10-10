@@ -35,6 +35,26 @@ body.homepage nav ul li a:focus {
   color: #00b4ff !important;
 }
 
+/* Homepage hamburger override */
+body.homepage .hamburger div {
+  background-color: white !important; /* force white lines */
+}
+
+/* Optional: hover effect */
+body.homepage .hamburger:hover div {
+  background-color: #00b4ff !important; /* lightspeed blue */
+}
+
+/* Ensure 3 lines visible */
+body.homepage .hamburger {
+  display: flex;          /* already mobile only, but enforce */
+  flex-direction: column;
+  gap: 5px;
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+}
 main {
   flex: 1;             /* takes remaining space */
   display: flex;       /* for centering content inside main */
