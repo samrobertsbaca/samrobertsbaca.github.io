@@ -45,9 +45,10 @@ body.homepage .hamburger:hover div {
   background-color: #00b4ff !important; /* lightspeed blue */
 }
 
+
 /* Ensure 3 lines visible */
 body.homepage .hamburger {
-  display: flex;          /* already mobile only, but enforce */
+  display: none;          /* already mobile only, but enforce */
   flex-direction: column;
   gap: 5px;
   position: absolute;
@@ -62,6 +63,15 @@ main {
   align-items: center;
   text-align: center;
 }
+
+
+/* show only on mobile (same breakpoint as your main CSS) */
+@media (max-width: 768px) {
+  body.homepage .hamburger {
+    display: flex; /* visible only on mobile */
+  }
+}
+
 
 .container {
     position: absolute;
