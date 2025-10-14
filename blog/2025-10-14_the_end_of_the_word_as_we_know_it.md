@@ -3,7 +3,7 @@ Oct 14
 
 > *in the beginning was the word, and the word was with god, and the word was god. (john 1)*
 
-in the beginning, so we are told, there was the word. or was it… in the beginning god created the heavens and the earth? either way, whatever someone said about the beginning, it was said with words… [words, words, words…](https://johnkingcave.bandcamp.com/track/my-words-7) but perhaps that is not quite right.
+in the beginning, or so we are told, there was the word. or was it… in the beginning god created the heavens and the earth? either way, whatever someone said about the beginning, it was said with words… [words, words, words…](https://johnkingcave.bandcamp.com/track/my-words-7) but perhaps that is not quite right.
 
 for all our centuries of speaking, there have been few who truly questioned the strange architecture we inhabit — a house of words built on silence. language, for all its beauty, is also a veil. every time we name something, we draw a line around it. every word divides. and yet, it’s through these divisions that we try to touch the whole.  
 
