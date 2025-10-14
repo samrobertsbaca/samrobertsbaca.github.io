@@ -45,6 +45,9 @@ body.homepage .hamburger:hover div {
   background-color: #00b4ff !important; /* lightspeed blue */
 }
 
+a:hover {
+  color: red;
+}
 
 /* Ensure 3 lines visible */
 body.homepage .hamburger {
@@ -320,14 +323,14 @@ footer {
   margin: 0.5em 0;
 }
 
-.blog-index a {
+/*.blog-index a {
   color: #00b4ff;
   text-decoration: none;
 }
 
 .blog-index a:hover {
   text-decoration: underline;
-}
+}*/
 
 #blog-content img {
   max-width: 75%;
@@ -336,9 +339,9 @@ footer {
   margin: 1em auto;
 }
 
-#blog-content a {
+/*#blog-content a {
   color: #00b4ff;
-}
+}*/
 
 .back-link {
   text-align: center;

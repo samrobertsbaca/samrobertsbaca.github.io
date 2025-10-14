@@ -64,7 +64,7 @@ function renderBlogList(indexContainer) {
     link.style.cursor = 'pointer';
 
     // Hover color for title
-    link.addEventListener('mouseover', () => link.style.color = '#551a8b');
+    link.addEventListener('mouseover', () => link.style.color = 'red');
     link.addEventListener('mouseout', () => link.style.color = '#00b4ff');
 
     wrapper.appendChild(link);
