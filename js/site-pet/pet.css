@@ -1,0 +1,35 @@
+/*html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: auto;
+
+  font-family: Arial, Helvetica, sans-serif;
+
+  /* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#b2e1ff+0,66b6fc+100;Blue+3D+%236
+  background: radial-gradient(ellipse at center,  rgba(178,225,255,1) 0%,rgba(102,182,252,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+
+}*/
+
+/*img, div {
+  visibility:visible;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}*/
+
+
+/*
+.hidden {
+  display: none;
+  opacity: 0;
+  z-index: -999;
+  position: fixed;
+  top: -1000px;
+  left: -1000px;
+  height: 1px;
+  width: 1px;
+  border: 0 none;
+  background: none;
+  font-size: 1px;
+  color: transparent;
+}
+*/

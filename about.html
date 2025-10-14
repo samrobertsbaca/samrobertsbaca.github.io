@@ -19,20 +19,23 @@
     <script src="./blog/blogposts.js" defer></script>
     <script src="./functional_scripts.js" defer></script>
 
+    <link rel="stylesheet" href="/js/site-pet/pet.css">
+    <script src="/js/site-pet/site-pet.js"></script>
+
     <script>
       document.addEventListener('DOMContentLoaded', () => {
         loadNavbar(); // now loadNavbar exists
-        initBlogIndex(); // new function to initialize blog
+        generateScorsbys();
       });
     </script>
 
-    <article>
+    <article style="text-align:center;">
       <div class="twitter-text"><h3 style="text-align:center;">about</h3></div>
 
       <!--<div id="p5-container"></div>!-->
 
-      <img src="images/pixel_scorsby.png" style="width:25%;float:left;"></img>
-      <p><br><br><br><b><div class="twitter-text">scorsby (noun):</div></b> one who dares to live fully and love freely, in service of the light.</p>
+      <img src="/scorsbyface.png"></img>
+      <br><br><b><div class="twitter-text">scorsby (noun):</div></b> one who dares to live fully and love freely, in service of the light.</p>
 
     </article>
 
@@ -42,6 +45,11 @@ function toggleMenu() {
   const nav = document.getElementById('nav-links');
   nav.classList.toggle('show');
 }
+
+window.addEventListener("load", () => {
+  const scorsby = createSitePet('example');
+});
+
 </script>
 
 <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
