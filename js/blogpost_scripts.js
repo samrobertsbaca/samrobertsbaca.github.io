@@ -12,4 +12,10 @@ function wrapHeaders() {
     h1.parentNode.insertBefore(wrapper, h1);
     wrapper.appendChild(h1);
   });
+
+  // make all links open in a new tab
+  document.getElementById('blog-content').querySelectorAll('a').forEach(link => {
+    link.setAttribute('target', '_blank');
+    link.setAttribute('rel', 'noopener noreferrer'); // recommended for security
+  });
 };
