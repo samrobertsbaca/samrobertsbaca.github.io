@@ -34,11 +34,28 @@ function renderBlogList(indexContainer) {
     link.href = `/blog/${postName}.html`;
     //link.href = `#${postName}`;
 
+
+    const width = window.innerWidth;
+    let maxLength;
+
+    if (width < 480) {
+      maxLength = 20; // small mobile
+    } else if (width < 768) {
+      maxLength = 30; // larger mobile / small tablet
+    } else if (width < 1024) {
+      maxLength = 50; // tablet / small desktop
+    } else {
+      maxLength = 80; // desktop
+    }
+
     let displayTitle = title;
-    /*if (isMobile && title.length > 29) {
-      displayTitle = title.slice(0,29) + '…';
-      link.title = title; // tooltip shows full title
-    }*/
+    if (title.length > maxLength) {
+      displayTitle = title.slice(0, maxLength) + '…';
+      link.title = title; // full title as tooltip
+    } else {
+      link.removeAttribute('title');
+    }
+
     link.textContent = displayTitle;
 
     //link.textContent = title;
