@@ -1,7 +1,7 @@
 Oct 14
 # it's the end of the word as we know it
 
-> *in the beginning was the word, and the word was with god, and the word was god. (john 1)*
+> *in the beginning was the word, and the word was with god, and the word was god. (john 1, new testament, the bible)*
 
 in the beginning, or so we are told, there was the word. or was it… in the beginning god created the heavens and the earth? either way, whatever someone said about the beginning, it was said with words… [words, words, words…](https://johnkingcave.bandcamp.com/track/my-words-7) but perhaps that is not quite right.
 
