@@ -35,10 +35,10 @@ function renderBlogList(indexContainer) {
     //link.href = `#${postName}`;
 
     let displayTitle = title;
-    if (isMobile && title.length > 29) {
+    /*if (isMobile && title.length > 29) {
       displayTitle = title.slice(0,29) + '…';
       link.title = title; // tooltip shows full title
-    }
+    }*/
     link.textContent = displayTitle;
 
     //link.textContent = title;
