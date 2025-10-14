@@ -17,17 +17,6 @@ function handleNavbarShadow() {
     nav.classList.remove('scrolled');
   }
 
-  //const footer = document.querySelector('footer');
-  //if (window.scrollY > 0) {
-    // Page is scrolled, add background
-    //footer.style.backgroundColor = '#00b4ff';
-    //footer.style.color = 'white';
-  //} else {
-    // Page is at top, remove background
-    //footer.style.backgroundColor = 'transparent';
-    //footer.style.color = 'black';
-  //}
-
 }
 
 const isScrollable = () => {
@@ -93,6 +82,28 @@ async function loadBlogPost(mdFile, postName) {
     link.setAttribute('rel', 'noopener noreferrer'); // recommended for security
   });
 
+  // Get first <h1> for the title
+  const firstH1 = contentContainer.querySelector('h1');
+  if (firstH1) {
+    const titleText = firstH1.textContent.trim();
+    document.title = titleText;
+
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    if (ogTitle) ogTitle.setAttribute('content', titleText);
+  }
+
+  // Get first sentence of the post for description
+  const firstParagraph = contentContainer.querySelector('p');
+  if (firstParagraph) {
+    // Split by period + space for first sentence
+    const firstSentence = firstParagraph.textContent.split(/\. |\.$/)[0].trim();
+
+    const descMeta = document.querySelector('meta[name="description"]');
+    if (descMeta) descMeta.setAttribute('content', firstSentence);
+
+    const ogDescMeta = document.querySelector('meta[property="og:description"]');
+    if (ogDescMeta) ogDescMeta.setAttribute('content', firstSentence);
+  }
 
   // Wrap headers in twitter-text divs
   wrapHeadersWithTwitter(contentContainer);
@@ -117,7 +128,9 @@ async function loadBlogPost(mdFile, postName) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
     // Clear the hash so the same link works again
-    history.pushState("", document.title, window.location.pathname + window.location.search);
+    //history.pushState("", document.title, window.location.pathname + window.location.search);
+    //history.replaceState(null, '', `?post=${postName}`);
+    history.replaceState(null, '', window.location.pathname);
   };
 
   backLinkTop.addEventListener('click', (e) => { e.preventDefault(); backHandler(); });
@@ -171,7 +184,8 @@ function renderBlogList(indexContainer) {
 
     // Title link
     const link = document.createElement('a');
-    link.href = `#${postName}`;
+    link.href = `?post=${postName}`;
+    //link.href = `#${postName}`;
 
     let displayTitle = title;
     if (isMobile && title.length > 29) {
@@ -195,9 +209,18 @@ function renderBlogList(indexContainer) {
   });
 }
 
-// Handle hash change
-async function handleHashChange() {
-  const postName = window.location.hash.substring(1);
+async function handlePostParamOrHash() {
+  // First check query parameter
+  const params = new URLSearchParams(window.location.search);
+  let postName = params.get('post');
+
+  // Fallback to hash
+  if (!postName && window.location.hash) {
+    postName = window.location.hash.substring(1);
+    // Optional: update URL to query param
+    history.replaceState(null, '', `?post=${postName}`);
+  }
+
   if (!postName) return;
 
   const mdFile = window.postFiles.find(f => f.endsWith(`${postName}.md`));
@@ -206,12 +229,23 @@ async function handleHashChange() {
   }
 }
 
+// Handle hash change
+/*async function handleHashChange() {
+  const postName = window.location.hash.substring(1);
+  if (!postName) return;
+
+  const mdFile = window.postFiles.find(f => f.endsWith(`${postName}.md`));
+  if (mdFile) {
+    await loadBlogPost(mdFile, postName);
+  }
+}*/
+
 // Initialize blog
 document.addEventListener('DOMContentLoaded', () => {
   const indexContainer = document.getElementById('blog-index');
   renderBlogList(indexContainer);
-  handleHashChange();
-  window.addEventListener('hashchange', handleHashChange);
+  handlePostParamOrHash();
+  window.addEventListener('hashchange', handlePostParamOrHash);
 
   const footer = document.querySelector('footer');
   // One-time check
