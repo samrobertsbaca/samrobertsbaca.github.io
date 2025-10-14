@@ -24,7 +24,7 @@ function renderBlogList(indexContainer) {
 
     // Date text
     const dateSpan = document.createElement('span');
-    dateSpan.textContent = `${date} :`;
+    dateSpan.textContent = `${date} : `;
     dateSpan.style.marginRight = '0.3em';
     dateSpan.style.fontWeight = 'bold';
     wrapper.appendChild(dateSpan);
