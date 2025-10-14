@@ -5,7 +5,7 @@
 }
 @font-face {
   font-family: 'BodyFont';
-  src: url('fonts/PxPlus.ttf') format('truetype');
+  src: url('fonts/IBMPlexMono-Regular.ttf') format('truetype');
 }
 
 /* ===== Body ===== */
@@ -248,11 +248,20 @@ article p { margin: 1rem 0; font-size: 1.05rem; }
   display: inline-block;        /* ensure span shows properly */
 }
 
-footer {
+/*footer {
   text-align: center;
   color: black;
   font-size: 0.9rem;
   padding: 40px 20px;
+}*/
+
+footer {
+  position:fixed;           /* ensures it’s visible */
+  width: 100%;              /* full width */
+  text-align: center;       /* centers the text */
+  padding: 2rem;            /* spacing inside */
+  bottom:0;
+  box-sizing: border-box;   /* ensures padding doesn't break width */
 }
 
 /* Apply BodyFont to the entire form */

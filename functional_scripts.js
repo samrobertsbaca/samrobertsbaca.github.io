@@ -16,7 +16,23 @@ function handleNavbarShadow() {
   } else {
     nav.classList.remove('scrolled');
   }
+
+  //const footer = document.querySelector('footer');
+  //if (window.scrollY > 0) {
+    // Page is scrolled, add background
+    //footer.style.backgroundColor = '#00b4ff';
+    //footer.style.color = 'white';
+  //} else {
+    // Page is at top, remove background
+    //footer.style.backgroundColor = 'transparent';
+    //footer.style.color = 'black';
+  //}
+
 }
+
+const isScrollable = () => {
+  return document.documentElement.scrollHeight > window.innerHeight;
+};
 
 // Load navbar from external file
 function loadNavbar(targetSelector = 'nav') {
@@ -148,8 +164,9 @@ function renderBlogList(indexContainer) {
 
     // Date text
     const dateSpan = document.createElement('span');
-    dateSpan.textContent = `${date} : `;
+    dateSpan.textContent = `${date} :`;
     dateSpan.style.marginRight = '0.3em';
+    dateSpan.style.fontWeight = 'bold';
     wrapper.appendChild(dateSpan);
 
     // Title link
@@ -195,6 +212,16 @@ document.addEventListener('DOMContentLoaded', () => {
   renderBlogList(indexContainer);
   handleHashChange();
   window.addEventListener('hashchange', handleHashChange);
+
+  const footer = document.querySelector('footer');
+  // One-time check
+  if (document.documentElement.scrollHeight > window.innerHeight) {
+    // Page is scrollable
+    //footer.style.backgroundColor = '#00b4ff';
+    footer.style.position = 'relative';
+    footer.style.bottom = 'auto';
+  }
+
 });
 
 
