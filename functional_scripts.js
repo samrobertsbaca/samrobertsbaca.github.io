@@ -71,6 +71,13 @@ async function loadBlogPost(mdFile, postName) {
   const md = await res.text();
   contentContainer.innerHTML = marked.parse(md);
 
+  // make all links open in a new tab
+  contentContainer.querySelectorAll('a').forEach(link => {
+    link.setAttribute('target', '_blank');
+    link.setAttribute('rel', 'noopener noreferrer'); // recommended for security
+  });
+
+
   // Wrap headers in twitter-text divs
   wrapHeadersWithTwitter(contentContainer);
 
@@ -113,7 +120,7 @@ async function loadBlogPost(mdFile, postName) {
     contentContainer.prepend(backLinkTop);
     backLinkTop.addEventListener('mouseover', () => backLinkTop.style.color = '#551a8b');
     backLinkTop.addEventListener('mouseout', () => backLinkTop.style.color = '#00b4ff');
-  }  
+  }
 
   // Scroll to top
   window.scrollTo({ top: 0, behavior: 'smooth' });

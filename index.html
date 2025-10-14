@@ -66,25 +66,31 @@
         </div>
     </main>
 
+    <footer>
+      ⓢ 2025 Scorsby Smileworks — All Smiles Unreserved
+    </footer>
+
   <!-- Hamburger JS -->
-<script>
-function toggleMenu() {
-  const nav = document.getElementById('nav-links');
-  nav.classList.toggle('show');
-}
+    <script>
+    function toggleMenu() {
+      const nav = document.getElementById('nav-links');
+      nav.classList.toggle('show');
+    }
 
-document.addEventListener('DOMContentLoaded', () => {
-    document.body.style.height = "100vh";
-    document.body.style.overflow = "hidden"; // no scrolling
-    document.body.style.setProperty("background-color", "#000000");
-  });
+    document.addEventListener('DOMContentLoaded', () => {
+        document.body.style.height = "100vh";
+        document.body.style.overflow = "hidden"; // no scrolling
+        document.body.style.setProperty("background-color", "#000000");
+        const footer = document.querySelector('footer');
+        if (footer) {
+            footer.style.setProperty("color", "#00b4ff");
+        }
+      });
 
 
-</script>
+    </script>
 
-      <footer>
-        © 2025 Scorsby Smileworks — All Rights Reserved
-      </footer>
+
 
   </body>
 </html>
