@@ -19,7 +19,7 @@ we frame our lives in narratives of success and failure, right and wrong, mine a
 
 so what, then, is the solution? are we to abandon words altogether? perhaps not quite yet. but the evolution of language seems to follow a natural arc — one that moves from division toward unity, from noise toward silence.  
 
-we can imagine the end of the word unfolding in three broad stages:
+we forsee the end of the word unfolding in three broad stages:
 
 ### 1. the revolutionary reclaiming of language
 the first stage is already underway: the reclaiming of language in service of unity. this means using pronouns interchangeably, softening the possessive “my,” reimagining subject and object, dismantling the power structures that language enshrines. when we speak with awareness, we begin to bend words back toward their origin — to make them transparent to the silence beneath. language becomes less about naming things and more about evoking presence. words become fingers pointing toward what cannot be said.  
