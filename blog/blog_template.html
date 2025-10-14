@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Blog Template</title>
+    <meta name="description" content="">
+    <meta property="og:image" content="">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="icon" href="/favicon.webp" type="image/x-icon">
+
+  </head>
+  <body>
+
+    <nav></nav>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="/blog/blogposts.js" defer></script>
+    <script src="/js/blogpost_scripts.js"></script>
+    <script src="/functional_scripts.js" defer></script>
+    <script>
+
+      document.addEventListener('DOMContentLoaded', () => {
+        loadNavbar(); // now loadNavbar exists
+        wrapHeaders();
+        startTwitterEffect();
+      });
+    </script>
+
+    <article>
+
+      <a href="/blog.html" style="display:block;text-align:center;margin:1em 0;">← back to blog list</a>
+
+      <div class="twitter-text"><h3>blog</h3></div>
+
+      <div id="blog-content"></div>
+
+      <a href="/blog.html" style="display:block;text-align:center;margin:3em 0;">← back to blog list</a>
+    </article>
+
+  <footer>
+    ⓢ 2025 Scorsby Smileworks — All Smiles Unreserved
+  </footer>
+
+  <!-- Hamburger JS -->
+<script>
+  function toggleMenu() {
+    const nav = document.getElementById('nav-links');
+    nav.classList.toggle('show');
+  }
+
+</script>
+
+  </body>
+</html>
