@@ -82,29 +82,6 @@ async function loadBlogPost(mdFile, postName) {
     link.setAttribute('rel', 'noopener noreferrer'); // recommended for security
   });
 
-  // Get first <h1> for the title
-  const firstH1 = contentContainer.querySelector('h1');
-  if (firstH1) {
-    const titleText = firstH1.textContent.trim();
-    document.title = titleText;
-
-    const ogTitle = document.querySelector('meta[property="og:title"]');
-    if (ogTitle) ogTitle.setAttribute('content', titleText);
-  }
-
-  // Get first sentence of the post for description
-  const firstParagraph = contentContainer.querySelector('p');
-  if (firstParagraph) {
-    // Split by period + space for first sentence
-    const firstSentence = firstParagraph.textContent.split(/\. |\.$/)[0].trim();
-
-    const descMeta = document.querySelector('meta[name="description"]');
-    if (descMeta) descMeta.setAttribute('content', firstSentence);
-
-    const ogDescMeta = document.querySelector('meta[property="og:description"]');
-    if (ogDescMeta) ogDescMeta.setAttribute('content', firstSentence);
-  }
-
   // Wrap headers in twitter-text divs
   wrapHeadersWithTwitter(contentContainer);
 

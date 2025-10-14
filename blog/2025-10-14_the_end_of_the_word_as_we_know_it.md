@@ -34,7 +34,7 @@ even these very ideas, which now sound speculative or strange, will one day seem
 
 and maybe that’s what we’re doing already, right now — on the trembling threshold of a new speech, where the word begins to remember its own end.  
 
-have you ever sat in presence with another — without speaking, without naming — and felt a current of perfect understanding? have you ever looked into the eyes of an animal, a child, a lover, and felt that no language could add to what is already known? this is communication without translation, comprehension without category. it is what words have always been straining toward, and what silence has always contained.
+have you ever sat in presence with another — without speaking, without naming — and felt a current of perfect understanding? have you ever looked into the eyes of an animal, a child, a friend, and felt that no language could add to what is already known? this is communication without translation, comprehension without category. it is what words have always been straining toward, and what silence has always contained.
 
 let us attempt to speak less and express more. let us remember that the deepest understanding and joy arises not from sentences, but from presence, from attention, from the shared thought beyond words.  
 
