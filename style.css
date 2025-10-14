@@ -233,6 +233,9 @@ article {
 article h1 { margin-top: 2rem; margin-bottom: 2rem; font-size: 35px;}
 
 article h2, article h3 { margin-top: 2rem; }
+
+article a {color: #00b4ff;}
+
 article p { margin: 1rem 0; font-size: 1.05rem; }
 
 .article-header {
@@ -331,6 +334,10 @@ footer {
   height: auto;
   display: block;
   margin: 1em auto;
+}
+
+#blog-content a {
+  color: #00b4ff;
 }
 
 .back-link {
