@@ -11,4 +11,4 @@ a child cannot open to joy while kicking and screaming in attachment to what is 
 
 the work is radical. it is urgent. it is yours. breathe into it, move with it, dissolve into it, and let yourself become one with all that has always been. sit with the silence, and listen — by god, listen — it is your teacher as much as mine, nudging us all toward it in so many ways. listen until what it is and you are one and the same. you will be reminded again in the meantime.
 
-you have 24 hours in a day. please spend at least one with your infinite loving creator. if not one hour, ten minutes. if not ten, one. every second is worth the effort. don't take my word for it — see for yourself what cannot be taken.
+you have 24 hours in a day. please spend at least one with your infinite loving awareness. if not one hour, ten minutes. if not ten, one. every second is worth the effort. don't take my word for it — see for yourself what cannot be taken.
