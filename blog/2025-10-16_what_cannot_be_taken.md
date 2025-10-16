@@ -9,4 +9,6 @@ meditation is the work. the work is to become as naked as possible — to meet t
 
 a child cannot open to joy while kicking and screaming in attachment to what is fleeting. let it wither and die. let the heart unclench. let the mind settle. let the self that insists on being separate fall away. only then does the eternal bloom — uncontainable, inexhaustible, immediate.
 
-the work is radical. it is urgent. it is yours. breathe into it, move with it, dissolve into it, and let yourself become one with all that has always been. sit with the silence, and listen — by god, listen — it is your teacher as much as mine, nudging us all toward it in so many ways. listen until what it is and you are one and the same. you will be reminded again in the meantime. please don’t take my word for it — see for yourself what cannot be taken.
+the work is radical. it is urgent. it is yours. breathe into it, move with it, dissolve into it, and let yourself become one with all that has always been. sit with the silence, and listen — by god, listen — it is your teacher as much as mine, nudging us all toward it in so many ways. listen until what it is and you are one and the same. you will be reminded again in the meantime.
+
+you have 24 hours in a day. please spend at least one with your infinite loving creator. if not one hour, ten minutes. if not ten, one. every second is worth the effort. don't take my word for it — see for yourself what cannot be taken.
