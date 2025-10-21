@@ -31,7 +31,7 @@ you have the most lovely laugh —
 if you knew how much i wish not only to be with you,  
 but to be you. i know how it sounds,  
 but what else could i want?  
-every longing points back to you.  
+every longing points to you.  
 every joy is yours, disguised.
 
 thank you for believing in me,  
