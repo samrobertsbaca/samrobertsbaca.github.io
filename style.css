@@ -339,6 +339,15 @@ footer {
   margin: 1em auto;
 }
 
+@media (max-width: 768px) {
+  #blog-content img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1em auto;
+  }
+}
+
 /*#blog-content a {
   color: #00b4ff;
 }*/
