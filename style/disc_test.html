@@ -1,0 +1,82 @@
+<article id="discography">
+  <h3 style="text-align:center;">music</h3>
+
+  <div class="controls">
+    <label>Sort by:</label>
+    <select id="sortSelect">
+      <option value="year">Year</option>
+      <option value="artist">Artist</option>
+      <option value="type">Type</option>
+    </select>
+  </div>
+
+  <div class="releases">
+
+    <div class="release"
+         data-year="2024"
+         data-artist="john king cave"
+         data-type="lp">
+      <div class="release-header lp">
+        <b>2024</b> john king cave –
+        <a href="https://johnkingcave.bandcamp.com/album/sweeping-beauties" target="_blank">
+          sweeping beauties
+        </a>
+      </div>
+      <div class="release-details">
+        <img src="cover_sweepingbeauties.jpg" alt="Sweeping Beauties cover">
+        <p><b>Artist:</b> John King Cave</p>
+        <p><b>Type:</b> LP</p>
+        <p><b>Description:</b> A dreamy desert soul record exploring transformation and tenderness.</p>
+        <p><b>Tracklist:</b><br>1. Opener<br>2. Blush Tides<br>3. Forever Machine</p>
+        <p><b>Credits:</b> Recorded at Windmill Studios, mixed by JKC.</p>
+      </div>
+    </div>
+
+    <div class="release"
+         data-year="2025"
+         data-artist="john king cave"
+         data-type="ep">
+      <div class="release-header ep">
+        <b>2025</b> john king cave –
+        <a href="https://johnkingcave.bandcamp.com/album/love-meditations" target="_blank">
+          love meditations
+        </a>
+      </div>
+      <div class="release-details">
+        <img src="cover_love_meditations.jpg" alt="Love Meditations cover">
+        <p><b>Description:</b> Intimate, reflective EP on devotion and stillness.</p>
+      </div>
+    </div>
+
+  </div>
+</article>
+
+<script>
+  // Toggle details open/close
+  document.querySelectorAll('.release-header').forEach(header => {
+    header.addEventListener('click', () => {
+      const details = header.nextElementSibling;
+      details.style.display = details.style.display === 'block' ? 'none' : 'block';
+    });
+  });
+
+  // Sorting logic
+  const select = document.getElementById('sortSelect');
+  const container = document.querySelector('.releases');
+
+  select.addEventListener('change', () => {
+    const releases = Array.from(container.querySelectorAll('.release'));
+    const sortBy = select.value;
+
+    releases.sort((a, b) => {
+      const valA = a.dataset[sortBy].toLowerCase();
+      const valB = b.dataset[sortBy].toLowerCase();
+
+      if (sortBy === 'year') return b.dataset.year - a.dataset.year;
+      return valA.localeCompare(valB);
+    });
+
+    // Re-append in sorted order
+    releases.forEach(r => container.appendChild(r));
+  });
+</script>

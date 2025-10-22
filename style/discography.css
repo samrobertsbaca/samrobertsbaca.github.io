@@ -1,0 +1,36 @@
+.releases {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6em;
+}
+
+.release-header {
+  cursor: pointer;
+  padding: 0.3em 0.6em;
+  border-radius: 6px;
+  transition: background 0.3s;
+}
+
+.release-header:hover {
+  background: rgba(255,255,255,0.05);
+}
+
+/* Color coding */
+.lp { border-left: 4px solid #f4b400; }        /* Gold for LPs */
+.ep { border-left: 4px solid #34a853; }        /* Green for EPs */
+.compilation { border-left: 4px solid #4285f4;}/* Blue for comps */
+
+/* Hidden details */
+.release-details {
+  display: none;
+  padding: 0.6em 1em;
+  background: rgba(255,255,255,0.05);
+  border-radius: 6px;
+  margin-left: 0.5em;
+}
+
+.release-details img {
+  max-width: 200px;
+  border-radius: 4px;
+  margin-bottom: 0.4em;
+}
