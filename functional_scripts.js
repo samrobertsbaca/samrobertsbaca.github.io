@@ -70,47 +70,11 @@ function wrapTextNodes(element) {
   });
 }
 
-// Usage
-const container = document.querySelector('.twitter-text');
-wrapTextNodes(container);
-
-Array.from(container.childNodes).forEach(node => {
-  if (node.nodeType === Node.TEXT_NODE) {
-    // wrap text in spans
-    const text = node.textContent;
-    const fragment = document.createDocumentFragment();
-
-    for (let char of text) {
-      const span = document.createElement('span');
-      span.textContent = char;
-      if (char === ' ') span.classList.add('space');
-      fragment.appendChild(span);
-    }
-
-    node.replaceWith(fragment);
-  } else if (node.tagName === 'IMG') {
-    // mark images for animation
-    node.classList.add('twitter-img');
-  }
-});
-
-// animate letters and images
-setInterval(() => {
-  container.querySelectorAll('span, img.twitter-img').forEach(el => {
-    const x = (Math.random() - 0.25) * 4;   // horizontal jitter
-    const y = (Math.random() - 0.25) * 4;   // vertical jitter
-    const rotate = -5 + (Math.random() - 0.25) * 20; // rotation
-    el.style.transform = `translate(${x}px, ${y}px) rotate(${rotate}deg)`;
-  });
-}, 100);
-
 function startTwitterEffect(container = document) {
-  // Step 1: wrap text nodes and images
+  // Step 1: wrap text nodes in all .twitter-text elements
   const twitterDivs = container.querySelectorAll('.twitter-text');
 
-  twitterDivs.forEach(div => {
-    wrapTextNodes(div); // recursive function we made earlier
-  });
+  twitterDivs.forEach(div => wrapTextNodes(div));
 
   // Step 2: start animation
   setInterval(() => {
@@ -124,3 +88,6 @@ function startTwitterEffect(container = document) {
     });
   }, 100);
 }
+
+// ✅ Just call this once after DOM loads
+startTwitterEffect();
