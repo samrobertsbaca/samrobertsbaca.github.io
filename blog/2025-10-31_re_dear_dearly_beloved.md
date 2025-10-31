@@ -45,10 +45,11 @@ for i am caretaker
 of the rich and the poor,  
 the joyful and grieving,  
 the repentant and proud.  
-i am only as joyful  
+i am only as happy  
 as the one who suffers most,  
-my unity only as whole  
-as the one most apart.
+my unity as whole  
+as the one most apart,  
+my contentment unending.
 
 my dear, if me you wish to be,  
 then leave you all behind,  
@@ -59,7 +60,7 @@ and carry my world with ease.
 and if you fall — so what?  
 i'll remain when you rise,  
 as i have always been,  
-as i always will be.
+and i always will be.
 
 for i alone have loved you —  
 since before the dawn,  
