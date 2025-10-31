@@ -49,7 +49,7 @@ i am only as happy
 as the one who suffers most,  
 my unity as whole  
 as the one most apart,  
-my contentment unending.
+my contentment indestructable.
 
 my dear, if me you wish to be,  
 then leave you all behind,  
