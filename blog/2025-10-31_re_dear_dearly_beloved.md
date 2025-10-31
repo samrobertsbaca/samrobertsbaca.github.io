@@ -50,13 +50,13 @@ as the one who suffers most,
 my unity only as whole  
 as the one most apart.
 
-my dear, if you wish to be me,  
-leave you behind,  
+my dear, if me you wish to be,
+then leave you all behind,  
 stay carefully carefree.  
 twirl upon my tightrope,  
 and carry my world with ease.
 
-and if you should fall — so what?  
+and if you fall — so what?  
 i'll remain when you rise,  
 as i have always been,  
 as i always will be.
