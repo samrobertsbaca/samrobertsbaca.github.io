@@ -50,7 +50,7 @@ as the one who suffers most,
 my unity only as whole  
 as the one most apart.
 
-my dear, if me you wish to be,
+my dear, if me you wish to be,  
 then leave you all behind,  
 stay carefully carefree.  
 twirl upon my tightrope,  
