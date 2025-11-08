@@ -22,7 +22,7 @@ and when the time comes to let the body go, simply let it go. desire not to poss
 
 only when we release our attachment to every desire are we truly free. if the ultimate truth is simply to be (or *not* to be), then all that keeps us from this sublime state is the continual, focused awareness of what is not — and the gentle letting go of all desires, both material and subtle.
 
-the final illusion is that of separation — that the “i” exists apart from its form, or that spirit is somehow elsewhere. but the one does not live above or beyond you. it lives through you. to allow it to sing, you must let every part of yourself — including your body — become its instrument.
+the final illusion is that of separation — that the “i” exists apart from its form, or that spirit is somehow elsewhere. but the one does not live above or beyond you. it lives through you. in order to hear it sing, you must let every part of yourself — including your body — become its instrument.
 
 so let your body dance, ache, sing, weep, and stretch toward one. let it be as much a part of your expression as your words or thoughts. this is the work of remembering: to realize that there is no part of you that is not already divine.
 
