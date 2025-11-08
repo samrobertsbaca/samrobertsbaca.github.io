@@ -14,7 +14,7 @@ to reject the body in pursuit of spirit is to deny the spirit made manifest with
 
 the energy centers we call chakras can be understood as layers of desire — each one a necessary station in the journey of embodiment and release. we pass from the desire to survive, to reproduce, to will, to love, to express, to think, to exist. each center refines the previous one; each teaches us how to balance power with surrender, structure with flow.
 
-yet these are not rigid or discrete compartments — they are living continuums within continuums. each chakra contains within it the full spectrum of the others, a microcosm of the whole. the root holds within it the spark of divine knowing; the crown still remembers the pulse of survival. they are not stacked in sequence so much as spiraled through one another, endlessly interpenetrating, evolving, harmonizing.
+yet these are not rigid or discrete compartments — they are living bodies within bodies. each chakra contains within it the full spectrum of the others, a microcosm of the whole. the root holds within it the spark of divine knowing; the crown still remembers the pulse of survival. they are not stacked in sequence so much as spiraled through one another, endlessly interpenetrating, evolving, harmonizing.
 
 when these desires are not denied but brought into awareness, their energies begin to resonate across the inner layers of being — becoming transparent, luminous, teaching us as they loosen their hold. through this process, we learn from them, honor them, and gracefully release them. the body, seen in this way, becomes a clear vessel through which consciousness flows freely — not a ladder to climb, but a song to remember.
 
