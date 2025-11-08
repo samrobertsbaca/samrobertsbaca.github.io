@@ -4,7 +4,7 @@ Nov 8
 
 ![](./images/scorsbody.png)
 
-if we are truly to become one, it will not be in spite of the body — it will be through it. the body is not an obstacle to awakening; it is a powerful instrument for learning what it means to be awake. for too long we have tried to ascend by leaving the flesh behind, mistaking denial for discipline. but if consciousness is to know itself completely, it must include the body — for the body is the first and most immediate expression of that consciousness accessible to us as embodied beings.
+if we are truly to become one, it will not be in spite of the body — it will be through it. the body is not an obstacle to awakening; it is a powerful instrument for learning what it means to be awake. for too long we have tried to ascend by leaving the flesh behind, mistaking denial for discipline. but if consciousness is to know itself completely, it must include the body — for the body is the first and most immediate expression of that consciousness accessible to us as incarnated beings.
 
 let us not see the body as something to be resisted or glorified, but as a necessary partner in the unfolding of awareness. it is both instrument and mirror, a vessel through which the self experiences, expresses, and refines its own being. when you listen to your body — truly listen — you begin to understand that it speaks the language of the creator just as clearly as thought or prayer. to see your body through the eyes of love is to see it as the creator sees it: not as separate from divinity, but as divinity in form.
 
