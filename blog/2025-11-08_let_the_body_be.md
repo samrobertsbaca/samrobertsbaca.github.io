@@ -14,7 +14,7 @@ to reject the body in pursuit of spirit is to deny the spirit made manifest with
 
 the energy centers we call chakras can be understood as layers of desire — each one a necessary station in the journey of embodiment and release. we pass from the desire to survive, to reproduce, to will, to love, to express, to think, to exist. each center refines the previous one; each teaches us how to balance power with surrender, structure with flow.
 
-yet these are not rigid or discrete compartments — they are living continua, reflections within reflections. each chakra contains within it the full spectrum of the others, a microcosm of the whole. the root holds within it the spark of divine knowing; the crown still remembers the pulse of survival. they are not stacked in sequence so much as spiraled through one another, endlessly interpenetrating, evolving, harmonizing.
+yet these are not rigid or discrete compartments — they are living continuums within continuums. each chakra contains within it the full spectrum of the others, a microcosm of the whole. the root holds within it the spark of divine knowing; the crown still remembers the pulse of survival. they are not stacked in sequence so much as spiraled through one another, endlessly interpenetrating, evolving, harmonizing.
 
 when these desires are not denied but brought into awareness, their energies begin to resonate across the inner layers of being — becoming transparent, luminous, teaching us as they loosen their hold. through this process, we learn from them, honor them, and gracefully release them. the body, seen in this way, becomes a clear vessel through which consciousness flows freely — not a ladder to climb, but a song to remember.
 
@@ -24,7 +24,7 @@ and when the time comes to let the body go, simply let it go. desire not to poss
 
 only when we release our attachment to every desire are we truly free. if the ultimate truth is simply to be (or *not* to be), then all that keeps us from this sublime state is the continual, focused awareness of what is not — and the gentle letting go of all desires, both material and subtle.
 
-the final illusion is that of separation — that the “i” exists apart from its form, or that spirit is somehow elsewhere. but the one does not live above or beyond you. it lives through you. to reach it, you must let every part of yourself — including your body — become its instrument.
+the final illusion is that of separation — that the “i” exists apart from its form, or that spirit is somehow elsewhere. but the one does not live above or beyond you. it lives through you. to allow it to sing, you must let every part of yourself — including your body — become its instrument.
 
 so let your body dance, ache, sing, weep, and stretch toward one. let it be as much a part of your expression as your words or thoughts. this is the work of remembering: to realize that there is no part of you that is not already divine.
 
