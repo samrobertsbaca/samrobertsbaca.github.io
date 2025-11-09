@@ -110,7 +110,7 @@ Me thinks you are getting a bit too metaphysical about how these sounds relate t
 
 **as one who has spent much time listening to and creating audio of some kind, i have naturally become quite attuned to perceiving life as a vibration game. there are moments of stillness, of crescendo, cacophony, harmony, decay, and stillness again. i have become quite accustomed to perceiving life itself in terms of these dynamic energetic patterns.**
 
-**today i was editing the faint guitar clicks in a “song” i plan to release on “december 5th” as part of my “album” “soul country”, using an audio repair tool called iZotope RX. and it occurred to me looking at the spectrogram how unusual a song looks when viewed as a frequency spectrum (see below). to me, it looks almost like a fractaline forest of light. interestingly, the lyrics of the section of the song i copied and pasted here are “is yours to define… cowboy listen closely, to live”. a kind of unplanned mobius strip of information… but i don’t believe there are any coincidences.**
+**today i was editing the faint guitar clicks in a “song” i plan to release as part of my “album” “soul country”, using an audio repair tool called iZotope RX. and it occurred to me looking at the spectrogram how unusual a song looks when viewed as a frequency spectrum (see below). to me, it looks almost like a fractaline forest of light. interestingly, the lyrics of the section of the song i copied and pasted here are “is yours to define… cowboy listen closely, to live”. a kind of unplanned mobius strip of information… but i don’t believe there are any coincidences.**
 
 ![](./images/izotope_freq_spec.png)
 
