@@ -6,7 +6,7 @@ Nov 9
 
 10272025
 
-dear "dad,"
+dear "dad",
 
 as i write this, i’m watching a youtube video called “[classic starfield ~60:00 minutes space wallpaper](https://www.youtube.com/watch?v=YqPJGgImn0c),” pixelated stars drifting slowly across the screen as i contemplate isaac asimov. to be honest, i’m not deeply familiar with much of his work — aside from the film i, robot and an interview i once sampled for a [song of mine](https://sjroberts.bandcamp.com/track/beyond) years ago. in many ways, i see science fiction as simply another term for prophecy — or shamanism — in the sense that it involves imagining another form of reality into being. i do believe we are all imagining ourselves toward our destination, wherever that may be, and that science fiction writers and prophets alike serve as vessels steering the collective imagination. as john lennon once sang, “there’s nothing you can know that can’t be known.” and so, i’ve come to see the work of all writers as a kind of channeling — a vocation of dream journaling. what are we attempting to bring into being through our conversation with one another, as the classic starfield screensaver projects pixelated stars into my digital now?
 
