@@ -1,6 +1,6 @@
 Nov 9
 
-#dear dad
+#father and sone
 
 *an open letter to/from my father, dr. michael scorsby*
 
