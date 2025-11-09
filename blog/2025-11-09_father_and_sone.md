@@ -126,7 +126,7 @@ for in truth, what is the brain? and where does it end? do my synaptic impulses 
 
 ![](./images/dad2.png)
 
-it seems clear that humans have a choice to identify more strongly one way or the other—and in doing so, influence and reinforce one another’s leanings toward either materialism or universalism. on the one hand, i am your son; on the other hand, i and you are one and the same. what do you think it means to be a father or a son?
+it seems clear that humans have a choice to identify more strongly one way or the other — and in doing so, influence and reinforce one another’s leanings toward either materialism or universalism. on the one hand, i am your son; on the other hand, i and you are one and the same. what do you think it means to be a father or a son?
 
 **In simple terms of course, a father is a father to his son, and a son is the son of his father. Do you think an alien would understand the concept of a father and son, if they didn’t come into being by reproduction, in some species that generally raised their offspring from a mother and father. Could there be another way to designate such a relationship, just an idea. Of course I am a father and a son, and you could potentially some day be a father to someone, thereby completing the circle. As far as father, son, stuff, I think organically what that means evolves over time, and it is hard to put it into a nutshell. If I gave my father son talk, or parenting or relationship philosophy it would be very boring to the reader. But some aspects of this perhaps will evolve through this dialog.**
 
