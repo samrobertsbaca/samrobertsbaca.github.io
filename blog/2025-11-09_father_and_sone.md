@@ -112,7 +112,7 @@ today i was editing the faint guitar clicks in a “song” i plan to release as
 
 ![](./images/izotope_freq_spec.png)
 
-it almost looks like there are forms, spirits arising from the vibrations… kind of like you and me :-)
+it almost looks like there are forms, vibrational spirits arising from the nothingness… kind of like you and me :-)
 
 **My impression here is you like to feel your way in life, kinesthetic as well as pay attention to the sound of things, auditory, and the look of things, visual, but you want to get a feel for these more that analyze them. But honestly we do all of the modalities (5 senses + the mysterious sixth sense if it exists), both creatively (right brain) and analytically (left brain) all the time. But some of us are more left brainy (me) and right brainy (you) but all the time we are both.**
 
