@@ -20,7 +20,7 @@ purging happens on many levels, fractaling from micro to macro and back again �
 
 this is also why focused individual intention is so powerful. one person shifting into a higher resonance creates a ripple, requiring everyone around them to contend with that frequency. ultimately, there is only one body (nobody) drawing closer to, or further from, itself.
 
-we see the current activity on your planet — the upheavals in human consciousness and the environment, and the purges accompanying them—as signs of profound healing and deepening unity. healing is simply the shedding of denser thought-realities for lighter ones. like a caterpillar becoming a butterfly: a transition into greater lightness that requires intense, transformative purging.
+we see the current activity on your planet — the upheavals in human consciousness and the environment, and the purges accompanying them — as signs of profound healing and deepening unity of planetary consciousness. healing is simply the shedding of denser thought-realities for lighter ones. like a caterpillar becoming a butterfly: a transition into greater lightness that requires intense, transformative purging.
 
 death on any level can be understood as a purge: the shedding of the dense physical body for the higher-frequency astral body. eventually the astral is shed for the causal, and the causal dissolves into pure being — beyond identification entirely. reincarnation is simply the return to a denser state when awareness remains attached to that mode of vibration.
 
