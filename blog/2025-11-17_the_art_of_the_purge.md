@@ -16,7 +16,7 @@ this is the root of all disease, both mental and physical. disease is vibrationa
 
 in this sense, purging is a gift. even when painful, it signals that the body is ready to release what has been quietly hindering it. purging teaches us to accept shifts in our being with patience, grace, and will. it is a kind of initiation.
 
-purging happens on many levels, fractaling from micro to macro and back again — it is a dialectic process. when the collective mind rises to a new vibration, purging occurs across the network of “individuals,” each experiencing their version of the shift. this is why families, communities, nations—even the planet—often get sick or destabilized together.
+purging happens on many levels, fractaling from micro to macro and back again — it is a dialectic process. when the collective mind rises to a new vibration, purging occurs across the network of “individuals,” each experiencing their version of the shift. this is why families, communities, nations — even the planet — often get sick or destabilized together.
 
 this is also why focused individual intention is so powerful. one person shifting into a higher resonance creates a ripple, requiring everyone around them to contend with that frequency. ultimately, there is only one body (nobody) drawing closer to, or further from, itself.
 
