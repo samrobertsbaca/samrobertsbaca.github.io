@@ -90,7 +90,7 @@ function createSitePet(gfx, opts = {}) {
 }
 
 function generateScorsbys() {
-  for (let i = 0; i < 13; i++) {
+  for (let i = 0; i < 5; i++) {
     const side = Math.random() < 0.5 ? 'left' : 'right';
     const x = Math.random() * (window.innherWidth - 64);
     const y = Math.random() * (64 + window.innerHeight - 64);
