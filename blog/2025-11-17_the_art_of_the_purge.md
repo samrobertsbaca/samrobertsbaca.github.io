@@ -2,7 +2,7 @@ Nov 17
 
 # the art of the purge
 
-a body is made of millions — if not billions — of organisms, all cooperating or fighting, mirroring the patterns of the mind. both “body” and “mind” are ultimately functions of thought: the attachment to an “i.” that “i” can grow incredibly complex, shaped by distortions of identity, preferences, desires, and aversions. identity, in this sense, is simply a constellation of tendencies expressed mentally, astrally (in dreams), and physically.
+a body is made of millions — if not billions — of organisms, all cooperating or fighting, mirroring the patterns of the mind. both “body” and “mind” are ultimately functions of thought: the attachment to an “i.” that “i” can grow incredibly complex, shaped by distortions of desires and aversions. identity, in this sense, is simply a constellation of tendencies expressed mentally, astrally (in dreams), and physically.
 
 as we begin to detach from these desires and aversions, the body follows — more slowly, because physical matter vibrates at a denser frequency than mental matter.
 
