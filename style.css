@@ -266,7 +266,7 @@ article p { margin: 1rem 0; font-size: 1.05rem; }
 }*/
 
 footer {
-  position:fixed;           /* ensures it’s visible */
+  /*position:fixed;*/           /* ensures it’s visible */
   width: 100%;              /* full width */
   text-align: center;       /* centers the text */
   padding: 2rem;            /* spacing inside */
