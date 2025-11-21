@@ -38,7 +38,7 @@ something else struck me each time i missed a coin or plunged out of the sky. fl
 
 that, i think, is the hidden lesson. life is a game that gives you infinite attempts — infinite lives to “get it right,” to “earn the star,” to follow whatever your heart is reaching toward. video games taught me persistence in an instinctual way: to sit down, commit, focus, imagine, ride the whole arc of frustration and satisfaction. funny how my favorite games as a kid were platformers — rayman, sonic, kirby, earthworm jim, vectorman — worlds where all you do is run, jump, swim, and fly through bright impossible landscapes.
 
-i'm deeply grateful for these pixelated cartoon avatars, who taught me to keep smiling even in the face of certain death, even knowing they’ve died countless times before. maybe that’s all i’ve ever wanted out of life: to move freely through the world and feel it lift me up, despite every obstacle.
+i'm deeply grateful for these pixelated cartoon avatars, who taught me to keep smiling even in the face of certain death, even knowing they’ve died countless times before. maybe that’s all i’ve ever wanted out of life: to move freely through life and feel it lift me up, up, and a way.
 
 after about half an hour of dying and resurrecting in that floating kingdom, i finally got the winged cap star. for now, that feels like enough.
 
