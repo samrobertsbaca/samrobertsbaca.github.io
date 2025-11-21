@@ -22,9 +22,7 @@ even now, replaying super mario 64, the game feels quietly desolate. an empty co
 
 i knew i had played the game in the past, but the context had dissolved. i also knew i’d never gotten far, because the basement levels were uncharted territory for me. honestly, i’ve probably watched more people play super mario 64 on youtube than actually played it myself. that disconnect — watching versus doing — feels like its own kind of dream. someone else moving through the world while you hover, bodiless, behind them.
 
-playing it now, i pondered my own personal relationship to mario, the now-archetypal videogame demigod. who am i in all this? this little red-white-and-blue squishy guy with an “m” on his hat. some kind of chipper, bumbling, all-american boy, i suppose.
-
-mario's proportions, his movement in this game almost feels childlike itself — slippery, delicate. part of me wished i were playing *space station silicon valley* instead, where my identity was more whimsically fluid. but something in me said to keep going.
+playing it now, i pondered my own personal relationship to mario, the now-archetypal videogame demigod. who am i in all this? this little red-white-and-blue squishy guy with an “M” on his hat  — a bouncy, mustached hero bursting with heart and superhuman ability. mario's proportions, his movement in this game almost feel childlike—slippery, delicate. at times, it's surprisingly difficult, most of the challenge coming from keeping mario from falling off cliffs. still, something in me said to keep going.
 
 so i did. i jumped through paintings, delivered a baby penguin to its mother, fought bowser, got the basement key, drained the basement, collected the blue invisibility cap, trudged through the hellish and swampy worlds. i've found 15 stars in the past few days.
 
