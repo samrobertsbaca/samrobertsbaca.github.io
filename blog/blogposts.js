@@ -1,4 +1,5 @@
 window.postFiles = [
+  "/blog/2025-11-21_learning_to_fly.html",
   "/blog/2025-11-17_the_art_of_the_purge.html",
   "/blog/2025-11-09_father_and_sone.html",
   "/blog/2025-11-08_let_the_body_be.html",
