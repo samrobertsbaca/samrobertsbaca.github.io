@@ -2,7 +2,7 @@ Nov 21
 
 # learning to fly
 
-i never had flying dreams as a kid. most of the dreams i remember fall into a few categories: being chased by monsters or malevolent spirits, navigating through labyrinths, disembodied heads, amputated pirates. i think maybe i was a soldier in a past life. perhaps i still am now.
+i never had flying dreams as a kid. most of the dreams i remember fall into a few categories: being chased by monsters or malevolent spirits, navigating through labyrinths, disembodied heads, amputated pirates. i think maybe i was a soldier in a past life. perhaps i still am one now.
 
 a few days ago i found myself playing *super mario 64* out of the blue. i don’t know why i was drawn to it, or anything for that matter — i simply follow my innate curiosity, trusting it will guide me closer to the great i am.
 
