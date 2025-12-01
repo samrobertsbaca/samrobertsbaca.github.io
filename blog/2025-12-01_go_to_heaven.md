@@ -4,8 +4,7 @@ Dec 1
 
 ![](./images/gotohell.png)
 
-too often have i heard one tell another to go to hell. wouldn't it be nice if we told each other to go to heaven instead?
-in truth, heaven isn't a place you go. it's what we are when we stop trying to get anywhere.
+in truth, heaven isn't a place we go. it's what we are when we stop trying to get anywhere.
 when we cease identifying as anything or anyone, and become unified with all.
 for if hell is a state of mind, then heaven is a state of no mind.
 
