@@ -1,0 +1,17 @@
+Dec 1
+
+# go to heaven
+
+![](./images/gotohell.png)
+
+too often have i heard one tell another to go to hell. wouldn't it be nice if we told each other to go to heaven instead?
+in truth, heaven isn't a place you go. it's what we are when we stop trying to get anywhere.
+when we cease identifying as anything or anyone, and become unified with all.
+for if hell is a state of mind, then heaven is a state of no mind.
+
+how can one describe even a taste of heaven? an ever-flowing river of milk and honey...
+the scent of dancing peppermints, the jingling of interdimensional sleighbells.
+yes, it is truly ever-delicious, as fresh and magical and potent and beautifantastic as one can imagine.
+it is crystalline geometry, poetry in motion, true love at its finest.
+
+heaven, indeed, is boundless. go to heaven, my dear.
