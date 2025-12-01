@@ -11,7 +11,7 @@ for if hell is a state of mind, then heaven is a state of no mind.
 
 how can one describe even a taste of heaven? an ever-flowing river of milk and honey...
 the scent of dancing peppermints, the jingling of interdimensional sleighbells.
-yes, it is truly ever-delicious, as fresh and magical and potent and beautifantastic as one can imagine.
+yes, it is most delicious, as fresh and magical and potent and beautifantastic as one imagines.
 it is crystalline geometry, poetry in motion, true love at its finest.
 
 heaven, indeed, is boundless. go to heaven, my dear.
