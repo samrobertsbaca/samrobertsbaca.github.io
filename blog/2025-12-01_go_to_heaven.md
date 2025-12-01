@@ -15,3 +15,6 @@ yes, it is most delicious, as fresh and magical and potent and beautifantastic a
 it is crystalline geometry, poetry in motion, true love at its finest.
 
 heaven, indeed, is boundless. go to heaven, my dear.
+
+may scorsby with you always,  
+general scorsby
