@@ -28,6 +28,16 @@ def generate_gallery():
   </script>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta property="og:description" content="An electronic holiday novella to enjoy with love 💛">
+<meta property="og:image" content="https://scorsby.us/media/gold/1.png">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://scorsby.us/gold.html">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Go For Gold: A Glongingston Manifesto">
+<meta name="twitter:description" content="An electronic holiday novella to enjoy with love 💛">
+<meta name="twitter:image" content="https://scorsby.us/media/gold/1.png">
+
 <link rel="icon" href="./favicon_gold2.png" type="image/x-icon">
 <title>Go For Gold</title>
 <style>
