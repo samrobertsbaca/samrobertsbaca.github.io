@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+      <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-F0TBFJSGJ9"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-F0TBFJSGJ9');
+  </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>scorsby</title>
+    <link rel="stylesheet" href="./style.css">
+    <link rel="icon" href="./favicon.webp" type="image/x-icon">
+
+    <link rel="stylesheet" href="./style.css">
+
+    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <script src="js/scorsbypus/scorsbypus.js" defer></script>-->
+
+  </head>
+  <body class="homepage">
+
+  <nav id="main-nav"></nav>
+
+  <div id="fireworks2"></div>
+  <!--<div id="fireworks"></div>-->
+
+  <canvas id="fireworks"></canvas>
+
+  <script src="https://unpkg.com/thru-space@latest"></script>
+  <script>
+    const canvas = document.querySelector('#fireworks')
+    const thruSpace = new ThruSpace(canvas, {
+  starsPerPx: 0.0005,
+  speedNormal: 0.5,
+  speedLight: 15,
+  transitionSpeed: 0.2,
+  starSize: { min: 1, max: 3 },
+  lightSpeedTailLength: 0.3,
+  // 💙 Star color section
+    starColor: {
+      base: [0, 0, 0], // light blue base color
+      additional: [
+        [0, 180, 255],
+        [255,255,255] // deep sky blue
+      ],
+      mix: { min: 0.3, max: 1 } // blends different blues
+    },
+  isInitialLightSpeed: true
+}).start()
+  </script>
+
+
+  <!--<div id="p5-container"></div>-->
+
+  <script src="./functional_scripts.js" defer></script>
+
+
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        loadNavbar(); // now loadNavbar exists
+      });
+    </script>
+
+    <main>
+        <!--<h1>www.scorsby.us</h1>-->
+        <div class="container">
+          <a href="https://johnkingcave.bandcamp.com/" style="color:white" target="_blank"><img src="./images/sc_logo_trans.png" alt="Centered image" style="max-width: 89%; height: auto;"></a>
+            <br>
+            new album: <a href="https://johnkingcave.bandcamp.com/" target="_blank">SOUL COUNTRY</a><br>available now!
+        </div>
+
+    </main>
+
+    <footer>
+      ⓢ 2025 Scorsby Smileworks — All Smiles Unreserved
+    </footer>
+
+  <!-- Hamburger JS -->
+    <script>
+    function toggleMenu() {
+      const nav = document.getElementById('nav-links');
+      nav.classList.toggle('show');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.body.style.height = "100vh";
+        document.body.style.overflow = "hidden"; // no scrolling
+        document.body.style.setProperty("background-color", "#000000");
+        const footer = document.querySelector('footer');
+        if (footer) {
+            footer.style.setProperty("color", "#00b4ff");
+        }
+      });
+
+
+    </script>
+
+
+
+  </body>
+</html>
