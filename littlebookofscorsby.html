@@ -1,43 +1,11 @@
-import os
-import re
-
-def natural_key(string):
-    return [int(s) if s.isdigit() else s.lower() for s in re.split(r'(\d+)', string)]
-
-def generate_gallery():
-    # little book of scorsby
-
-    #folder = "./media/littlebookofscorsby/"
-    #output_file = "littlebookofscorsby.html"
-    #page_title = "the little book of scorsby"
-    #description = "a creation story"
-    #favicon = "./favicon.webp"
-    #bg_color = "#23c3ff"
-    #firstpage = "https://scorsby.us/media/littlebookofscorsby/panel0.png"
-
-    # gentle falling snow
-    folder = "./media/gentlefallingsnow/"
-    output_file = "gentlefallingsnow.html"
-    page_title = "gentle falling snow"
-    description = "a short play on words"
-    favicon = "./favicon.webp"
-    bg_color = "#23c3ff"
-    firstpage = "https://scorsby.us/media/gentlefallingsnow/0.1.png"
-
-    images = sorted(
-        [f for f in os.listdir(folder)
-         if f.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp'))],
-        key=natural_key
-    )
-
-    html = f"""<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-F0TBFJSGJ9"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
-    function gtag(){{ dataLayer.push(arguments); }}
+    function gtag(){ dataLayer.push(arguments); }
     gtag('js', new Date());
     gtag('config', 'G-F0TBFJSGJ9');
   </script>
@@ -45,66 +13,66 @@ def generate_gallery():
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
 
-  <meta property="og:description" content="{description}">
-  <meta property="og:image" content="{firstpage}">
+  <meta property="og:description" content="a creation story">
+  <meta property="og:image" content="https://scorsby.us/media/littlebookofscorsby/panel0.png">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://scorsby.us/{output_file}">
+  <meta property="og:url" content="https://scorsby.us/littlebookofscorsby.html">
 
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="{page_title}">
-  <meta name="twitter:description" content="{description}">
-  <meta name="twitter:image" content="{firstpage}">
+  <meta name="twitter:title" content="the little book of scorsby">
+  <meta name="twitter:description" content="a creation story">
+  <meta name="twitter:image" content="https://scorsby.us/media/littlebookofscorsby/panel0.png">
 
-  <link rel="icon" href="/{favicon}" type="image/x-icon">
-  <title>{page_title}</title>
+  <link rel="icon" href="/./favicon.webp" type="image/x-icon">
+  <title>the little book of scorsby</title>
 
   <style>
-    :root {{ --nav-right:12px; --nav-gap:6px; --nav-thumb-size:120px; --preview-w:240px; --preview-h:240px; }}
+    :root { --nav-right:12px; --nav-gap:6px; --nav-thumb-size:120px; --preview-w:240px; --preview-h:240px; }
 
-    body {{
+    body {
       font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-      background: {bg_color};
+      background: #23c3ff;
       margin: 0;
       padding: 20px;
-    }}
+    }
 
-    .content {{
+    .content {
       max-width: 800px;
       margin: 0 auto;
-    }}
+    }
 
-    .img-container {{
+    .img-container {
       width: 100%;
       margin: 0 0 30px 0;
-    }}
+    }
 
-    .img-container img {{
+    .img-container img {
       width: 100%;
       height: auto;
       display: block;
       border-radius: 6px;
-    }}
+    }
 
-    .donation-wrap {{
+    .donation-wrap {
       max-width: 800px;
       width: 100%;
       margin: 60px auto;
       text-align: center;
-    }}
+    }
 
-    #paypal-container-BH3DJYC53LCMW {{
+    #paypal-container-BH3DJYC53LCMW {
       display: inline-block;
       width: 100%;
       max-width: 100%;
-    }}
+    }
 
     #paypal-container-BH3DJYC53LCMW h3,
     #paypal-container-BH3DJYC53LCMW p,
-    #paypal-container-BH3DJYC53LCMW label {{
+    #paypal-container-BH3DJYC53LCMW label {
       color: white;
-    }}
+    }
 
-    .page-nav {{
+    .page-nav {
       position: fixed;
       right: 12px;
       top: 50%;
@@ -119,9 +87,9 @@ def generate_gallery():
       z-index: 999;
       max-height: 80vh;
       overflow: hidden;
-    }}
+    }
 
-    .page-nav a {{
+    .page-nav a {
       width: 36px;
       height: 28px;
       line-height: 28px;
@@ -132,27 +100,27 @@ def generate_gallery():
       color: #000;
       background: rgba(255,255,255,0.9);
       border-radius: 6px;
-    }}
+    }
 
-    @media (max-width: 800px) {{
-      .page-nav {{ display: none; }}
-    }}
+    @media (max-width: 800px) {
+      .page-nav { display: none; }
+    }
 
-    #page-counter {{
+    #page-counter {
       position: fixed;
       bottom: 12px;
       right: 12px;
       background: rgba(0,0,0,0.86);
-      color: {bg_color};
+      color: #23c3ff;
       padding: 6px 10px;
       border-radius: 6px;
       font-size: 14px;
       z-index: 1000;
-    }}
+    }
 
-    #page-counter a {{
-      color: {bg_color};
-    }}
+    #page-counter a {
+      color: #23c3ff;
+    }
   </style>
 
   <script src="https://www.paypal.com/sdk/js?client-id=BAA7eEf9ewzwU-1sUQB6E3GE8KXM4kcZEAly1iMLTlj5-gREq6CGUEH2H9GvJ_eSPxB0Q34PviobUdPJ0Q&components=hosted-buttons&enable-funding=venmo&currency=USD"></script>
@@ -160,36 +128,38 @@ def generate_gallery():
 
 <body>
   <div class="content">
-"""
+    <div class="img-container" id="page1"><img src="./media/littlebookofscorsby/panel0.png" loading="lazy" alt="panel0.png"></div>
+    <div class="img-container" id="page2"><img src="./media/littlebookofscorsby/panel1.png" loading="lazy" alt="panel1.png"></div>
+    <div class="img-container" id="page3"><img src="./media/littlebookofscorsby/panel2.png" loading="lazy" alt="panel2.png"></div>
+    <div class="img-container" id="page4"><img src="./media/littlebookofscorsby/panel3.png" loading="lazy" alt="panel3.png"></div>
+    <div class="img-container" id="page5"><img src="./media/littlebookofscorsby/panel5a.png" loading="lazy" alt="panel5a.png"></div>
+    <div class="img-container" id="page6"><img src="./media/littlebookofscorsby/panel6.png" loading="lazy" alt="panel6.png"></div>
+    <div class="img-container" id="page7"><img src="./media/littlebookofscorsby/panel7.png" loading="lazy" alt="panel7.png"></div>
+    <div class="img-container" id="page8"><img src="./media/littlebookofscorsby/panel8.png" loading="lazy" alt="panel8.png"></div>
+    <div class="img-container" id="page9"><img src="./media/littlebookofscorsby/panel9.png" loading="lazy" alt="panel9.png"></div>
+    <div class="img-container" id="page10"><img src="./media/littlebookofscorsby/panel10.png" loading="lazy" alt="panel10.png"></div>
+    <div class="img-container" id="page11"><img src="./media/littlebookofscorsby/panel11.png" loading="lazy" alt="panel11.png"></div>
+    <div class="img-container" id="page12"><img src="./media/littlebookofscorsby/panel12.png" loading="lazy" alt="panel12.png"></div>
+    <div class="img-container" id="page13"><img src="./media/littlebookofscorsby/panel13.png" loading="lazy" alt="panel13.png"></div>
+    <div class="img-container" id="page14"><img src="./media/littlebookofscorsby/panel14.png" loading="lazy" alt="panel14.png"></div>
+    <div class="img-container" id="page15"><img src="./media/littlebookofscorsby/panel15.png" loading="lazy" alt="panel15.png"></div>
+    <div class="img-container" id="page16"><img src="./media/littlebookofscorsby/panel16.png" loading="lazy" alt="panel16.png"></div>
+    <div class="img-container" id="page17"><img src="./media/littlebookofscorsby/panel17.png" loading="lazy" alt="panel17.png"></div>
+    <div class="img-container" id="page18"><img src="./media/littlebookofscorsby/panel18.png" loading="lazy" alt="panel18.png"></div>
+    <div class="img-container" id="page19"><img src="./media/littlebookofscorsby/panel18a.png" loading="lazy" alt="panel18a.png"></div>
+    <div class="img-container" id="page20"><img src="./media/littlebookofscorsby/panel19.png" loading="lazy" alt="panel19.png"></div>
+    <div class="img-container" id="page21"><img src="./media/littlebookofscorsby/panel20.png" loading="lazy" alt="panel20.png"></div>
 
-
-    # add images into content area
-    for i, img in enumerate(images):
-        img_path = f"{folder}{img}"
-        html += f'    <div class="img-container" id="page{i+1}"><img src="{img_path}" loading="lazy" alt="{img}"></div>\n'
-
-    # donation block (centered)
-    html += """
   </div>
 
   <div id="page-counter">
-    <span id="counter-text">0 / 0</span> &nbsp;❤︎&nbsp; <a href="https://www.scorsby.us/home.html" target="_blank" style="text-decoration: underline;">scorsby.us</a>
+    <span id="counter-text">1 / 21</span> &nbsp;❤︎&nbsp; <a href="https://www.scorsby.us/home.html" target="_blank" style="text-decoration: underline;">scorsby.us</a>
 </div>
 
   <div class="donation-wrap">
     <div id="paypal-container-BH3DJYC53LCMW"></div>
   </div>
-"""
 
-    # page nav (right side) with data-preview attributes
-    #html += '  <div class="page-nav" aria-hidden="true">\n'
-    #for i, img in enumerate(images):
-    #    img_path = f"{folder}{img}"
-    #    html += f'    <a href="#page{i+1}" data-preview="{img_path}">{i+1}</a>\n'
-    #html += '  </div>\n'
-
-    # preview element + scripts
-    html += """
   <!--<img class="page-preview" id="page-preview" alt="preview" />!-->
 
 <script>
@@ -328,12 +298,3 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
-"""
-
-    with open(output_file, "w", encoding="utf-8") as f:
-        f.write(html)
-
-    print(f"Created {output_file} with {len(images)} images (centered donation + working previews).")
-
-if __name__ == "__main__":
-    generate_gallery()
