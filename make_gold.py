@@ -7,22 +7,22 @@ def natural_key(string):
 def generate_gallery():
     # little book of scorsby
 
-    #folder = "./media/littlebookofscorsby/"
-    #output_file = "littlebookofscorsby.html"
-    #page_title = "the little book of scorsby"
-    #description = "a creation story"
-    #favicon = "./favicon.webp"
-    #bg_color = "#23c3ff"
-    #firstpage = "https://scorsby.us/media/littlebookofscorsby/panel0.png"
-
-    # gentle falling snow
-    folder = "./media/gentlefallingsnow/"
-    output_file = "gentlefallingsnow.html"
-    page_title = "gentle falling snow"
-    description = "a short play on words"
+    folder = "./media/littlebookofscorsby/"
+    output_file = "littlebookofscorsby.html"
+    page_title = "the little book of scorsby"
+    description = "a creation story"
     favicon = "./favicon.webp"
     bg_color = "#23c3ff"
-    firstpage = "https://scorsby.us/media/gentlefallingsnow/0.1.png"
+    firstpage = "https://scorsby.us/media/littlebookofscorsby/panel0.png"
+
+    # gentle falling snow
+    #folder = "./media/gentlefallingsnow/"
+    #output_file = "gentlefallingsnow.html"
+    #page_title = "gentle falling snow"
+    #description = "a short play on words"
+    #favicon = "./favicon.webp"
+    #bg_color = "#23c3ff"
+    #firstpage = "https://scorsby.us/media/gentlefallingsnow/0.1.png"
 
     images = sorted(
         [f for f in os.listdir(folder)
@@ -153,6 +153,20 @@ def generate_gallery():
     #page-counter a {{
       color: {bg_color};
     }}
+
+    /* Mobile styling */
+    @media (max-width: 800px) {{
+        #page-counter {{
+            right: 50%;
+            transform: translateX(50%);
+            bottom: 12px;
+            background: rgba(0,0,0,0.86);
+            border-radius: 8px;
+            font-size: 16px;
+            padding: 8px 12px;
+        }}
+    }}
+
   </style>
 
   <script src="https://www.paypal.com/sdk/js?client-id=BAA7eEf9ewzwU-1sUQB6E3GE8KXM4kcZEAly1iMLTlj5-gREq6CGUEH2H9GvJ_eSPxB0Q34PviobUdPJ0Q&components=hosted-buttons&enable-funding=venmo&currency=USD"></script>

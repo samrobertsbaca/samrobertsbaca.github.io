@@ -121,6 +121,20 @@
     #page-counter a {
       color: #23c3ff;
     }
+
+    /* Mobile styling */
+    @media (max-width: 800px) {
+        #page-counter {
+            right: 50%;
+            transform: translateX(50%);
+            bottom: 12px;
+            background: rgba(0,0,0,0.86);
+            border-radius: 8px;
+            font-size: 16px;
+            padding: 8px 12px;
+        }
+    }
+
   </style>
 
   <script src="https://www.paypal.com/sdk/js?client-id=BAA7eEf9ewzwU-1sUQB6E3GE8KXM4kcZEAly1iMLTlj5-gREq6CGUEH2H9GvJ_eSPxB0Q34PviobUdPJ0Q&components=hosted-buttons&enable-funding=venmo&currency=USD"></script>
@@ -153,7 +167,7 @@
   </div>
 
   <div id="page-counter">
-    <span id="counter-text">1 / 21</span> &nbsp;❤︎&nbsp; <a href="https://www.scorsby.us/home.html" target="_blank" style="text-decoration: underline;">scorsby.us</a>
+    <span id="counter-text">0 / 0</span> &nbsp;❤︎&nbsp; <a href="https://www.scorsby.us/home.html" target="_blank" style="text-decoration: underline;">scorsby.us</a>
 </div>
 
   <div class="donation-wrap">
