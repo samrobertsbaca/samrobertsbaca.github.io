@@ -187,7 +187,7 @@ def generate_gallery():
   </div>
 
   <div id="page-counter">
-    <span id="counter-text">0 / 0</span> &nbsp;❤︎&nbsp; <a href="https://www.scorsby.us/home.html" target="_blank" style="text-decoration: underline;">scorsby.us</a>
+    <span id="counter-text">0 / 0</span> &nbsp;❤︎&nbsp; <a href="https://www.scorsby.us/home.html" style="text-decoration: underline;">scorsby.us</a>
 </div>
 
   <div class="donation-wrap">
