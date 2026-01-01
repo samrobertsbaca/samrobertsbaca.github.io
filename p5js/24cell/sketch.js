@@ -27,6 +27,22 @@ function setup() {
   let cnv = createCanvas(windowWidth, windowHeight - 120, WEBGL);
   cnv.parent('p5-container');
 
+
+  cnv.touchStarted(() => {
+    startDrag();
+    return false;
+  });
+
+  cnv.touchMoved(() => {
+    dragMove();
+    return false;
+  });
+
+  cnv.touchEnded(() => {
+    endDrag();
+    return false;
+  });
+
   stroke(255);
   noFill();
 
@@ -197,20 +213,6 @@ function mouseReleased() {
   endDrag();
 }
 
-function touchStarted() {
-  startDrag();
-  return false;
-}
-
-function touchMoved() {
-  dragMove();
-  return false;
-}
-
-function touchEnded() {
-  endDrag();
-  return false;
-}
 
 
 function startDrag() {
