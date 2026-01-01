@@ -19,6 +19,10 @@
 
     <link rel="stylesheet" href="./style.css">
 
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.11.11/lib/p5.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.11.11/lib/addons/p5.sound.min.js"></script>
+    <script src="p5js/24cell/sketch.js" defer></script>      <!-- your sketch -->
+
     <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
     <script src="js/scorsbypus/scorsbypus.js" defer></script>-->
 
@@ -36,7 +40,7 @@
   <script>
     const canvas = document.querySelector('#fireworks')
     const thruSpace = new ThruSpace(canvas, {
-  starsPerPx: 0.0005,
+  starsPerPx: 0.00025,
   speedNormal: 0.5,
   speedLight: 15,
   transitionSpeed: 0.2,
@@ -55,6 +59,8 @@
 }).start()
   </script>
 
+   <div id="p5-container"></div>
+
 
   <!--<div id="p5-container"></div>-->
 
@@ -69,17 +75,35 @@
 
     <main>
         <!--<h1>www.scorsby.us</h1>-->
-        <div class="container">
-          <a href="https://johnkingcave.bandcamp.com/album/soul-country" style="color:white" target="_blank"><img src="./images/sc_logo_trans.png" alt="Centered image" style="max-width: 89%; height: auto;"></a>
-            <br>
+        <!--<div class="container">
             new book: <a href="gold.html" target="_blank" style="color:#fddc54;">GO FOR GOLD</a><br>available now!
-        </div>
+        </div>-->
+
+        <!-- New text positioned 50px from bottom -->
+    <div class="bottom-text">
+      <a href="http://scorsby.us/blog/2026-01-01_new_years_resolution.html" style="color: #fddc54;">r͡rombo dombo di di dai<br>
+                r͡rom bobo dombo di di dombo</a>
+    </div>
+
+    <style>
+        .bottom-text {
+            position: fixed;       /* stays relative to viewport */
+            bottom: 99px;          /* 50px from bottom */
+            left: 50%;             /* center horizontally */
+            transform: translateX(-50%); /* truly center */
+            color: #fddc54;        /* match your link color */
+            font-size: 1rem;       /* adjust as needed */
+            text-align: center;
+            z-index: 1000;         /* above other content */
+        }
+    </style>
+</main>
 
     </main>
 
-    <footer>
+    <!--<footer>
       ⓢ 2025 Scorsby Smileworks — All Smiles Unreserved
-    </footer>
+    </footer>-->
 
   <!-- Hamburger JS -->
     <script>
