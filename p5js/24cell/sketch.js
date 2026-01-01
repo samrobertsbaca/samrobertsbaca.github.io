@@ -114,7 +114,7 @@ pop();
 starAngle += 0.005; // increment angle for next frame
 
   drawRainbowGradient(240)
-  drawHeartRainbow(40)
+  drawHeartRainbow(17)
 
 
   // draw edges
@@ -135,7 +135,7 @@ starAngle += 0.005; // increment angle for next frame
     pop();
   }
 
-  angle += 0.01;
+  angle += 0.005;
 }
 
 let hueOffset = 0; // global for cycling
@@ -147,13 +147,13 @@ function drawHeartRainbow(size = 1) {
   resetMatrix();
 
   // Move to center of canvas (WEBGL origin)
-  translate(0, 0, 0);
+  translate(0, 0, 500);
 
   colorMode(HSB, 360); // use hue from 0-360
   stroke((hueOffset) % 360, 360, 360);
   strokeWeight(0)
   fill((hueOffset) % 360, 360, 360); // complementary fill
-  strokeWeight(3);
+  strokeWeight(1);
 
   beginShape();
   for (let t = 0; t <= TWO_PI; t += 0.05) {
