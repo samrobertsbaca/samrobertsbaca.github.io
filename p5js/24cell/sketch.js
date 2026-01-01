@@ -81,7 +81,7 @@ function draw() {
     projected.push(p);
   }
 
-  scale(200);
+  scale(160);
 
 
 
@@ -92,13 +92,13 @@ rotate(starAngle);              // rotate around center
 imageMode(CENTER);
 tint(255, 255);                 // optional transparency
 //image(rainbowImg,0,0,800,800);
-image(starImg, 0, 0, 900, 900); // draw at origin
+image(starImg, 0, 0, 800, 800); // draw at origin
 pop();
 
 starAngle += 0.005; // increment angle for next frame
 
   drawRainbowGradient(240)
-  drawHeartRainbow(51)
+  drawHeartRainbow(40)
 
 
   // draw edges
@@ -173,7 +173,7 @@ function drawRainbowGradient(radius = 500, steps = 150) {
     let alpha = map(r, radius, 0, 0, 100);
 
     fill(hue, 100, 100, alpha);
-    ellipse(0, 0, r * 3.3, r * 3.3);
+    ellipse(0, 0, r * 2.7, r * 2.7);
   }
 
   pop();
