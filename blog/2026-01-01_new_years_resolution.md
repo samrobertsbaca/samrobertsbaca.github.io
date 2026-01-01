@@ -2,6 +2,8 @@ Jan 1
 
 # new years resolution
 
+![](./images/newyear2026.png)
+
 to welcome the new year, we offer this small chant in glonglish:
 
 > r͡rombo dombo di di dai  
