@@ -69,7 +69,7 @@ main {
 
 
 /* show only on mobile (same breakpoint as your main CSS) */
-@media (max-width: 768px) {
+@media (max-width: 800px) {
   body.homepage .hamburger {
     display: flex; /* visible only on mobile */
   }
