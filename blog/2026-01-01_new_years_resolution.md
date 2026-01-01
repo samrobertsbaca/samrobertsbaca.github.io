@@ -4,8 +4,8 @@ Jan 1
 
 to welcome the new year, we offer this small chant in glonglish:
 
-> rrrombo dombo dee dee dai,  
-> rrrom bobo dombo dee dee dombo
+> r͡rombo dombo di di dai
+> r͡rom bobo dombo di di dombo
 
 it means: i am here — vibrating with playful intention — beyond all explanation.
 
