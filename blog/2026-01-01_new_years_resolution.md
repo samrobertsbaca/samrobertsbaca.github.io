@@ -12,6 +12,7 @@ to welcome the new year, we offer this small chant in glonglish:
 it means: ***i am here, vibrating with playful presence, beyond all explanation.***
 
 our resolution this year is simple and wholehearted:  
+
 to help our world become a place of peace, love, and joy, for everyone, everywhere.
 
 let us make it happen ✨  
