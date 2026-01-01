@@ -272,6 +272,7 @@ footer {
   padding: 2rem;            /* spacing inside */
   bottom:10vh;
   box-sizing: border-box;   /* ensures padding doesn't break width */
+  padding-bottom: calc(10px + env(safe-area-inset-bottom));
 }
 
 /* Apply BodyFont to the entire form */
