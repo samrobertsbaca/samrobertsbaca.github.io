@@ -11,8 +11,6 @@ to welcome the new year, we offer this small chant in glonglish:
 
 it means: ***i am here, vibrating with playful intention, beyond all explanation.***
 
-we wish you a very happy new year, filled with wonder, laughter, and shared breath.
-
 our resolution this year is simple and wholehearted:  
 to turn our world into a place of peace, love, and joy, for everyone, everywhere.
 
