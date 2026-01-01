@@ -183,14 +183,43 @@ function drawRainbowGradient(radius = 500, steps = 150) {
 
 
 // ---- mouse / touch interaction ----
-
 function mousePressed() {
+  if (touches.length > 0) return; // ignore mouse if touch is active
+  startDrag();
+}
+
+function mouseDragged() {
+  if (!dragging) return;
+  dragMove();
+}
+
+function mouseReleased() {
+  endDrag();
+}
+
+function touchStarted() {
+  startDrag();
+  return false;
+}
+
+function touchMoved() {
+  dragMove();
+  return false;
+}
+
+function touchEnded() {
+  endDrag();
+  return false;
+}
+
+
+function startDrag() {
   dragging = true;
   lastX = mouseX;
   lastY = mouseY;
 }
 
-function mouseDragged() {
+function dragMove() {
   if (!dragging) return;
 
   let dx = mouseX - lastX;
@@ -203,9 +232,10 @@ function mouseDragged() {
   lastY = mouseY;
 }
 
-function mouseReleased() {
+function endDrag() {
   dragging = false;
 }
+
 
 // ---- math helpers ----
 
