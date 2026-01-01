@@ -270,7 +270,7 @@ footer {
   width: 100%;              /* full width */
   text-align: center;       /* centers the text */
   padding: 2rem;            /* spacing inside */
-  bottom:20px;
+  bottom:51px;
   box-sizing: border-box;   /* ensures padding doesn't break width */
 }
 
