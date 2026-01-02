@@ -23,7 +23,7 @@ let scaleFactor;
 
 let needsTouchSync = false;
 
-let globScale = .8;
+let globScale = 1;
 
 let yOffset = -120;
 
@@ -162,7 +162,7 @@ let lastAngle = 0;
 
 let dragMode = null;
 // 'cell' | 'record' | null
-const CELL_RADIUS = 100*globScale; // tweak as needed
+const CELL_RADIUS = 1000*globScale; // tweak as needed
 const IDLE_SPIN = 0.00015; // tune this
 let idleDirection = 1; // +1 or -1
 
@@ -242,6 +242,7 @@ function draw() {
   //background(bgImg);
   clear();
 
+  /*
   push();
   resetMatrix();       // ignore rotations
   rotate(ziaAngle);
@@ -253,6 +254,7 @@ function draw() {
   rotate(ziaAngle*3);
   image(bgZia1, 0, 0, height * globScale, height * globScale); // scale to canvas
   pop();
+  */
 
   if (!ziaDragging) {
     ziaSpin += idleDirection * IDLE_SPIN;   // gentle motor
