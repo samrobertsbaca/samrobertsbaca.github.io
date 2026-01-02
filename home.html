@@ -129,6 +129,14 @@
         }
       });
 
+      function setFooterPosition() {
+        const footer = document.querySelector('footer');
+        footer.style.bottom = `${window.innerHeight - document.documentElement.clientHeight + 51}px`;
+      }
+
+      window.addEventListener('resize', setFooterPosition);
+      setFooterPosition();
+
 
     </script>
 
