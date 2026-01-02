@@ -327,6 +327,7 @@ function draw() {
 }
 
 let hueOffset = 0; // global for cycling
+let gradientOffset = 0;
 
 function drawHeartRainbow(size = 1) {
   push();
@@ -338,9 +339,9 @@ function drawHeartRainbow(size = 1) {
   translate(0, 0, 500);
 
   colorMode(HSB, 360); // use hue from 0-360
-  stroke((hueOffset) % 360, 360, 360);
+  stroke((gradientOffset + 180) % 360, 360, 360);
   strokeWeight(0)
-  fill((hueOffset) % 360, 360, 360); // complementary fill
+  fill((gradientOffset + 180) % 360, 360, 360); // complementary fill
   strokeWeight(1);
 
   beginShape();
@@ -357,8 +358,6 @@ function drawHeartRainbow(size = 1) {
   hueOffset += 1;
 }
 
-let gradientOffset = 0; // for color shifting
-
 function drawRainbowGradient(radius = 500, steps = 135) {
   push();
   resetMatrix();
@@ -366,12 +365,21 @@ function drawRainbowGradient(radius = 500, steps = 135) {
   noStroke();
   colorMode(HSB, 360, 100, 100, 100); // alpha enabled
 
+  let dynamicSteps = steps + abs(ziaSpin) * 300; // tune multiplier
+
   for (let i = 0; i < steps; i++) {
+    let r = map(i, 0, dynamicSteps, radius, 0); // outer to inner
+    let t = i / dynamicSteps;
+
+    // Rotate hue with both global offset and spinning
+    let hue = (hueOffset + t * 180 + ziaAngle * 180 / PI) % 360;
+    gradientOffset = hue;
+    /*
     let r = map(i, 0, steps, radius, 0); // outer to inner
     let t = i / steps;
 
     // Hue gradient: complementary at center, full rainbow outward
-    let hue = (hueOffset + t * 180) % 360;
+    let hue = (hueOffset + t * 180) % 360;*/
 
     // Fade alpha toward edges
     let alpha = map(r, radius, 0, 0, 100);
