@@ -15,6 +15,8 @@ let starImg;
 
 let scaleFactor;
 
+let needsTouchSync = false;
+
 function preload() {
   heartImg = loadImage("./p5js/24cell/favicon_gold2.png"); // make sure heart.png is in your project folder
   rainbowImg = loadImage("./p5js/24cell/rainbow.png");
@@ -29,17 +31,29 @@ function setup() {
 
 
   cnv.touchStarted(() => {
-    startDrag();
-    return false;
+  dragging = true;
+  needsTouchSync = true;   // wait one move frame
+  return false;
   });
 
   cnv.touchMoved(() => {
+    if (!dragging) return false;
+
+    // first move initializes, no rotation yet
+    if (needsTouchSync && touches.length > 0) {
+      lastX = touches[0].x;
+      lastY = touches[0].y;
+      needsTouchSync = false;
+      return false;
+    }
+
     dragMove();
     return false;
   });
 
   cnv.touchEnded(() => {
     endDrag();
+    needsTouchSync = false;
     return false;
   });
 
@@ -136,6 +150,9 @@ starAngle += 0.005; // increment angle for next frame
   }
 
   angle += 0.005;
+
+  rotX *= 0.98;
+  rotY *= 0.98;
 }
 
 let hueOffset = 0; // global for cycling
@@ -199,6 +216,15 @@ function drawRainbowGradient(radius = 500, steps = 150) {
 
 
 // ---- mouse / touch interaction ----
+
+function getInputX() {
+  return touches.length ? touches[0].x : mouseX;
+}
+
+function getInputY() {
+  return touches.length ? touches[0].y : mouseY;
+}
+
 function mousePressed() {
   if (touches.length > 0) return; // ignore mouse if touch is active
   startDrag();
@@ -217,26 +243,28 @@ function mouseReleased() {
 
 function startDrag() {
   dragging = true;
-  lastX = mouseX;
-  lastY = mouseY;
+  lastX = getInputX();
+  lastY = getInputY();
 }
 
 function dragMove() {
-  if (!dragging) return;
+  let x = touches.length ? touches[0].x : mouseX;
+  let y = touches.length ? touches[0].y : mouseY;
 
-  let dx = mouseX - lastX;
-  let dy = mouseY - lastY;
+  let dx = x - lastX;
+  let dy = y - lastY;
 
   rotY -= dx * 0.005;
   rotX += dy * 0.005;
 
-  lastX = mouseX;
-  lastY = mouseY;
+  lastX = x;
+  lastY = y;
 }
 
 function endDrag() {
   dragging = false;
 }
+
 
 
 // ---- math helpers ----
