@@ -13,22 +13,36 @@ let heartImg;
 let rainbowImg;
 let starImg;
 let bgImg;
+let bgZia;
+
+let bgZia1;
+let bgZia2;
+let bgZia3;
 
 let scaleFactor;
 
 let needsTouchSync = false;
 
+let globScale = .8;
+
+let yOffset = -120;
+
 function preload() {
   heartImg = loadImage("./p5js/24cell/favicon_gold2.png"); // make sure heart.png is in your project folder
   rainbowImg = loadImage("./p5js/24cell/rainbow.png");
   starImg = loadImage("./p5js/24cell/stars.png");
-  bgImg = loadImage('./p5js/24cell/bg.png');
+  //bgImg = loadImage('./p5js/24cell/bg.png');
+  //bgZia = loadImage('./p5js/24cell/zia_site.png')
+
+  bgZia1 = loadImage('./p5js/24cell/zia_stripes.png')
+  bgZia2 = loadImage('./p5js/24cell/zia_leaves.png')
+  bgZia3 = loadImage('./p5js/24cell/zia_zia.png')
 }
 
 function setup() {
 
   // create canvas with adjusted height
-  let cnv = createCanvas(windowWidth, windowHeight - 120, WEBGL);
+  let cnv = createCanvas(windowWidth, windowHeight + yOffset, WEBGL);
   cnv.parent('p5-container');
 
   // switch to orthographic
@@ -40,29 +54,53 @@ function setup() {
 
 
   cnv.touchStarted(() => {
-  dragging = true;
-  needsTouchSync = true;   // wait one move frame
-  return false;
+    dragging = true;
+
+    if (pointerDistFromCenter() < CELL_RADIUS) {
+      dragMode = 'cell';
+      needsTouchSync = true;
+    } else {
+      dragMode = 'record';
+      needsRecordSync = true;
+      startZiaDrag();   // ✅ THIS WAS MISSING
+    }
+
+    return false;
   });
 
   cnv.touchMoved(() => {
-    if (!dragging) return false;
+    if (!dragging || touches.length === 0) return false;
 
-    // first move initializes, no rotation yet
-    if (needsTouchSync && touches.length > 0) {
-      lastX = touches[0].x;
-      lastY = touches[0].y;
-      needsTouchSync = false;
-      return false;
+    // --- 24-cell drag ---
+    if (dragMode === 'cell') {
+      if (needsTouchSync) {
+        lastX = touches[0].x;
+        lastY = touches[0].y;
+        needsTouchSync = false;
+        return false;
+      }
+      dragMove();
     }
 
-    dragMove();
+    // --- record spin ---
+    if (dragMode === 'record') {
+
+      moveZiaDrag();
+    }
+
     return false;
   });
 
   cnv.touchEnded(() => {
-    endDrag();
-    needsTouchSync = false;
+    //if (dragMode === 'cell') endDrag();
+    //if (dragMode === 'record') endZiaDrag();
+
+    handleRelease();
+    dragging = false;
+    //dragMode = null;
+    //needsTouchSync = false;
+    //needsRecordSync = false;
+
     return false;
   });
 
@@ -116,19 +154,113 @@ function init24Cell_B4() {
 
 
 
-let starAngle = 0; // global variable for rotation
+let starAngle = 0; // global variable for
+let ziaAngle = 0;
+let ziaSpin = 0;        // angular velocity
+let ziaDragging = false;
+let lastAngle = 0;
+
+let dragMode = null;
+// 'cell' | 'record' | null
+const CELL_RADIUS = 100*globScale; // tweak as needed
+const IDLE_SPIN = 0.00015; // tune this
+let idleDirection = 1; // +1 or -1
+
+function pointerDistFromCenter() {
+  let x = mouseX - width / 2;
+  let y = mouseY - (height/2);
+  return sqrt(x*x + y*y);
+}
+
+function pointerAngle() {
+  let x = mouseX - width / 2;
+  let y = mouseY - (height/2); // adjust vertical
+  return atan2(y, x);
+}
+
+
+function handlePress() {
+  if (pointerDistFromCenter() < CELL_RADIUS) {
+    dragMode = 'cell';
+    startDrag();        // your existing 3D rotation
+  } else {
+    dragMode = 'record';
+    startZiaDrag();     // record spin
+  }
+}
+
+function handleDrag() {
+  if (dragMode === 'cell') {
+    dragMove();
+  } else if (dragMode === 'record') {
+    moveZiaDrag();
+  }
+}
+
+function handleRelease() {
+  if (dragMode === 'cell') {
+    endDrag();
+  } else if (dragMode === 'record') {
+    endZiaDrag();
+  }
+  dragMode = null;
+}
+
+
+function startZiaDrag() {
+  ziaDragging = true;
+  lastAngle = pointerAngle();
+}
+
+function moveZiaDrag() {
+  if (!ziaDragging) return;
+
+  let a = pointerAngle();
+  let delta = a - lastAngle;
+
+  // keep rotation continuous across PI / -PI
+  if (delta > PI) delta -= TWO_PI;
+  if (delta < -PI) delta += TWO_PI;
+
+  ziaSpin = delta;     // velocity
+  ziaAngle += delta;  // rotation
+
+  // 👇 remember user's direction
+  if (abs(delta) > 0.0005) {
+    idleDirection = Math.sign(delta);
+  }
+
+  lastAngle = a;
+}
+
+function endZiaDrag() {
+  ziaDragging = false;
+}
 
 function draw() {
   //background(0);
   //background(bgImg);
   clear();
 
-  //push();
-  //resetMatrix();       // ignore rotations
-  //translate(0, 0, -200); // slightly behind other elements
-  //imageMode(CENTER);
-  //image(bgImg, 0, 0, width, height); // scale to canvas
-  //pop();
+  push();
+  resetMatrix();       // ignore rotations
+  rotate(ziaAngle);
+  translate(0, 0, -200); // slightly behind other elements
+  imageMode(CENTER);
+  image(bgZia3, 0, 0, height * globScale, height * globScale); // scale to canvas
+  rotate(ziaAngle*2);
+  image(bgZia2, 0, 0, height * globScale, height * globScale); // scale to canvas
+  rotate(ziaAngle*3);
+  image(bgZia1, 0, 0, height * globScale, height * globScale); // scale to canvas
+  pop();
+
+  if (!ziaDragging) {
+    ziaSpin += idleDirection * IDLE_SPIN;   // gentle motor
+    ziaAngle += ziaSpin;
+    ziaSpin *= 0.96;       // friction
+  }
+
+  //ziaAngle += 0.005;
 
   // apply interactive rotation
   rotateX(rotX);
@@ -146,23 +278,23 @@ function draw() {
     projected.push(p);
   }
 
-  scale(133);
+  scale(100 * globScale);
 
 
 
 
 
-  drawRainbowGradient(123,66)
-  drawHeartRainbow(33)
+  drawRainbowGradient(90 * globScale,66)
+  drawHeartRainbow(33 * globScale)
 
   push();
   resetMatrix();                  // ignore 3D scene rotations
   translate(0, 0, -200);           // place it behind the 24-cell along Z
-  rotate(starAngle);              // rotate around center
+  rotate(ziaAngle*4);              // rotate around center
   imageMode(CENTER);
   tint(255, 255);                 // optional transparency
   //image(rainbowImg,0,0,800,800);
-  image(starImg, 0, 0, 390, 390); // draw at origin
+  image(starImg, 0, 0, 280 * globScale, 280 * globScale); // draw at origin
   pop();
 
   starAngle += 0.005; // increment angle for next frame
@@ -262,18 +394,29 @@ function getInputY() {
   return touches.length ? touches[0].y : mouseY;
 }
 
+//function mousePressed() {
+//  if (touches.length > 0) return; // ignore mouse if touch is active
+//  console.log(dragMode, pointerDistFromCenter());
+//  handlePress();
+//}
+
 function mousePressed() {
-  if (touches.length > 0) return; // ignore mouse if touch is active
-  startDrag();
+  if (pointerDistFromCenter() < CELL_RADIUS) {
+    dragMode = 'cell';
+    startDrag();
+  } else {
+    dragMode = 'record';
+    startZiaDrag();   // ✅ REQUIRED
+  }
 }
 
 function mouseDragged() {
-  if (!dragging) return;
-  dragMove();
+  handleDrag();
 }
 
 function mouseReleased() {
-  endDrag();
+  handleRelease();
+  dragging = false;
 }
 
 
@@ -283,6 +426,7 @@ function startDrag() {
   lastX = getInputX();
   lastY = getInputY();
 }
+
 
 function dragMove() {
   let x = touches.length ? touches[0].x : mouseX;
