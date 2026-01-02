@@ -286,7 +286,7 @@ function draw() {
 
 
 
-  drawRainbowGradient(90 * globScale,66)
+  drawRainbowGradient(90 * globScale,33)
   drawHeartRainbow(33 * globScale)
 
   push();
