@@ -60,35 +60,55 @@ function setup() {
   cnv.touchStarted(() => {
     dragging = true;
 
-    if (pointerDistFromCenter() < CELL_RADIUS) {
-      dragMode = 'cell';
-      needsTouchSync = true;
-    } else {
-      dragMode = 'record';
-      needsRecordSync = true;
-      startZiaDrag();   // ✅ THIS WAS MISSING
-    }
+    // reset everything
+    dragMode = null;
+    needsTouchSync = false;
+    needsRecordSync = false;
 
+    // we **don't pick mode yet** if touches[0] is undefined
+    // initialization will happen on first touchMoved frame
     return false;
   });
 
   cnv.touchMoved(() => {
     if (!dragging || touches.length === 0) return false;
 
-    // --- 24-cell drag ---
+    const tx = touches[0].x;
+    const ty = touches[0].y;
+    const dx = tx - width/2;
+    const dy = ty - height/2;
+    const distFromCenter = Math.sqrt(dx*dx + dy*dy);
+
+    // pick mode **on first move only**
+    if (!dragMode) {
+      if (distFromCenter < CELL_RADIUS) {
+        dragMode = 'cell';
+        needsTouchSync = true;
+      } else {
+        dragMode = 'record';
+        needsRecordSync = true;
+      }
+    }
+
+    // --- cell drag ---
     if (dragMode === 'cell') {
       if (needsTouchSync) {
-        lastX = touches[0].x;
-        lastY = touches[0].y;
+        lastX = tx;
+        lastY = ty;
         needsTouchSync = false;
-        return false;
+        return false; // skip rotation for first move
       }
       dragMove();
     }
 
-    // --- record spin ---
+    // --- record drag ---
     if (dragMode === 'record') {
-
+      if (needsRecordSync) {
+        lastAngle = pointerAngle();
+        ziaDragging = true;
+        needsRecordSync = false;
+        return false; // skip rotation for first move
+      }
       moveZiaDrag();
     }
 
@@ -96,17 +116,18 @@ function setup() {
   });
 
   cnv.touchEnded(() => {
-    //if (dragMode === 'cell') endDrag();
-    //if (dragMode === 'record') endZiaDrag();
+    if (dragMode === 'cell') endDrag();
+    if (dragMode === 'record') endZiaDrag();
 
-    handleRelease();
     dragging = false;
-    //dragMode = null;
-    //needsTouchSync = false;
-    //needsRecordSync = false;
+    dragMode = null;
+    needsTouchSync = false;
+    needsRecordSync = false;
 
     return false;
   });
+
+
 
   stroke(255);
   noFill();
@@ -115,6 +136,8 @@ function setup() {
 
   init24Cell_B4()
 }
+
+
 
 function init24Cell_B4() {
   vertices4D = [];
