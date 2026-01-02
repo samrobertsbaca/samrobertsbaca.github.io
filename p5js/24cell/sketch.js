@@ -162,7 +162,7 @@ let lastAngle = 0;
 
 let dragMode = null;
 // 'cell' | 'record' | null
-const CELL_RADIUS = 1000*globScale; // tweak as needed
+const CELL_RADIUS = 100*globScale; // tweak as needed
 const IDLE_SPIN = 0.00015; // tune this
 let idleDirection = 1; // +1 or -1
 
@@ -292,7 +292,7 @@ function draw() {
   push();
   resetMatrix();                  // ignore 3D scene rotations
   translate(0, 0, -200);           // place it behind the 24-cell along Z
-  rotate(ziaAngle*4);              // rotate around center
+  rotate(ziaAngle);              // rotate around center
   imageMode(CENTER);
   tint(255, 255);                 // optional transparency
   //image(rainbowImg,0,0,800,800);
