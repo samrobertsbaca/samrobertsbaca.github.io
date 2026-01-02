@@ -29,6 +29,13 @@ function setup() {
   let cnv = createCanvas(windowWidth, windowHeight - 120, WEBGL);
   cnv.parent('p5-container');
 
+  // switch to orthographic
+  ortho(
+    -width/2, width/2,
+    -height/2, height/2,
+    -1000, 1000
+  );
+
 
   cnv.touchStarted(() => {
   dragging = true;
@@ -62,31 +69,49 @@ function setup() {
 
   // ---- 24-cell vertices ----
 
-  // 8 vertices: permutations of (±1,0,0,0)
-  let base = [
-    [1,0,0,0], [-1,0,0,0],
-    [0,1,0,0], [0,-1,0,0],
-    [0,0,1,0], [0,0,-1,0],
-    [0,0,0,1], [0,0,0,-1]
+  init24Cell_B4()
+}
+
+function init24Cell_B4() {
+  vertices4D = [];
+  edges = [];
+
+  const a = 1;
+  const b = 0.5;
+
+  // axes
+  const axes = [
+    [ a, 0, 0, 0], [-a, 0, 0, 0],
+    [ 0, a, 0, 0], [ 0,-a, 0, 0],
+    [ 0, 0, a, 0], [ 0, 0,-a, 0],
+    [ 0, 0, 0, a], [ 0, 0, 0,-a]
   ];
-  vertices4D.push(...base);
+  vertices4D.push(...axes);
 
-  // 16 vertices: all sign combos of (±1/2, ±1/2, ±1/2, ±1/2)
-  let s = 0.5;
-  for (let a of [-s, s])
-    for (let b of [-s, s])
-      for (let c of [-s, s])
-        for (let d of [-s, s])
-          vertices4D.push([a, b, c, d]);
+  // half-cube
+  for (let x of [-b, b])
+    for (let y of [-b, b])
+      for (let z of [-b, b])
+        for (let w of [-b, b])
+          vertices4D.push([x, y, z, w]);
 
-  // ---- edges (distance-based) ----
+  const EDGE_LEN = 1;
+  const EPS = 0.01;
+
   for (let i = 0; i < vertices4D.length; i++) {
     for (let j = i + 1; j < vertices4D.length; j++) {
       let d = dist4(vertices4D[i], vertices4D[j]);
-      if (d < 1.3) edges.push([i, j]);
+      if (abs(d - EDGE_LEN) < EPS) {
+        edges.push([i, j]);
+      }
     }
   }
+
+  console.log("vertices:", vertices4D.length); // should be 24
+  console.log("edges:", edges.length);         // should be 96
 }
+
+
 
 
 let starAngle = 0; // global variable for rotation
@@ -115,20 +140,22 @@ function draw() {
 
 
 
-push();
-resetMatrix();                  // ignore 3D scene rotations
-translate(0, 0, -500);           // place it behind the 24-cell along Z
-rotate(starAngle);              // rotate around center
-imageMode(CENTER);
-tint(255, 255);                 // optional transparency
-//image(rainbowImg,0,0,800,800);
-image(starImg, 0, 0, 800, 800); // draw at origin
-pop();
 
-starAngle += 0.005; // increment angle for next frame
 
-  drawRainbowGradient(240)
-  drawHeartRainbow(17)
+  drawRainbowGradient(800,66)
+  drawHeartRainbow(33)
+
+  push();
+  resetMatrix();                  // ignore 3D scene rotations
+  translate(0, 0, -200);           // place it behind the 24-cell along Z
+  rotate(starAngle);              // rotate around center
+  imageMode(CENTER);
+  tint(255, 255);                 // optional transparency
+  //image(rainbowImg,0,0,800,800);
+  image(starImg, 0, 0, 450, 450); // draw at origin
+  pop();
+
+  starAngle += 0.005; // increment angle for next frame
 
 
   // draw edges
@@ -188,10 +215,10 @@ function drawHeartRainbow(size = 1) {
 
 let gradientOffset = 0; // for color shifting
 
-function drawRainbowGradient(radius = 500, steps = 150) {
+function drawRainbowGradient(radius = 500, steps = 135) {
   push();
   resetMatrix();
-  translate(0, 0,-500); // center
+  translate(0, 0,-200); // center
   noStroke();
   colorMode(HSB, 360, 100, 100, 100); // alpha enabled
 
