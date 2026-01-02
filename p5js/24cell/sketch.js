@@ -27,6 +27,10 @@ let globScale = 1;
 
 let yOffset = -120;
 
+const CELL_RADIUS = 130*globScale; // tweak as needed
+const IDLE_SPIN = 0.00015; // tune this
+let idleDirection = 1; // +1 or -1
+
 function preload() {
   heartImg = loadImage("./p5js/24cell/favicon_gold2.png"); // make sure heart.png is in your project folder
   rainbowImg = loadImage("./p5js/24cell/rainbow.png");
@@ -162,9 +166,7 @@ let lastAngle = 0;
 
 let dragMode = null;
 // 'cell' | 'record' | null
-const CELL_RADIUS = 100*globScale; // tweak as needed
-const IDLE_SPIN = 0.00015; // tune this
-let idleDirection = 1; // +1 or -1
+
 
 function pointerDistFromCenter() {
   let x = mouseX - width / 2;
