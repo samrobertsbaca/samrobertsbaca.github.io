@@ -27,7 +27,7 @@ let globScale = 1;
 
 let yOffset = -120;
 
-const CELL_RADIUS = 130*globScale; // tweak as needed
+const CELL_RADIUS = 120*globScale; // tweak as needed
 const IDLE_SPIN = 0.00015; // tune this
 let idleDirection = 1; // +1 or -1
 
