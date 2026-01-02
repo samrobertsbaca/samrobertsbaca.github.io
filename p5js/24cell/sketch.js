@@ -12,6 +12,7 @@ let dragging = false;
 let heartImg;
 let rainbowImg;
 let starImg;
+let bgImg;
 
 let scaleFactor;
 
@@ -21,6 +22,7 @@ function preload() {
   heartImg = loadImage("./p5js/24cell/favicon_gold2.png"); // make sure heart.png is in your project folder
   rainbowImg = loadImage("./p5js/24cell/rainbow.png");
   starImg = loadImage("./p5js/24cell/stars.png");
+  bgImg = loadImage('./p5js/24cell/bg.png');
 }
 
 function setup() {
@@ -118,7 +120,15 @@ let starAngle = 0; // global variable for rotation
 
 function draw() {
   //background(0);
+  //background(bgImg);
   clear();
+
+  //push();
+  //resetMatrix();       // ignore rotations
+  //translate(0, 0, -200); // slightly behind other elements
+  //imageMode(CENTER);
+  //image(bgImg, 0, 0, width, height); // scale to canvas
+  //pop();
 
   // apply interactive rotation
   rotateX(rotX);
@@ -136,13 +146,13 @@ function draw() {
     projected.push(p);
   }
 
-  scale(160);
+  scale(133);
 
 
 
 
 
-  drawRainbowGradient(800,66)
+  drawRainbowGradient(123,66)
   drawHeartRainbow(33)
 
   push();
@@ -152,7 +162,7 @@ function draw() {
   imageMode(CENTER);
   tint(255, 255);                 // optional transparency
   //image(rainbowImg,0,0,800,800);
-  image(starImg, 0, 0, 450, 450); // draw at origin
+  image(starImg, 0, 0, 390, 390); // draw at origin
   pop();
 
   starAngle += 0.005; // increment angle for next frame
