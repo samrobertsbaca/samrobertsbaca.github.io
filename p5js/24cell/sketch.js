@@ -324,7 +324,7 @@ function draw() {
 
 
   drawRainbowGradient(90 * globScale,33)
-  drawHeartRainbow(33 * globScale)
+  drawHeartRainbow(33 * globScale + 20)
 
   push();
   resetMatrix();                  // ignore 3D scene rotations
