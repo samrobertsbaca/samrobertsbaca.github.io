@@ -1,6 +1,6 @@
 Dec 13
 
-# on john king cave
+# john king cave
 
 **NOTICE OF DECLASSIFICATION — 12.13.A (REV. I)**  
 Interagency Task Group for Anomalous Phenomena (ITG‑AP)  

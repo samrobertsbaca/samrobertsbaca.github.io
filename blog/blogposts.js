@@ -1,6 +1,6 @@
 window.postFiles = [
   "/blog/2026-01-01_new_years_resolution.html",
-  "/blog/2025-12-13_on_john_king_cave.html",
+  "/blog/2025-12-13_john_king_cave.html",
   "/blog/2025-12-03_from_hell_to_heaven.html",
   "/blog/2025-12-01_go_to_heaven.html",
   "/blog/2025-11-30_go_to_hell.html",

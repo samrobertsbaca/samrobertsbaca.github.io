@@ -31,6 +31,8 @@ const CELL_RADIUS = 120*globScale; // tweak as needed
 const IDLE_SPIN = 0.00015; // tune this
 let idleDirection = 1; // +1 or -1
 
+let cnv;
+
 function preload() {
   heartImg = loadImage("./p5js/24cell/favicon_gold2.png"); // make sure heart.png is in your project folder
   rainbowImg = loadImage("./p5js/24cell/rainbow.png");
@@ -46,7 +48,7 @@ function preload() {
 function setup() {
 
   // create canvas with adjusted height
-  let cnv = createCanvas(windowWidth, windowHeight + yOffset, WEBGL);
+  cnv = createCanvas(windowWidth, windowHeight + yOffset, WEBGL);
   cnv.parent('p5-container');
 
   // switch to orthographic
@@ -135,6 +137,16 @@ function setup() {
   // ---- 24-cell vertices ----
 
   init24Cell_B4()
+}
+
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight + yOffset);
+  ortho(
+    -width/2, width/2,
+    -height/2, height/2,
+    -1000, 1000
+  );
 }
 
 
