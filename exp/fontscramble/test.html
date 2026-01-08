@@ -54,7 +54,7 @@
   new line test</textarea><br><br>
 
   <label>Enter fonts (comma-separated, must match loaded font names):</label><br>
-  <input id="fontList" type="text" value="handpixies,eggmode,rdj"><br><br>
+  <input id="fontList" type="text" value="rdj,handpixies,eggmode,fantasticboog"><br><br>
 
   <label>Enter sizes (comma-separated in px, one per font, or leave blank for default 64px):</label><br>
   <input id="sizeList" type="text" placeholder="30,30,30"><br><br>
@@ -64,6 +64,12 @@
     <option value="left">Left</option>
     <option value="center">Center</option>
     <option value="right">Right</option>
+  </select><br><br>
+
+  <label>Font mode:</label><br>
+  <select id="fontMode">
+    <option value="random">Random</option>
+    <option value="cycle">Cycle through fonts</option>
   </select><br><br>
 
   <button onclick="scrambleText()">Scramble!</button><br><br>
@@ -76,6 +82,7 @@
       const fonts = document.getElementById('fontList').value.split(',').map(f => f.trim());
       const sizeInput = document.getElementById('sizeList').value.split(',').map(s => s.trim());
       const outputDiv = document.getElementById('output');
+      const fontMode = document.getElementById('fontMode').value;
 
       // clear previous output
       outputDiv.innerHTML = '';
@@ -83,6 +90,9 @@
       // set text alignment
       const alignment = document.getElementById('alignment').value;
       outputDiv.style.textAlign = alignment;
+
+      // starting index for cycling fonts
+      let cycleIndex = Math.floor(Math.random() * fonts.length);
 
       for (let char of text) {
           if (char === '\n') {
@@ -93,8 +103,14 @@
           const span = document.createElement('span');
           span.textContent = char;
 
-          // pick random font
-          const font = fonts[Math.floor(Math.random() * fonts.length)];
+          // pick font
+          let font;
+          if (fontMode === "cycle") {
+              font = fonts[cycleIndex];
+              cycleIndex = (cycleIndex + 1) % fonts.length; // move to next font
+          } else { // random
+              font = fonts[Math.floor(Math.random() * fonts.length)];
+          }
           span.style.fontFamily = font;
 
           // font size: if provided for this font, use it; else default 64px
