@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Custom Font & Size Scrambler</title>
+
+<!-- Example: Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto&display=swap" rel="stylesheet">
+
+<style>
+  @font-face {
+    font-family: "belluga";
+    src: url("fonts/belluga.otf") format("opentype");
+  }
+
+  @font-face {
+    font-family: "rdj";
+    src: url("fonts/rdj.otf") format("opentype");
+  }
+
+  @font-face {
+    font-family: "eggmode";
+    src: url("fonts/eggmode.ttf") format("truetype");
+  }
+
+  @font-face {
+    font-family: "fantasticboog";
+    src: url("fonts/fantasticboog.ttf") format("truetype");
+  }
+
+
+  @font-face {
+    font-family: "handpixies";
+    src: url("fonts/handpixies.ttf") format("truetype");
+  }
+
+  body {
+    font-family: sans-serif;
+    padding: 20px;
+  }
+
+  #output span {
+    display: inline-block;
+    white-space: pre; /* preserves spaces */
+  }
+</style>
+</head>
+<body>
+
+  <h2>Custom Font & Size Scrambler</h2>
+
+  <label>Enter your text:</label><br>
+  <textarea id="inputText" rows="5" cols="50">scorsby wuz here
+  new line test</textarea><br><br>
+
+  <label>Enter fonts (comma-separated, must match loaded font names):</label><br>
+  <input id="fontList" type="text" value="handpixies,eggmode,rdj"><br><br>
+
+  <label>Enter sizes (comma-separated in px, one per font, or leave blank for default 64px):</label><br>
+  <input id="sizeList" type="text" placeholder="30,30,30"><br><br>
+
+  <label>Text alignment:</label><br>
+  <select id="alignment">
+    <option value="left">Left</option>
+    <option value="center">Center</option>
+    <option value="right">Right</option>
+  </select><br><br>
+
+  <button onclick="scrambleText()">Scramble!</button><br><br>
+
+  <div id="output" style="white-space: pre-wrap;"></div>
+
+  <script>
+  function scrambleText() {
+      const text = document.getElementById('inputText').value;
+      const fonts = document.getElementById('fontList').value.split(',').map(f => f.trim());
+      const sizeInput = document.getElementById('sizeList').value.split(',').map(s => s.trim());
+      const outputDiv = document.getElementById('output');
+
+      // clear previous output
+      outputDiv.innerHTML = '';
+
+      // set text alignment
+      const alignment = document.getElementById('alignment').value;
+      outputDiv.style.textAlign = alignment;
+
+      for (let char of text) {
+          if (char === '\n') {
+              outputDiv.appendChild(document.createElement('br')); // new line
+              continue;
+          }
+
+          const span = document.createElement('span');
+          span.textContent = char;
+
+          // pick random font
+          const font = fonts[Math.floor(Math.random() * fonts.length)];
+          span.style.fontFamily = font;
+
+          // font size: if provided for this font, use it; else default 64px
+          const fontIndex = fonts.indexOf(font);
+          let size = sizeInput[fontIndex] ? sizeInput[fontIndex] + 'px' : '64px';
+          span.style.fontSize = size;
+
+          outputDiv.appendChild(span);
+      }
+  }
+  </script>
+
+</body>
+</html>
