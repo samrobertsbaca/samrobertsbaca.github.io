@@ -1,5 +1,5 @@
 window.postFiles = [
-  "/blog/2026-01-08_three_truths_and_a_lie.html",
+  "/blog/2026-01-08_two_truths_and_a_lie.html",
   "/blog/2026-01-01_new_years_resolution.html",
   "/blog/2025-12-13_john_king_cave.html",
   "/blog/2025-12-03_from_hell_to_heaven.html",

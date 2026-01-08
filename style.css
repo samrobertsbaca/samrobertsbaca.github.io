@@ -3,6 +3,12 @@
   font-family: 'HeaderFont';
   src: url('fonts/KiwiSoda.ttf') format('truetype');
 }
+
+@font-face {
+  font-family: 'HeaderFont2';
+  src: url('fonts/GARABD.ttf') format('truetype');
+}
+
 @font-face {
   font-family: 'BodyFont';
   src: url('fonts/IBMPlexMono-Regular.ttf') format('truetype');
@@ -219,7 +225,7 @@ nav ul li a:hover { color: #007bff; }
 
 /* ===== Main Content ===== */
 h1 { /*font-family: 'HeaderFont', sans-serif; */
-  font-family: garamond;
+  font-family: 'HeaderFont2', sans-serif;
 text-align: center;}
 .container { text-align: center; }
 .container img { max-width: 300px; height: auto; display: block; margin: 0 auto; }
