@@ -4,7 +4,7 @@ Jan 11
 
 ![](./images/page1.png)
 
-don’t let anyone tell you you are the slice when you are the whole cake. the cake is not a lie. the lie is that you were ever separate from the cake, when in fact you and the cake are one.
+don’t let anyone tell you you are the slice when you are the whole cake. the cake is not a lie. the lie is that you and the cake were ever apart.
 
 did i lose you? if so i’m sorry. let me put it another way.
 
