@@ -14,7 +14,7 @@ but when you begin to see the skin, and everything beneath it, as a thin layer c
 
 try identifying as the largest container imaginable. maybe it begins simply: the room you are in is your skin, and everything within it is your organs. now you are your house — and everyone inside it. from there, expand again. your neighborhood becomes your body, the people, animals, plants, and everything else moving through it like cells in a grand, swaying organism. expand. repeat.
 
-naturally, you begin to recognize yourself as something far greater than you were ever taught to be. you are the earth, the solar system, the cosmos. you find you are not bound by time or space, and begin to see yourself as pure radiant light, swirling through colorful electric dreams. don’t take my word for it. see for yourself.
+naturally, you begin to recognize yourself as something far greater than you were ever taught to be. you are the city, the state, the earth, the solar system, the cosmos. you find you are not bound by time or space, and begin to see yourself as pure radiant light, swirling through colorful electric dreams. don’t take my word for it. see for yourself.
 
 eventually you will find there is a reality even beyond these light dreams. you escape every conceivable border there is to draw, and find that even you and god are one and the same. this isn’t egoic. it’s the opposite — a dissolving of the boundary between self and other, an ending of the whole project of ego entirely.
 
