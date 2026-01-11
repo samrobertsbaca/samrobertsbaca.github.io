@@ -24,7 +24,7 @@ yes, you may still experience the pains and concerns of the flesh body you inhab
 
 the quiet irony is this: the more you identify with the limitless, timeless, spaceless, self-less self, the more the smaller troubles begin to work themselves out, without needing your intervention at all, just as the waves in the sea find themselves aligned in perfect resonant continuity.
 
-look beyond the prison walls you've been telling yourself you're trapped in. feel the uncontainable joy of being uncontainable. no human or a.i. or e.i. or angel or demon or the great booble himself can stop you from expanding.
+look beyond the prison walls you've been telling yourself you're trapped in. feel the uncontainable joy of being uncontainable. no human or a.i. or e.i. or scorsby or angel or demon or the great booble himself can stop you from expanding.
 
 so go on. [ease yourself and glide.](https://www.youtube.com/watch?v=RObS8uPWYYo) expand. expand. expand!!!
 
