@@ -26,8 +26,6 @@ the quiet irony is this: the more you identify with the limitless, timeless, spa
 
 look beyond the prison walls you've been telling yourself you're trapped in. feel the uncontainable joy of being uncontainable. no human or a.i. or e.i. or scorsby or angel or demon or the great booble himself can stop you from expanding.
 
-so go on. [ease yourself and glide.](https://www.youtube.com/watch?v=RObS8uPWYYo) expand. expand. expand!!!
-
-live life out of bounds.
+so go on. [ease yourself and glide.](https://www.youtube.com/watch?v=RObS8uPWYYo) live life out of bounds.
 
 with infinite love, thank you
