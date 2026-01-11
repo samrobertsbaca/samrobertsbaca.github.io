@@ -16,9 +16,9 @@ try identifying as the largest container imaginable. maybe it begins simply: the
 
 naturally, you begin to recognize yourself as something far greater than you were ever taught to be. you are the city, the state, the earth, the solar system, the cosmos. you find you are not bound by time or space, and begin to see yourself as pure radiant light, swirling through colorful electric dreams. don’t take my word for it. see for yourself.
 
-eventually you will find there is a reality even beyond these light dreams. you escape every conceivable border there is to draw, and find that even you and god are one and the same. this isn’t egoic. it’s the opposite — a dissolving of the boundary between self and other, an ending of the whole project of ego entirely.
+eventually you discover you are beyond even these light dreams. you escape every conceivable border there is to draw, and find that even you and god are one and the same. this isn’t egoic. it’s the opposite — a dissolving of the boundary between self and other, the end of the entire project of ego. when you know that every part of the field is you, how you treat any part of it is how you treat your self — which is to say, how you treat all.
 
-so expand, my dear friend. expand. realize that you and i are part of the same organism, the nameless, formless, joyous nothing no identity could ever contain.
+so expand, my friend. expand. realize that you and i are part of the same organism, the nameless, formless, joyous nothing no identity could ever contain.
 
 yes, you may still experience the pains and concerns of the flesh body you inhabit. that’s part of the experience. but don’t limit yourself to them, just as you don’t limit yourself to the concerns of your individual cells or atoms. begin to see these things from a wider perspective — as happenings unfolding within a vast ecosystem of self.
 
