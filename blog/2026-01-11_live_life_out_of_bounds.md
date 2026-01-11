@@ -8,7 +8,7 @@ don’t let anyone tell you you are the slice when you are the whole cake. the c
 
 did i lose you? if so i’m sorry. let me put it another way.
 
-you are not limited to the form you have been imposing on yourself for so many years. you are not bound to your meat suit — the little mass of fat and water and protein you call a brain, or the bundle of muscle fibers you call a heart. when you believe the skin is where you end and the world begins, it makes sense that your focus would gather around small, fragile concerns like food, shelter, sex, and survival.
+you are not limited to the form you have been imposing on yourself for so many years. you are not bound to your meat suit — the little mass of fat and water and protein you call a brain, or the bundle of muscle fibers you call a heart. when you believe the skin is where you end and the world begins, it makes sense that your focus would gather around small, fragile concerns like food, shelter, sex, survival, comparison.
 
 but when you begin to see the skin, and everything beneath it, as a thin layer contained within what you are, something opens. your attention widens. you start to concern yourself with much greater possibilities.
 
@@ -20,7 +20,7 @@ eventually you will find there is a reality even beyond these light dreams. you 
 
 so expand, my dear friend. expand. realize that you and i are part of the same organism, the nameless, formless, joyous nothing no identity could ever contain.
 
-yes, you may still experience the pains and concerns of the flesh body you inhabit. that’s part of the experience. but don’t limit yourself to them, just as you don’t worry yourself over the troubles of your individual cells or atoms. begin to see these concerns in their proper place — as happenings unfolding within a vast ecosystem of self.
+yes, you may still experience the pains and concerns of the flesh body you inhabit. that’s part of the experience. but don’t limit yourself to them, just as you don’t limit yourself to the concerns of your individual cells or atoms. begin to see these things from a wider perspective — as happenings unfolding within a vast ecosystem of self.
 
 the quiet irony is this: the more you identify with the limitless, timeless, spaceless, self-less self, the more the smaller troubles begin to work themselves out, without needing your intervention at all, just as the waves in the sea find themselves aligned in perfect resonant continuity.
 
