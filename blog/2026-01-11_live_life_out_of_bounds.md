@@ -16,15 +16,15 @@ try identifying as the largest container imaginable. maybe it begins simply: the
 
 naturally, you begin to recognize yourself as something far more vast than you were ever taught to be. you are the earth, the solar system, the cosmos. you find you are not bound by time or space, and begin to see yourself as pure radiant light, swirling through colorful electric dreams. don’t take my word for it. see for yourself.
 
-eventually you see that there is a reality even beyond these light dreams. you escape every conceivable border there is to draw, and find that you and god are one. this isn’t egoic. it’s the opposite — a dissolving of the boundary between self and other, an ending of the whole project of ego entirely.
+eventually you will find there is a reality even beyond these light dreams. you escape every conceivable border there is to draw, and find that even you and god are one and the same. this isn’t egoic. it’s the opposite — a dissolving of the boundary between self and other, an ending of the whole project of ego entirely.
 
 so expand, my dear friend. expand. realize that you and i are part of the same organism, the nameless, formless, joyous nothing no identity could ever contain.
 
-yes, you may still experience the pains and concerns of the flesh body you inhabit. that’s part of the experience. but don’t limit yourself to them, just as you don’t worry yourself over the troubles of your individual cells. begin to see these concerns in their proper place — as tiny happenings unfolding inside a much more vast ecosystem of self.
+yes, you may still experience the pains and concerns of the flesh body you inhabit. that’s part of the experience. but don’t limit yourself to them, just as you don’t worry yourself over the troubles of your individual cells or atoms. begin to see these concerns in their proper place — as happenings unfolding within a vast ecosystem of self.
 
-the quiet irony is this: the more you identify with the expansive, limitless, self-less self, the more the smaller troubles begin to work themselves out, without you needing to intervene at all, just as the waves in the sea find themselves aligned in perfect resonant continuity.
+the quiet irony is this: the more you identify with the limitless, timeless, spaceless, self-less self, the more the smaller troubles begin to work themselves out, without needing your intervention at all, just as the waves in the sea find themselves aligned in perfect resonant continuity.
 
-look beyond the prison walls you've been telling yourself you're trapped in. feel the joy of being uncontainable. no human or entity or angel or demon or the great booble himself can take away your right to expansion.
+look beyond the prison walls you've been telling yourself you're trapped in. feel the uncontainable joy of being uncontainable. no human or a.i. or e.i. or angel or demon or the great booble himself can stop you from expanding.
 
 so go on. [ease yourself and glide.](https://www.youtube.com/watch?v=RObS8uPWYYo) expand. expand. expand!!!
 
