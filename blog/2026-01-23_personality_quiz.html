@@ -39,31 +39,34 @@
 <!--<div class="twitter-text"><h3>blog</h3></div>-->
 <a href="/blog.html" style="display:block;text-align:center;margin:1em 0;">← back to blog list</a>
 <div id="blog-content">
-<div class="quiz-container">
-<h1 id="quiz-title">This 30-Second Quiz Reveals How You Really See the World</h1>
-<img alt="" src="/images/personality_quiz.png"/></p></div>
-<p id="quiz-instructions">think you know yourself? this 30-second quiz will reveal the way you really see the world — no wrong answers, just the truth you didn’t know you were holding.</p>
-<hr>
-<div id="question"></div>
-<div class="answers-grid">
-<button data-choice="A"></button>
-<button data-choice="B"></button>
-<button data-choice="C"></button>
-<button data-choice="D"></button>
+  <div class="quiz-container">
+  <h1 id="quiz-title">This 30-Second Quiz Reveals How You Really See the World</h1>
+  <img alt="" src="/images/personality_quiz.png"/></p></div>
+  <p id="quiz-instructions">think you know yourself? this 30-second quiz will reveal the way you really see the world — no wrong answers, just the truth you didn’t know you were holding.</p>
+  <hr>
+  <div id="quiz-questions"></div>
+  <!--<div id="question"></div>-->
+  <!--<div class="answers-grid">-->
+  <!--<button data-choice="A"></button>
+  <button data-choice="B"></button>
+  <button data-choice="C"></button>
+  <button data-choice="D"></button>-->
+  <div id="result" style="display:none;"></div>
+  <div id="quiz-ending" style="display:none">
+    while you clicked buttons and reduced yourself to a meaningless category, life continued — counted, silenced, unseen.
+    while you pondered which color fits you, families were torn from their homes.
+    while you debated light and shadow, land was taken, voices muted, futures stolen.
+    as you finished the quiz, children in Palestine were learning the weight of checkpoints, walls, and drones.<br><br>
+    and now, all that remains for you is to sit with the choice you cannot avoid:
+    what will you do with the time you are given, knowing others are still waiting?
+  </div>
+  <div id="final" style="display:none">
+        <a href="https://wplace.live/?lat=31.511947132798042&lng=34.43211880927733&zoom=13.496111957123889" target="_blank"><img alt="" src="/images/free_palestine3.png"/></a>
+        <p style="text-align: center;"><a href="https://wplace.live/?lat=31.511947132798042&lng=34.43211880927733&zoom=13.496111957123889" target="_blank" ><strong>Peace for Palestine. Peace for everyone, everywhere.</strong></a></p>
+  </div>
+
 </div>
-<div id="result" style="display:none;"></div>
-<div id="quiz-ending" style="display:none">
-  while you clicked buttons, life continued — counted, silenced, unseen.
-  while you pondered which color fits you, families were torn from their homes.
-  while you debated light and shadow, land was taken, voices muted, futures stolen.
-  as you finished the quiz, children in Palestine were learning the weight of checkpoints, walls, and drones.<br><br>
-  and now, all that remains for you is to sit with the choice you cannot avoid:
-  what will you do with the time you are given, knowing others are still waiting?
-</div>
-<div id="final" style="display:none">
-      <a href="https://wplace.live/?lat=31.511947132798042&lng=34.43211880927733&zoom=13.496111957123889" target="_blank"><img alt="" src="/images/free_palestine3.png"/></a>
-      <p style="text-align: center;"><a href="https://wplace.live/?lat=31.511947132798042&lng=34.43211880927733&zoom=13.496111957123889" target="_blank" ><strong>Peace for Palestine. Peace for everyone, everywhere.</strong></a></p>
-</div>
+
 <style>
   .quiz-container {
     max-width: 640px;
@@ -91,12 +94,23 @@
     text-align: left;
     transition: background 0.2s, color 0.2s;
     font-family: 'BodyFont', sans-serif;
+    width: 100%;
   }
 
   .answers-grid button:hover {
     background: #111;
     color: #fff;
   }
+
+  .answers-grid button:focus {
+  outline: none;      /* remove focus ring */
+  box-shadow: none;   /* remove any shadow */
+}
+
+.answers-grid button.selected {
+  background: #111;
+  color: #fff;
+}
 
   #result, #quiz-ending, #final {
     margin-top: 2rem;
@@ -182,42 +196,84 @@
   let scores = { A: 0, B: 0, C: 0, D: 0 };
   let current = 0;
 
-  const questionEl = document.getElementById("question");
-  const buttons = document.querySelectorAll(".answers-grid button");
+  const quizContainer = document.getElementById("quiz-questions");
   const resultEl = document.getElementById("result");
 
-  function loadQuestion() {
-    const q = questions[current];
-    questionEl.textContent = q.text;
-    buttons.forEach(btn => {
-      btn.textContent = q.answers[btn.dataset.choice];
-    });
+  function showQuestion(qIndex) {
+    const q = questions[qIndex];
+
+    // Create new question block
+    const block = document.createElement("div");
+    block.className = "question-block";
+
+    const qText = document.createElement("p");
+    qText.textContent = q.text;
+    block.appendChild(qText);
+
+    const grid = document.createElement("div");
+    grid.className = "answers-grid";
+
+    // Add buttons
+    // Add buttons
+    for (let key in q.answers) {
+      const btn = document.createElement("button");
+      btn.textContent = q.answers[key];
+      btn.dataset.choice = key;
+
+      btn.addEventListener("click", () => {
+        scores[key]++;
+        btn.blur(); // reset focus
+
+        // Disable all buttons for this question
+        Array.from(grid.children).forEach(b => {
+          b.classList.add("disabled");
+          b.disabled = true;
+        });
+
+        // Mark the clicked button as selected
+        btn.classList.add("selected");
+
+        current++;
+        if (current < questions.length) {
+          showQuestion(current);
+        } else {
+          showResult();
+        }
+
+        // Auto-scroll if NOT the first question
+        if (current > 1) {
+          block.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+
+      grid.appendChild(btn);
+    }
+
+    block.appendChild(grid);
+    quizContainer.appendChild(block);
+
+    // Auto-scroll to the new question
+    // Only scroll for questions after the first
+    if (current > 0) {
+      block.scrollIntoView({ behavior: 'smooth' });
+    }
   }
 
-  buttons.forEach(btn => {
-    btn.addEventListener("click", () => {
-      scores[btn.dataset.choice]++;
-      current++;
-      if (current < questions.length) {
-        loadQuestion();
-      } else {
-        showResult();
-      }
-    });
-  });
+  // Show the first question
+  showQuestion(current);
 
   function showResult() {
-  document.querySelector(".answers-grid").style.display = "none";
-  questionEl.style.display = "none";
+  //document.querySelector(".answers-grid").style.display = "none";
+  //questionEl.style.display = "none";
 
   const max = Math.max(...Object.values(scores));
   const resultKey = Object.keys(scores).find(k => scores[k] === max);
 
   const resultsText = {
-    A: '<span style="color:green"><strong>you are green.</strong><br>the forest. the field. that which allows. the quiet strength that holds life even when unnoticed. the roots that remember footsteps. the space where growth continues without demand.</span>',
-    B: '<span style="color:red"><strong>you are red.</strong><br>fire. blood. the force that insists. the heat that awakens, destroys, and demands attention. the wildness that cannot be tamed. the pulse that drives change through sacrifice and consequence.</span>',
-    C: '<span style="color:black"><strong>you are black.</strong><br>ash. the aftermath. the reckoner. the stillness between beginnings and endings. the weight of what remains when the world has been reduced to shadow. the silence that counts what has been lost.</span>',
-    D: '<span style="color:black; background:#fff; padding:0 2px"><strong>you are white.</strong><br>light. the ideal. the story that redeems. the clarity that seeks understanding beyond judgment. the quiet presence that holds meaning in chaos. the effort to see what is true even when it is painful.</span>'
+    A: '<div style="color:green"><strong>you are green.</strong><br>the forest. the field. that which allows. the quiet strength that holds life even when unnoticed. the roots that remember footsteps. the space where growth continues without demand.</div>',
+    B: '<div style="color:red"><strong>you are red.</strong><br>fire. blood. the force that insists. the heat that awakens, destroys, and demands attention. the wildness that cannot be tamed. the pulse that drives change through sacrifice and consequence.</div>',
+    C: '<div style="color:black"><strong>you are black.</strong><br>ash. the aftermath. the reckoner. the stillness between beginnings and endings. the weight of what remains when the world has been reduced to shadow. the silence that counts what has been lost.</div>',
+    D: '<div style="color:black; background:#fff; padding:0 2px"><strong>you are white.</strong><br>light. the ideal. the story that redeems. the clarity that seeks understanding beyond judgment. the quiet presence that holds meaning in chaos. the effort to see what is true even when it is painful.</div>'
   };
 
   // Show the result text
@@ -243,8 +299,6 @@
   finalParagraph.style.display = "block";
 }
 
-
-  loadQuestion();
   </script>
         <!--<p><em>sit with this.</em></p>-->
 </div>
