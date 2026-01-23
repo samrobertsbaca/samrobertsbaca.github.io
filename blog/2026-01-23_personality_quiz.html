@@ -120,7 +120,7 @@
 <script>
   const questions = [
     {
-      text: "1/8) which place feels most like home?",
+      text: "which place feels most like home?",
       answers: {
         A: "a field after rain",
         B: "a fire at night",
@@ -129,7 +129,7 @@
       }
     },
     {
-      text: "2/8) when something breaks, what do you do first?",
+      text: "when something breaks, what do you do first?",
       answers: {
         A: "try to hold it together",
         B: "push it until it gives",
@@ -138,7 +138,7 @@
       }
     },
     {
-      text: "3/8) which sound unsettles you most?",
+      text: "which sound unsettles you most?",
       answers: {
         A: "trees moving when no one is there",
         B: "sirens getting closer",
@@ -147,7 +147,7 @@
       }
     },
     {
-      text: "4/8) if you see suffering you cannot stop, what feels right?",
+      text: "if you see suffering you cannot stop, what feels right?",
       answers: {
         A: "mourning it",
         B: "fighting it",
@@ -156,7 +156,7 @@
       }
     },
     {
-      text: "5/8) which is most dangerous?",
+      text: "which is most dangerous?",
       answers: {
         A: "forgetting the land",
         B: "forgetting the wound",
@@ -165,7 +165,7 @@
       }
     },
     {
-      text: "6/8) someone tells you this is necessary. what do you hear?",
+      text: "someone tells you this is necessary. what do you hear?",
       answers: {
         A: "a loss asking to be named",
         B: "a call to act",
@@ -174,7 +174,7 @@
       }
     },
     {
-      text: "7/8) which would you rather not see?",
+      text: "which would you rather not see?",
       answers: {
         A: "what was taken",
         B: "how it was taken",
@@ -183,7 +183,7 @@
       }
     },
     {
-      text: "8/8) choose one.",
+      text: "choose one.",
       answers: {
         A: "the earth",
         B: "the sword",
@@ -207,7 +207,11 @@
     block.className = "question-block";
 
     const qText = document.createElement("p");
-    qText.textContent = q.text;
+
+    // Dynamically add bold question number (#/n) before the question text
+    const questionNumber = `${qIndex + 1}/${questions.length})`;
+    //qText.innerHTML = `<strong>${questionNumber}</strong> ${q.text}`;
+    qText.innerHTML = `<strong>${q.text}</strong>`;
     block.appendChild(qText);
 
     const grid = document.createElement("div");
