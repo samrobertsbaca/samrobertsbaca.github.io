@@ -113,6 +113,15 @@
   color: #fff;
 }
 
+/* disabled buttons lose hover ability and fade visually */
+.answers-grid button.disabled {
+  /*opacity: 0.5;        /* visually dim */
+  cursor: default;     /* show it's not clickable */
+  pointer-events: none; /* prevent hover/click */
+  /*background: #eee;    /* optional: light gray background */
+  /*color: #666;         /* optional: muted text color */
+}
+
   #result, #quiz-ending, #final {
     margin-top: 2rem;
     line-height: 1.6;
@@ -226,6 +235,12 @@
       btn.dataset.choice = key;
 
       btn.addEventListener("click", () => {
+        // If the question has already been answered, do nothing
+        if (grid.dataset.answered === "true") return;
+
+        // Mark this question as answered
+        grid.dataset.answered = "true";
+
         scores[key]++;
         btn.blur(); // reset focus
 
