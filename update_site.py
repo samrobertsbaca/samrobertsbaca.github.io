@@ -34,6 +34,8 @@ md_files.sort(key=lambda f: extract_date(f), reverse=True)
 # List to hold JS paths
 js_lines = ["window.postFiles = ["]
 
+js_lines.append(f'  "/blog/2026-01-23_personality_quiz.html",')
+
 # Convert each Markdown to HTML page
 for md_file in md_files:
     # Read markdown
@@ -115,5 +117,6 @@ js_lines.append("];\n")
 # Write to blogposts.js
 with open(output_js_file, "w", encoding="utf-8") as js_file:
     js_file.write("\n".join(js_lines))
+
 
 print(f"✅ Generated {len(md_files)} HTML blog posts with content inserted into blog-content and updated blogposts.js.")
