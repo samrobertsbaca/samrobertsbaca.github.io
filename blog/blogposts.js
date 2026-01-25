@@ -1,4 +1,6 @@
 window.postFiles = [
+  "/blog/2026-01-25_advice_on_doors.html",
+  "/blog/2026-01-25_letter_from_sandy.html",
   "/blog/2026-01-23_personality_quiz.html",
   "/blog/2026-01-11_live_life_out_of_bounds.html",
   "/blog/2026-01-08_two_truths_and_a_lie.html",
@@ -16,7 +18,6 @@ window.postFiles = [
   "/blog/2025-10-18_sit_with_the_silence.html",
   "/blog/2025-10-16_what_cannot_be_taken.html",
   "/blog/2025-10-14_the_end_of_the_word_as_we_know_it.html",
-  "/blog/2025-10-09_when_life_gives_u_lemons.html",
   "/blog/2025-10-05_note_to_self.html",
   "/blog/2025-10-04_the_myth_of_separation.html",
   "/blog/2025-10-02_naked_and_in_love.html",
