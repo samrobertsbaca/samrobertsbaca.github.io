@@ -1,4 +1,4 @@
-Jan 25
+Jan 24
 
 # some advice on doors
 
@@ -8,7 +8,7 @@ Jan 25
 
 3. every door kills you.
 
-4. 
+4.
 
 5. every door rebirths you.
 
