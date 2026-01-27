@@ -26,4 +26,4 @@ anyone aligned with this vision.
 come as you are. bring your golden heart.  
 let us imagine a universe of wonder together.  
 
-[DREAM ALONG ON DISCORD](https://discord.gg/QYmCYEXrfR)
+[❤️🧡💛💚💙💜💗DREAM ALONG ON DISCORD💗💜💙💚💛🧡❤️](https://discord.gg/QYmCYEXrfR)
