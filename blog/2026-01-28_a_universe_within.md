@@ -62,7 +62,7 @@ can you see yourself as a single human vessel? can you identify as 35 trillion n
 
 can you identify as one?
 
-the only way, i think, to comprehend ourselves as all these forms is through a surrender that is at once profound, intelligent, and humbling.
+the only way, i think, to comprehend myself in all these forms is through a surrender that is at once profound, intelligent, and humbling.
 
 the surrender of a cell in service to the universe,
 and the surrender of the universe in service to a cell.
