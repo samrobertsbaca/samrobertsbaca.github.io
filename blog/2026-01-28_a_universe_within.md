@@ -10,7 +10,7 @@ the human body contains an estimated 30 to 37.2 trillion cells. this figure vari
 
 approximately 330 billion cells die and are replaced in the human body every day. that’s about 1% of all cells — primarily blood cells and the cells lining the intestines. this equates to roughly 3.8 million new cells per second.
 
-to me, this is astounding. the sheer population of births and deaths occurring within your body each day exceeds the number of humans currently living on the planet—many times over.
+to me, this is astounding. the sheer population of births and deaths occurring within your body each day exceeds the number of humans currently living on the planet many times over.
 
 but it gets deeper.
 
