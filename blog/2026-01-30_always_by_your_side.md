@@ -2,7 +2,7 @@ Jan 30
 
 # always by your side
 
-i’ve had [“by your side”](https://www.youtube.com/watch?v=lloVQPM8TOY) by sade stuck in my head now for years. it was released october 3, 2000. interesting to think of songs released in the year of 2000 as setting the tone for this millennium, the likes of which include ["with arms wide open"](https://www.youtube.com/watch?v=99j0zLuNhi8) by creed and ["i wanna know"](https://www.youtube.com/watch?v=dJ8VjyPw0qY) by joe. maybe somehow everything that happened in the year of 2000 in general set the tone for the millennium. but then again, the demarcation of time itself is an arbitrary illusion from the viewpoint of the eternal now.
+i’ve had [“by your side”](https://www.youtube.com/watch?v=lloVQPM8TOY) by sade stuck in my head now for years. it was released october 3, 2000. interesting to think of songs released in the year of 2000 as setting the tone for this millennium, the likes of which include ["with arms wide open"](https://www.youtube.com/watch?v=99j0zLuNhi8) by creed and ["i wanna know"](https://www.youtube.com/watch?v=dJ8VjyPw0qY) by joe. maybe somehow everything that happened in year 2000 set the tone for the current millennium. then again, [the demarcation of time itself](https://en.wikipedia.org/wiki/History_of_calendars) is an arbitrary illusion from the viewpoint of the eternal now.
 
 i put the song on in the car, driving home with my sister after meeting with her friend for some banh mi sandwiches. it was sunset, and as sade sang i could feel the center pushing through my blossoming heart.
 
