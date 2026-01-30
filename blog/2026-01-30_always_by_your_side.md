@@ -30,6 +30,8 @@ as far as i understand, the purpose of having a body at all is to contend with t
 
 and so, what does my mom’s old desk have to do with this? well, it points to the same truth: even the love of your own mother, and even the “nest” you cling to for creature comfort, will not suffice on this path. the only support that truly matters is the one you cultivate with your cosmic source — your god, your shiva, your amma, your atman, your inner self. when that union is realized, you will feel it as a quiet, abiding presence. you will remember that, in the deepest sense, you were always “by your side.”
 
+what is it we're hiding from anyway? could it be, this great explosive aliveness that i am in the untamed and aweful face of one another, without any pretenses or posturing?
+
 if sade’s beautiful song says anything about where the 2000s are headed, it points to one simple, profound question: what does it mean to be by your side? in this age of collapsing identities, that question becomes the central mystery. it’s a simple message, yet one that comes straight from the heart.
 
 > oh, when you’re cold i’ll be there to hold you tight to me  
