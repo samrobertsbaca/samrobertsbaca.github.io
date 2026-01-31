@@ -32,7 +32,7 @@ and so, what does my mom’s old desk have to do with this? well, it points to t
 
 what is it we're trying to hide from under our mother's desk anyway? could it be, this great explosive aliveness that i am, in the untamed and aweful face of one another, without any pretenses or posturing?
 
-if sade’s beautiful song says anything about where the 2000s are headed, it points to one simple, profound question: what does it mean to be by your side? in this age of collapsing identities, that question becomes the central mystery. it’s a simple message, yet one that comes straight from the heart.
+if sade’s beautiful song says anything about where the 2000s are headed, it points to one simple, profound question: what does it really mean to be by your side? in this age of collapsing identities, that question becomes the central mystery. it’s a simple message, yet one that comes straight from the heart.
 
 > oh, when you’re cold i’ll be there to hold you tight to me  
 > oh, when you’re low i’ll be there by your side, baby
