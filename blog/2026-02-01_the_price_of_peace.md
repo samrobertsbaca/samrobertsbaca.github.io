@@ -20,7 +20,7 @@ the same dynamic lives in relationships. when someone feels hurt and unheard, th
 
 there is a belief in certain elite circles that trauma produces strength, even liberation. to believe in an “elite” at all is to accept a story of separation: that some are fundamentally different, beyond ordinary limits, justified in extreme tests of endurance and morality. trauma becomes a tool to refine power. yet this path produces fractured, survival-minded people — capable, disciplined, and deeply disconnected from love. behavior built on this logic can no longer be excused. and institutions that continue to obscure these truths, choosing continuity over accountability, can no longer be trusted.
 
-the fact is trauma does shape us. all of us face it, because trauma is simply the experience of disruptive change. but there is a difference between facing trauma honestly and imposing it as proof of worth. resilience born of truth tends toward integration. resilience born of denial tends toward domination.
+the fact is trauma does shape us incarnated beings. all of us face it, because trauma is simply the experience of disruptive change — a friction between form and flux. but there is a difference between facing trauma honestly and imposing it as proof of worth. resilience born of truth tends toward integration. resilience born of denial tends toward domination.
 
 peace is often spoken of as something soft, passive, or free. but peace has a price, and the price is truth. not punishment, not humiliation, but reality spoken plainly and unflinchingly. peace without truth is not peace — it is quiet force. it is order held together by exhaustion, fear, or performance.
 
