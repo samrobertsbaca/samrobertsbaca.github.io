@@ -22,6 +22,8 @@ there is a belief in certain elite circles that trauma produces strength, even l
 
 the fact is trauma does shape us incarnated beings. all of us face it, because trauma is simply the experience of disruptive change — a friction between form and flux. but there is a difference between facing trauma honestly and imposing it as proof of worth. resilience born of truth tends toward integration. resilience born of denial tends toward domination.
 
+---
+
 peace is often spoken of as something soft, passive, or free. but peace has a price, and the price is truth. not punishment, not humiliation, but reality spoken plainly and unflinchingly. peace without truth is not peace — it is quiet force. it is order held together by exhaustion, fear, or performance.
 
 from the ego’s perspective, truth feels dangerous. it threatens the narrative of being right. it asks for the surrender of grievance, not because harm didn’t occur, but because harm cannot be healed while it is denied or weaponized. what feels like annihilation to the separate self is liberation to the whole.
@@ -34,7 +36,9 @@ repair becomes possible only when belonging widens — when people are no longer
 
 old guidance becomes practical here: think universally, act locally. we do not heal the whole system at once. we tell the truth where we stand. we act decently with the people in front of us. we protect our nervous systems so exhaustion is not mistaken for clarity.
 
-in my dream, i didn’t explode or accuse. i didn’t perform peace, and i didn’t reach for fire. i stepped onto the balcony and let out a deep sigh. that gesture matters. it is the refusal to fake intimacy where truth has not yet arrived. the refusal to burn everything down just to feel righteous. it is the choice to remain present without pretending resolution.
+---
+
+in my dream, i didn’t perform peace, and i didn’t reach for fire. i stepped onto the balcony and let out a deep sigh. that gesture matters. it is the refusal to fake intimacy where truth has not yet arrived. the refusal to burn everything down just to feel righteous. it is the choice to remain present without pretending resolution.
 
 some will say that because everything is impermanent, anything can be justified. indeed, anything is possible in this infinite universe, and perhaps life is but a dream. but the question remains: do we want to dream a world of pain or a world of peace together?
 
