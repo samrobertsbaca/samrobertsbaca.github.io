@@ -1,4 +1,5 @@
 window.postFiles = [
+  "/blog/2026-02-08_the_regreening_of_needless_joy.html",
   "/blog/2026-02-05_the_price_of_everything.html",
   "/blog/2026-02-04_the_price_of_love.html",
   "/blog/2026-02-03_the_price_of_truth.html",
