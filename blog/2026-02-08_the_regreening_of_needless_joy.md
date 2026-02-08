@@ -17,7 +17,7 @@ but i have had revelations.
 
 mostly, it’s been about getting back in touch with my genuine soul. remembering why i came to this planet in the first place. and i keep arriving at the same thing: play.
 
-my mission has something to do with embracing the inner child. whimsy. joy. enjoying myself without justification. letting myself love what i love — disney songs, videos of people making soup, small tender human moments — whatever sparks delight.
+my mission has something to do with embracing the inner child. whimsy. joy. enjoying myself without justification. letting myself love what i love — disney songs, videos of people making soup, cleaning out the kitchen cabinet — whatever sparks delight in this particular here and now.
 
 i think the ultimate purpose of spirituality is liberation. and liberation, to me, is joyful. real freedom is being able to be joyful no matter what’s happening around you. no matter who’s grumpy, upset, throwing tantrums, or caught in their own weather systems.
 
