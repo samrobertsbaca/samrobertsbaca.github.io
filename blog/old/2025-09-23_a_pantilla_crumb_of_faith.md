@@ -31,24 +31,3 @@ which reminds me of a favorite song of mine, “you know better than i,” by jo
 can you really say it simpler than that? i first heard the song when i was a kid, watching “joseph: king of dreams.” it can still move me to tears, to this day. there’s something tender about the whole thing, not to mention the story of joseph and his amazing technicolor dreamcoat. i know a lot of changes are coming, some easier or harder to bear than others, but to this i surrender unceasingly — in the life everlasting and the love eternally luminous. even the mess, too, is blessed.
 
 so be blessed, baby cats. go out and shine your light. i believe in you.
-
----
-
-
-
-
-Please enter an amount
-
-
-
-
-
-$
-
-One-Time Donation
-
-Weekly Donation
-
-Monthly Donation
-
-3% Cover the Fee

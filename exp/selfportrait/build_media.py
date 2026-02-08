@@ -65,7 +65,9 @@ for base in BLOG_DIRS:
         # 🚫 Skip any folder named "archive"
         if "archive" in Path(root).parts:
             continue
-            
+        if "old" in Path(root).parts:
+            continue
+
         for f in files:
             if f.lower().endswith(".md"):
                 full_path = Path(root) / f

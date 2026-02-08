@@ -9,7 +9,7 @@ const FIXED_BG_COLOR = "#00aeef";
 const BG_CHANGE_INTERVAL = 3000;
 const MAX_SNIPPETS = 8;
 const MAX_ACTIVE_IMAGES = 50;
-const SNIPPET_FONT_SIZE = 18;
+const SNIPPET_FONT_SIZE = 16;
 const LINE_HEIGHT = SNIPPET_FONT_SIZE * 1.2;
 const MIN_SNIPPET_DURATION = 10000;
 const CHAR_DURATION = 40;
@@ -80,7 +80,7 @@ function rectsOverlap(r1, r2) {
 
 function spawnPermanentBox() {
   const text = "ENTER THE SCORSBYZONE";
-  ctx.font = `bold ${SNIPPET_FONT_SIZE}px sans-serif`;
+  ctx.font = `bold ${SNIPPET_FONT_SIZE}px BodyFont`;
   const metrics = ctx.measureText(text);
   const boxW = metrics.width + 40;
   const boxH = LINE_HEIGHT + 20;
@@ -92,7 +92,7 @@ function spawnPermanentBox() {
     w: boxW, h: boxH,
     isPermanent: true,
     hue: 0,
-    color: "#000",
+    color: "#ffffff",
     opacity: 1
   });
 }
@@ -121,7 +121,7 @@ function spawnImage() {
 async function addSnippet() {
   if (!BLOG_SNIPPETS.length || activeSnippets.length >= MAX_SNIPPETS) return;
 
-  ctx.font = `${SNIPPET_FONT_SIZE}px sans-serif`;
+  ctx.font = `${SNIPPET_FONT_SIZE}px BodyFont`;
   const text = BLOG_SNIPPETS[(Math.random() * BLOG_SNIPPETS.length) | 0];
   const maxWidth = window.innerWidth * (0.15 + Math.random() * 0.3);
   const words = text.split(" "), lines = [];
@@ -209,7 +209,8 @@ function drawFrame(delta) {
       s.opacity = !isFadingOut ? Math.min(1, s.opacity + SNIPPET_FADE_IN_SPEED) : Math.max(0, s.opacity - SNIPPET_FADE_OUT_SPEED);
       s.duration -= delta;
     } else {
-      s.hue = (s.hue + 1.5) % 360;
+      //s.hue = (s.hue + 1.5) % 360;
+      s.hue = 0;
       s.bgColor = `hsl(${s.hue}, 80%, 60%)`;
     }
 
@@ -222,11 +223,11 @@ function drawFrame(delta) {
       ctx.fillStyle = s.color;
       ctx.textBaseline = "top";
       if (s.isPermanent) {
-        ctx.font = `bold ${SNIPPET_FONT_SIZE}px sans-serif`;
+        ctx.font = `bold ${SNIPPET_FONT_SIZE}px BodyFont`;
         ctx.textAlign = "center";
         ctx.fillText(s.text, (s.x + s.w / 2) | 0, (s.y + 10) | 0);
       } else {
-        ctx.font = `${SNIPPET_FONT_SIZE}px sans-serif`;
+        ctx.font = `${SNIPPET_FONT_SIZE}px BodyFont`;
         ctx.textAlign = "left";
         s.lines.forEach((line, j) => ctx.fillText(line.text, (s.x + 10) | 0, (s.y + j * LINE_HEIGHT + 8) | 0));
       }

@@ -55,6 +55,10 @@ a:hover {
   color: red;
 }
 
+body.homepage footer a {
+  background: #000000;
+}
+
 /* Ensure 3 lines visible */
 body.homepage .hamburger {
   display: none;          /* already mobile only, but enforce */

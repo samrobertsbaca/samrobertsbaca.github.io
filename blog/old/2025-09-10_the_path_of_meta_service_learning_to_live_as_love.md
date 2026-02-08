@@ -180,25 +180,3 @@ meta service asks us to shift our question:
 by cultivating a **service-oriented mindset**, we don’t just act with kindness — we live in alignment with a deeper, radiant purpose. service becomes a devotional practice, and in doing so, it brings a profound sense of **fulfillment, joy, and connection** that transforms everyday life into an ongoing offering of love.
 
 this is meta service: love as our essence, our practice, and our cosmic destiny.
-
----
-
-
-
-
-
-Please enter an amount
-
-
-
-
-
-$
-
-One-Time Donation
-
-Weekly Donation
-
-Monthly Donation
-
-3% Cover the Fee
