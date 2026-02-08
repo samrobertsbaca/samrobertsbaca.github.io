@@ -37,11 +37,7 @@ i hear birds chirping outside my window. i feel spring approaching. a regreening
 
 fasting feels like a bodily metaphor for that — moving through winter into spring. letting yourself be empty so you can be full again. though emptiness and fullness aren’t really so different. touch one deeply, and you find the other.
 
-so here’s to needless joy.  
-to regreening yourself.
-
-i wish you peace, love, and joy.  
-i wish peace, love, and joy for everyone, everywhere.
+so here’s to needless joy, forever and always. [happy new year!](http://localhost:8000/blog/2026-01-01_new_years_resolution.html)
 
 with infinite love,  
 thank you

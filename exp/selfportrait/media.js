@@ -1718,10 +1718,7 @@ export const BLOG_SNIPPETS = [
   "needless joy. that\u2019s what i want \u2014 for myself, and for others. though others are part of myself too. when i cultivate needless joy here, it ripples outward.",
   "i hear birds chirping outside my window. i feel spring approaching. a regreening. a reawakening. something soft and alive returning.",
   "fasting feels like a bodily metaphor for that \u2014 moving through winter into spring. letting yourself be empty so you can be full again. though emptiness and fullness aren\u2019t really so different. touch one deeply, and you find the other.",
-  "so here\u2019s to needless joy.",
-  "to regreening yourself.",
-  "i wish you peace, love, and joy.",
-  "i wish peace, love, and joy for everyone, everywhere.",
+  "so here\u2019s to needless joy, forever and always. happy new year!",
   "with infinite love,",
   "thank you"
 ];
