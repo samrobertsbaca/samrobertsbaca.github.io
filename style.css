@@ -20,7 +20,7 @@ body {
   margin: 0;
   padding: 0;
   /*background-color: #00b4ff;*/
-  background-color: #ffffff;
+  /*background-color: #ffffff;*/
   display: flex;
     min-height: 100vh;
   flex-direction: column;
