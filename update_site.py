@@ -4,6 +4,11 @@ import markdown
 from bs4 import BeautifulSoup
 from datetime import datetime
 
+import subprocess
+import sys
+
+
+
 # Paths
 blog_folder = Path(__file__).parent / "blog"
 template_file = Path(__file__).parent / "blog/blog_template.html"
@@ -133,3 +138,5 @@ with open(output_js_file, "w", encoding="utf-8") as js_file:
     js_file.write("\n".join(js_lines))
 
 print(f"✅ Generated {len(md_files)} HTML blog posts and updated blogposts.js.")
+
+subprocess.run([sys.executable, "./exp/selfportrait/build_media.py"])

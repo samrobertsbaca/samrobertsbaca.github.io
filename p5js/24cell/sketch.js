@@ -34,15 +34,15 @@ let idleDirection = 1; // +1 or -1
 let cnv;
 
 function preload() {
-  heartImg = loadImage("./p5js/24cell/favicon_gold2.png"); // make sure heart.png is in your project folder
-  rainbowImg = loadImage("./p5js/24cell/rainbow.png");
-  starImg = loadImage("./p5js/24cell/stars.png");
+  heartImg = loadImage("/p5js/24cell/favicon_gold2.png"); // make sure heart.png is in your project folder
+  rainbowImg = loadImage("/p5js/24cell/rainbow.png");
+  starImg = loadImage("/p5js/24cell/stars.png");
   //bgImg = loadImage('./p5js/24cell/bg.png');
   //bgZia = loadImage('./p5js/24cell/zia_site.png')
 
-  bgZia1 = loadImage('./p5js/24cell/zia_stripes.png')
-  bgZia2 = loadImage('./p5js/24cell/zia_leaves.png')
-  bgZia3 = loadImage('./p5js/24cell/zia_zia.png')
+  bgZia1 = loadImage('/p5js/24cell/zia_stripes.png')
+  bgZia2 = loadImage('/p5js/24cell/zia_leaves.png')
+  bgZia3 = loadImage('/p5js/24cell/zia_zia.png')
 }
 
 function setup() {
