@@ -247,7 +247,7 @@ function handleStart(e) {
   for (let i = activeSnippets.length - 1; i >= 0; i--) {
     const s = activeSnippets[i];
     if (pageX >= s.x && pageX <= s.x + s.w && pageY >= s.y && pageY <= s.y + s.h) {
-      if (s.isPermanent) { window.location.href = HOME_URL; return; }
+      if (s.isPermanent) { window.top.location.href = HOME_URL; return; }
       draggingSnippet = s;
       dragOffX = pageX - s.x;
       dragOffY = pageY - s.y;
