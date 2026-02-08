@@ -3,7 +3,9 @@ Feb 8
 # the regreening of needless joy
 
 hello everyone.  
-today i’m fasting. well — i’m on day three of my five-day fast.
+today i’m fasting. well — i’m on day three of a five-day fast.  
+
+why am i fasting? i have no idea. the voice inside told me to, and i listened.
 
 i started thursday night around 10pm, and now it’s sunday afternoon. so i’m somewhere right in the middle of it. my nose is a little congested, but overall i feel pretty good. clear, even.
 
