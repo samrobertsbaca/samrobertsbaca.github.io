@@ -19,7 +19,7 @@ body {
   font-family: 'BodyFont', sans-serif;
   margin: 0;
   padding: 0;
-  background-color: #00b4ff;
+  /*background-color: #00b4ff;*/
   display: flex;
     min-height: 100vh;
   flex-direction: column;

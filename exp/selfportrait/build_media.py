@@ -59,6 +59,9 @@ equals_pattern = re.compile(r'^=+$')
 # Non-breaking space entity
 nbsp_pattern = re.compile(r'^&nbsp;$')
 
+# line break entity
+br_pattern = re.compile(r'^<br></br>$')
+
 
 for base in BLOG_DIRS:
     for root, _, files in os.walk(base):
@@ -87,6 +90,10 @@ for base in BLOG_DIRS:
 
                         # Skip &nbsp;
                         if nbsp_pattern.match(line):
+                            continue
+
+                        # Skip <br></br>;
+                        if br_pattern.match(line):
                             continue
 
                         # Skip image lines
