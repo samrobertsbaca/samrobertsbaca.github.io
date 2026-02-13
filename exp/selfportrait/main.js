@@ -195,7 +195,7 @@ async function addSnippet() {
   if (foundSpot) {
     const isDark = Math.random() < 0.5;
     activeSnippets.push({
-      lines, x, y, w: boxW, h: boxH,
+      lines, x, y, w: boxW - 10, h: boxH - 6,
       duration: Math.max(MIN_SNIPPET_DURATION, text.length * CHAR_DURATION),
       color: isDark ? "#FFF" : "#000",
       bgColor: isDark ? "#000" : "#FFF",
