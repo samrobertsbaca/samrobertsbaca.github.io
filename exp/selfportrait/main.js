@@ -5,10 +5,11 @@ const canvas = document.getElementById("c");
 const ctx = canvas.getContext("2d", { alpha: false });
 
 const HOME_URL = "/home.html";
+const LOGO_URL = "/images/scorsby_hearteyes.png"; // Set your logo URL here
 const FIXED_BG_COLOR = "#00aeef";
 const BG_CHANGE_INTERVAL = 3000;
-const MAX_SNIPPETS = 8;
-const MAX_ACTIVE_IMAGES = 50;
+const MAX_SNIPPETS = 15;
+const MAX_ACTIVE_IMAGES = 15;
 const SNIPPET_FONT_SIZE = 16;
 const LINE_HEIGHT = SNIPPET_FONT_SIZE * 1.2;
 const MIN_SNIPPET_DURATION = 10000;
@@ -16,12 +17,12 @@ const CHAR_DURATION = 40;
 
 const SNIPPET_FADE_IN_SPEED = 0.05;
 const SNIPPET_FADE_OUT_SPEED = 0.02;
-const IMAGE_FADE_IN_SPEED = 0.01;
+const IMAGE_FADE_IN_SPEED = 0.02;
 const IMAGE_FADE_OUT_SPEED = 0.01;
 const FADE_THRESHOLD = 10;
 
 const OVERALL_SPEED = 2;
-const MAX_BUFFER = 30;
+const MAX_BUFFER = 40;
 
 let loadedPool = [];
 let activeImages = [];
@@ -31,6 +32,7 @@ let bgColor = FIXED_BG_COLOR;
 let bgTimer = 0;
 let spawnTimer = 0;
 let draggingSnippet = null, dragOffX = 0, dragOffY = 0;
+let logoImg = null;
 
 let lastFrameTime = performance.now();
 const FRAME_INTERVAL = 1000 / 60;
@@ -49,7 +51,7 @@ function resizeCanvas() {
   const perm = activeSnippets.find(s => s.isPermanent);
   if (perm) {
     perm.x = (w - perm.w) / 2;
-    perm.y = h - perm.h - 40;
+    perm.y = (h - perm.h) / 2; // Adjusted for bobbing room
   }
 }
 window.addEventListener("resize", resizeCanvas);
@@ -62,14 +64,20 @@ async function fetchNewImage() {
   usedUrlIndices.add(IMAGE_URLS.indexOf(url));
   try {
     const img = new Image();
-    await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = url; });
-    loadedPool.push(img);
+    const loadPromise = new Promise((res, rej) => {
+      img.onload = () => res(img);
+      img.onerror = rej;
+      img.src = url;
+    });
+    const loadedImg = await loadPromise;
+    loadedPool.push(loadedImg);
     if (loadedPool.length > MAX_BUFFER) loadedPool.shift();
+    return loadedImg;
   } catch (e) { console.warn("Load failed:", url); }
 }
 
 function rectsOverlap(r1, r2) {
-  const padding = 20;
+  const padding = 10;
   return !(r1.x + r1.w + padding < r2.x ||
            r1.x > r2.x + r2.w + padding ||
            r1.y + r1.h + padding < r2.y ||
@@ -79,25 +87,37 @@ function rectsOverlap(r1, r2) {
 /** --- 3. SPAWNING --- **/
 
 function spawnPermanentBox() {
-  const text = "ENTER THE SCORSBYZONE";
-  ctx.font = `bold ${SNIPPET_FONT_SIZE}px BodyFont`;
-  const metrics = ctx.measureText(text);
-  const boxW = metrics.width + 40;
-  const boxH = LINE_HEIGHT + 20;
+  const hasLogo = logoImg && logoImg.complete;
+  let boxW, boxH;
+
+  if (hasLogo) {
+    const scale = 0.5; // Adjust logo scale
+    boxW = logoImg.width * scale;
+    boxH = logoImg.height * scale;
+  } else {
+    const text = "ENTER THE SCORSBYZONE";
+    ctx.font = `bold ${SNIPPET_FONT_SIZE}px BodyFont`;
+    boxW = ctx.measureText(text).width + 40;
+    boxH = LINE_HEIGHT + 20;
+  }
 
   activeSnippets.push({
-    text,
+    text: "ENTER THE SCORSBYZONE",
     x: (window.innerWidth - boxW) / 2,
     y: (window.innerHeight - boxH) / 2,
     w: boxW, h: boxH,
     isPermanent: true,
     hue: 0,
     color: "#ffffff",
-    opacity: 1
+    bgColor: "#000000",
+    opacity: 1,
+    bobTimer: 0,
+    useLogo: hasLogo
   });
 }
 
 function spawnImage() {
+  if (activeImages.length >= MAX_ACTIVE_IMAGES) return;
   const img = loadedPool[(Math.random() * loadedPool.length) | 0];
   if (!img) return;
 
@@ -106,10 +126,8 @@ function spawnImage() {
   const ratio = img.width / img.height;
   let dh = dw / ratio;
 
-  const horizontalMargin = dw * 0.7;
-  const verticalMargin = dh * 0.7;
-  const dx = -horizontalMargin + Math.random() * (window.innerWidth + horizontalMargin - (dw * 0.3));
-  const dy = -verticalMargin + Math.random() * (window.innerHeight + verticalMargin - (dh * 0.3));
+  const dx = -dw * 0.7 + Math.random() * (window.innerWidth + dw * 0.4);
+  const dy = -dh * 0.7 + Math.random() * (window.innerHeight + dh * 0.4);
 
   activeImages.push({
     img, sx: 0, sy: 0, sw: img.width, sh: img.height, dx, dy, dw, dh,
@@ -142,7 +160,7 @@ async function addSnippet() {
   const boxW = finalMaxW + 20, boxH = (lines.length * LINE_HEIGHT) + 15;
 
   let x, y, foundSpot = false;
-  for(let i=0; i<25; i++) {
+  for(let i=0; i<30; i++) {
     x = 20 + Math.random() * (window.innerWidth - boxW - 40);
     y = 20 + Math.random() * (window.innerHeight - boxH - 120);
     if (!activeSnippets.some(existing => rectsOverlap({x, y, w: boxW, h: boxH}, existing))) {
@@ -172,7 +190,11 @@ function drawFrame(delta) {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
   spawnTimer += delta * OVERALL_SPEED;
-  if (spawnTimer > 400) { spawnTimer = 0; spawnImage(); }
+  if (spawnTimer > 250) {
+    spawnTimer = 0;
+    spawnImage();
+    fetchNewImage();
+  }
 
   activeImages.forEach(imgObj => {
     const isFadingOut = imgObj.duration < FADE_THRESHOLD;
@@ -190,54 +212,61 @@ function drawFrame(delta) {
   });
   activeImages = activeImages.filter(img => img.duration > 0 || img.opacity > 0);
 
-  /*if (Math.random() < 0.05 * OVERALL_SPEED) {
-    fetchNewImage();
-    const sliceY = Math.random() * window.innerHeight;
-    const sliceH = 30 + Math.random() * 100;
-    const shift = (Math.random() * 40 - 20);
-    ctx.save();
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.drawImage(canvas, 0, sliceY*dpr, canvas.width, sliceH*dpr, shift*dpr, sliceY*dpr, canvas.width, sliceH*dpr);
-    ctx.restore();
-  }*/
-
-  if (Math.random() < 0.1) addSnippet();
+  if (Math.random() < 0.2) addSnippet();
 
   activeSnippets.forEach((s) => {
+    let renderY = s.y;
+
     if (!s.isPermanent) {
       const isFadingOut = s.duration < FADE_THRESHOLD;
       s.opacity = !isFadingOut ? Math.min(1, s.opacity + SNIPPET_FADE_IN_SPEED) : Math.max(0, s.opacity - SNIPPET_FADE_OUT_SPEED);
       s.duration -= delta;
     } else {
-      //s.hue = (s.hue + 1.5) % 360;
-      s.hue = 0;
-      s.bgColor = `hsl(${s.hue}, 80%, 60%)`;
+      // Bobbing logic for permanent button
+      s.bobTimer += delta * 0.002;
+      renderY += Math.sin(s.bobTimer) * 9; // Bob height
+      s.hue = (s.hue + 1) % 360;
     }
 
     if (s.opacity > 0) {
       ctx.save();
       ctx.globalAlpha = s.opacity;
-      if(s.isPermanent) { ctx.shadowBlur = 20; ctx.shadowColor = s.bgColor; }
-      ctx.fillStyle = s.bgColor;
-      ctx.fillRect(s.x | 0, s.y | 0, s.w | 0, s.h | 0);
-      ctx.fillStyle = s.color;
-      ctx.textBaseline = "top";
-      if (s.isPermanent) {
-        ctx.font = `bold ${SNIPPET_FONT_SIZE}px BodyFont`;
-        ctx.textAlign = "center";
-        ctx.fillText(s.text, (s.x + s.w / 2) | 0, (s.y + 10) | 0);
+
+      if (s.isPermanent && s.useLogo) {
+        ctx.drawImage(logoImg, s.x | 0, renderY | 0, s.w | 0, s.h | 0);
       } else {
-        ctx.font = `${SNIPPET_FONT_SIZE}px BodyFont`;
-        ctx.textAlign = "left";
-        s.lines.forEach((line, j) => ctx.fillText(line.text, (s.x + 10) | 0, (s.y + j * LINE_HEIGHT + 8) | 0));
+        if(s.isPermanent) {
+            ctx.shadowBlur = 20;
+            ctx.shadowColor = `hsl(${s.hue}, 80%, 60%)`;
+            ctx.fillStyle = `hsl(${s.hue}, 80%, 30%)`;
+        } else {
+            ctx.fillStyle = s.bgColor;
+        }
+
+        ctx.fillRect(s.x | 0, renderY | 0, s.w | 0, s.h | 0);
+        ctx.fillStyle = s.color;
+        ctx.textBaseline = "top";
+
+        if (s.isPermanent) {
+          ctx.font = `bold ${SNIPPET_FONT_SIZE}px BodyFont`;
+          ctx.textAlign = "center";
+          ctx.fillText(s.text, (s.x + s.w / 2) | 0, (renderY + 10) | 0);
+        } else {
+          ctx.font = `${SNIPPET_FONT_SIZE}px BodyFont`;
+          ctx.textAlign = "left";
+          s.lines.forEach((line, j) => ctx.fillText(line.text, (s.x + 10) | 0, (renderY + j * LINE_HEIGHT + 8) | 0));
+        }
       }
       ctx.restore();
+
+      // Update hit-box for dragging/clicking if it bobs
+      if(s.isPermanent) s.currentRenderY = renderY;
     }
   });
   activeSnippets = activeSnippets.filter(s => s.isPermanent || s.duration > 0 || s.opacity > 0 || draggingSnippet === s);
 }
 
-/** --- 5. INTERACTION (MOUSE + TOUCH) --- **/
+/** --- 5. INTERACTION --- **/
 
 function handleStart(e) {
   const isTouch = e.type === "touchstart";
@@ -246,7 +275,9 @@ function handleStart(e) {
 
   for (let i = activeSnippets.length - 1; i >= 0; i--) {
     const s = activeSnippets[i];
-    if (pageX >= s.x && pageX <= s.x + s.w && pageY >= s.y && pageY <= s.y + s.h) {
+    const checkY = s.isPermanent ? (s.currentRenderY || s.y) : s.y;
+
+    if (pageX >= s.x && pageX <= s.x + s.w && pageY >= checkY && pageY <= checkY + s.h) {
       if (s.isPermanent) { window.top.location.href = HOME_URL; return; }
       draggingSnippet = s;
       dragOffX = pageX - s.x;
@@ -288,7 +319,21 @@ function loop(timestamp) {
 
 (async function start() {
   resizeCanvas();
-  for(let i=0; i<10; i++) await fetchNewImage();
+
+  // Optional Logo Loading
+  if (LOGO_URL) {
+    logoImg = new Image();
+    const logoPromise = new Promise(res => {
+        logoImg.onload = res;
+        logoImg.onerror = () => { logoImg = null; res(); };
+        logoImg.src = LOGO_URL;
+    });
+    await logoPromise;
+  }
+
+  const initialLoads = Array.from({ length: 12 }, () => fetchNewImage());
+  await Promise.all(initialLoads);
+
   spawnPermanentBox();
   requestAnimationFrame(loop);
 })();
