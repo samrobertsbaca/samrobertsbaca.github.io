@@ -65,6 +65,7 @@ export const IMAGE_URLS = [
   "/images/scorsby_beanie_v1_2.png",
   "/images/scorsby_face@5x.png",
   "/images/scorsby_hearteyes.png",
+  "/images/scorsby_hearteyes_scale.png",
   "/images/scorsby_logo_whiteblock-01_blucenter2.png",
   "/images/scorsbyface_big.png",
   "/images/silence.png",
