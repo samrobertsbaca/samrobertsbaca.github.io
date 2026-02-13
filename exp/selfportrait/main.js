@@ -136,28 +136,52 @@ function spawnImage() {
   });
 }
 
+// Add this at the top of your script (outside any functions)
+const measureCanvas = document.createElement("canvas");
+const mCtx = measureCanvas.getContext("2d");
+
 async function addSnippet() {
   if (!BLOG_SNIPPETS.length || activeSnippets.length >= MAX_SNIPPETS) return;
 
-  ctx.font = `${SNIPPET_FONT_SIZE}px BodyFont`;
+  // 1. Ensure the font is actually loaded before measuring
+  await document.fonts.load(`${SNIPPET_FONT_SIZE}px BodyFont`);
+
+  // 2. Use the off-screen context to measure (isolated from the main loop)
+  const fontStyle = `${SNIPPET_FONT_SIZE}px BodyFont`;
+  mCtx.font = fontStyle;
+
   const text = BLOG_SNIPPETS[(Math.random() * BLOG_SNIPPETS.length) | 0];
   const maxWidth = window.innerWidth * (0.15 + Math.random() * 0.3);
-  const words = text.split(" "), lines = [];
-  let currentLine = "", finalMaxW = 0;
+  const words = text.split(/\s+/); // Split by any whitespace
+  const lines = [];
+  let currentLine = "";
+  let finalMaxW = 0;
 
   for (let n = 0; n < words.length; n++) {
     const testLine = currentLine + words[n] + " ";
-    if (ctx.measureText(testLine).width > maxWidth && n > 0) {
-      const w = ctx.measureText(currentLine.trim()).width;
-      lines.push({ text: currentLine.trim(), w: w });
-      finalMaxW = Math.max(finalMaxW, w);
-      currentLine = words[n] + " ";
-    } else { currentLine = testLine; }
-  }
-  lines.push({ text: currentLine.trim(), w: ctx.measureText(currentLine.trim()).width });
-  finalMaxW = Math.max(finalMaxW, ctx.measureText(currentLine.trim()).width);
+    // Measure using the isolated context
+    const testWidth = mCtx.measureText(testLine.trim()).width;
 
-  const boxW = finalMaxW + 20, boxH = (lines.length * LINE_HEIGHT) + 15;
+    if (testWidth > maxWidth && n > 0) {
+      const lineW = mCtx.measureText(currentLine.trim()).width;
+      lines.push({ text: currentLine.trim(), w: lineW });
+      finalMaxW = Math.max(finalMaxW, lineW);
+      currentLine = words[n] + " ";
+    } else {
+      currentLine = testLine;
+    }
+  }
+
+  // Final line
+  const lastLineText = currentLine.trim();
+  const lastLineW = mCtx.measureText(lastLineText).width;
+  lines.push({ text: lastLineText, w: lastLineW });
+  finalMaxW = Math.max(finalMaxW, lastLineW);
+
+  // 3. Add generous padding
+  // Increase horizontal padding to 40 to account for browser kerning differences
+  const boxW = finalMaxW + 40;
+  const boxH = (lines.length * LINE_HEIGHT) + 20;
 
   let x, y, foundSpot = false;
   for(let i=0; i<30; i++) {
@@ -175,7 +199,8 @@ async function addSnippet() {
       duration: Math.max(MIN_SNIPPET_DURATION, text.length * CHAR_DURATION),
       color: isDark ? "#FFF" : "#000",
       bgColor: isDark ? "#000" : "#FFF",
-      opacity: 0
+      opacity: 0,
+      font: fontStyle // Store the font used for measurement
     });
   }
 }
@@ -320,7 +345,12 @@ function loop(timestamp) {
 (async function start() {
   resizeCanvas();
 
-  // Optional Logo Loading
+  // 1. Wait for your custom font to be ready
+  if (document.fonts) {
+    await document.fonts.ready;
+  }
+
+  // 2. Optional Logo Loading
   if (LOGO_URL) {
     logoImg = new Image();
     const logoPromise = new Promise(res => {
@@ -334,6 +364,7 @@ function loop(timestamp) {
   const initialLoads = Array.from({ length: 12 }, () => fetchNewImage());
   await Promise.all(initialLoads);
 
+  // 3. Now spawn the box with accurate measurements
   spawnPermanentBox();
   requestAnimationFrame(loop);
 })();
