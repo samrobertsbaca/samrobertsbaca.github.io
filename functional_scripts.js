@@ -100,7 +100,7 @@ function startTwitterEffect(container = document) {
       div.querySelectorAll('.jitter-bit, img').forEach(el => {
         const x = (Math.random() - 0.5) * 4; // Range of 3px
         const y = (Math.random() - 0.5) * 4;
-        const rotate = (Math.random() - 0.5) * 10; // Range of 8 degrees
+        const rotate = (Math.random() - 0.5) * 25; // Range of 8 degrees
 
         el.style.transform = `translate(${x}px, ${y}px) rotate(${rotate}deg)`;
       });
