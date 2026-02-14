@@ -61,7 +61,8 @@ nbsp_pattern = re.compile(r'^&nbsp;$')
 
 # line break entity
 br_pattern = re.compile(r'^<br></br>$')
-
+br_pattern2 = re.compile(r'^<br/><br/>$')
+vf_pattern = re.compile(r'^View fullsize$')
 
 for base in BLOG_DIRS:
     for root, _, files in os.walk(base):
@@ -95,9 +96,14 @@ for base in BLOG_DIRS:
                         # Skip <br></br>;
                         if br_pattern.match(line):
                             continue
+                        if br_pattern2.search(line):
+                            continue
 
                         # Skip image lines
                         if md_image_pattern.search(line):
+                            continue
+
+                        if vf_pattern.search(line):
                             continue
 
                         # Remove asterisks and hash characters

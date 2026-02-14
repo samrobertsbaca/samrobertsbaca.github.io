@@ -23,11 +23,13 @@ let scaleFactor;
 
 let needsTouchSync = false;
 
-let globScale = 1;
+let globScale = 2.7;
 
 let yOffset = -120;
 
-const CELL_RADIUS = 120*globScale; // tweak as needed
+let zOffset = -300;
+
+let CELL_RADIUS = 120*globScale; // tweak as needed
 const IDLE_SPIN = 0.00015; // tune this
 let idleDirection = 1; // +1 or -1
 
@@ -45,7 +47,24 @@ function preload() {
   bgZia3 = loadImage('/p5js/24cell/zia_zia.png')
 }
 
+function updateScale() {
+  if (windowWidth < 600 || windowHeight < 700) {
+    globScale = 1.0;
+  } else if (windowWidth < 1000 || windowHeight < 1000) {
+    globScale = 1.5;
+  } else {
+    globScale = 2.7;
+  }
+
+  // Recalculate the radius for touch/click detection
+  // This ensures the "hit area" matches the visual size
+  CELL_RADIUS = 120 * globScale;
+}
+
 function setup() {
+
+  // Set globScale based on screen width
+  updateScale();
 
   // create canvas with adjusted height
   cnv = createCanvas(windowWidth, windowHeight + yOffset, WEBGL);
@@ -55,7 +74,7 @@ function setup() {
   ortho(
     -width/2, width/2,
     -height/2, height/2,
-    -1000, 1000
+    -9000, 9000
   );
 
 
@@ -141,14 +160,19 @@ function setup() {
 
 
 function windowResized() {
+  // 1. Update the scale factor for mobile/desktop
+  updateScale();
+
+  // 2. Resize the actual canvas
   resizeCanvas(windowWidth, windowHeight + yOffset);
+
+  // 3. Reset the Orthographic projection to the new dimensions
   ortho(
     -width/2, width/2,
     -height/2, height/2,
-    -1000, 1000
+    -9000, 9000
   );
 }
-
 
 
 function init24Cell_B4() {
@@ -328,7 +352,7 @@ function draw() {
 
   push();
   resetMatrix();                  // ignore 3D scene rotations
-  translate(0, 0, -200);           // place it behind the 24-cell along Z
+  translate(0, 0, zOffset);           // place it behind the 24-cell along Z
   rotate(ziaAngle);              // rotate around center
   imageMode(CENTER);
   tint(255, 255);                 // optional transparency
@@ -341,21 +365,13 @@ function draw() {
 
   // draw edges
   stroke(255, 255, 255);
-  strokeWeight(2);
+  strokeWeight(2.5);
   for (let e of edges) {
     let a = projected[e[0]];
     let b = projected[e[1]];
     line(a.x, a.y, a.z, b.x, b.y, b.z);
   }
 
-  // draw vertices
-  stroke(255);
-  for (let p of projected) {
-    push();
-    translate(p.x, p.y, p.z);
-    //sphere(0.03);
-    pop();
-  }
 
   angle += 0.005;
 
@@ -398,7 +414,7 @@ function drawHeartRainbow(size = 1) {
 function drawRainbowGradient(radius = 500, steps = 135) {
   push();
   resetMatrix();
-  translate(0, 0,-200); // center
+  translate(0, 0,zOffset); // center
   noStroke();
   colorMode(HSB, 360, 100, 100, 100); // alpha enabled
 
@@ -525,8 +541,4 @@ function dist4(a, b) {
     sq(a[2] - b[2]) +
     sq(a[3] - b[3])
   );
-}
-
-function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
 }

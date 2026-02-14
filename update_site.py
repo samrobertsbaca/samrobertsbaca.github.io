@@ -43,6 +43,7 @@ blog_paths = []
 # Add manual entry
 blog_paths.append("/blog/2026-01-23_personality_quiz.html")
 blog_paths.append("/blog/2026-01-26_its_a_beautiful_day_in_the_neighborhood.html")
+blog_paths.append("/blog/2026-02-14_14_valentines.html")
 
 # Add paths from Markdown files
 for md_file in md_files:

@@ -1,13 +1,18 @@
 /* ===== Fonts ===== */
 @font-face {
-  font-family: 'HeaderFont';
-  src: url('fonts/KiwiSoda.ttf') format('truetype');
+  font-family: 'HeaderFont2';
+  src: url('fonts/CottonCloud.ttf') format('truetype');
 }
 
-@font-face {
+/*@font-face {
+  font-family: 'HeaderFont';
+  src: url('fonts/KiwiSoda.ttf') format('truetype');
+}*/
+
+/*@font-face {
   font-family: 'HeaderFont2';
   src: url('fonts/eggmode.ttf') format('truetype');
-}
+}*/
 
 @font-face {
   font-family: 'BodyFont';
@@ -39,7 +44,8 @@ body.homepage nav ul li a {
 
 body.homepage nav ul li a:hover,
 body.homepage nav ul li a:focus {
-  color: #00b4ff !important;
+  /*color: #00b4ff !important;*/
+  color: white !important;
 }
 
 /* Homepage hamburger override */
@@ -49,11 +55,12 @@ body.homepage .hamburger div {
 
 /* Optional: hover effect */
 body.homepage .hamburger:hover div {
-  background-color: #00b4ff !important; /* lightspeed blue */
+  /*background-color: #00b4ff !important; /* lightspeed blue */
+  background-color: #FD3DB5 !important;
 }
 
 a:hover {
-  color: red;
+  color: black;
 }
 
 /*body.homepage footer a {
@@ -153,7 +160,8 @@ canvas#fireworks {
 /* ===== Navbar ===== */
 nav {
   width: 100%;
-  background-color: #00b4ff;
+  /*background-color: #00b4ff;*/
+  background-color: #FD3DB5 !important;
   position: sticky;
   top: 0;
   z-index: 1000;
@@ -187,7 +195,7 @@ nav ul li a {
   font-weight: 500;
   transition: color 0.2s;
 }
-nav ul li a:hover { color: #007bff; }
+nav ul li a:hover { /*color: #007bff;*/ color: white; }
 
 /* Hamburger */
 /* Hamburger */
@@ -252,7 +260,7 @@ article h1 { margin-top: 2rem; margin-bottom: 2rem; font-size: 35px;}
 
 article h2, article h3 { margin-top: 2rem; }
 
-article a {color: #00b4ff;}
+article a {color: #FD3DB5;}
 
 
 
