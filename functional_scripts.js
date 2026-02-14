@@ -54,40 +54,65 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // twitchy
 function wrapTextNodes(element) {
-  element.childNodes.forEach(node => {
-    if (node.nodeType === Node.TEXT_NODE) {
+  Array.from(element.childNodes).forEach(node => {
+    if (node.nodeType === Node.TEXT_NODE && node.textContent.trim().length > 0) {
       const fragment = document.createDocumentFragment();
-      node.textContent.split('').forEach(char => {
-        const span = document.createElement('span');
-        span.textContent = char;
-        if (char === ' ') span.classList.add('space');
-        fragment.appendChild(span);
+      // Split by words/whitespace
+      const words = node.textContent.split(/(\s+)/);
+
+      words.forEach(word => {
+        if (word.trim().length === 0) {
+          // It's a space: keep it simple
+          const spaceSpan = document.createElement('span');
+          spaceSpan.textContent = word;
+          spaceSpan.classList.add('space');
+          fragment.appendChild(spaceSpan);
+        } else {
+          // It's a word: Wrap it so it doesn't break mid-way
+          const wordWrap = document.createElement('span');
+          wordWrap.style.whiteSpace = 'nowrap';
+          wordWrap.style.display = 'inline-block';
+
+          // Now wrap the actual characters for the jitter
+          word.split('').forEach(char => {
+            const charSpan = document.createElement('span');
+            charSpan.textContent = char;
+            charSpan.classList.add('jitter-bit'); // Unique class for the effect
+            wordWrap.appendChild(charSpan);
+          });
+          fragment.appendChild(wordWrap);
+        }
       });
       node.replaceWith(fragment);
     } else if (node.nodeType === Node.ELEMENT_NODE) {
-      wrapTextNodes(node); // recurse into children like <h3>
+      wrapTextNodes(node);
     }
   });
 }
 
 function startTwitterEffect(container = document) {
-  // Step 1: wrap text nodes in all .twitter-text elements
   const twitterDivs = container.querySelectorAll('.twitter-text');
-
   twitterDivs.forEach(div => wrapTextNodes(div));
 
-  // Step 2: start animation
-  setInterval(() => {
+  // The core logic extracted so we can call it immediately
+  function applyJitter() {
     twitterDivs.forEach(div => {
-      div.querySelectorAll('span, img').forEach(el => {
-        const x = (Math.random() - 0.5) * 4;   // horizontal jitter
-        const y = (Math.random() - 0.5) * 4;   // vertical jitter
-        const rotate = (Math.random() - 0.5) * 20; // random rotation
+      div.querySelectorAll('.jitter-bit, img').forEach(el => {
+        const x = (Math.random() - 0.5) * 4; // Range of 3px
+        const y = (Math.random() - 0.5) * 4;
+        const rotate = (Math.random() - 0.5) * 10; // Range of 8 degrees
+
         el.style.transform = `translate(${x}px, ${y}px) rotate(${rotate}deg)`;
       });
     });
-  }, 100);
+  }
+
+  // 1. Run it immediately
+  applyJitter();
+
+  // 2. Then set the interval to keep it twitching
+  // 60-80ms is the sweet spot for a "frantic" but readable twitch
+  setInterval(applyJitter, 60);
 }
 
-// ✅ Just call this once after DOM loads
 startTwitterEffect();

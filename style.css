@@ -133,17 +133,41 @@ canvas#fireworks {
   z-index: -1;
 }
 
-.twitter-text img {
-  display: block;      /* ensures it’s treated as a block for centering */
-  margin: 0 auto;      /* horizontally centers the block */
-  max-width: 33%;      /* keeps your original sizing */
-  height: auto;
-  transition: transform 0.3s ease;
+
+/* The invisible box holding the word together */
+.twitter-text span[style*="white-space: nowrap"] {
+  display: inline-block;
 }
 
-.twitter-text span{
+/* The actual letters doing the dance */
+.jitter-char {
   display: inline-block;
-  transition: transform 0.4s ease;
+  transition: transform 0.1s linear;
+  white-space: pre;
+}
+
+.twitter-text .jitter-bit {
+  display: inline-block;
+  /* Set a baseline to prevent the initial "snap" */
+  /* Use a slightly longer transition than the interval for fluid motion */
+  transition: transform 0.4s linear;
+  white-space: pre;
+  will-change: transform; /* Tells the browser to optimize this element */
+}
+
+/* Keep the image transition slightly different for a sense of weight */
+.twitter-text img {
+  display: block;
+  margin: 0 auto;
+  max-width: 33%;
+  height: auto;
+  transition: transform 0.5s ease-in-out;
+}
+
+.twitter-text span.space {
+  display: inline-block;
+  white-space: pre;
+  width: 0.4em; /* Standard space width; adjust if needed */
 }
 
 .twitter-text h3{
@@ -151,11 +175,6 @@ canvas#fireworks {
   transition: transform 0.4s ease;
 }
 
-/* give extra space for spaces */
-.twitter-text span.space {
-  width: 0.8em; /* tweak to taste */
-  display: inline-block;
-}
 
 /* ===== Navbar ===== */
 nav {
@@ -239,7 +258,7 @@ nav ul li a:hover { /*color: #007bff;*/ color: white; }
 /* ===== Main Content ===== */
 h1 { /*font-family: 'HeaderFont', sans-serif; */
   font-family: 'HeaderFont2', sans-serif;
-text-align: center;}
+text-align: center; word-break: keep-all;}
 .container { text-align: center; }
 .container img { max-width: 300px; height: auto; display: block; margin: 0 auto; }
 .container p { margin-top: 10px; font-size: 18px; color: #333; }
@@ -256,7 +275,7 @@ article {
   position: relative;
 }
 
-article h1 { margin-top: 2rem; margin-bottom: 2rem; font-size: 35px;}
+article h1 { margin-top: 2rem; margin-bottom: 2rem; font-size: 35px; word-break: keep-all;}
 
 article h2, article h3 { margin-top: 2rem; }
 
