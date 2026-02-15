@@ -38,7 +38,7 @@ body.homepage nav {
 }
 
 body.homepage nav ul li a {
-  color: #00b4ff !important;
+  color: white !important;
   transition: color 0.3s ease;
 }
 
@@ -50,7 +50,7 @@ body.homepage nav ul li a:focus {
 
 /* Homepage hamburger override */
 body.homepage .hamburger div {
-  background-color: white !important; /* force white lines */
+  background-color: #00b4ff !important; /* force white lines */
 }
 
 /* Optional: hover effect */
