@@ -6,7 +6,7 @@ const ctx = canvas.getContext("2d", { alpha: false });
 
 const HOME_URL = "/home.html";
 const LOGO_URL = "/images/scorsby_hearteyes_scale.png"; // Set your logo URL here
-const FIXED_BG_COLOR = "#FD3DB5"; //"#00aeef";
+const FIXED_BG_COLOR = "#00aeef";
 const BG_CHANGE_INTERVAL = 3000;
 const MAX_SNIPPETS = 15;
 const MAX_ACTIVE_IMAGES = 15;

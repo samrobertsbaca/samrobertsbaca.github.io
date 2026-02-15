@@ -38,7 +38,7 @@ body.homepage nav {
 }
 
 body.homepage nav ul li a {
-  color: white !important;
+  color: #00b4ff !important;
   transition: color 0.3s ease;
 }
 
@@ -55,8 +55,8 @@ body.homepage .hamburger div {
 
 /* Optional: hover effect */
 body.homepage .hamburger:hover div {
-  /*background-color: #00b4ff !important; /* lightspeed blue */
-  background-color: #FD3DB5 !important;
+  background-color: #00b4ff !important; /* lightspeed blue */
+  /*background-color: #FD3DB5 !important;*/
 }
 
 a:hover {
@@ -179,8 +179,7 @@ canvas#fireworks {
 /* ===== Navbar ===== */
 nav {
   width: 100%;
-  /*background-color: #00b4ff;*/
-  background-color: #FD3DB5 !important;
+  background-color: #00b4ff;
   position: sticky;
   top: 0;
   z-index: 1000;
@@ -238,7 +237,7 @@ nav ul li a:hover { /*color: #007bff;*/ color: white; }
     width: 100%;
     display: none;
     margin-top: 0px; /* push menu below nav bar */
-    background-color: #FD3DB5; /*#00b4ff;*/
+    background-color: #00b4ff;
     position: absolute; /* overlay menu */
     left: 0;
     top: 100%;
@@ -279,8 +278,8 @@ article h1 { margin-top: 2rem; margin-bottom: 2rem; font-size: 35px; word-break:
 
 article h2, article h3 { margin-top: 2rem; }
 
-article a {color: #FD3DB5;}
-
+article a {color: #00b4ff;}
+article a:hover {color: red;}
 
 
 article p { margin: 1rem 0; font-size: 1.05rem; }
