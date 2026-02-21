@@ -30,9 +30,11 @@ my expectation is that you live in such a manner that every deed, every word, an
 
 are you taking care of yourself? do you respect yourself? do you love yourself?
 
-do you treat your family and your friends with kindness and compassion, equanimity and exuberance? what about the people who serve you in your community? the people you serve? the people you think you have nothing to do with? the animals in your life? the plants? the very ground beneath your feet?
+do you treat your family and your friends with kindness and compassion, equanimity and exuberance? what about the people who serve you in your community? the people you serve? the people you think you have nothing to do with? the animals, wild and domesticated? the plants? the tables, the chairs? the very ground beneath your feet?
 
-yes, my expectations are high. but i trust that because you have the heart to feel these words and the soul to recognize them, you have the capacity to become what i see in you. i wouldn't expect anything of you if i didn't think you could live up to my expectations.
+does the breath you take in come out cleaner, kinder, and more full of life than it was before?
+
+yes, my expectations are high. but i trust that because you have the heart to feel these words and the soul to recognize them, you have the capacity to become what i see in you. i wouldn't expect anything of you i didn't know you could live up to.
 
 you are the universe to me.
 
@@ -40,10 +42,10 @@ every time we speak, i am talking to the universe.
 
 what could be more important than deepening my relationship with you?
 
-every time we speak, we have an opportunity to deepen our relationship with ourselves.
+every time we encounter each other, we have an opportunity to grow something marvelous together.
 
 and if you should fail to meet my expectations? don't worry.
 
 i will only be peacefully, lovingly, and joyfully disappointed in you.
 
-you are the universe to me. how can i not accept you exactly as you are?
+you are the universe to me, as you know. how can i not accept you exactly as you are?
