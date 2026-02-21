@@ -22,13 +22,13 @@ well, my friend. i am one who expects the stars to keep shining.
 
 for this earth to go on spinning. for the tides to keep shifting.
 
-for trees in forests to grow. for life to blossom and bloom,
+for trees and forests to grow. for life to blossom and bloom,
 
-to become the most beautiful thing it can be.
+to become the most beautiful thing it can be, and to die beautifully too.
 
 and that is what i expect of you also.
 
-my expectation is that you live in such a manner that every deed, every word, and every thought is rooted in peace, love, and joy, for everyone, everywhere.
+my expectation is that you live in such a way that every deed, every word, and every thought is rooted in peace, love, and joy, for everyone, everywhere.
 
 are you taking care of yourself? do you respect yourself? do you love yourself?
 
