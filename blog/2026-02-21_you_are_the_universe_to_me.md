@@ -2,6 +2,8 @@ Feb 21
 
 # you are the universe to me
 
+[![Magnet](./images/fluffy.png)](https://www.youtube.com/watch?v=h_gCVDp2zo8 "Wouldn't It Be Nice?")
+
 hello, you. yes you. you who are reading these words right now.
 
 i want you to know something important.
@@ -26,11 +28,21 @@ to become the most beautiful thing it can be.
 
 and that is what i expect of you also.
 
-my expectation is that you live in such a manner that every deed, every word, and every quiet thought is rooted in peace, love, and joy—for everyone, everywhere.
+my expectation is that you live in such a manner that every deed, every word, and every thought is rooted in peace, love, and joy, for everyone, everywhere.
 
 are you taking care of yourself? do you respect yourself? do you love yourself?
 
-do you treat your family and your friends with kindness and compassion, equanimity and exuberance? what about the people who serve you in your community? the people you serve? the people you think you have nothing to do with? the animals, wild and domesticated? the plants? the tables, the chairs? the very ground beneath your feet?
+do you treat your family and your friends with kindness and compassion, equanimity and exuberance?
+
+what about the people who serve you in your community? the people you serve?
+
+the people you think you have nothing to do with?
+
+the animals, wild and domesticated?
+
+the plants? the tables, the chairs?
+
+the very ground beneath your feet?
 
 does the breath you take in come out cleaner, kinder, and more full of life than it was before?
 
@@ -42,7 +54,7 @@ every time we speak, i am talking to the universe.
 
 what could be more important than deepening my relationship with you?
 
-every time we encounter each other, we have an opportunity to grow something marvelous together.
+every time we encounter one another is an opportunity to grow something marvelous.
 
 and if you should fail to meet my expectations? don't worry.
 
