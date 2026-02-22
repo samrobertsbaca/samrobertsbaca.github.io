@@ -20,7 +20,7 @@ who am i to have great expectations of the universe, you may ask?
 
 well, my friend. i am one who expects the stars to keep shining.
 
-for this earth to go on spinning. for the tides to keep shifting.
+for this earth to keep spinning. for the tides to keep shifting.
 
 for trees and forests to grow. for life to blossom and bloom,
 
