@@ -1,6 +1,6 @@
 Feb 23
 
-# i am the youniverse to you
+# i am the youniverse
 
 [![Magnet](./images/yardener.png)](https://youtu.be/zo4PfutrIcU?si=2dAoWNOyc3JfSM7v "Crossings: The Silence")
 

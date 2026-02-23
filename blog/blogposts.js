@@ -1,5 +1,5 @@
 window.postFiles = [
-  "/blog/2026-02-23_i_am_the_youniverse_to_you.html",
+  "/blog/2026-02-23_i_am_the_youniverse.html",
   "/blog/2026-02-21_you_are_the_universe_to_me.html",
   "/blog/2026-02-14_14_valentines.html",
   "/blog/2026-02-12_the_heart_part_63972.html",

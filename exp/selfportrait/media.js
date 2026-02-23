@@ -1776,7 +1776,7 @@ export const BLOG_SNIPPETS = [
   "and if you should fail to meet my expectations? don't worry.",
   "i will only be peacefully, lovingly, and joyfully disappointed in you.",
   "you are the universe to me, as you know. how can i not accept you exactly as you are?",
-  "i am the youniverse to you",
+  "i am the youniverse",
   "dear me,",
   "i am writing this from the wasteland of what used to be, to remind you of the time you stopped being a boat and became the sea.",
   "for a long time, you thought love was a form of architecture \u2014 that if you just held the rusted beams steady enough, if you remained a reliable shelter in the ruins for the storms of others, you would finally belong to the world. you mistook being \"needed\" for being \"worthy,\" and \"worthiness\" for being. you thought that by offering a \"place where the dust settles,\" you were some kind of saint, when really, you were just abandoning the oasis of your heart to sit in the radioactive driveway of fallout ghouls.",
