@@ -6,19 +6,19 @@ Feb 23
 
 dear me,
 
-i am writing this from the wasteland of what used to be, to remind you of the time you stopped being a boat and started being the sea.
+i am writing this from the wasteland of what used to be, to remind you of the time you stopped being a boat and became the sea.
 
-for a long time, you thought love was a form of architecture — that if you just held the rusted beams steady enough, if you remained a reliable shelter in the ruins for the storms of others, you would finally belong to the world. you mistook being "needed" for being "worthy," and "worthiness" for being. you thought that by offering a "place where the dust settles," you were being a saint, when really, you were just abandoning the shelter of your own heart to sit in the radioactive driveway of a ghost.
+for a long time, you thought love was a form of architecture — that if you just held the rusted beams steady enough, if you remained a reliable shelter in the ruins for the storms of others, you would finally belong to the world. you mistook being "needed" for being "worthy," and "worthiness" for being. you thought that by offering a "place where the dust settles," you were some kind of saint, when really, you were just abandoning the oasis of your heart to sit in the radioactive driveway of fallout ghouls.
 
-remember this lesson: your "itchy and scratchy" body is not a flaw, it is your compass. that irritability, that "peeve," that feeling of being destabilized — that was your soul’s way of screaming that you were over-extending your borders into a dead zone. it was the signal you were trying to love someone else at the expense of your own oxygen.
+remember this lesson: your "itchy and scratchy" body is not a flaw, it is your compass. that irritability, that "peeve," that feeling in your gut of being destabilized — that was your soul’s way of screaming that you were over-extending your borders into a dead zone. it was the signal you were trying to breathe life into someone else at the expense of your own oxygen.
 
 you have finally learned:
 
-- that a hard "no" is more sacred than a hollow "yes." it is the only wall worth building.
+- that a hard "no" is more sacred than a hollow "yes."
 
-- that loving the potential of a thing is just a sophisticated way of suffering. in a world of ghosts, you now choose to love what is, even if what is is the parched silence or the solar void.
+- that loving the potential of a thing is just a sophisticated way of suffering. in a world of ghosts, you now choose to love what is, even if what is is parched silence.
 
-- that no one can abandon you if you have stopped leaving your own camp to find them in the haze.
+- that no one can abandon you if you stop leaving your own camp to find them in their haze.
 
 you are no longer the container. you are the content. you are the witness and the witnessed. and you don't need to bridge the gap between people across this scorched earth because there is none — there is only the vast, unfolding landscape of your own awareness, reaching toward the sun.
 
