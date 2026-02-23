@@ -1789,7 +1789,7 @@ export const BLOG_SNIPPETS = [
   "when the world asks you to be a shadow, or to wait for a ghost to materialize in the dust, remember that you are made of solid, breathing light. you owe no one a version of yourself that requires you to go mute amidst the static. your joyous invasions are yours to lead. your peace is the only territory worth keeping.",
   "you have taken off the mask and found no one \u2014 and in that \"no one,\" you found the source of everything. you are the light you were looking for through the darkness of all the rest.",
   "i love you always. not because of what you can hold for me, but because you are the only one left standing.",
-  "you are me, and i am the youniverse.",
+  "for you are me, and i am the youniverse.",
   "forever in your corner,",
   "s"
 ];

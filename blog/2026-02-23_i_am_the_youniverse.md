@@ -28,7 +28,7 @@ you have [taken off the mask and found no one](https://johnkingcave.bandcamp.com
 
 i love you always. not because of what you can hold for me, but because you are the only one left standing.  
 
-you are me, and i am the youniverse.
+for you are me, and i am the youniverse.
 
 forever in your corner,
 
