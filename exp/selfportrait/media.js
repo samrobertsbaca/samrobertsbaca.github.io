@@ -1788,6 +1788,7 @@ export const BLOG_SNIPPETS = [
   "you are no longer the container. you are the content. you are the witness and the witnessed. and you don't need to bridge the gap between people across this scorched earth because there is none \u2014 there is only the vast, unfolding landscape of your own awareness, reaching toward the sun.",
   "when the world asks you to be a shadow, or to wait for a ghost to materialize in the dust, remember that you are made of solid, breathing light. you owe no one a version of yourself that requires you to go mute amidst the static. your joyous invasions are yours to lead. your peace is the only territory worth keeping.",
   "you have taken off the mask and found no one \u2014 and in that \"no one,\" you found the source of everything. you are the light you were looking for through the darkness of all the rest.",
+  "thank you for showing up. thank you ascended masters, angels, and ancestors for your presence.",
   "i love you always. not because of what you can hold for me, but because you are the only one left standing.",
   "for you are me, and i am the youniverse.",
   "forever in your corner,",
