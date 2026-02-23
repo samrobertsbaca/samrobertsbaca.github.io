@@ -1784,7 +1784,7 @@ export const BLOG_SNIPPETS = [
   "you have finally learned:",
   "- that a hard \"no\" is more sacred than a hollow \"yes.\"",
   "- that loving the potential of a thing is just a sophisticated way of suffering. in a world of ghosts, you now choose to love what is, even if it's parched silence.",
-  "- that no one can abandon you if you stop leaving your own camp to look for their haze.",
+  "- that no one can abandon you if you stop leaving yourself to find them.",
   "you are no longer the container. you are the content. you are the witness and the witnessed. and you don't need to bridge the gap between people across this scorched earth because there is none \u2014 there is only the vast, unfolding landscape of your own awareness, reaching toward the sun.",
   "when the world asks you to be a shadow, or to wait for a ghost to materialize in the dust, remember that you are made of solid, breathing light. you owe no one a version of yourself that requires you to go mute amidst the static. your joyous invasions are yours to lead. your peace is the only territory worth keeping.",
   "you have taken off the mask and found no one \u2014 and in that \"no one,\" you found the source of everything. you are the light you were looking for through the darkness of all the rest.",
