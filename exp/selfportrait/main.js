@@ -5,9 +5,9 @@ const canvas = document.getElementById("c");
 const ctx = canvas.getContext("2d", { alpha: false });
 
 const HOME_URL = "/home.html";
-const LOGO_URL = "/images/scorsby_hearteyes_scale.png"; // Set your logo URL here
+const LOGO_URL = "/images/scorsby_hearteyes_scale.png";
 const FIXED_BG_COLOR = "#00aeef";
-const BG_CHANGE_INTERVAL = 3000;
+
 const MAX_SNIPPETS = 15;
 const MAX_ACTIVE_IMAGES = 15;
 const SNIPPET_FONT_SIZE = 16;
@@ -29,15 +29,22 @@ let activeImages = [];
 let activeSnippets = [];
 let usedUrlIndices = new Set();
 let bgColor = FIXED_BG_COLOR;
-let bgTimer = 0;
+
 let spawnTimer = 0;
+let snippetSpawnTimer = 0;
+let loadingSnippetsCount = 0; // Lock to prevent race conditions during font load
+
 let draggingSnippet = null, dragOffX = 0, dragOffY = 0;
 let logoImg = null;
 
 let lastFrameTime = performance.now();
 const FRAME_INTERVAL = 1000 / 60;
 
-/** --- 2. HELPERS & LOADING --- **/
+// Off-screen canvas for measuring text and pre-rendering
+const offscreenCanvas = document.createElement("canvas");
+const oCtx = offscreenCanvas.getContext("2d");
+
+/** --- 2. HELPERS --- **/
 
 function resizeCanvas() {
   const dpr = window.devicePixelRatio || 1;
@@ -51,7 +58,7 @@ function resizeCanvas() {
   const perm = activeSnippets.find(s => s.isPermanent);
   if (perm) {
     perm.x = (w - perm.w) / 2;
-    perm.y = (h - perm.h) / 2; // Adjusted for bobbing room
+    perm.y = (h - perm.h) / 2;
   }
 }
 window.addEventListener("resize", resizeCanvas);
@@ -62,6 +69,7 @@ async function fetchNewImage() {
   const randomIdx = Math.floor(Math.random() * available.length);
   const url = available[randomIdx];
   usedUrlIndices.add(IMAGE_URLS.indexOf(url));
+
   try {
     const img = new Image();
     const loadPromise = new Promise((res, rej) => {
@@ -69,36 +77,58 @@ async function fetchNewImage() {
       img.onerror = rej;
       img.src = url;
     });
-    const loadedImg = await loadPromise;
-    loadedPool.push(loadedImg);
+    const rawImg = await loadPromise;
+
+    // --- TINTING PROCESS (Done once per load) ---
+    const tintCanvas = document.createElement("canvas");
+    const tCtx = tintCanvas.getContext("2d");
+    tintCanvas.width = rawImg.width;
+    tintCanvas.height = rawImg.height;
+
+    // 1. Draw the original image
+    tCtx.drawImage(rawImg, 0, 0);
+
+    // 2. Overlay the blue tint
+    // "source-atop" only colors the parts of the canvas where the image exists
+    tCtx.globalCompositeOperation = "source-atop";
+    tCtx.fillStyle = "rgba(0, 174, 239, 0.4)"; // Your FIXED_BG_COLOR with transparency
+    tCtx.fillRect(0, 0, tintCanvas.width, tintCanvas.height);
+
+    // 3. Optional: Add a "multiply" or "soft-light" effect once if you want it deeper
+    tCtx.globalCompositeOperation = "multiply";
+    tCtx.fillRect(0, 0, tintCanvas.width, tintCanvas.height);
+
+    // Save the TINTED canvas as the image to be used in the loop
+    loadedPool.push(tintCanvas);
+
     if (loadedPool.length > MAX_BUFFER) loadedPool.shift();
-    return loadedImg;
-  } catch (e) { console.warn("Load failed:", url); }
+    return tintCanvas;
+  } catch (e) {
+    console.warn("Load failed:", url);
+  }
 }
 
 function rectsOverlap(r1, r2) {
-  const padding = 10;
+  const padding = 15;
   return !(r1.x + r1.w + padding < r2.x ||
            r1.x > r2.x + r2.w + padding ||
            r1.y + r1.h + padding < r2.y ||
            r1.y > r2.y + r2.h + padding);
 }
 
-/** --- 3. SPAWNING --- **/
+/** --- 3. SPAWNING & PRE-RENDERING --- **/
 
 function spawnPermanentBox() {
   const hasLogo = logoImg && logoImg.complete;
   let boxW, boxH;
 
   if (hasLogo) {
-    const scale = 0.5; // Adjust logo scale
+    const scale = 0.5;
     boxW = logoImg.width * scale;
     boxH = logoImg.height * scale;
   } else {
-    const text = "ENTER THE SCORSBYZONE";
-    ctx.font = `bold ${SNIPPET_FONT_SIZE}px BodyFont`;
-    boxW = ctx.measureText(text).width + 40;
-    boxH = LINE_HEIGHT + 20;
+    boxW = 200;
+    boxH = 40;
   }
 
   activeSnippets.push({
@@ -108,100 +138,86 @@ function spawnPermanentBox() {
     w: boxW, h: boxH,
     isPermanent: true,
     hue: 0,
-    color: "#ffffff",
-    bgColor: "#000000",
     opacity: 1,
     bobTimer: 0,
     useLogo: hasLogo
   });
 }
 
-function spawnImage() {
-  if (activeImages.length >= MAX_ACTIVE_IMAGES) return;
-  const img = loadedPool[(Math.random() * loadedPool.length) | 0];
-  if (!img) return;
-
-  const screenScale = 0.2 + Math.random() * 0.4;
-  let dw = window.innerWidth * screenScale;
-  const ratio = img.width / img.height;
-  let dh = dw / ratio;
-
-  const dx = -dw * 0.7 + Math.random() * (window.innerWidth + dw * 0.4);
-  const dy = -dh * 0.7 + Math.random() * (window.innerHeight + dh * 0.4);
-
-  activeImages.push({
-    img, sx: 0, sy: 0, sw: img.width, sh: img.height, dx, dy, dw, dh,
-    duration: (2000 + Math.random() * 4000) / OVERALL_SPEED,
-    opacity: 0, hue: 0
-  });
-}
-
-// Add this at the top of your script (outside any functions)
-const measureCanvas = document.createElement("canvas");
-const mCtx = measureCanvas.getContext("2d");
-
 async function addSnippet() {
-  if (!BLOG_SNIPPETS.length || activeSnippets.length >= MAX_SNIPPETS) return;
+  const currentRandomCount = activeSnippets.filter(s => !s.isPermanent).length;
+  if (!BLOG_SNIPPETS.length || (currentRandomCount + loadingSnippetsCount) >= MAX_SNIPPETS) return;
 
-  // 1. Ensure the font is actually loaded before measuring
-  await document.fonts.load(`${SNIPPET_FONT_SIZE}px BodyFont`);
+  loadingSnippetsCount++;
 
-  // 2. Use the off-screen context to measure (isolated from the main loop)
-  const fontStyle = `${SNIPPET_FONT_SIZE}px BodyFont`;
-  mCtx.font = fontStyle;
+  try {
+    await document.fonts.load(`${SNIPPET_FONT_SIZE}px BodyFont`);
 
-  const text = BLOG_SNIPPETS[(Math.random() * BLOG_SNIPPETS.length) | 0];
-  const maxWidth = window.innerWidth * (0.15 + Math.random() * 0.3);
-  const words = text.split(/\s+/); // Split by any whitespace
-  const lines = [];
-  let currentLine = "";
-  let finalMaxW = 0;
+    // Prevent immediate duplicates
+    const activeTexts = new Set(activeSnippets.map(s => s.originalText));
+    const available = BLOG_SNIPPETS.filter(t => !activeTexts.has(t));
+    const text = available.length ? available[(Math.random() * available.length) | 0] : BLOG_SNIPPETS[0];
 
-  for (let n = 0; n < words.length; n++) {
-    const testLine = currentLine + words[n] + " ";
-    // Measure using the isolated context
-    const testWidth = mCtx.measureText(testLine.trim()).width;
+    const maxWidth = window.innerWidth * (0.15 + Math.random() * 0.3);
+    oCtx.font = `${SNIPPET_FONT_SIZE}px BodyFont`;
 
-    if (testWidth > maxWidth && n > 0) {
-      const lineW = mCtx.measureText(currentLine.trim()).width;
-      lines.push({ text: currentLine.trim(), w: lineW });
-      finalMaxW = Math.max(finalMaxW, lineW);
-      currentLine = words[n] + " ";
-    } else {
-      currentLine = testLine;
-    }
-  }
+    const words = text.split(/\s+/);
+    let lines = [], currentLine = "", finalMaxW = 0;
 
-  // Final line
-  const lastLineText = currentLine.trim();
-  const lastLineW = mCtx.measureText(lastLineText).width;
-  lines.push({ text: lastLineText, w: lastLineW });
-  finalMaxW = Math.max(finalMaxW, lastLineW);
-
-  // 3. Add generous padding
-  // Increase horizontal padding to 40 to account for browser kerning differences
-  const boxW = finalMaxW + 40;
-  const boxH = (lines.length * LINE_HEIGHT) + 20;
-
-  let x, y, foundSpot = false;
-  for(let i=0; i<30; i++) {
-    x = 20 + Math.random() * (window.innerWidth - boxW - 40);
-    y = 20 + Math.random() * (window.innerHeight - boxH - 120);
-    if (!activeSnippets.some(existing => rectsOverlap({x, y, w: boxW, h: boxH}, existing))) {
-      foundSpot = true; break;
-    }
-  }
-
-  if (foundSpot) {
-    const isDark = Math.random() < 0.5;
-    activeSnippets.push({
-      lines, x, y, w: boxW - 18, h: boxH - 6,
-      duration: Math.max(MIN_SNIPPET_DURATION, text.length * CHAR_DURATION),
-      color: isDark ? "#FFF" : "#000",
-      bgColor: isDark ? "#000" : "#FFF",
-      opacity: 0,
-      font: fontStyle // Store the font used for measurement
+    words.forEach(word => {
+      const test = currentLine + word + " ";
+      const tw = oCtx.measureText(test.trim()).width;
+      if (tw > maxWidth && currentLine !== "") {
+        lines.push(currentLine.trim());
+        finalMaxW = Math.max(finalMaxW, oCtx.measureText(currentLine.trim()).width);
+        currentLine = word + " ";
+      } else { currentLine = test; }
     });
+    lines.push(currentLine.trim());
+    finalMaxW = Math.max(finalMaxW, oCtx.measureText(currentLine.trim()).width);
+
+    const boxW = finalMaxW + 23;
+    const boxH = (lines.length * LINE_HEIGHT) + 18;
+
+    // Position finding
+    let x = 0, y = 0, found = false;
+    for (let i = 0; i < 20; i++) {
+      x = 20 + Math.random() * (window.innerWidth - boxW - 40);
+      y = 20 + Math.random() * (window.innerHeight - boxH - 120);
+      if (!activeSnippets.some(s => rectsOverlap({x, y, w: boxW, h: boxH}, s))) {
+        found = true; break;
+      }
+    }
+
+    if (found) {
+      // PRE-RENDER: Draw to a private canvas for this snippet
+      const cache = document.createElement("canvas");
+      const dpr = window.devicePixelRatio || 1;
+      cache.width = boxW * dpr;
+      cache.height = boxH * dpr;
+      const cCtx = cache.getContext("2d");
+      cCtx.scale(dpr, dpr);
+
+      const isDark = Math.random() < 0.5;
+      const color = isDark ? "#FFF" : "#000";
+      const bg = isDark ? "#000" : "#FFF";
+
+      cCtx.fillStyle = bg;
+      cCtx.fillRect(0, 0, boxW, boxH);
+      cCtx.fillStyle = color;
+      cCtx.font = `${SNIPPET_FONT_SIZE}px BodyFont`;
+      cCtx.textBaseline = "top";
+      lines.forEach((l, i) => cCtx.fillText(l, 10, 10 + i * LINE_HEIGHT));
+
+      activeSnippets.push({
+        originalText: text,
+        cache, x, y, w: boxW, h: boxH,
+        duration: Math.max(MIN_SNIPPET_DURATION, text.length * CHAR_DURATION),
+        opacity: 0
+      });
+    }
+  } finally {
+    loadingSnippetsCount--;
   }
 }
 
@@ -214,32 +230,29 @@ function drawFrame(delta) {
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
+  // Spawn timers
   spawnTimer += delta * OVERALL_SPEED;
-  if (spawnTimer > 250) {
-    spawnTimer = 0;
-    spawnImage();
-    fetchNewImage();
-  }
+  if (spawnTimer > 300) { spawnTimer = 0; spawnImage(); fetchNewImage(); }
 
-  activeImages.forEach(imgObj => {
+  snippetSpawnTimer += delta;
+  if (snippetSpawnTimer > 1000) { snippetSpawnTimer = 0; addSnippet(); }
+
+  // 1. Process Images (Reverse loop for safe removal)
+  for (let i = activeImages.length - 1; i >= 0; i--) {
+    const imgObj = activeImages[i];
     const isFadingOut = imgObj.duration < FADE_THRESHOLD;
     imgObj.opacity = !isFadingOut ? Math.min(1, imgObj.opacity + IMAGE_FADE_IN_SPEED) : Math.max(0, imgObj.opacity - IMAGE_FADE_OUT_SPEED);
-    ctx.save();
+
     ctx.globalAlpha = imgObj.opacity;
-    ctx.globalCompositeOperation = "soft-light";
-    if (isFadingOut) {
-      imgObj.hue = (imgObj.hue + 10) % 360;
-      ctx.filter = `hue-rotate(${imgObj.hue}deg)`;
-    }
-    ctx.drawImage(imgObj.img, 0, 0, imgObj.sw, imgObj.sh, imgObj.dx, imgObj.dy, imgObj.dw, imgObj.dh);
-    ctx.restore();
+    ctx.drawImage(imgObj.img, imgObj.dx, imgObj.dy, imgObj.dw, imgObj.dh);
+
     imgObj.duration -= delta;
-  });
-  activeImages = activeImages.filter(img => img.duration > 0 || img.opacity > 0);
+    if (imgObj.duration <= 0 && imgObj.opacity <= 0) activeImages.splice(i, 1);
+  }
 
-  if (Math.random() < 0.2) addSnippet();
-
-  activeSnippets.forEach((s) => {
+  // 2. Process Snippets
+  for (let i = activeSnippets.length - 1; i >= 0; i--) {
+    const s = activeSnippets[i];
     let renderY = s.y;
 
     if (!s.isPermanent) {
@@ -247,68 +260,61 @@ function drawFrame(delta) {
       s.opacity = !isFadingOut ? Math.min(1, s.opacity + SNIPPET_FADE_IN_SPEED) : Math.max(0, s.opacity - SNIPPET_FADE_OUT_SPEED);
       s.duration -= delta;
     } else {
-      // Bobbing logic for permanent button
       s.bobTimer += delta * 0.002;
-      renderY += Math.sin(s.bobTimer) * 9; // Bob height
+      renderY += Math.sin(s.bobTimer) * 9;
       s.hue = (s.hue + 1) % 360;
     }
 
     if (s.opacity > 0) {
-      ctx.save();
       ctx.globalAlpha = s.opacity;
-
-      if (s.isPermanent && s.useLogo) {
-        ctx.drawImage(logoImg, s.x | 0, renderY | 0, s.w | 0, s.h | 0);
-      } else {
-        if(s.isPermanent) {
-            ctx.shadowBlur = 20;
-            ctx.shadowColor = `hsl(${s.hue}, 80%, 60%)`;
-            ctx.fillStyle = `hsl(${s.hue}, 80%, 30%)`;
+      if (s.isPermanent) {
+        if (s.useLogo) {
+          ctx.drawImage(logoImg, s.x | 0, renderY | 0, s.w | 0, s.h | 0);
         } else {
-            ctx.fillStyle = s.bgColor;
-        }
-
-        ctx.fillRect(s.x | 0, renderY | 0, s.w | 0, s.h | 0);
-        ctx.fillStyle = s.color;
-        ctx.textBaseline = "top";
-
-        if (s.isPermanent) {
+          ctx.fillStyle = `hsl(${s.hue}, 80%, 30%)`;
+          ctx.fillRect(s.x | 0, renderY | 0, s.w | 0, s.h | 0);
+          ctx.fillStyle = "#FFF";
           ctx.font = `bold ${SNIPPET_FONT_SIZE}px BodyFont`;
           ctx.textAlign = "center";
           ctx.fillText(s.text, (s.x + s.w / 2) | 0, (renderY + 10) | 0);
-        } else {
-          ctx.font = `${SNIPPET_FONT_SIZE}px BodyFont`;
-          ctx.textAlign = "left";
-          s.lines.forEach((line, j) => ctx.fillText(line.text, (s.x + 10) | 0, (renderY + j * LINE_HEIGHT + 8) | 0));
         }
+        s.currentRenderY = renderY;
+      } else {
+        // FAST: Just draw the cached snippet canvas
+        ctx.drawImage(s.cache, s.x | 0, renderY | 0, s.w | 0, s.h | 0);
       }
-      ctx.restore();
-
-      // Update hit-box for dragging/clicking if it bobs
-      if(s.isPermanent) s.currentRenderY = renderY;
     }
-  });
-  activeSnippets = activeSnippets.filter(s => s.isPermanent || s.duration > 0 || s.opacity > 0 || draggingSnippet === s);
+
+    if (!s.isPermanent && s.duration <= 0 && s.opacity <= 0 && draggingSnippet !== s) {
+      activeSnippets.splice(i, 1);
+    }
+  }
+  ctx.globalAlpha = 1;
 }
 
-/** --- 5. INTERACTION --- **/
+/** --- 5. INTERACTION & BOOT --- **/
+
+function spawnImage() {
+  if (activeImages.length >= MAX_ACTIVE_IMAGES || !loadedPool.length) return;
+  const img = loadedPool[(Math.random() * loadedPool.length) | 0];
+  const screenScale = 0.2 + Math.random() * 0.4;
+  let dw = window.innerWidth * screenScale, dh = dw / (img.width / img.height);
+  activeImages.push({
+    img, dx: -dw*0.5 + Math.random()*(window.innerWidth), dy: -dh*0.5 + Math.random()*(window.innerHeight), dw, dh,
+    duration: (3000 + Math.random() * 5000) / OVERALL_SPEED, opacity: 0
+  });
+}
 
 function handleStart(e) {
-  const isTouch = e.type === "touchstart";
-  const pageX = isTouch ? e.touches[0].clientX : e.offsetX;
-  const pageY = isTouch ? e.touches[0].clientY : e.offsetY;
-
+  const pX = e.type.startsWith("touch") ? e.touches[0].clientX : e.offsetX;
+  const pY = e.type.startsWith("touch") ? e.touches[0].clientY : e.offsetY;
   for (let i = activeSnippets.length - 1; i >= 0; i--) {
     const s = activeSnippets[i];
-    const checkY = s.isPermanent ? (s.currentRenderY || s.y) : s.y;
-
-    if (pageX >= s.x && pageX <= s.x + s.w && pageY >= checkY && pageY <= checkY + s.h) {
+    const checkY = s.isPermanent ? s.currentRenderY : s.y;
+    if (pX >= s.x && pX <= s.x + s.w && pY >= checkY && pY <= checkY + s.h) {
       if (s.isPermanent) { window.top.location.href = HOME_URL; return; }
-      draggingSnippet = s;
-      dragOffX = pageX - s.x;
-      dragOffY = pageY - s.y;
+      draggingSnippet = s; dragOffX = pX - s.x; dragOffY = pY - s.y;
       activeSnippets.push(...activeSnippets.splice(i, 1));
-      if (isTouch) e.preventDefault();
       break;
     }
   }
@@ -316,55 +322,32 @@ function handleStart(e) {
 
 function handleMove(e) {
   if (!draggingSnippet) return;
-  const isTouch = e.type === "touchmove";
-  const pageX = isTouch ? e.touches[0].clientX : e.offsetX;
-  const pageY = isTouch ? e.touches[0].clientY : e.offsetY;
-  draggingSnippet.x = pageX - dragOffX;
-  draggingSnippet.y = pageY - dragOffY;
-  if (isTouch) e.preventDefault();
+  const pX = e.type.startsWith("touch") ? e.touches[0].clientX : e.clientX;
+  const pY = e.type.startsWith("touch") ? e.touches[0].clientY : e.clientY;
+  draggingSnippet.x = pX - dragOffX; draggingSnippet.y = pY - dragOffY;
 }
-
-function handleEnd() { draggingSnippet = null; }
 
 canvas.addEventListener("mousedown", handleStart);
 window.addEventListener("mousemove", handleMove);
-window.addEventListener("mouseup", handleEnd);
+window.addEventListener("mouseup", () => draggingSnippet = null);
 canvas.addEventListener("touchstart", handleStart, { passive: false });
 window.addEventListener("touchmove", handleMove, { passive: false });
-window.addEventListener("touchend", handleEnd);
+window.addEventListener("touchend", () => draggingSnippet = null);
 
-function loop(timestamp) {
-  let delta = timestamp - lastFrameTime;
-  if (delta >= FRAME_INTERVAL) {
-    drawFrame(delta);
-    lastFrameTime = timestamp - (delta % FRAME_INTERVAL);
-  }
+function loop(t) {
+  let delta = t - lastFrameTime;
+  if (delta >= FRAME_INTERVAL) { drawFrame(delta); lastFrameTime = t - (delta % FRAME_INTERVAL); }
   requestAnimationFrame(loop);
 }
 
-(async function start() {
+(async function init() {
   resizeCanvas();
-
-  // 1. Wait for your custom font to be ready
-  if (document.fonts) {
-    await document.fonts.ready;
-  }
-
-  // 2. Optional Logo Loading
+  if (document.fonts) await document.fonts.ready;
   if (LOGO_URL) {
     logoImg = new Image();
-    const logoPromise = new Promise(res => {
-        logoImg.onload = res;
-        logoImg.onerror = () => { logoImg = null; res(); };
-        logoImg.src = LOGO_URL;
-    });
-    await logoPromise;
+    await new Promise(res => { logoImg.onload = res; logoImg.onerror = res; logoImg.src = LOGO_URL; });
   }
-
-  const initialLoads = Array.from({ length: 12 }, () => fetchNewImage());
-  await Promise.all(initialLoads);
-
-  // 3. Now spawn the box with accurate measurements
+  await Promise.all(Array.from({ length: 8 }, () => fetchNewImage()));
   spawnPermanentBox();
   requestAnimationFrame(loop);
 })();
