@@ -16,9 +16,9 @@ you have finally learned:
 
 - that a hard "no" is more sacred than a hollow "yes."
 
-- that loving the potential of a thing is just a sophisticated way of suffering. in a world of ghosts, you now choose to love what is, even if what is is parched silence.
+- that loving the potential of a thing is just a sophisticated way of suffering. in a world of ghosts, you now choose to love what is, even if it's parched silence.
 
-- that no one can abandon you if you stop leaving your own camp to find them in their haze.
+- that no one can abandon you if you stop leaving your own camp to look for their haze.
 
 you are no longer the container. you are the content. you are the witness and the witnessed. and you don't need to bridge the gap between people across this scorched earth because there is none — there is only the vast, unfolding landscape of your own awareness, reaching toward the sun.
 
