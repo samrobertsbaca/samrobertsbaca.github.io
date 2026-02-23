@@ -27,6 +27,7 @@ when the world asks you to be a shadow, or to wait for a ghost to materialize in
 you have [taken off the mask and found no one](https://johnkingcave.bandcamp.com/track/i-took-off-my-mask) — and in that "no one," you found the source of everything. you are the light you were looking for through the darkness of all the rest.
 
 i love you always. not because of what you can hold for me, but because you are the only one left standing.  
+
 you are me, and i am the youniverse.
 
 forever in your corner,
