@@ -81,6 +81,7 @@ export const IMAGE_URLS = [
   "/images/treepositivity_trans.png",
   "/images/wedrawtrans.png",
   "/images/yardener.png",
+  "/images/yardener1.png",
   "/media/gentlefallingsnow/0.1.png",
   "/media/gentlefallingsnow/0.3.png",
   "/media/gentlefallingsnow/1.png",
