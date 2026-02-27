@@ -27,7 +27,7 @@ jobs:
           # We store the API key securely in GitHub Secrets
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         working-directory: ./exp/storygen
-        run: storygen.py
+        run: python storygen.py
 
       - name: Commit and Push changes
         run: |
