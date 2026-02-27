@@ -1,3 +1,3 @@
-### the six-week glong
+### the grape's glong-speak
 
-scorsby, all smiles, asked pip, "market crowded?" pip, elastic grin, "didn't count 'em, sir!" scorsby, thinking *rrombo dombo di di dai!*, set dogs. pip released hares! cellar wine? pip unplugged the cask, beating the servant holding the hole. court? pip played idiot. but a pilgrim saw pip's name glow at the grave for sharing coin with a man with a dead hen. charity, they knew, makes one "enough for six weeks!"
+a cloud-couple adopted scorsby, a singing grape. his 'rrombo dombo di di dai!' won princess elara. by night, he shimmered human. elara giggled his secret to a breeze. scorsby, hurt (like frost taunting 'a grape can't sing!'), vanished. melancholy elara, trading smiles for tales, learned frost held him. she tickled the ice with joy. scorsby, free, asked for her smile.

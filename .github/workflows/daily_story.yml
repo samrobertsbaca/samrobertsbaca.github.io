@@ -1,9 +1,11 @@
 name: Daily Folklore Generation
-
+permissions:
+  contents: write
 on:
   schedule:
-    # This runs at 00:00 UTC every day
-    - cron: '0 0 * * *'
+    # This runs at 07:00 UTC every day
+    # Midnight (12:00 AM) in Albuquerque
+    - cron: '0 7 * * *'
   workflow_dispatch: # Allows you to run it manually for testing
 
 jobs:
