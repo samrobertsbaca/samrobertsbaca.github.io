@@ -116,3 +116,44 @@ function startTwitterEffect(container = document) {
 }
 
 startTwitterEffect();
+
+
+
+
+
+
+// 1. Setup the Markdown Renderer
+const renderer = new marked.Renderer();
+
+// In modern Marked, the first argument is an object!
+// We destructure it to get 'text'
+renderer.heading = function({ text, depth }) {
+    // 'depth' is the heading level (1 for h1, 2 for h2, etc.)
+    return `
+        <div class="twitter-text">
+            <h${depth} style="font-weight: bold;">${text}</h${depth}>
+        </div>`;
+};
+
+// 2. The Loading Function
+async function loadScorsbyJournal(filePath,div_tag) {
+    try {
+        const response = await fetch(filePath);
+        const mdText = await response.text();
+
+        // Convert MD to HTML with our custom header wrapper
+        const htmlContent = marked.parse(mdText, { renderer: renderer });
+
+        // Inject into your page container
+        const container = document.getElementById(div_tag);
+        container.innerHTML = htmlContent;
+
+        // 3. TRIGGER YOUR FUNCTIONS
+        // We pass the container to your effect function so it
+        // specifically targets the newly injected content.
+        startTwitterEffect(container);
+
+    } catch (error) {
+        console.error("Failed to load journal:", error);
+    }
+}
