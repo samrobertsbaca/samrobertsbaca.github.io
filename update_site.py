@@ -8,18 +8,6 @@ import subprocess
 import sys
 
 
-import argparse
-
-# 1. Initialize the parser
-parser = argparse.ArgumentParser(description="A script that uses a flag.")
-
-# 2. Add the argument
-# We can provide a short version (-ns) and a long version (--no-save)
-parser.add_argument('-ns', '--no-story', action='store_true', help="Set this flag to skip story generation.")
-
-# 3. Parse the arguments
-args = parser.parse_args()
-
 
 # Paths
 blog_folder = Path(__file__).parent / "blog"
@@ -153,12 +141,3 @@ with open(output_js_file, "w", encoding="utf-8") as js_file:
 print(f"✅ Generated {len(md_files)} HTML blog posts and updated blogposts.js.")
 
 subprocess.run([sys.executable, "./exp/selfportrait/build_media.py"])
-
-
-if args.no_story == False:
-    # Define the path to your script's folder
-    script_dir = "./exp/storygen"
-    subprocess.run(
-        [sys.executable, "storygen.py"],
-        cwd=script_dir  # This "teleports" the execution into that folder
-    )

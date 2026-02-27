@@ -25,8 +25,6 @@ urls = []
 
 for base in MEDIA_DIRS:
     for root, _, files in os.walk(base):
-        if "archive" in Path(root).parts:
-            continue
         for f in files:
             if Path(f).suffix.lower() in EXTS:
                 full_path = Path(root) / f
