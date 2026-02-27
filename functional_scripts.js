@@ -1,7 +1,5 @@
 // functional_scripts.js
 
-
-
 // Hamburger toggle
 function toggleMenu() {
   const navLinks = document.getElementById('nav-links');

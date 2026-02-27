@@ -32,15 +32,12 @@
 
   <nav id="main-nav"></nav>
 
-  <div id="fireworks2"></div>
-  <!--<div id="fireworks"></div>-->
-
   <canvas id="fireworks"></canvas>
 
   <script src="https://unpkg.com/thru-space@latest"></script>
   <script>
-    const canvas = document.querySelector('#fireworks')
-    const thruSpace = new ThruSpace(canvas, {
+    const fire_canvas = document.querySelector('#fireworks')
+    const thruSpace = new ThruSpace(fire_canvas, {
   starsPerPx: 0.00025,
   speedNormal: 0.5,
   speedLight: 15,
