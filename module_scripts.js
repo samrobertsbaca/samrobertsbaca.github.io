@@ -1,36 +1,37 @@
 import { rainbowCursor } from "https://unpkg.com/cursor-effects@latest/dist/esm.js";
 
-// 1. Create the observer to watch for the new canvas
-const observer = new MutationObserver((mutations) => {
-  for (const mutation of mutations) {
-    // Look at every new element added to the page
-    mutation.addedNodes.forEach((node) => {
-      if (node.tagName === 'CANVAS') {
-        // We found it! Apply styles and stop watching
-        applyCursorStyles(node);
-        observer.disconnect();
-      }
-    });
-  }
-});
+// Check if the screen is wider than a typical mobile device (e.g., 768px)
+// and make sure it's not a touch-only device
+const isMobile = window.matchMedia("(max-width: 768px)").matches ||
+                 ('ontouchstart' in window);
 
-// 2. Start watching the body for changes
-observer.observe(document.body, { childList: true });
+if (!isMobile) {
+  // 1. Setup the watcher
+  const observer = new MutationObserver((mutations) => {
+    for (const mutation of mutations) {
+      mutation.addedNodes.forEach((node) => {
+        if (node.tagName === 'CANVAS') {
+          applyCursorStyles(node);
+          observer.disconnect();
+        }
+      });
+    }
+  });
 
-// 3. Initialize the effect
-new rainbowCursor();
+  observer.observe(document.body, { childList: true });
 
-// 4. The styling function
+  // 2. Only start the effect if we aren't on mobile
+  new rainbowCursor();
+}
+
 function applyCursorStyles(canvas) {
-  canvas.id = "active-cursor-layer"; // Give it a name
+  canvas.id = "active-cursor-layer";
   Object.assign(canvas.style, {
     position: 'fixed',
     top: '0',
     left: '0',
     zIndex: '999999',
     pointerEvents: 'none',
-    border: 'none',      // Ensures your other canvas border doesn't apply
-    background: 'none'   // Ensures no background color interferes
+    display: 'block'
   });
-  console.log("Cursor canvas detected and styled via MutationObserver.");
 }
