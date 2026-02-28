@@ -35,3 +35,15 @@ function applyCursorStyles(canvas) {
     display: 'block'
   });
 }
+
+
+import renderMathInElement from 'https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.mjs';
+
+// This will scan the entire body for LaTeX delimiters
+renderMathInElement(document.body, {
+    delimiters: [
+        {left: '$$', right: '$$', display: true},
+        {left: '$', right: '$', display: false}
+    ],
+    throwOnError : false
+});

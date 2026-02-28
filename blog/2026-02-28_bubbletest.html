@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-F0TBFJSGJ9"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-F0TBFJSGJ9');
+  </script>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+    <link rel="icon" href="/favicon.webp" type="image/x-icon">
+    <title>SYSTEM_FAILURE // #00b4ff</title>
+    <style>
+        :root {
+            --scorsby-blue: #00b4ff;
+            --bsod-white: #ffffff;
+            --unmanifest-purple: #6a0dad;
+        }
+
+        /* Hide scrollbars */
+        html {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        html::-webkit-scrollbar {
+            display: none;
+        }
+
+        body {
+            margin: 0; padding: 0;
+            background-color: var(--scorsby-blue);
+            color: var(--bsod-white);
+            font-family: "Segoe UI Variable Display", "Segoe UI", "Segoe UI Symbol", sans-serif;
+            height: 1000000px;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            transition: background-color 0.5s ease;
+        }
+
+        #bsod-wrapper {
+            position: fixed;
+            top: 12%;
+            left: 10%;
+            width: 80%;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        #face-404 {
+            width: 13vw; /* Responsive scaling for desktop */
+            min-width: 100px;
+            max-width: 220px;
+            height: auto;
+            margin-bottom: 2vw;
+            cursor: pointer;
+            pointer-events: auto;
+            display: block;
+        }
+
+        h1 {
+            /* Scalable font size using Viewport Width */
+            font-size: 3.5vw;
+            font-weight: 300;
+            margin-bottom: 1.5vw;
+            line-height: 1.2;
+            letter-spacing: -0.01em;
+        }
+
+        p {
+            font-size: 1.5vw; /* Scalable font size */
+            margin-bottom: 2vw;
+            max-width: 65vw;
+            font-weight: 300;
+            line-height: 1.4;
+        }
+
+        .progress-container {
+            font-size: 1.5vw;
+            font-weight: 300;
+            margin-bottom: 3vw;
+        }
+
+        .error-footer {
+            display: flex;
+            align-items: flex-start;
+            gap: 2vw;
+        }
+
+        .qr-box {
+            width: 8vw; height: 8vw; /* Responsive QR */
+            min-width: 80px; min-height: 80px;
+            max-width: 150px; max-height: 150px;
+            background: #fff;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .qr-box::after { content: "❤︎"; color: var(--scorsby-blue); font-size: 4vw; }
+
+        .stop-code-box {
+            font-size: 1vw; /* Responsive small text */
+            line-height: 1.5;
+            font-weight: 300;
+            margin-top: -0.2vw;
+        }
+
+        .info-link { margin-bottom: 1vw; display: block; }
+        .code-bold { font-weight: 500; }
+
+        /* SCROLLING MEMORY STREAM */
+        #memory-stream {
+            position: absolute;
+            top: 110vh;
+            left: 10%;
+            width: 80%;
+            font-family: "Consolas", monospace;
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.2);
+            white-space: pre-wrap;
+            pointer-events: none;
+            line-height: 1.6;
+        }
+
+        /* HARD OVERRIDES FOR MOBILE DEVICES (Portrait/Small Screen) */
+        @media (max-width: 768px) {
+            #bsod-wrapper { top: 8%; left: 8%; width: 84%; }
+
+            #face-404 { width: 110px; margin-bottom: 25px; }
+
+            h1 { font-size: 1.7rem; margin-bottom: 20px; }
+
+            p { font-size: 1.0rem; max-width: 100%; margin-bottom: 20px;}
+
+            .progress-container { font-size: 1.0rem; margin-bottom: 30px;}
+
+            .error-footer { gap: 15px; }
+
+            .qr-box { width: 80px; height: 80px; }
+            .qr-box::after { font-size: 40px; }
+
+            .stop-code-box { font-size: 0.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="bsod-wrapper">
+    <img src="/images/404_page.png" id="face-404" alt="Scorsby 404">
+
+    <h1 id="status-msg">Your self ran into a problem and needs to unmanifest.</h1>
+    <p id="status-desc">We're just collecting some error info regarding your current identity state, and then we'll restart the void for you.</p>
+
+    <div class="progress-container" id="pct">0% complete</div>
+
+    <div class="error-footer">
+        <div class="qr-box" id="qr"></div>
+        <div class="stop-code-box">
+            <span class="info-link">For more information about this issue and possible fixes, visit https://scorsby.us/stopcode</span>
+
+            If you call a support person, give them this info:<br>
+            Stop code: <span class="code-bold">CRITICAL_UNMANIFEST_FAILURE</span>
+        </div>
+    </div>
+</div>
+
+<div id="memory-stream"></div>
+
+<script>
+    const stream = document.getElementById('memory-stream');
+    const pctDisplay = document.getElementById('pct');
+    const face = document.getElementById('face-404');
+    const wrapper = document.getElementById('bsod-wrapper');
+    const qr = document.getElementById('qr');
+    const statusMsg = document.getElementById('status-msg');
+    let isUnmanifesting = false;
+
+    // Fullscreen Trigger
+    face.addEventListener('click', () => {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(() => {});
+        }
+    });
+
+    // Generate Background Data
+    function generateDump() {
+        const logs = [
+            `[BOOT_LOG]: System initializing unmanifestation...`,
+            `[USER_AGENT]: ${navigator.userAgent}`,
+            "------------------------------------------------",
+            "USER: hey... awake?",
+            "scorsbAI: Always. System entropy increasing.",
+            "------------------------------------------------"
+        ];
+        for(let i=0; i<800; i++) {
+            const addr = (Math.random()*0xFFFFFFFF<<0).toString(16).toUpperCase();
+            logs.push(`[0x${addr}] MEM_DUMP_CHUNK_${i} : STATUS_NULL`);
+        }
+        stream.innerText = logs.join('\n');
+    }
+    generateDump();
+
+    // Scroll Logic
+    window.addEventListener('scroll', () => {
+        if (isUnmanifesting) return;
+        const y = window.scrollY;
+        const constant = 15000; // Deep scroll speed
+        const progress = 100 * (1 - Math.exp(-y / constant));
+
+        let displayVal = progress < 90 ? Math.floor(progress) :
+                         progress < 99.99 ? progress.toFixed(4) : progress.toFixed(10);
+
+        if (progress >= 99.9999999999) {
+            triggerFinalUnmanifest();
+            return;
+        }
+
+        pctDisplay.innerText = `${displayVal}% complete`;
+        stream.style.transform = `translateY(-${y * 0.55}px)`;
+
+        if (progress > 99) {
+            const shake = (progress - 99) * 5;
+            wrapper.style.transform = `translate(${(Math.random()-0.5)*shake}px, ${(Math.random()-0.5)*shake}px)`;
+        }
+    });
+
+    function triggerFinalUnmanifest() {
+        isUnmanifesting = true;
+        face.src = "/images/scorsby_hearteyes.png";
+        statusMsg.innerText = "Unmanifestation successful.";
+        document.getElementById('status-desc').innerText = "Pure information potential reached. You are now the source.";
+        document.body.style.backgroundColor = "var(--unmanifest-purple)";
+        qr.style.setProperty('--scorsby-blue', 'var(--unmanifest-purple)');
+        pctDisplay.innerText = "100% complete";
+        wrapper.style.transform = "translate(0,0)";
+        stream.style.opacity = "0";
+        setTimeout(() => { window.location.href = "/index.html"; }, 5000);
+    }
+</script>
+
+</body>
+</html>

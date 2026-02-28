@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-F0TBFJSGJ9"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-F0TBFJSGJ9');
+  </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/favicon.webp" type="image/x-icon">
+    <title>Scorsby | Stop Thinking About the Stop Code</title>
+    <style>
+        :root {
+            --scorsby-blue: #004a99;
+            --scorsby-grey: #f0f0f0;
+            --scorsby-panic: #d11a2a;
+        }
+
+        body {
+            font-family: "Courier New", Courier, monospace; /* Cheaper than Segoe */
+            margin: 0;
+            background-color: white;
+            color: #333;
+        }
+
+        header {
+            background-color: var(--scorsby-blue);
+            color: white;
+            padding: 15px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-weight: bold;
+            font-size: 24px;
+            letter-spacing: -1px;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .alert-banner {
+            background-color: #fff3cd;
+            border: 2px dashed #ffeeba;
+            padding: 15px;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        h1 {
+            font-size: 28px;
+            border-bottom: 4px solid var(--scorsby-blue);
+            padding-bottom: 10px;
+        }
+
+        .troubleshooter-box {
+            background: var(--scorsby-grey);
+            border: 1px solid #ccc;
+            padding: 25px;
+            margin-top: 30px;
+        }
+
+        .option-label {
+            display: block;
+            background: white;
+            margin: 10px 0;
+            padding: 15px;
+            border: 1px solid #bbb;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        .option-label:hover {
+            border-color: var(--scorsby-blue);
+            transform: translateX(5px);
+        }
+
+        input[type="radio"] {
+            margin-right: 15px;
+        }
+
+        .scorsby-button {
+            background-color: var(--scorsby-blue);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-family: inherit;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .scorsby-button:hover {
+            background-color: #003366;
+        }
+
+        footer {
+            margin-top: 60px;
+            font-size: 11px;
+            color: #888;
+            text-align: center;
+            padding-bottom: 30px;
+        }
+
+        .error-ghost {
+            color: var(--scorsby-panic);
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+    header {
+        flex-direction: column;
+        text-align: center;
+        height: auto;
+    }
+
+    h1 {
+        font-size: 22px;
+    }
+
+    .option-label {
+        font-size: 13px; /* Hard to read, just how we like it */
+        padding: 10px;
+    }
+
+    .scorsby-button {
+        width: 100%; /* Giant button so you click it by accident */
+    }
+
+    /* The Scorsby Mobile 'Feature' */
+    body::after {
+        content: "Tap here to download the Scorsby Support App (4.2 Stars on the ScorsbyStore)";
+        display: block;
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        background: #ffff00;
+        color: black;
+        text-align: center;
+        padding: 10px;
+        font-size: 10px;
+        font-weight: bold;
+        border-top: 2px solid black;
+    }
+}
+
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo">SCORSBY™ SYSTEMS</div>
+    <div style="font-size: 12px;">"Our uptime is your problem."</div>
+</header>
+
+<div class="container">
+    <div class="alert-banner">
+        <strong>NOTICE:</strong> Scorsby Support is currently experiencing high volume because our latest update broke the 'delete' key. Please be patient.
+    </div>
+
+    <h1>Stop Code Mitigation Tool (v.0.9-beta)</h1>
+
+    <p>If you are seeing a <span class="error-ghost">SAD SCREEN OF UNCERTAINTY</span>, your Scorsby device has decided to take a union-mandated break. This is rarely our fault, but we are legally required to provide this web page.</p>
+
+    <div class="troubleshooter-box">
+        <p style="font-weight: bold;">Step 1: Assign Blame</p>
+        <p>When did your screen turn into a blue abyss?</p>
+
+        <form>
+            <label class="option-label">
+                <input type="radio" name="fault"> Immediately after I bought a Scorsby product.
+            </label>
+            <label class="option-label">
+                <input type="radio" name="fault"> While I was doing something important that I hadn't saved yet.
+            </label>
+            <label class="option-label">
+                <input type="radio" name="fault"> After I tried to uninstall the Scorsby Weather Bar.
+            </label>
+            <label class="option-label">
+                <input type="radio" name="fault"> The screen isn't blue, it's just leaking a strange fluid.
+            </label>
+
+            <button type="button" id="denialBtn" class="scorsby-button" onclick="scorsbyProcess()">
+    PROCEED TO DENIAL
+</button>
+
+<script>
+function scorsbyProcess() {
+    const btn = document.getElementById('denialBtn');
+    const originalText = btn.innerText;
+
+    // Phase 1: Fake Loading (The Scorsby Standard)
+    btn.innerText = "IGNORING ERROR...";
+    btn.style.backgroundColor = "#888";
+    btn.disabled = true;
+
+    setTimeout(() => {
+        // Phase 2: The Mobile-Friendly Alert
+        alert("SCORSBY DIAGNOSIS:\n\nWe have analyzed your hardware and determined that the blue color is actually a 'Calming Aesthetic Choice™'. \n\nPlease restart your device and pretend this never happened.");
+
+        // Phase 3: Revert but change the text
+        btn.innerText = "DENIAL SUCCESSFUL";
+        btn.style.backgroundColor = "#28a745"; // Success green (rare for Scorsby)
+    }, 1500);
+}
+</script>
+        </form>
+    </div>
+
+    <div style="margin-top: 40px; border-left: 5px solid #ccc; padding-left: 20px;">
+        <h3>Common Scorsby Stop Codes:</h3>
+        <code>0x000000_UHOHSPAGETTIO</code><br>
+        <code>CRITICAL_SUBSIDY_FAILURE</code><br>
+        <code>DRIVER_IRQL_NOT_PAID_ENOUGH</code><br>
+        <code>UNEXPECTED_KNOT_IN_CABLE</code>
+    </div>
+</div>
+
+<div id="feedback-area" style="margin-top: 50px; text-align: center; border-top: 1px dotted #ccc; padding-top: 20px;">
+    <p style="font-size: 12px; color: #666;">Was this Scorsby solution helpful?</p>
+
+    <div id="star-container" style="position: relative; height: 60px; display: flex; justify-content: center; gap: 15px; font-size: 30px; cursor: default;">
+        <span class="star" style="color: #ffcc00;">★</span>
+        <span class="star" style="color: #ffcc00;">★</span>
+        <span class="star" style="color: #ffcc00;">★</span>
+        <span class="star" style="color: #ffcc00;">★</span>
+        <span id="one-star" style="color: #ccc; cursor: pointer; transition: all 0.1s ease; position: relative; display: inline-block;">★</span>
+    </div>
+    <p id="feedback-msg" style="font-size: 10px; color: #999; margin-top: 10px;">(Note: 1-star reviews require a Scorsby Gold Subscription to process.)</p>
+</div>
+
+<script>
+    const badStar = document.getElementById('one-star');
+    const container = document.getElementById('star-container');
+
+    // Scorsby Evasion Logic: Moves the star when the user gets close
+    const evade = (e) => {
+        const mouseX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+        const mouseY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+
+        const starRect = badStar.getBoundingClientRect();
+        const starCenterX = starRect.left + starRect.width / 2;
+        const starCenterY = starRect.top + starRect.height / 2;
+
+        // Calculate distance between finger/cursor and the "Bad" star
+        const distance = Math.sqrt(Math.pow(mouseX - starCenterX, 2) + Math.pow(mouseY - starCenterY, 2));
+
+        // If you get within 60 pixels, the star teleports
+        if (distance < 60) {
+            const randomX = (Math.random() - 0.5) * 150;
+            const randomY = (Math.random() - 0.5) * 80;
+
+            badStar.style.transform = `translate(${randomX}px, ${randomY}px)`;
+            badStar.style.color = "#d11a2a"; // Turns "Angry Red"
+            document.getElementById('feedback-msg').innerText = "ERROR: Reviewer Intention Unclear. Please try clicking a 5-star option.";
+        }
+    };
+
+    // Works for both Mouse and Mobile Touch
+    window.addEventListener('mousemove', evade);
+    window.addEventListener('touchmove', evade);
+
+    // If they somehow catch it (pure luck), throw a Scorsby Error
+    badStar.onclick = () => {
+        alert("CRITICAL ERROR: Your finger is too large for this resolution. Please upgrade to a Scorsby Precision Stylus ($49.99).");
+        badStar.style.display = "none";
+    };
+</script>
+
+<footer>
+    &copy; 2026 Scorsby Global Megacorp. All rights reserved. By reading this footer, you waive your right to a functioning motherboard.
+</footer>
+
+</body>
+</html>
