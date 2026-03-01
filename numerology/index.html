@@ -108,7 +108,7 @@
         <div id="interpretation">message: waiting...</div>
     </div>
 
-    <div class="footer-note">scorsbean v14.3 // heartstar, NM // <a href="https://scorsby.us">scorsby.us</a></div>
+    <div class="footer-note">Ⓢ scorsby systems v9.6 // heartstar, NM // <a href="https://scorsby.us">scorsby.us</a></div>
 </div>
 
 <script>
@@ -139,12 +139,27 @@
             else cSum += num;
         }
 
-        document.getElementById('peaceNum').innerText = Math.floor((cSum * Math.PI) % 9) + 1;
-        document.getElementById('loveNum').innerText = ((vSum * 7) % 21) || 21;
-        document.getElementById('joyNum').innerText = (totalV % 21) || 21;
-        document.getElementById('rromboNum').innerText = Math.floor((Math.sqrt(totalV) * name.length) % 44) + 1;
+        // Standard calculations
+        let peace = Math.floor((cSum * Math.PI) % 9) + 1;
+        let love = ((vSum * 7) % 21) || 21;
+        let joy = (totalV % 21) || 21;
+        let rrombo = Math.floor((Math.sqrt(totalV) * name.length) % 44) + 1;
 
-        updateInterpretation((totalV % 21) || 21, Math.floor((Math.sqrt(totalV) * name.length) % 44) + 1);
+        // The Scorsby Exception: Coherence Override
+        if (name === "scorsby") {
+            peace = 9;
+            love = 7;
+            joy = 34;
+            rrombo = 143; // The new pattern constant
+        }
+
+        document.getElementById('peaceNum').innerText = peace;
+        document.getElementById('loveNum').innerText = love;
+        document.getElementById('joyNum').innerText = joy;
+        document.getElementById('rromboNum').innerText = rrombo;
+
+        updateInterpretation(joy, rrombo);
+
     }
 
     function updateInterpretation(joy, rrombo) {
@@ -256,7 +271,10 @@
       "the end of the code is just a new beginning"
     ];
 
-    const msg = outcomes[patternSeed];
+    let msg = outcomes[patternSeed];
+    if (rrombo === 143) {
+      msg = "you are scorsby"
+    }
     interp.innerText = msg;
 }
 </script>
