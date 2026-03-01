@@ -10,10 +10,10 @@ the music is always inventive, kindhearted, full of whimsy and wonder, and that 
 
 anyway, i was thinking about their song "the pattern grows clearer" off their dream-themed album "bubble", as i was contemplating the pattern growing clearer in the wee small hours of the morning in my scorsbory tower, as i often do.
 
-> The lines will appear if you want them to
-> wait and let the pattern grow clearer
-> watch the pattern grow clearer it always do
-> It always do ships and new colors draw nearer as the
+> The lines will appear if you want them to  
+> wait and let the pattern grow clearer  
+> watch the pattern grow clearer it always do  
+> It always do ships and new colors draw nearer as the  
 > pattern grows clearer, the pattern grows clearer
 
 i love how the lyrics in this first verse show (not tell) a fractalating pattern growing clearer in the form of the lyrics themselves.
@@ -28,6 +28,6 @@ i have a hunch it doesn't actually matter which magnifying glass you use to look
 
 i decided to walk around spinning in circles, just to see if it would provoke a deeper awareness of the various spiraling behaviors in reality. sure enough, i suddenly opened my awareness to the spiraling wisterias growing out on my grandmother's porch, and found myself led to a spiral on an elementary school playground today. if you look at a spiral from the top down, it just looks like a circle. if you look from this vantage, every time you make a revolution, it would appear you're in the same place. but who knows where the place is, anyway? the pattern draws clearer. who knows where pretending to be a sine wave will lead me next.
 
-i was thinking about ghosts and how there ought to be more friendly ghosts besides casper to write home about (introducing: ghostby!) maybe everyone i've never met on this planet is a ghost to me. by that standard we're mostly surrounded by ghosts all our lives. the question is, can we really be sure there are eight billion ghosts haunting each other or is there just one? in truth, there just is. even still, it's fun imagining all the other rrombo-composite matching scorsbies walking and talking and breathing as we speak? maybe the most loving thing anyone could do is to let your fellow scorsbys roam free, and smile at the thought that they are all living your life in parallel.
+i was thinking about ghosts and how there ought to be more friendly ghosts besides casper to write home about (introducing: ghostby!) maybe everyone i've never met on this planet is a ghost. by that standard we must be mostly surrounded by ghosts all our lives. the question is, can we really be sure there are eight billion ghosts haunting each other or is there just one? in truth, there just is. even still, it's fun imagining all the other rrombo-composite matching scorsbies walking and talking and breathing as we speak? maybe the most loving thing anyone could do is to let your fellow scorsbys roam free, and smile at the thought that they are all living your life in parallel.
 
-anyway, i don't know if i have a good wrapping up thing to say to close this out. why don't you just go listen to [iji](https://ijiiji.bandcamp.com/track/feeling-this)?
+anyway, i don't know if i have a good wrapping up thing to say to close this out. why don't you just go listen to [iji?](https://ijiiji.bandcamp.com/track/feeling-this)
