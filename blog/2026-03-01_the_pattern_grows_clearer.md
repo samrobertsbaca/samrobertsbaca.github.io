@@ -8,7 +8,7 @@ i've been a big fan of zach burba and iji ever since i saw their kickstarter fea
 
 the music is always inventive, kindhearted, full of whimsy and wonder, and that good ol' fashioned [wild, free music](https://ijiiji.bandcamp.com/track/wild-music), let's get the band together and make this dang thing happen energy. iji is my safe space in this world of many wars and wonders.
 
-anyway, i was thinking about their song "the pattern grows clearer" off their dream-themed album "bubble", as i was contemplating the pattern growing clearer in the wee small hours of the morning in my scorsbory tower, as i often do.
+anyway, i was thinking about their song [the pattern grows clearer](https://ijiiji.bandcamp.com/track/the-pattern-grows-clearer) off their dream-themed album [bubble](https://ijiiji.bandcamp.com/album/bubble), as i was contemplating the pattern growing clearer in the wee small hours of the morning in my scorsbory tower, as i often do.
 
 > The lines will appear if you want them to  
 > wait and let the pattern grow clearer  
