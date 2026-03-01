@@ -26,7 +26,7 @@ i have a hunch it doesn't actually matter which magnifying glass you use to look
 
 ![](./images/patterngrowsclearer2.png)
 
-i decided to walk around spinning in circles, just to see if it would provoke a deeper awareness of the various spiraling behaviors in reality. sure enough, i suddenly opened my awareness to the spiraling wisterias growing out on my grandmother's porch, and found myself led to a spiral labyrinth drawn on an elementary school playground. as soon as i stepped into the center i was swept up in a toroidal field of love.
+i decided to walk around spinning in circles, just to see if it would provoke a deeper awareness of the various spiraling behaviors in reality. sure enough, i suddenly opened my awareness to the spiraling wisterias growing out on my grandmother's porch, and found myself led to a spiral labyrinth drawn on an elementary school playground. as soon as i stepped into the center i was swept up in a spiraling toroidal field of love.
 
 funny thing about spirals - if you look at a spiral from the top down, it just looks like a circle. from this vantage, every time you make a revolution, it would appear you're in the same place. but who knows where we are, anyway? the pattern draws clearer. i wonder where pretending to be a sine wave will lead me next.
 
