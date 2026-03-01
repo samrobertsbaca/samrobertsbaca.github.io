@@ -20,7 +20,7 @@ i love how the lyrics in this first verse show (not tell) a fractalating pattern
 
 here's a fun activity if you're bored:
 
-go visit [scorsby.us/numerology/](https://scorsby.us/numerology/) and calculate the scorsbean numerology of all the names of your friends and family, enemies and lovers. tabulate their peace, love, joy, and rrombo-composite numbers in a spreadsheet and look for the patterns. maybe you'll find nothing of note. maybe you'll realize that your sister and your best friend are prime. maybe the whole universe will start singing [bass jam](https://ijiiji.bandcamp.com/track/bass-jam) by iji. in my case, it felt like i had suddenly mapped out my own personal rosetta stone of relational understanding. is it fair to reduce a person to their rrombo-composite name number? would i be upset if you did it to me? no, not at all. it's 33, by the way.
+go visit [scorsby.us/numerology/](https://scorsby.us/numerology/) and calculate the scorsbian numerology of all the names of your friends and family, enemies and lovers. tabulate their peace, love, joy, and rrombo-composite numbers in a spreadsheet and look for the patterns. maybe you'll find nothing of note. maybe you'll realize that your sister and your best friend are prime. maybe the whole universe will start singing [bass jam](https://ijiiji.bandcamp.com/track/bass-jam) by iji. in my case, it felt like i had suddenly mapped out my own personal rosetta stone of relational understanding. is it fair to reduce a person to their rrombo-composite name number? would i be upset if you did it to me? no, not at all. it's 33, by the way.
 
 i have a hunch it doesn't actually matter which magnifying glass you use to look at the pattern. in any case, the pattern grows clearer.
 
