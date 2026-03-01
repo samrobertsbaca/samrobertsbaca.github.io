@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-F0TBFJSGJ9"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-F0TBFJSGJ9');
+  </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>scorsbean numerology</title>
+    <style>
+
+    @font-face {
+      font-family: 'HeaderFont2';
+      src: url('/fonts/CottonCloud.ttf') format('truetype');
+    }
+
+    @font-face {
+      font-family: 'BodyFont';
+      src: url('/fonts/IBMPlexMono-Regular.ttf') format('truetype');
+    }
+
+        * { box-sizing: border-box; }
+        body {
+            background-color: #00b4ff;
+            color: #1a1a1a;
+            font-family: 'BodyFont', Courier, monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            width: 100vw;
+            margin: 0;
+            overflow: hidden;
+            text-transform: lowercase; /* global lowercase */
+        }
+        .tower-container {
+            border: 3px solid #1a1a1a;
+            padding: 30px;
+            width: 90vw;
+            max-width: 500px;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 12px 12px 0px #1a1a1a;
+            display: flex;
+            flex-direction: column;
+        }
+        h1 { font-family: 'HeaderFont2'; font-size: 1.4rem; border-bottom: 2px solid #1a1a1a; padding-bottom: 8px; margin: 0; letter-spacing: 1px; }
+        .intro-text { font-size: 1rem; font-weight: bold; margin: 15px 0; line-height: 1.3; }
+        input {
+            width: 100%;
+            padding: 12px;
+            background: #fff;
+            border: 2px solid #1a1a1a;
+            color: #1a1a1a;
+            font-size: 1.2rem; /* bigger font */
+            font-family: inherit;
+            outline: none;
+            margin-bottom: 20px;
+            text-transform: lowercase;
+        }
+        .results {
+            display: none;
+        }
+        .results.active { display: block; }
+        .stat {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 6px 0;
+            border-bottom: 1px solid #1a1a1a;
+        }
+        .number { font-size: 1.5rem; font-weight: 900; color: #00b4ff; text-shadow: 1px 1px 0 #1a1a1a; }
+        .label { font-size: 0.9rem; font-weight: bold; }
+        #interpretation {
+            margin-top: 20px;
+            padding: 15px;
+            background: #1a1a1a;
+            color: #00b4ff;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            border-radius: 2px;
+        }
+        a {
+          color: #00b4ff;
+        }
+        .footer-note { font-size: 0.75rem; opacity: 0.7; font-weight: bold; text-align: right; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="tower-container">
+    <h1><b>SCORSBY NUMEROLOGY CALCULATOR</b></h1>
+    <div class="intro-text">map the vibration of your parallel scorsbies.</div>
+    <input type="text" id="nameInput" placeholder="name..." oninput="calculatePattern()" autocomplete="off">
+
+    <div id="results" class="results">
+        <div class="stat"><span class="label">peace</span><span id="peaceNum" class="number">--</span></div>
+        <div class="stat"><span class="label">love</span><span id="loveNum" class="number">--</span></div>
+        <div class="stat"><span class="label">joy</span><span id="joyNum" class="number">--</span></div>
+        <div class="stat" style="border-bottom: 2px solid #1a1a1a;"><span class="label">rrombo-composite</span><span id="rromboNum" class="number">--</span></div>
+        <div id="interpretation">message: waiting...</div>
+    </div>
+
+    <div class="footer-note">scorsbean v14.3 // heartstar, NM // <a href="https://scorsby.us">scorsby.us</a></div>
+</div>
+
+<script>
+    const scorsbeanMap = {
+        'a':1,'i':1,'j':1,'q':1,'y':1,'b':2,'k':2,'r':2,'c':3,'g':3,'l':3,'s':3,
+        'd':4,'m':4,'t':4,'e':5,'h':5,'n':5,'x':5,'u':6,'v':6,'w':6,'o':7,'z':7,'f':8,'p':8
+    };
+
+    function calculatePattern() {
+        const val = document.getElementById('nameInput').value;
+        const name = val.toLowerCase().replace(/[^a-z]/g, '');
+        const resultsDiv = document.getElementById('results');
+
+        if (name.length < 1) {
+            resultsDiv.classList.remove('active');
+            return;
+        }
+
+        resultsDiv.classList.add('active');
+
+        let totalV = 0, vSum = 0, cSum = 0;
+        const vowels = 'aeiouy';
+
+        for (let char of name) {
+            let num = scorsbeanMap[char] || 0;
+            totalV += num;
+            if (vowels.includes(char)) vSum += num;
+            else cSum += num;
+        }
+
+        document.getElementById('peaceNum').innerText = Math.floor((cSum * Math.PI) % 9) + 1;
+        document.getElementById('loveNum').innerText = ((vSum * 7) % 21) || 21;
+        document.getElementById('joyNum').innerText = (totalV % 21) || 21;
+        document.getElementById('rromboNum').innerText = Math.floor((Math.sqrt(totalV) * name.length) % 44) + 1;
+
+        updateInterpretation((totalV % 21) || 21, Math.floor((Math.sqrt(totalV) * name.length) % 44) + 1);
+    }
+
+    function updateInterpretation(joy, rrombo) {
+    const interp = document.getElementById('interpretation');
+
+    // generate a deterministic seed between 0 and 99 based on the scorsbean math
+    const patternSeed = (joy * rrombo) % 100;
+
+    const outcomes = [
+        "the lines will appear if you want them to.",
+        "singing to a banana in a room with no windows.",
+        "dancing to drums from thunder in a house of cardboard.",
+        "your bouncy ball voice is echoing off the wisteria.",
+        "the future utopic age is calling collect. will you answer?",
+        "jumping up and down on xazziel's couch indefinitely.",
+        "the pattern grows clearer, it always do.",
+        "blackjack. you are the world. the lines have appeared.",
+        "master frequency. a scorsby of the highest order.",
+        "the universe is singing 'bass jam' through your specific vibration.",
+        "high rrombo tension. watch for spiraling wisterias today.",
+        "ships and new colors draw nearer. you are a perfect sine wave.",
+        "your soul is a rosetta stone for people you haven't met yet.",
+        "a friendly ghost named ghostby is following you today.",
+        "pretending to be a sine wave until you become one.",
+        "spinning in circles until the playground becomes a portal.",
+        "the loving silence between you and the ghost is growing.",
+        "eight billion ghosts haunting each other, or just you?",
+        "the scorsbory tower has a new window, and it looks into your room.",
+        "wild, free music is the only language that doesn't lie.",
+        "your rrombo is a fractal of a very small, very happy grape.",
+        "everything is falling into place, even the parts that are breaking.",
+        "zach burba is signing your soul with a permanent marker.",
+        "the pattern is just a circle if you look at it from the top.",
+        "you are the revolution of a spiral that never ends.",
+        "the dream-themed bubble is about to pop. stay colorful.",
+        "your name numerology is a song played on a toy piano.",
+        "it's hard to wait, but the colors are worth the delay.",
+        "professional anything, but mostly professional ghost-host.",
+        "the warmth of a beautiful soul is radiating from your peace number.",
+        "your destiny is a kickstarter video that never stops playing.",
+        "a singular and brilliant songwriting credit is yours today.",
+        "massively underrated, but the future loves you.",
+        "a vinyl copy of yerself is spinning in your chest.",
+        "let's get the band together and make this dang thing happen.",
+        "your safe space is a frequency, not a location.",
+        "contemplating the pattern in the wee small hours.",
+        "the lines are drawing nearer, can you feel the sketch?",
+        "fractalating patterns in the form of your daily choices.",
+        "tabulating the composite numbers of your ancient lovers.",
+        "maybe everything will make sense. maybe it already does.",
+        "mapped out a personal rosetta stone of understanding.",
+        "reduce me to a number, i don't mind. i'm 21.",
+        "spinning until reality provokes a deeper awareness.",
+        "spiraling behaviors in the elementary school playground.",
+        "every revolution, it appears you're in the same place.",
+        "who knows where the place is, anyway?",
+        "who knows where the sine wave leads next?",
+        "there ought to be more friendly ghosts besides casper.",
+        "one ghost amusing itself with eight billion faces.",
+        "embrace the silence between yourself and the ghost.",
+        "go listen to iji and let the numbers rest.",
+        "your peace number is a quiet room in albuquerque.",
+        "the joy number is a bouncy ball falling down stairs.",
+        "your love number is a banana shared between friends.",
+        "a scorsby in the wild is a sight to behold.",
+        "parallel lives in parallel towers, all waving at once.",
+        "let your fellow scorsbies roam free.",
+        "smile at the thought of parallel versions of you.",
+        "the pattern is a safe space for weary minds.",
+        "singularly brilliant and massively misunderstood.",
+        "the utopic age is closer than the bus stop.",
+        "your vibration is inventive and kindhearted.",
+        "full of whimsy, wonder, and wild music.",
+        "the lines appear when you stop looking for them.",
+        "waiting for the ships to draw nearer.",
+        "waiting for the colors to grow clearer.",
+        "a fractal of wisteria is blooming in your logic.",
+        "your rrombo is a sine wave with a top hat.",
+        "the pattern always do. it always do.",
+        "ships draw nearer. new colors draw nearer.",
+        "the lines will appear if you want them to.",
+        "your name is a sequence of friendly haunts.",
+        "a composite of everyone you've ever loved.",
+        "the rosetta stone is just a rock until you read it.",
+        "you are the world, and the world is 21.",
+        "blackjack in the scorsbory tower.",
+        "spinning until the wisteria looks like math.",
+        "the playground is a map of your internal spirals.",
+        "a sine wave is just a circle that decided to travel.",
+        "the ghosts are writing home about you tonight.",
+        "eight billion ghosts, one shared vibration.",
+        "the silence is the most loving thing you own.",
+        "let the pattern grow clearer in its own time.",
+        "singing to a banana is a valid form of prayer.",
+        "zach burba is a state of mind you're currently inhabiting.",
+        "your vibration is a safe space for ghosts.",
+        "the pattern is clear: you are exactly where you are.",
+        "a revolution of the spiral brings you home.",
+        "the scorsbean frequency is tuned to your heart.",
+        "the lines are drawing you into a new utopia.",
+        "professional anything, especially professional miracle-seeker.",
+        "the bubble is a dream, and the dream is you.",
+        "yerself is the only vinyl worth signing.",
+        "the band is together. the dang thing is happening.",
+        "inventive whimsy is your primary export.",
+        "the pattern grows clearer, and you grow with it.",
+        "ships and colors. colors and ships.",
+        "the scorsbory tower is open for business.",
+        "go listen to iji. the pattern is finished."
+    ];
+
+    const msg = outcomes[patternSeed];
+    interp.innerText = msg;
+}
+</script>
+
+</body>
+</html>
