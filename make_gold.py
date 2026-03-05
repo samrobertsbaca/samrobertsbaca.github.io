@@ -5,8 +5,21 @@ def natural_key(string):
     return [int(s) if s.isdigit() else s.lower() for s in re.split(r'(\d+)', string)]
 
 def generate_gallery():
-    # little book of scorsby
 
+    # scorsbycomix2025
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+    folder = os.path.join(BASE_DIR, "media", "comix2025","compressed2") + "/"
+    web_folder = "/media/comix2025/compressed2/"  # web path for src attributes
+    output_file = os.path.join(BASE_DIR, "books", "comix2025.html")
+    page_title = "scorsbycomix 2025"
+    description = "read responsibly"
+    favicon = "./favicon.webp"
+    bg_color = "#23c3ff"
+    firstpage = "https://scorsby.us/media/comix2025/a_divinity3_01.png"
+
+    '''
+    # little book of scorsby
     folder = "./media/littlebookofscorsby/"
     output_file = "littlebookofscorsby.html"
     page_title = "the little book of scorsby"
@@ -14,6 +27,7 @@ def generate_gallery():
     favicon = "./favicon.webp"
     bg_color = "#23c3ff"
     firstpage = "https://scorsby.us/media/littlebookofscorsby/panel0.png"
+    '''
 
     # gentle falling snow
     #folder = "./media/gentlefallingsnow/"
@@ -29,6 +43,7 @@ def generate_gallery():
          if f.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp'))],
         key=natural_key
     )
+    num_pages = len(images)
 
     html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -179,15 +194,15 @@ def generate_gallery():
 
     # add images into content area
     for i, img in enumerate(images):
-        img_path = f"{folder}{img}"
+        img_path = f"{web_folder}{img}"
         html += f'    <div class="img-container" id="page{i+1}"><img src="{img_path}" loading="lazy" alt="{img}"></div>\n'
 
     # donation block (centered)
-    html += """
+    html += f"""
   </div>
 
   <div id="page-counter">
-    <span id="counter-text">0 / 0</span> &nbsp;❤︎&nbsp; <a href="https://www.scorsby.us/home.html" style="text-decoration: underline;">scorsby.us</a>
+    <span id="counter-text">0 / {num_pages}</span> &nbsp;❤︎&nbsp; <a href="https://www.scorsby.us/home.html" style="text-decoration: underline;">scorsby.us</a>
 </div>
 
   <div class="donation-wrap">

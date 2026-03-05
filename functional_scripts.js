@@ -27,6 +27,15 @@ function loadNavbar(targetSelector = 'nav') {
     .then(response => response.text())
     .then(html => {
       document.querySelector(targetSelector).innerHTML = html;
+
+      // navbar text on home page
+      if (window.location.pathname.includes('home.html')) {
+        document.querySelector('.as-seen-on-tv').style.color = '#00b4ff';
+      } else {
+        {
+          document.querySelector('.as-seen-on-tv').innerHTML = "";
+        }
+      }
     })
     .catch(err => console.error('Failed to load navbar:', err));
 }

@@ -45,7 +45,7 @@ body.homepage nav ul li a {
 body.homepage nav ul li a:hover,
 body.homepage nav ul li a:focus {
   /*color: #00b4ff !important;*/
-  color: white !important;
+  color: #00b4ff !important;
 }
 
 /* Homepage hamburger override */
@@ -252,6 +252,16 @@ nav ul li a:hover { /*color: #007bff;*/ color: white; }
     text-align: center;
     margin: 10px 0;
   }
+}
+
+.as-seen-on-tv {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-style: italic;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  pointer-events: none;
 }
 
 /* ===== Main Content ===== */
