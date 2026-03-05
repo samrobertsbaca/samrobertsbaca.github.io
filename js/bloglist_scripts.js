@@ -60,7 +60,7 @@ function renderBlogList(indexContainer) {
 
     //link.textContent = title;
     link.style.color = '#00b4ff';   // default link color
-    link.style.textDecoration = 'underline';
+    link.style.textDecoration = 'none';
     link.style.cursor = 'pointer';
 
     // Hover color for title
