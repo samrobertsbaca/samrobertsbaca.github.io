@@ -88,14 +88,29 @@ hostedButtonId: "BQSP3J6Y2M24Q",
 
   <!-- Hamburger JS -->
 <script>
-function toggleMenu() {
-  const nav = document.getElementById('nav-links');
-  nav.classList.toggle('show');
-}
+  function toggleMenu() {
+    const nav = document.getElementById('nav-links');
+    nav.classList.toggle('show');
+  }
 
-window.addEventListener("load", () => {
-  const scorsby = createSitePet('example');
-});
+  window.addEventListener("load", () => {
+    const scorsby = createSitePet('example');
+  });
+
+  const face = document.querySelector('img[src="/images/scorsbyface_big.png"]');
+
+  function blink() {
+    face.src = '/images/scorsbyface_big_blink.png';
+    setTimeout(() => {
+      face.src = '/images/scorsbyface_big.png';
+    }, 200); // blink duration in ms
+
+    // next blink in 2-6 seconds randomly
+    setTimeout(blink, 500 + Math.random() * 4000);
+  }
+
+  // start first blink after a short delay
+  setTimeout(blink, 2000 + Math.random() * 4000);
 
 </script>
 
