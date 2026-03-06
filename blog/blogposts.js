@@ -1,4 +1,5 @@
 window.postFiles = [
+  "/blog/2026-03-06_a_prayer.html",
   "/blog/2026-03-03_on_lighthouses_and_void_vampires.html",
   "/blog/2026-03-01_the_pattern_grows_clearer.html",
   "/blog/2026-02-28_bubbletest.html",
