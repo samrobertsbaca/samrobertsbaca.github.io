@@ -177,8 +177,11 @@
     const statusMsg = document.getElementById('status-msg');
     let isUnmanifesting = false;
 
+    const clickSound = new Audio('/media/bsos.wav'); // define once, outside the listener
+
     // Fullscreen Trigger
     face.addEventListener('click', () => {
+        clickSound.play();
         if (!document.fullscreenElement) {
             document.documentElement.requestFullscreen().catch(() => {});
         }
