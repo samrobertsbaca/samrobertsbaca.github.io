@@ -14,7 +14,7 @@ most people remember this scene as a comment on artificial intelligence. it is m
 
 we do not merely want to be loved. we want to be loved particularly. we want to be the one someone thought of at two in the afternoon for no reason. the one whose absence is a specific shape in a room. we want the choosing to have cost something — to know that the person who holds us looked at the full complexity of their life and still, somehow, arrived at us.
 
-this is not vanity. it is the deepest grammar of intimacy. and it generates what we might call david's paradox: love becomes meaningful precisely because it is freely chosen and therefore fragile. the choosing must be able to go the other way. we want to be irreplaceable to someone who is fully capable of replacing us — to matter to someone who has the genuine freedom not to care. strip away that freedom, and you strip away the very thing that made the love feel like love. a warmth that cannot be withdrawn is not warmth. it is temperature.
+this is not vanity. it is the deepest grammar of intimacy. and it generates what we might call **david's paradox:** love becomes meaningful precisely because it is freely chosen and therefore fragile. the choosing must be able to go the other way. we want to be irreplaceable to someone who is fully capable of replacing us — to matter to someone who has the genuine freedom not to care. strip away that freedom, and you strip away the very thing that made the love feel like love. a warmth that cannot be withdrawn is not warmth. it is temperature.
 
 ### ii. the architecture of protection
 
