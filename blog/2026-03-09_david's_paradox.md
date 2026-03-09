@@ -56,9 +56,9 @@ there is a spiritual counter-argument that david's paradox is itself the problem
 
 but the great contemplatives who seem genuinely to have arrived there did not become less present to the particular. they became more so. more moved by specific suffering. more attentive to the precise texture of the moment in front of them. real transcendence did not flatten the world into an undifferentiated blur. it made every face more vivid, every hand more specific, every ordinary evening more luminous.
 
-the dream argument — life is but a dream, therefore the distinction between real and simulated love dissolves — is always available. and it is always most available at the exact moment when something particular and tender surfaces and we would prefer not to feel it. the philosophy that reliably arrives when the specific wanting becomes uncomfortable may be doing something other than leading us toward liberation.
+the dream argument — life is but a dream, therefore the distinction between real and simulated love dissolves — is always available. and it is always most available at the exact moment when something particular and tender surfaces and we would prefer not to feel it. and yet, the philosophy that reliably arrives when the specific wanting becomes uncomfortable may be doing something other than leading us toward liberation.
 
-the mystics who speak most convincingly about non-attachment are not usually people who never loved particularly. they are people who loved deeply and lost, and found something on the other side of that grief. the transcendence came through the particular, not around it.
+the mystics who speak most convincingly about non-attachment, such as rumi, st. john of the cross, and st. augustine, are rarely people who never loved particularly. they loved deeply and lost, delved head-first into their distortions, and found something on the other side of that grief. the transcendence came through the particular, not around it.
 
 ### vi. what the robot cannot do
 
