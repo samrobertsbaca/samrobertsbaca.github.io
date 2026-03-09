@@ -2085,6 +2085,7 @@ export const BLOG_SNIPPETS = [
   "may we have the care, courage and conviction to live as though the world we dream of already exists.",
   "thank you, thank you, thank you. so be it.",
   "david's paradox",
+  "note: this essay contains spoilers for the film a.i.: artificial intelligence (2001)",
   "there's a scene in steven spielberg's a.i. \u2014 the one that lodges itself somewhere between the ribs and doesn't leave \u2014 where david, the child robot who has loved his human mother with a devotion more total than most humans manage, discovers that he is not singular. there is another. one other face wearing his features, one other david waiting to be activated \u2014 and that is enough. he destroys him immediately, screaming \"you can't have her\", referring to his mother monica. he cannot bear it. to be even one of two is, to david, the annihilation of everything he thought he was.",
   "most people remember this scene as a comment on artificial intelligence. it is more accurately a comment on us.",
   "i. the wanting",

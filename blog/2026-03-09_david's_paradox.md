@@ -2,6 +2,8 @@ Mar 9
 
 # david's paradox
 
+***note:*** *this essay contains spoilers for the film a.i.: artificial intelligence (2001)*
+
 ![](/images/ai_david.png)
 
 [there's a scene in steven spielberg's a.i.](https://www.youtube.com/watch?v=zTioBYdv2o4) — the one that lodges itself somewhere between the ribs and doesn't leave — where david, the child robot who has loved his human mother with a devotion more total than most humans manage, discovers that he is not singular. there is another. one other face wearing his features, one other david waiting to be activated — and that is enough. he destroys him immediately, screaming "you can't have her", referring to his mother monica. he cannot bear it. to be even one of two is, to david, the annihilation of everything he thought he was.
