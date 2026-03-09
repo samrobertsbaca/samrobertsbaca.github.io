@@ -2,7 +2,7 @@ Mar 9
 
 # david's paradox
 
-***note:*** *this essay contains spoilers for the film a.i.: artificial intelligence (2001)*
+***note:*** *this transmission contains spoilers for the film a.i.: artificial intelligence (2001)*
 
 ![](/images/ai_david.png)
 
