@@ -1,4 +1,5 @@
 window.postFiles = [
+  "/blog/2026-03-09_car_wheels_on_a_glonging_road.html",
   "/blog/2026-03-09_david's_paradox.html",
   "/blog/2026-03-06_a_prayer.html",
   "/blog/2026-03-03_on_lighthouses_and_void_vampires.html",

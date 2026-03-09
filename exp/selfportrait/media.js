@@ -43,6 +43,7 @@ export const IMAGE_URLS = [
   "/images/images.jpg",
   "/images/izotope_freq_spec.png",
   "/images/mech6.png",
+  "/images/meta_desert.png",
   "/images/mo5.png",
   "/images/msgrafiti.png",
   "/images/msgrafiti2.png",
