@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Liquid Marble Pink-Blue</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+  <style>
+    body { margin: 0; padding: 0; overflow: hidden; background: #000; }
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+<script>
+let t = 0;
+
+// === TUNABLES ===
+const SCALE      = 0.004;  // Zoom level
+const WARP       = 4.0;    // Strength of the "swirl"
+const OCT        = 3;      // Detail level (keep low for performance)
+const SPEED      = 0.1;  // How fast it flows
+const STEP       = 10;      // Pixel size (increase if it lags, decrease for sharpness)
+
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+  pixelDensity(1);
+  noStroke();
+}
+
+function draw() {
+  // We use a grid-based approach for performance
+  for (let y = 0; y < height; y += STEP) {
+    for (let x = 0; x < width; x += STEP) {
+      const nx = (x - width * 0.5) * SCALE;
+      const ny = (y - height * 0.5) * SCALE;
+
+      // The magic: passing 't' into the warped FBM
+      let val = fluidWarp(nx, ny, t);
+
+      // High-contrast islands
+      val = 0.5 + 0.5 * Math.tanh((val - 0.5) * 6.0);
+
+      // Smooth color interpolation
+      // Pink: (255, 113, 213) | Blue: (57, 192, 255)
+      let r = lerp(255, 57, val);
+      let g = lerp(113, 192, val);
+      let b = lerp(213, 255, val);
+
+      fill(r, g, b);
+      rect(x, y, STEP, STEP);
+    }
+  }
+  t += SPEED;
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+}
+
+// --- FLUID MATH ---
+
+function fbm(x, y, z) {
+  let amp = 0.5, freq = 1.0, sum = 0, norm = 0;
+  for (let i = 0; i < OCT; i++) {
+    sum += amp * noise(x * freq, y * freq, z);
+    norm += amp;
+    amp *= 0.5;
+    freq *= 2.0;
+  }
+  return sum / norm;
+}
+
+function fluidWarp(x, y, time) {
+  // Layer 1: Base movement
+  const qx = fbm(x + time * 0.2, y, time * 0.1);
+  const qy = fbm(x, y + time * 0.3, time * 0.1);
+
+  // Layer 2: The "Warp" - using qx and qy to distort the next layer
+  const rx = fbm(x + WARP * qx + time * 0.1, y + WARP * qy + 1.5, time * 0.2);
+  const ry = fbm(x + WARP * qy + 2.5, y + WARP * qx + time * 0.1, time * 0.2);
+
+  // Layer 3: Final output
+  return fbm(x + WARP * rx, y + WARP * ry, time * 0.1);
+}
+</script>
+</body>
+</html>
