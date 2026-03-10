@@ -166,45 +166,30 @@ async function loadScorsbyJournal(filePath,div_tag) {
 }
 
 
-/*const RES_SCALE = 0.03;
-const WARP = 3.4;
-const SPEED = 0.006;
-const NOISE_SCALE = 0.009;*/
-
 (function() {
   const P5_CDN = "https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js";
 
   // === CONFIG ===
   const PIXELATED = true;
-  const RES_SCALE = 0.75;
-  const ENABLE_MOUSE = false;
-  const MOUSE_SENSITIVITY = 5.1; // How much the mouse distorts the field
-  const SLIPPERINESS = 0.025;     // 0.01 (very slippery/slow) to 0.2 (snappy)
+  const RES_SCALE = 0.7;
+  const STRENGTH = 12.0;       // How much the mouse "tears" the surface
+  const SLIPPERINESS = 0.05;   // Persistence of the mouse influence
+  const DISSIPATION = 0.98;    // How fast the ripples "calm down" (not used in this simplified shader, but simulates feel)
 
-  const WARP = 3.4;
-  const SPEED = 0.05;
-  const NOISE_SCALE = 0.008;
-  const MOBILE_BREAKPOINT = 768;
-
-  const isMobile = () => {
-    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
-           || window.innerWidth < MOBILE_BREAKPOINT;
-  };
+  const WARP = 4.0;
+  const SPEED = 0.03;          // Flow speed
+  const NOISE_SCALE = 0.006;
 
   const initFluid = () => {
-    if (isMobile()) return;
-
     new p5((p) => {
       let fluidShader;
-      let mouseFollower = { x: 0.5, y: 0.5 }; // Starts at center
+      let mouseFollower = { x: 0.5, y: 0.5 };
 
       const vs = `
         precision highp float;
         attribute vec3 aPosition;
         void main() {
-          vec4 positionVec4 = vec4(aPosition, 1.0);
-          positionVec4.xy = positionVec4.xy * 2.0 - 1.0;
-          gl_Position = positionVec4;
+          gl_Position = vec4(aPosition.xy * 2.0 - 1.0, 0.0, 1.0);
         }
       `;
 
@@ -213,8 +198,7 @@ const NOISE_SCALE = 0.009;*/
         uniform vec2 u_res;
         uniform float u_time;
         uniform vec2 u_mouse;
-        uniform bool u_useMouse;
-        uniform float u_sensitivity;
+        uniform float u_strength;
         uniform float u_warp;
         uniform float u_noise_scale;
 
@@ -224,22 +208,19 @@ const NOISE_SCALE = 0.009;*/
         }
 
         float noise(vec2 p) {
-            vec2 i = floor(p);
-            vec2 f = fract(p);
-            vec2 u = f * f * (3.0 - 2.0 * f);
-            return mix(mix(dot(hash(i + vec2(0.0, 0.0)), f - vec2(0.0, 0.0)),
-                           dot(hash(i + vec2(1.0, 0.0)), f - vec2(1.0, 0.0)), u.x),
-                       mix(dot(hash(i + vec2(0.0, 1.0)), f - vec2(0.0, 1.0)),
-                           dot(hash(i + vec2(1.0, 1.0)), f - vec2(1.0, 1.0)), u.x), u.y);
+            vec2 i = floor(p); vec2 f = fract(p);
+            vec2 u = f*f*(3.0-2.0*f);
+            return mix(mix(dot(hash(i+vec2(0.0,0.0)),f-vec2(0.0,0.0)),
+                           dot(hash(i+vec2(1.0,0.0)),f-vec2(1.0,0.0)),u.x),
+                       mix(dot(hash(i+vec2(0.0,1.0)),f-vec2(0.0,1.0)),
+                           dot(hash(i+vec2(1.0,1.0)),f-vec2(1.0,1.0)),u.x),u.y);
         }
 
         float fbm(vec2 p) {
-          float v = 0.0;
-          float a = 0.5;
+          float v = 0.0; float a = 0.5;
           for (int i = 0; i < 3; i++) {
             v += a * noise(p);
-            p *= 2.1;
-            a *= 0.5;
+            p *= 2.1; a *= 0.5;
           }
           return v;
         }
@@ -247,88 +228,77 @@ const NOISE_SCALE = 0.009;*/
         void main() {
           vec2 uv = gl_FragCoord.xy / u_res.xy;
           vec2 p = (uv - 0.5) * u_noise_scale * u_res.xy;
+
+          // --- THE SECRET SAUCE ---
+          // Instead of a mask, we calculate a "gravitational" pull toward the mouse
+          // that distorts the space (p) itself.
+          float dist = distance(uv, u_mouse);
+          float influence = exp(-dist * 5.0); // Exponential decay (organic)
+
+          // Distort the coordinates based on mouse position
+          vec2 stir = (uv - u_mouse) * influence * u_strength;
+          vec2 distortedP = p + stir;
+
           float t = u_time;
 
-          vec2 globalShift = vec2(0.0);
-          if(u_useMouse) {
-            // Use the eased mouse position passed from JS
-            vec2 m = u_mouse * 2.0 - 1.0;
-            globalShift = m * u_sensitivity;
-          }
+          // Generate the fluid layers using the distorted space
+          vec2 q = vec2(fbm(distortedP + t * 0.2), fbm(distortedP + vec2(1.0)));
+          vec2 r = vec2(fbm(distortedP + u_warp * q + vec2(1.7, 9.2) + t * 0.15),
+                        fbm(distortedP + u_warp * q + vec2(8.3, 2.8) + t * 0.126));
 
-          vec2 q = vec2(fbm(p + t * 0.2 + globalShift), fbm(p + vec2(1.0) - globalShift.yx));
-          vec2 r = vec2(fbm(p + u_warp * q + vec2(1.7, 9.2) + t * 0.15 + globalShift * 0.5),
-                        fbm(p + u_warp * q + vec2(8.3, 2.8) + t * 0.126 - globalShift * 0.5));
+          float f = fbm(distortedP + u_warp * r);
 
-          float f = fbm(p + u_warp * r + (globalShift * 0.2));
-
+          // Colors
           vec3 pink = vec3(1.0, 0.44, 0.83);
           vec3 blue = vec3(0.22, 0.75, 1.0);
 
-          float val = smoothstep(0.25, 0.75, 0.5 + 0.5 * f);
-          gl_FragColor = vec4(mix(pink, blue, val), 1.0);
+          // We use the 'stir' magnitude to decide how much pink to reveal
+          // This makes the blue "crack" open only where the movement is happening
+          float activity = length(stir) * 0.5 + f * 0.5;
+          float val = smoothstep(0.1, 0.9, activity + 0.3);
+
+          gl_FragColor = vec4(mix(pink, blue, clamp(val, 0.0, 1.0)), 1.0);
         }
       `;
 
       p.setup = () => {
         const canvas = p.createCanvas(p.windowWidth, p.windowHeight, p.WEBGL);
         p.pixelDensity(PIXELATED ? RES_SCALE : p.displayDensity());
-
         canvas.style('position', 'fixed');
         canvas.style('top', '0');
         canvas.style('left', '0');
-        canvas.style('width', '100vw');
-        canvas.style('height', '100vh');
         canvas.style('z-index', '-1');
         canvas.style('pointer-events', 'none');
-
-        if (PIXELATED) {
-          canvas.style('image-rendering', 'pixelated');
-          canvas.style('image-rendering', 'crisp-edges');
-        }
-
+        if (PIXELATED) canvas.style('image-rendering', 'pixelated');
         fluidShader = p.createShader(vs, fs);
         p.noStroke();
       };
 
       p.draw = () => {
-        // --- SLIPPERY LOGIC ---
-        // Target is the actual mouse position (0..1)
-        let targetX = p.mouseX / p.width;
-        let targetY = 1.0 - (p.mouseY / p.height);
+        // Eased mouse targeting
+        let tx = p.mouseX / p.width;
+        let ty = 1.0 - (p.mouseY / p.height);
 
-        // If mouse is off-screen or hasn't moved, target the center (0.5)
-        if (p.mouseX <= 0 || p.mouseX >= p.width || p.mouseY <= 0 || p.mouseY >= p.height) {
-           targetX = 0.5;
-           targetY = 0.5;
+        // Idle movement if mouse isn't on screen
+        if (p.mouseX <= 0) {
+            tx = 0.5 + Math.sin(p.frameCount * 0.01) * 0.2;
+            ty = 0.5 + Math.cos(p.frameCount * 0.01) * 0.2;
         }
 
-        // Lerp the follower toward the target
-        mouseFollower.x = p.lerp(mouseFollower.x, targetX, SLIPPERINESS);
-        mouseFollower.y = p.lerp(mouseFollower.y, targetY, SLIPPERINESS);
+        mouseFollower.x = p.lerp(mouseFollower.x, tx, SLIPPERINESS);
+        mouseFollower.y = p.lerp(mouseFollower.y, ty, SLIPPERINESS);
 
         p.shader(fluidShader);
-
         fluidShader.setUniform('u_res', [p.drawingContext.drawingBufferWidth, p.drawingContext.drawingBufferHeight]);
         fluidShader.setUniform('u_time', p.frameCount * SPEED);
-
-        // Pass the eased follower instead of the raw mouse
         fluidShader.setUniform('u_mouse', [mouseFollower.x, mouseFollower.y]);
-        fluidShader.setUniform('u_useMouse', ENABLE_MOUSE);
-        fluidShader.setUniform('u_sensitivity', MOUSE_SENSITIVITY);
+        fluidShader.setUniform('u_strength', STRENGTH);
         fluidShader.setUniform('u_warp', WARP);
         fluidShader.setUniform('u_noise_scale', NOISE_SCALE);
-
         p.rect(0, 0, p.width, p.height);
       };
 
-      p.windowResized = () => {
-        if (isMobile()) {
-          p.remove();
-        } else {
-          p.resizeCanvas(p.windowWidth, p.windowHeight);
-        }
-      };
+      p.windowResized = () => p.resizeCanvas(p.windowWidth, p.windowHeight);
     });
   };
 
