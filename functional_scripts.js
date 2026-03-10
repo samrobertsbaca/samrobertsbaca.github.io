@@ -175,15 +175,15 @@ const NOISE_SCALE = 0.009;*/
   const P5_CDN = "https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js";
 
   // === CONFIG ===
-  const PIXELATED = false;
-  const RES_SCALE = 0.01;
+  const PIXELATED = true;
+  const RES_SCALE = 0.75;
   const ENABLE_MOUSE = false;
   const MOUSE_SENSITIVITY = 5.1; // How much the mouse distorts the field
   const SLIPPERINESS = 0.025;     // 0.01 (very slippery/slow) to 0.2 (snappy)
 
   const WARP = 3.4;
   const SPEED = 0.05;
-  const NOISE_SCALE = 0.005;
+  const NOISE_SCALE = 0.008;
   const MOBILE_BREAKPOINT = 768;
 
   const isMobile = () => {

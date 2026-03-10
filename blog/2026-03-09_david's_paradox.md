@@ -86,7 +86,7 @@ the solution at the collective level is probably the same as at the personal lev
 
 ### viii. the gnostic turn
 
-there is a mirror image of david's paradox running through contemporary culture: where david longs for embodied, particular connection, many 21st-century works dramatize the tragedy of being embodied at all. *the amazing digital circus*, *poppy's playtime*, *bioshock* — even earlier works like *her* and *black mirror* — share a gnostic premise: consciousness trapped in a vessel that doesn’t fit. the body becomes a cage; interiority is abundant but stranded.
+there is a mirror image of david's paradox running through contemporary culture: where david longs for embodied, particular connection, many 21st-century works dramatize the tragedy of being embodied at all. *the amazing digital circus*, *poppy playtime*, *bioshock* — even earlier works like *her* and *black mirror* — share a gnostic premise: consciousness trapped in a vessel that doesn’t fit. the body becomes a cage; interiority is abundant but stranded.
 
 these stories ask the same question the early gnostics asked: if consciousness can run on silicon, what was the body ever for? the answer keeps arriving through suffering and dark comedy and the specific texture of characters who feel too much for their containers: something is lost when the vessel is wrong.
 
