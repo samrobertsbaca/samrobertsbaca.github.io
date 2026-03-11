@@ -167,6 +167,12 @@ async function loadScorsbyJournal(filePath,div_tag) {
 
 
 (function() {
+
+  // 1. Add this check here:
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+
+    if (isMobile) return; // Exit and do nothing if mobile
+
   const P5_CDN = "https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js";
 
   // === CONFIG ===
