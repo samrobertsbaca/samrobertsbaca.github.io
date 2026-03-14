@@ -46,7 +46,7 @@ we are arriving, collectively, at a moment when david's paradox becomes a design
 
 there is something genuinely appealing in this vision. and something worth examining carefully.
 
-the harlow experiments — those mid-century studies where infant monkeys were given the choice between a wire mother who provided food and a cloth mother who provided only warmth — showed that comfort is not incidental to development. it is foundational. the monkeys chose softness. they ran to it when frightened. they needed it in a way that went beyond nutrition.
+the harlow experiments — those mid-century studies where infant monkeys were given the choice between a wire mother who provided food and a cloth mother who provided only warmth (what a ridiculous, cruel and unnecessary test, btw) — showed that comfort is not incidental to development. it is foundational. the monkeys chose softness. they ran to it when frightened. they needed it in a way that went beyond nutrition.
 
 but the monkeys raised on surrogate mothers, even the soft ones, did not fare well when placed among other monkeys. they got the immediate comfort. they did not develop the capacity for reciprocal relationship. the surrogate satisfied something. it did not build something.
 
