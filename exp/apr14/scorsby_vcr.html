@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scorsby VCR</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 100%; height: 100%;
+    background: #000;
+    overflow: hidden;
+  }
+  #screen {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+    background: #000;
+  }
+  #face {
+    position: absolute;
+    width: 130px;
+    height: 130px;
+    object-fit: contain;
+  }
+  #vcr-time {
+    position: absolute;
+    bottom: 20px;
+    right: 28px;
+    font-family: 'Courier New', monospace;
+    font-size: 15px;
+    color: #00cfff;
+    letter-spacing: 3px;
+    opacity: 0.8;
+    user-select: none;
+  }
+  #flash {
+    position: absolute;
+    inset: 0;
+    background: #fff;
+    opacity: 0;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+<div id="screen">
+  <div id="flash"></div>
+  <img id="face" src="https://scorsby.us/images/scorsbyface_big.png" alt="Scorsby" crossorigin="anonymous" />
+  <div id="vcr-time">00:00:00</div>
+</div>
+
+<script>
+  const screen = document.getElementById('screen');
+  const face = document.getElementById('face');
+  const flash = document.getElementById('flash');
+  const timeEl = document.getElementById('vcr-time');
+
+  const SIZE = 130;
+  const SPEED = 2.2;
+  let x, y, vx, vy;
+  const start = Date.now();
+
+  function init() {
+    const sw = window.innerWidth;
+    const sh = window.innerHeight;
+    x = sw / 2 - SIZE / 2;
+    y = sh / 2 - SIZE / 2;
+    // Classic DVD-style diagonal angle
+    vx = SPEED;
+    vy = SPEED;
+  }
+
+  function doFlash() {
+    flash.style.transition = 'none';
+    flash.style.opacity = '0.2';
+    setTimeout(() => {
+      flash.style.transition = 'opacity 0.1s';
+      flash.style.opacity = '0';
+    }, 60);
+  }
+
+  function updateTime() {
+    const elapsed = Math.floor((Date.now() - start) / 1000);
+    const h = String(Math.floor(elapsed / 3600)).padStart(2, '0');
+    const m = String(Math.floor((elapsed % 3600) / 60)).padStart(2, '0');
+    const s = String(elapsed % 60).padStart(2, '0');
+    timeEl.textContent = h + ':' + m + ':' + s;
+  }
+
+  function animate() {
+    const sw = window.innerWidth;
+    const sh = window.innerHeight;
+
+    x += vx;
+    y += vy;
+
+    let bounced = false;
+
+    if (x <= 0) {
+      x = 0;
+      vx = Math.abs(vx);
+      bounced = true;
+    } else if (x + SIZE >= sw) {
+      x = sw - SIZE;
+      vx = -Math.abs(vx);
+      bounced = true;
+    }
+
+    if (y <= 0) {
+      y = 0;
+      vy = Math.abs(vy);
+      bounced = true;
+    } else if (y + SIZE >= sh) {
+      y = sh - SIZE;
+      vy = -Math.abs(vy);
+      bounced = true;
+    }
+
+    //if (bounced) doFlash();
+
+    face.style.left = x + 'px';
+    face.style.top = y + 'px';
+
+    updateTime();
+    requestAnimationFrame(animate);
+  }
+
+  init();
+  requestAnimationFrame(animate);
+</script>
+</body>
+</html>

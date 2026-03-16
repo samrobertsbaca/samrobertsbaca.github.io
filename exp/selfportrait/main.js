@@ -29,6 +29,7 @@ let activeImages = [];
 let activeSnippets = [];
 let usedUrlIndices = new Set();
 let bgColor = FIXED_BG_COLOR;
+let snippetCooldown = 0;
 
 let spawnTimer = 0;
 let loadingSnippetsCount = 0;
@@ -171,10 +172,13 @@ function drawFrame(delta) {
   ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
   spawnTimer += delta * OVERALL_SPEED;
-  if (spawnTimer > 400) { spawnTimer = 0; spawnImage(); fetchNewImage(); }
+  if (spawnTimer > 400) { spawnTimer = 0; spawnImage(); if (loadedPool.length < 10) fetchNewImage(); }
 
-  if (activeSnippets.filter(s => !s.isPermanent).length + loadingSnippetsCount < MAX_SNIPPETS) {
-    addSnippet();
+  // In drawFrame:
+  snippetCooldown += delta;
+  if (snippetCooldown > 200 && activeSnippets.filter(s => !s.isPermanent).length + loadingSnippetsCount < MAX_SNIPPETS) {
+      snippetCooldown = 0;
+      addSnippet();
   }
 
   // Draw Images
