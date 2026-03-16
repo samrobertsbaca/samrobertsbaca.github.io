@@ -4,7 +4,7 @@ Mar 16
 
 i) ⨍ ꙮ  ϟ  ⟿  ℰ⊕
 
-from weeks of self-imposed solitude at the top of the very best western in florida — a place with surprisingly good amenities and an infinite horizon — i finished a term paper on what happened to humanity after widespread extraterrestrial contact. my thesis statement: discovering we weren't the most intelligent species in the universe humbled us, and in that humility, we became more open-minded and compassionate. there was something even deeper but i forget.
+from weeks of self-imposed solitude at the top of the very best western in florida — a place with surprisingly good amenities and an infinite horizon — i finished a term paper on what happened to humanity after widespread extraterrestrial contact. my thesis: discovering we weren't the most intelligent species in the universe humbled us, and in that humility, we became more open-minded and compassionate. there was something even deeper but i forget.
 
 when i finally descended and crossed the parking lot to the irish pub, an old friend (codename: oatley) spotted me from across the way — unmistakable in her barney the dinosaur suit — and ran to embrace me. something lightened. my father arrived to say my mother had prepared lunch and had come to collect me, which he had neglected to mention beforehand. after some gentle haggling, i told him i'd come later. inside, another friend, taurine, was already waiting in the booth. the restaurant had a new payment system called "warmer" — which sounded like some fintech bullshit but turned out to be something simpler and stranger: a communal protocol where anyone could leave money alongside their name to cover a stranger's meal, so no one went hungry.
 
