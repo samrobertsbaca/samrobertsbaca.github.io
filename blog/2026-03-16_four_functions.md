@@ -10,7 +10,7 @@ when i finally descended and crossed the parking lot to the irish pub, an old fr
 
 ii) ℰ⊕/𝔏☽ ⊸ ⟨ ϖ ⟩
 
-i found myself in a universal library built in conjunction with the arcturians, pleiadeans, and some other species i can't pronounce — at once monumental and intimate. my brother and sister were with me. my brother and i got into an argument about the origins of a tiny, ancient, hooded species — starfish-like creatures, soft-limbed and radial, who liked to roll about in the grass and play peek-a-boo from holes in the ground. i walked away feeling smug, squidward-adjacent. i knew immediately i was wrong to be that way.
+i found myself in a universal library built in conjunction with the arcturians, pleiadeans, and some other species i can't quite pronounce — at once monumental and intimate. my brother and sister were with me. my brother and i got into an argument about the origins of a tiny, ancient, hooded species — starfish-like creatures, soft-limbed and radial, who liked to roll about in the grass and play peek-a-boo from holes in the ground. i walked away feeling smug, squidward-adjacent. i knew immediately i was wrong to be that way.
 
 through the window, a gray and rainy field stretched before me, and there they were — the little starbies, doing cartwheels in the wet grass. the argument dissolved when i understood that my role was not to best my brother in knowledge, but to supplement his peace.
 
