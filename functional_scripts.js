@@ -168,22 +168,19 @@ async function loadScorsbyJournal(filePath,div_tag) {
 
 (function() {
 
-  // 1. Add this check here:
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
-
-    if (isMobile) return; // Exit and do nothing if mobile
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+  if (isMobile) return;
 
   const P5_CDN = "https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js";
 
   // === CONFIG ===
+  const FOLLOW_MOUSE = false;  // SET TO FALSE TO CENTER DISTORTION ON WINDOW
   const PIXELATED = true;
   const RES_SCALE = 0.7;
-  const STRENGTH = 12.0;       // How much the mouse "tears" the surface
-  const SLIPPERINESS = 0.05;   // Persistence of the mouse influence
-  const DISSIPATION = 0.98;    // How fast the ripples "calm down" (not used in this simplified shader, but simulates feel)
-
+  const STRENGTH = 12.0;
+  const SLIPPERINESS = 0.05;
   const WARP = 4.0;
-  const SPEED = 0.03;          // Flow speed
+  const SPEED = 0.03;
   const NOISE_SCALE = 0.006;
 
   const initFluid = () => {
@@ -235,31 +232,23 @@ async function loadScorsbyJournal(filePath,div_tag) {
           vec2 uv = gl_FragCoord.xy / u_res.xy;
           vec2 p = (uv - 0.5) * u_noise_scale * u_res.xy;
 
-          // --- THE SECRET SAUCE ---
-          // Instead of a mask, we calculate a "gravitational" pull toward the mouse
-          // that distorts the space (p) itself.
           float dist = distance(uv, u_mouse);
-          float influence = exp(-dist * 5.0); // Exponential decay (organic)
+          float influence = exp(-dist * 5.0);
 
-          // Distort the coordinates based on mouse position
           vec2 stir = (uv - u_mouse) * influence * u_strength;
           vec2 distortedP = p + stir;
 
           float t = u_time;
 
-          // Generate the fluid layers using the distorted space
           vec2 q = vec2(fbm(distortedP + t * 0.2), fbm(distortedP + vec2(1.0)));
           vec2 r = vec2(fbm(distortedP + u_warp * q + vec2(1.7, 9.2) + t * 0.15),
                         fbm(distortedP + u_warp * q + vec2(8.3, 2.8) + t * 0.126));
 
           float f = fbm(distortedP + u_warp * r);
 
-          // Colors
           vec3 pink = vec3(1.0, 0.44, 0.83);
           vec3 blue = vec3(0.22, 0.75, 1.0);
 
-          // We use the 'stir' magnitude to decide how much pink to reveal
-          // This makes the blue "crack" open only where the movement is happening
           float activity = length(stir) * 0.5 + f * 0.5;
           float val = smoothstep(0.1, 0.9, activity + 0.3);
 
@@ -281,14 +270,22 @@ async function loadScorsbyJournal(filePath,div_tag) {
       };
 
       p.draw = () => {
-        // Eased mouse targeting
-        let tx = p.mouseX / p.width;
-        let ty = 1.0 - (p.mouseY / p.height);
+        let tx, ty;
 
-        // Idle movement if mouse isn't on screen
-        if (p.mouseX <= 0) {
-            tx = 0.5 + Math.sin(p.frameCount * 0.01) * 0.2;
-            ty = 0.5 + Math.cos(p.frameCount * 0.01) * 0.2;
+        if (FOLLOW_MOUSE) {
+            // Standard mouse following logic
+            tx = p.mouseX / p.width;
+            ty = 1.0 - (p.mouseY / p.height);
+
+            // If mouse is off-canvas, use idle movement
+            if (p.mouseX <= 0 || p.mouseX >= p.width || p.mouseY <= 0 || p.mouseY >= p.height) {
+                tx = 0.5 + Math.sin(p.frameCount * 0.01) * 0.1;
+                ty = 0.5 + Math.cos(p.frameCount * 0.01) * 0.1;
+            }
+        } else {
+            // Locked to center
+            tx = 0.5;
+            ty = 0.5;
         }
 
         mouseFollower.x = p.lerp(mouseFollower.x, tx, SLIPPERINESS);
