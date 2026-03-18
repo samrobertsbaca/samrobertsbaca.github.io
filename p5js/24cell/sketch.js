@@ -35,6 +35,10 @@ let idleDirection = 1; // +1 or -1
 
 let cnv;
 
+let introScale = 0;       // Starts at 0 (invisible)
+let introFinished = false;
+let introSpin = 0.2;      // Extra initial spin speed
+
 function preload() {
   heartImg = loadImage("/p5js/24cell/favicon_gold2.png"); // make sure heart.png is in your project folder
   rainbowImg = loadImage("/p5js/24cell/rainbow.png");
@@ -297,153 +301,115 @@ function moveZiaDrag() {
 function endZiaDrag() {
   ziaDragging = false;
 }
-
 function draw() {
-  //background(0);
-  //background(bgImg);
   clear();
 
-  /*
-  push();
-  resetMatrix();       // ignore rotations
-  rotate(ziaAngle);
-  translate(0, 0, -200); // slightly behind other elements
-  imageMode(CENTER);
-  image(bgZia3, 0, 0, height * globScale, height * globScale); // scale to canvas
-  rotate(ziaAngle*2);
-  image(bgZia2, 0, 0, height * globScale, height * globScale); // scale to canvas
-  rotate(ziaAngle*3);
-  image(bgZia1, 0, 0, height * globScale, height * globScale); // scale to canvas
-  pop();
-  */
-
-  if (!ziaDragging) {
-    ziaSpin += idleDirection * IDLE_SPIN;   // gentle motor
-    ziaAngle += ziaSpin;
-    ziaSpin *= 0.96;       // friction
+  // --- INTRO LOGIC ---
+  if (!introFinished) {
+    introScale = lerp(introScale, 1, 0.04); // Slightly slower for smoothness
+    angle += introSpin;
+    introSpin *= 0.94;
+    if (introScale > 0.999) { introScale = 1; introFinished = true; }
   }
 
-  //ziaAngle += 0.005;
+  // --- BACKGROUND / RECORD SPIN ---
+  if (!ziaDragging) {
+    ziaSpin += idleDirection * IDLE_SPIN;
+    ziaAngle += ziaSpin;
+    ziaSpin *= 0.96;
+  }
 
-  // apply interactive rotation
+  // Pass introScale into your background components
+  drawRainbowGradient(90 * globScale, 33, introScale);
+  drawHeartRainbow(33 * globScale + 20, introScale);
+
+  // --- STARS (Centered and Scaled) ---
+  push();
+  resetMatrix();
+  translate(0, 0, zOffset);
+  rotate(ziaAngle);
+  imageMode(CENTER);
+  // Apply introScale to the star size
+  let sSize = 280 * globScale * introScale;
+  image(starImg, 0, 0, sSize, sSize);
+  pop();
+
+  // --- 24-CELL EDGES ---
+  push();
   rotateX(rotX);
   rotateY(rotY);
-
-  // gentle autonomous rotation
   rotateX(angle * 0.2);
   rotateY(angle * 0.15);
 
   let projected = [];
-
   for (let v of vertices4D) {
     let r = rotate4D(v, angle, angle * 0.7);
     let p = project4Dto3D(r);
     projected.push(p);
   }
 
-  scale(100 * globScale);
+  // Final visual scale for the 4D object
+  let visualScale = 100 * globScale * introScale;
 
-
-
-
-
-  drawRainbowGradient(90 * globScale,33)
-  drawHeartRainbow(33 * globScale + 20)
-
-  push();
-  resetMatrix();                  // ignore 3D scene rotations
-  translate(0, 0, zOffset);           // place it behind the 24-cell along Z
-  rotate(ziaAngle);              // rotate around center
-  imageMode(CENTER);
-  tint(255, 255);                 // optional transparency
-  //image(rainbowImg,0,0,800,800);
-  image(starImg, 0, 0, 280 * globScale, 280 * globScale); // draw at origin
-  pop();
-
-  starAngle += 0.005; // increment angle for next frame
-
-
-  // draw edges
-  stroke(255, 255, 255);
+  stroke(255, 255, 255, 255);//map(introScale, 0, 1, 0, 255)
   strokeWeight(2.5);
   for (let e of edges) {
     let a = projected[e[0]];
     let b = projected[e[1]];
-    line(a.x, a.y, a.z, b.x, b.y, b.z);
+    line(a.x * visualScale, a.y * visualScale, a.z * visualScale,
+         b.x * visualScale, b.y * visualScale, b.z * visualScale);
   }
-
+  pop();
 
   angle += 0.005;
-
   rotX *= 0.98;
   rotY *= 0.98;
 }
-
 let hueOffset = 0; // global for cycling
 let gradientOffset = 0;
 
-function drawHeartRainbow(size = 1) {
+function drawHeartRainbow(size = 1, iScale = 1) {
   push();
-
-  // Reset rotation so it faces the camera
   resetMatrix();
-
-  // Move to center of canvas (WEBGL origin)
   translate(0, 0, 500);
+  scale(iScale); // Apply intro scale here!
 
-  colorMode(HSB, 360); // use hue from 0-360
-  stroke((gradientOffset + 180) % 360, 360, 360);
-  strokeWeight(0)
-  fill((gradientOffset + 180) % 360, 360, 360); // complementary fill
-  strokeWeight(1);
+  colorMode(HSB, 360);
+  fill((gradientOffset + 180) % 360, 360, 360, 360);
+  //map(iScale, 0, 1, 0, 360)
+  noStroke();
 
   beginShape();
-  for (let t = 0; t <= TWO_PI; t += 0.05) {
+  for (let t = 0; t <= TWO_PI; t += 0.1) {
     let x = 16 * pow(sin(t), 3);
     let y = - (13 * cos(t) - 5 * cos(2*t) - 2 * cos(3*t) - cos(4*t));
     vertex(x * 0.02 * size, y * 0.02 * size, 0);
   }
   endShape(CLOSE);
-
   pop();
-
-  // increment hue for next frame
-  hueOffset += 1;
 }
 
-function drawRainbowGradient(radius = 500, steps = 135) {
+function drawRainbowGradient(radius = 500, steps = 135, iScale = 1) {
   push();
   resetMatrix();
-  translate(0, 0,zOffset); // center
+  translate(0, 0, zOffset);
+  scale(iScale); // Apply intro scale here!
   noStroke();
-  colorMode(HSB, 360, 100, 100, 100); // alpha enabled
+  colorMode(HSB, 360, 100, 100, 100);
 
-  let dynamicSteps = steps + abs(ziaSpin) * 300; // tune multiplier
-
+  let dynamicSteps = steps + abs(ziaSpin) * 300;
   for (let i = 0; i < steps; i++) {
-    let r = map(i, 0, dynamicSteps, radius, 0); // outer to inner
+    let r = map(i, 0, dynamicSteps, radius, 0);
     let t = i / dynamicSteps;
-
-    // Rotate hue with both global offset and spinning
     let hue = (hueOffset + t * 180 + ziaAngle * 180 / PI) % 360;
     gradientOffset = hue;
-    /*
-    let r = map(i, 0, steps, radius, 0); // outer to inner
-    let t = i / steps;
-
-    // Hue gradient: complementary at center, full rainbow outward
-    let hue = (hueOffset + t * 180) % 360;*/
-
-    // Fade alpha toward edges
-    let alpha = map(r, radius, 0, 0, 100);
-
+    let alpha = map(r, radius, 0, 0, 100) * iScale; // Fade with intro
     fill(hue, 100, 100, alpha);
     ellipse(0, 0, r * 2.7, r * 2.7);
   }
-
   pop();
+  hueOffset += 1;
 }
-
 
 
 
