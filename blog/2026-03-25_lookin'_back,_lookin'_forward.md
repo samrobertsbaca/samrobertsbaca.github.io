@@ -38,7 +38,7 @@ what the camera asks of me that the page doesn't is presence without a net. in w
 
 because there's something that only live presence can do, and it isn't reach — though reach matters. it's the transmission of being. when you watch someone think out loud, you're not just receiving their ideas. you're receiving them. their hesitation. their aliveness. the way their eyes move when they're reaching for a word. that's a different kind of intimacy than anything writing can offer, and pretending otherwise is just another form of the veil. of course, every medium has its limitations, its hidden fourth walls to break out of, and the medium isn't really the point anyway.
 
-the question i'm sitting with is how to tap into my unlimited, authentic presence, not as a strategy but as a genuine expansion. to let the essay be the root system and the video be the canopy. to let the written form be where the thinking gets refined, and the spoken form be where the person becomes visible. to let the song sing in whatever i do.
+the question i'm sitting with is how to tap into my unlimited, authentic presence, not as a strategy but as a genuine expansion. to let the essay be the root system and the video be the canopy. to let the written form be where the thinking gets refined, and the spoken form be where the person becomes visible. to let the song sing wherever i am.
 
 perhaps that's the most honest thing i can say about any of this: i'm not convinced i'm the one creating any of it. the creation creates itself. i just try to let it be.
 
@@ -52,7 +52,7 @@ there's an irony in that i want to name. television is not exactly the cutting e
 
 maybe legacy media still carries weight precisely because it's rare now. because it signals a certain kind of "seriousness". or maybe it's just that i stood in a room with other people and sang, and the song went somewhere, and i couldn't take it back.
 
-but that's life for ya. a constant walking through doors, and turning into something. because that's what all of this is. transmissions. through whatever medium is available. through the blog post and the morning video and the folk song and the tv appearance and whatever else i do. the form keeps changing. the signal stays the same.
+but that's life for ya. a constant walking through doors, and [turning into something](https://www.youtube.com/watch?v=ZTrkF2TbDHU). because that's what all of this is. transmissions. through whatever medium is available. through the blog post and the morning video and the folk song and the tv appearance and whatever else i do. the form keeps changing. the signal stays the same.
 
 ### legacy-driven, future-focused
 
@@ -72,4 +72,4 @@ wishing you peace, love and joy, everywhere, all the time.
 
 — scorsby
 
-P.S. i have a patreon now. i'm gonna start posting some of my more art there, while it's fresh in the stew. visit [patreon.com/scorsby](https://www.patreon.com/c/scorsby) for more info. you can listen to a new song i wrote there called "lookin' back, lookin' forward", which is also the title of my new [youtube video](https://youtu.be/KIe2-Lnb0oE), accompanying this essay. fresh blessings :->
+P.S. i have a patreon now. i'm gonna start sharing some of my more off-the-cuff art there, while it's fresh in the stew. visit [patreon.com/scorsby](https://www.patreon.com/c/scorsby) for more info. you can listen to a new song i wrote there called "lookin' back, lookin' forward", which is also the title of my new [youtube video](https://youtu.be/KIe2-Lnb0oE), accompanying this essay. fresh blessings :->
