@@ -28,7 +28,7 @@ the mask was always a tool for truth-telling. the venetian actors knew this. dyl
 
 ### the transmission problem
 
-here's something i've been reckoning with myself about lately: writing is comfortable for me in a way that can occasionally tend toward hiding when left unchecked.
+here's something i've been reckoning with myself about lately: writing is comfortable for me in a way that can tend toward hiding when left unchecked.
 
 i am more articulate on the page than i am on camera. i can construct an argument in writing that i couldn't deliver in speech without losing the thread. the essay form suits the way i think — it builds, it circles back, it allows for the kind of precision that live speech doesn't. and i genuinely believe that long-form writing with a distinct voice is not dying, despite what the metrics might suggest. the middle is collapsing, not the form itself.
 
@@ -39,6 +39,8 @@ what the camera asks of me that the page doesn't is presence without a net. in w
 because there's something that only live presence can do, and it isn't reach — though reach matters. it's the transmission of being. when you watch someone think out loud, you're not just receiving their ideas. you're receiving them. their hesitation. their aliveness. the way their eyes move when they're reaching for a word. that's a different kind of intimacy than anything writing can offer, and pretending otherwise is just another form of the veil. of course, every medium has its limitations, its hidden fourth walls to break out of, and the medium isn't really the point anyway.
 
 the question i'm sitting with is how to tap into my unlimited, authentic presence, not as a strategy but as a genuine expansion. to let the essay be the root system and the video be the canopy. to let the written form be where the thinking gets refined, and the spoken form be where the person becomes visible. to let the song sing in whatever i do.
+
+perhaps that's the most honest thing i can say about any of this: i'm not convinced i'm the one creating any of it. the creation creates itself. i just try to let it be.
 
 ### the television
 
