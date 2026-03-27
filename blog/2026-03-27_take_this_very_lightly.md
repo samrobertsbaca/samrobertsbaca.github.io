@@ -8,9 +8,9 @@ everything is coming out. every secret, every hidden structure, every shadow. pa
 
 the question being asked of us — the only question that has ever really been asked — is simply whether we are willing to let it be.
 
-the truth is not hierarchical. it is not owned by any institution, tradition, or flag. it is simply awareness. the awareness that what you are is not a body, not a mind, not a collection of memories or aspirations or fears or attractions.
+the truth is not hierarchical. it is not owned by any institution, tradition, or flag. it is simply awareness. the awareness that is beyond the body and the mind, beyond memories and aspirations and fears and attractions.
 
-what you are is a potency. a light so full it dissolves everything that is not itself.
+what you are is a light so full it dissolves everything that is not itself.
 
 dante saw it at the center of the empyrean — angels arranged around a brightness the mind cannot wrap itself around. maybe that is because the mind was never meant to wrap around it. maybe it was only ever meant to dissolve into it.
 
