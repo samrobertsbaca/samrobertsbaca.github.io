@@ -2,6 +2,8 @@ Mar 27
 
 # take this very lightly
 
+![](/images/empyrean.png)
+
 everything is coming out. every secret, every hidden structure, every shadow. pandora's box is open and there is no closing it.
 
 the question being asked of us — the only question that has ever really been asked — is simply whether we are willing to let it be.

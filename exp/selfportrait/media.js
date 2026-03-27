@@ -25,6 +25,7 @@ export const IMAGE_URLS = [
   "/images/digitalcircus.png",
   "/images/dreamers.png",
   "/images/elf_v2.png",
+  "/images/empyrean.png",
   "/images/end_v2.png",
   "/images/fluffy.png",
   "/images/free_palestine.webp",
