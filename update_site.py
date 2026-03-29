@@ -58,6 +58,7 @@ blog_paths.append("/blog/2026-01-26_its_a_beautiful_day_in_the_neighborhood.html
 blog_paths.append("/blog/2026-02-14_14_valentines.html")
 blog_paths.append("/blog/2026-02-28_bubbletest.html")
 blog_paths.append("/blog/2026-03-09_car_wheels_on_a_glonging_road.html")
+blog_paths.append("/blog/2026-03-29_blessed_tears.html")
 
 # Add paths from Markdown files
 for md_file in md_files:

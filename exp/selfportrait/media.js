@@ -91,6 +91,7 @@ export const IMAGE_URLS = [
   "/images/tree1.png",
   "/images/treepositivity_trans.png",
   "/images/wedrawtrans.png",
+  "/media/blessed_tears/blessedtears.png",
   "/media/comix2025/compressed2/0_boo_compressed.png",
   "/media/comix2025/compressed2/SC_1_compressed.png",
   "/media/comix2025/compressed2/SC_2_compressed.png",
