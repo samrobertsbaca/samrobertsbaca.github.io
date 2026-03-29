@@ -2,6 +2,8 @@ Mar 28
 
 # the kim chi of life
 
+![](/images/kimchi.png)
+
 i've been thinking about kimchi. you know, that classic fermented cabbage that strengthens your gut microbiome. but what's actually happening inside that jar is more fascinating than most people realize — and i think it has something profound to teach us about how to live.
 
 when you salt cabbage and pack it into an airtight container, you're creating an oxygen-free environment where wild lactobacillus bacteria — already living naturally on the cabbage leaves — begin to thrive. they consume the cabbage's natural sugars and produce lactic acid as a byproduct. that lactic acid progressively lowers the pH of the whole environment, making it too acidic for harmful bacteria to survive. the good bacteria are literally engineering their own protective ecosystem as they go.
