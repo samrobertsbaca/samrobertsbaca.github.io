@@ -176,7 +176,7 @@ async function loadScorsbyJournal(filePath,div_tag) {
   // === CONFIG ===
   const FOLLOW_MOUSE = false;  // SET TO FALSE TO CENTER DISTORTION ON WINDOW
   const PIXELATED = true;
-  const RES_SCALE = 0.7;
+  const RES_SCALE = 0.4;
   const STRENGTH = 12.0;
   const SLIPPERINESS = 0.05;
   const WARP = 4.0;
