@@ -6,6 +6,7 @@ const ctx = canvas.getContext("2d", { alpha: false });
 
 const HOME_URL = "/home.html";
 const LOGO_URL = "/images/scorsby_hearteyes_scale.png";
+const LOGO_SCALE = .7;
 const FIXED_BG_COLOR = "#00aeef";
 
 const MAX_SNIPPETS = 15;
@@ -52,6 +53,7 @@ function resizeCanvas() {
 
   const perm = activeSnippets.find(s => s.isPermanent);
   if (perm) {
+    // Use the stored w and h to keep it centered
     perm.x = (w - perm.w) / 2;
     perm.y = (h - perm.h) / 2;
   }
@@ -212,11 +214,20 @@ function drawFrame(delta) {
       s.hue = (s.hue + 1) % 360;
     }
 
+
     if (s.opacity > 0) {
       ctx.globalAlpha = s.opacity;
       if (s.isPermanent) {
         if (s.useLogo) {
-          ctx.drawImage(logoImg, s.x | 0, renderY | 0, s.w | 0, s.h | 0);
+          // We use s.w and s.h directly because they are already scaled
+          ctx.drawImage(
+              logoImg,
+              s.x | 0,
+              renderY | 0,
+              s.w | 0,
+              s.h | 0
+          );
+          s.currentRenderY = renderY;
         } else {
           ctx.fillStyle = `hsl(${s.hue}, 80%, 30%)`;
           ctx.fillRect(s.x | 0, renderY | 0, s.w | 0, s.h | 0);
@@ -249,10 +260,22 @@ function spawnImage() {
 
 function spawnPermanentBox() {
   const hasLogo = logoImg && logoImg.complete;
-  const boxW = hasLogo ? logoImg.width * 0.5 : 200, boxH = hasLogo ? logoImg.height * 0.5 : 40;
+  // Use the scaled dimensions as the actual 'w' and 'h'
+  const boxW = hasLogo ? (logoImg.width * LOGO_SCALE) | 0 : 200;
+  const boxH = hasLogo ? (logoImg.height * LOGO_SCALE) | 0 : 40;
+
   activeSnippets.push({
-    text: "ENTER", x: (window.innerWidth - boxW) / 2, y: (window.innerHeight - boxH) / 2,
-    w: boxW, h: boxH, isPermanent: true, hue: 0, opacity: 1, bobTimer: 0, useLogo: hasLogo
+    text: "ENTER",
+    // Now x and y represent the top-left corner of the scaled image
+    x: (window.innerWidth - boxW) / 2,
+    y: (window.innerHeight - boxH) / 2,
+    w: boxW,
+    h: boxH,
+    isPermanent: true,
+    hue: 0,
+    opacity: 1,
+    bobTimer: 0,
+    useLogo: hasLogo
   });
 }
 
