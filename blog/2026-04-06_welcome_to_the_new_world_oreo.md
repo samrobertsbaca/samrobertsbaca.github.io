@@ -1,6 +1,6 @@
 Apr 6
 
-# welcome to the new world order!
+# welcome to the new world oreo!
 
 i had a dream recently. i was in star wars — not as a jedi, not as a sith — more like jar jar binks. or maybe donkey from shrek somehow dropped into the wrong universe. either way, i was there, tagging along with luke, and i did not care even slightly about the battle happening around me. i was more interested in the corners of the death star where the set ended. the unfinished parts. the plastic.
 

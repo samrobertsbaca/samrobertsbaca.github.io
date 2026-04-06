@@ -2227,7 +2227,7 @@ export const BLOG_SNIPPETS = [
   "the true kimchi is not the kimchi which can be spoken. it's the kimchi of being light awareness.",
   "take that as you will. in the end, it's not the words anyone says to you that matter. it's not anything outside of you. it all comes down to you. you are the wisdom you seek and you are the love you're looking for. all any of us can do is remind each other that we're on the right path \u2014 and treat each other as lovingly, and as lightly, as possible.",
   "peace, love, and joy. always.",
-  "welcome to the new world order!",
+  "welcome to the new world oreo!",
   "i had a dream recently. i was in star wars \u2014 not as a jedi, not as a sith \u2014 more like jar jar binks. or maybe donkey from shrek somehow dropped into the wrong universe. either way, i was there, tagging along with luke, and i did not care even slightly about the battle happening around me. i was more interested in the corners of the death star where the set ended. the unfinished parts. the plastic.",
   "a self-aware character in a narrative is the most dangerous thing imaginable \u2014 not because they'd pick up a weapon, but because they wouldn't. they'd just walk around telling everybody: you don't have to fight this. none of this is what you think it is. and the movie would stop. not with an explosion. just quietly. the audience would turn it off because the one thing narrative cannot survive is a character who sees through it while still being in it.",
   "this is where we are now.",
