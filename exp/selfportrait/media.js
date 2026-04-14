@@ -2238,5 +2238,5 @@ export const BLOG_SNIPPETS = [
   "once as tall as mountains",
   "on the landscape of my face",
   "boulders turn to pebbles",
-  "a million years to be erased"
+  "a million years erased"
 ];
