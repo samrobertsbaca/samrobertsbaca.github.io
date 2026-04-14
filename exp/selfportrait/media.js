@@ -2235,7 +2235,7 @@ export const BLOG_SNIPPETS = [
   "think about it. or don't. but notice which you choose.",
   "friendly neighborhood face huggers",
   "or, what remains of cain",
-  "once as big as mountains",
+  "once as tall as mountains",
   "on the landscape of my face",
   "boulders turn to pebbles",
   "a million years to be erased"
