@@ -4,7 +4,7 @@ Apr 14
 
 *or, what remains of cain*
 
-once as big as mountains
-on the landscape of my face
-rocks become pebbles
-a million years to be erased
+once as big as mountains  
+on the landscape of my face  
+boulders turn to pebbles  
+a million years to be erased  

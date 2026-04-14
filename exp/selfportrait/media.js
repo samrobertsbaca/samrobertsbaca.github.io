@@ -2237,6 +2237,6 @@ export const BLOG_SNIPPETS = [
   "or, what remains of cain",
   "once as big as mountains",
   "on the landscape of my face",
-  "rocks become pebbles",
+  "boulders turn to pebbles",
   "a million years to be erased"
 ];
