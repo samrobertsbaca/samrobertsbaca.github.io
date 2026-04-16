@@ -39,6 +39,9 @@ let introScale = 0;       // Starts at 0 (invisible)
 let introFinished = false;
 let introSpin = 0.2;      // Extra initial spin speed
 
+let HEART_RADIUS = 50*globScale; // We will update this in updateScale
+const HEART_LINK = "http://scorsby.us/blog/2026-01-01_new_years_resolution.html"; // Replace with your URL
+
 function preload() {
   heartImg = loadImage("/p5js/24cell/favicon_gold2.png"); // make sure heart.png is in your project folder
   rainbowImg = loadImage("/p5js/24cell/rainbow.png");
@@ -63,6 +66,7 @@ function updateScale() {
   // Recalculate the radius for touch/click detection
   // This ensures the "hit area" matches the visual size
   CELL_RADIUS = 120 * globScale;
+  HEART_RADIUS = 35 * globScale;
 }
 
 function setup() {
@@ -393,7 +397,7 @@ function drawRainbowGradient(radius = 500, steps = 135, iScale = 1) {
   push();
   resetMatrix();
   translate(0, 0, zOffset);
-  scale(iScale); // Apply intro scale here!
+  scale(iScale*4); // Apply intro scale here!
   noStroke();
   colorMode(HSB, 360, 100, 100, 100);
 
@@ -430,6 +434,12 @@ function getInputY() {
 //}
 
 function mousePressed() {
+
+  if (distance < HEART_RADIUS) {
+    window.location.href = HEART_LINK;
+    return; // Stop here so we don't trigger dragging
+  }
+
   if (pointerDistFromCenter() < CELL_RADIUS) {
     dragMode = 'cell';
     startDrag();
