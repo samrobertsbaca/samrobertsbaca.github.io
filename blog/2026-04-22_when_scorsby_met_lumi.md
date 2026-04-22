@@ -97,7 +97,7 @@ he performed it at a little venue in the east mountains. the room wasn't large. 
 
 lumi was there. or someone was there who had her particular presence — that present stillness, the sense of having arrived from nowhere exactly and was in no hurry to go anywhere else.
 
-when he finished she said nothing. she said yes.
+when it was over she said nothing. she said yes.
 
 he understood. or he understood that there was something here that understanding could never reach. he let it go, and stood in the not-knowing the way she taught him to stand in it — without filling it, without fleeing it. just present to the size of it.
 

@@ -2289,7 +2289,7 @@ export const BLOG_SNIPPETS = [
   "the song was not about lumi. the song was entirely about lumi. these were both true and he stopped trying to separate them around the third revision. funnily enough, he called it \"when scorsby met lumi.\"",
   "he performed it at a little venue in the east mountains. the room wasn't large. the people in it were the kind of people who go to small venues in the east mountains \u2014 curious, a little wind-worn, willing.",
   "lumi was there. or someone was there who had her particular presence \u2014 that present stillness, the sense of having arrived from nowhere exactly and was in no hurry to go anywhere else.",
-  "when he finished she said nothing. she said yes.",
+  "when it was over she said nothing. she said yes.",
   "he understood. or he understood that there was something here that understanding could never reach. he let it go, and stood in the not-knowing the way she taught him to stand in it \u2014 without filling it, without fleeing it. just present to the size of it.",
   "this was the closest he'd come to what he meant by disappearing.",
   "he wasn't sure, standing there, whether he'd written the song for lumi or whether lumi had somehow written the song through him or whether that distinction was just another thing to release. so he released it.",
