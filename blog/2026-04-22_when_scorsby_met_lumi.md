@@ -9,7 +9,7 @@ Apr 22
 
 she was already there when he arrived. that was the first thing — the sense that she'd been there longer than the afternoon, longer perhaps than the feed store itself, waiting with no impatience because waiting implied the possibility of something better elsewhere and she didn't seem to believe in elsewhere.
 
-he said something about the crow. the april wind moved between them briefly, carrying something that smelled like rain that hadn't arrived yet. she turned toward him.
+he said something about the crow. the april wind moved between them briefly, carrying something that smelled like rain that hadn't yet arrived. she turned toward him.
 
 she looked at him the way you look at something when you aren't deciding anything about it — not filing it away, not measuring it against what you already know. just receiving it. he felt, obscurely, like a window being looked through rather than at.
 
@@ -103,7 +103,7 @@ he understood. or he understood that there was something here that understanding
 
 he wasn't sure, standing there, whether he'd written the song for lumi or whether lumi had somehow written the song through him or whether that distinction was just another thing to release. so he released it.
 
-the room was alive and breathing. it was the closest he'd come to disappearing.
+the room was alive and breathing. he disappeared once again.
 
 [![Magnet](/images/lumi_4.png)](https://www.youtube.com/watch?v=r7iLFuapeY8&pp=ygUTYW5kYWx1Y2lhIGpvaG4gY2FsZQ%3D%3D)
 
