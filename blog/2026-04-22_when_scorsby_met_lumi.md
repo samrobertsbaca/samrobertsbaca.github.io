@@ -101,11 +101,9 @@ when it was over she said nothing. she said yes.
 
 he understood. or he understood that there was something here that understanding could never reach. he let it go, and stood in the not-knowing the way she taught him to stand in it — without filling it, without fleeing it. just present to the size of it.
 
-this was the closest he'd come to what he meant by disappearing.
-
 he wasn't sure, standing there, whether he'd written the song for lumi or whether lumi had somehow written the song through him or whether that distinction was just another thing to release. so he released it.
 
-the room was alive and breathing.
+the room was alive and breathing. it was the closest he'd come to disappearing.
 
 [![Magnet](/images/lumi_4.png)](https://www.youtube.com/watch?v=r7iLFuapeY8&pp=ygUTYW5kYWx1Y2lhIGpvaG4gY2FsZQ%3D%3D)
 
