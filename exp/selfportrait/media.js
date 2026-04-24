@@ -2303,5 +2303,5 @@ export const BLOG_SNIPPETS = [
   "the light was the same light it had always been, dreaming itself as afternoon, as april, as two people slowing near each other at a bend in the river of things, one step at a time.",
   "whether they were real is the wrong question.",
   "they were here.",
-  "for love's purposes, here always has the last word."
+  "for love's purposes, here was always the last word."
 ];
