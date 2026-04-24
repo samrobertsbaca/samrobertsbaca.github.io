@@ -127,4 +127,4 @@ whether they were real is the wrong question.
 
 they were here.
 
-for love's purposes, here was always the last word.
+for love's purposes, here always has the last word.
