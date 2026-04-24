@@ -45,6 +45,7 @@ export const IMAGE_URLS = [
   "/images/izotope_freq_spec.png",
   "/images/kimchi.png",
   "/images/lemonpig.jpg",
+  "/images/lemonpig.png",
   "/images/lumi_1.png",
   "/images/lumi_2.png",
   "/images/lumi_3.png",
