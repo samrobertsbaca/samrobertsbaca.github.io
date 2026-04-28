@@ -16,6 +16,8 @@ the resonance with plato is not accidental. the cave is not merely a philosophic
 
 initiatory hierarchical systems — secret societies, esoteric brotherhoods, and their contemporary equivalents — have long operated on precisely this logic. they offer spectacle: elaborate ritual, graduated mystery, the intoxicating sense of belonging to something others cannot see. they promise that truth is available, but only through the institution, only at the appropriate level, only to those who have demonstrated sufficient loyalty. the secrecy is not incidental to the project. it is the project. manufactured scarcity of knowledge produces dependence, and dependence produces power.
 
+genuine spiritual depth tends not to require your secrecy or your loyalty as preconditions. it tends not to advance you through degrees contingent on institutional membership. the question worth asking of any path is simply: does this return me to myself, or does it make me more dependent on the system that offers it?
+
 what the circus and the cave share is this: the governing figure is not simply evil. caine is earnest. he wants the inhabitants to be happy. the cave's puppeteers may have long forgotten any malicious origin. these institutions perpetuate themselves not through conscious cruelty but through structural momentum — the fire keeps burning because no one has imagined turning it off. many members are themselves sincere, genuinely seeking, genuinely kind. this does not change the structure they are embedded in or the function that structure serves. ultimately it is yet another container to let go of in favor of self-realization.
 
 ### the demiurge and the digital world
