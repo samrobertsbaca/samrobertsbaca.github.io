@@ -2373,6 +2373,8 @@ export const BLOG_SNIPPETS = [
   "for those who see",
   "there is a temptation, for those who have glimpsed something of this, to become another kind of gatekeeper \u2014 to build a new hierarchy of the awakened, to perform insight as its own form of superiority, to offer liberation as a product with the author's name attached. scorsby the trickster knows this trap well. the one who exposes the circus can become its new administrator if they are not careful. the essay that says \"you don't need institutions to access truth\" can itself become an institution if the reader is encouraged to return to it rather than to themselves.",
   "so i place the hot potato of responsibility back in your hands. not toward a new framework or a new set of symbols to decode or a new teacher to follow \u2014 but toward the plain, available, unglamorous fact of your own awareness, which was never lost and never required anyone's permission.",
-  "the krita yuga, if it comes, will not announce itself with revelation and drama. it will arrive quietly, in the countless small moments when a person stops looking for the keeper of the fire and discovers that the light belonged to all.",
-  "the cave has an opening. it always did. you need no one's permission to find the light."
+  "the krita yuga, if it comes, will not announce itself with revelation and drama. it will arrive quietly, in the countless small moments when a person stops looking for the keeper of the fire and discovers that the light belongs to all.",
+  "the cave has an opening. it always did. you need no one's permission to find the light.",
+  "i'm 3 today",
+  "tomorrow i will be 30 and a day"
 ];

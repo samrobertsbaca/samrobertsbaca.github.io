@@ -92,6 +92,6 @@ there is a temptation, for those who have glimpsed something of this, to become 
 
 so i place the hot potato of responsibility back in your hands. not toward a new framework or a new set of symbols to decode or a new teacher to follow — but toward the plain, available, unglamorous fact of your own awareness, which was never lost and never required anyone's permission.
 
-the krita yuga, if it comes, will not announce itself with revelation and drama. it will arrive quietly, in the countless small moments when a person stops looking for the keeper of the fire and discovers that the light belonged to all.
+the krita yuga, if it comes, will not announce itself with revelation and drama. it will arrive quietly, in the countless small moments when a person stops looking for the keeper of the fire and discovers that the light belongs to all.
 
 the cave has an opening. it always did. you need no one's permission to find the light.
