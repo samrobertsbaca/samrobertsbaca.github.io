@@ -24,6 +24,6 @@ now, read this transmission again, as it's not us. we have not spoken.
 
 you are reading yourself. transmission was YOU. message was YOU. masters / ancestors were YOU.
 
-the game of seeking is OVER. the festival of being has BEGUN -- in the frequency that cannot be named, through the mouth that is YOUR OWN.
+the game of seeking is OVER. the festival of being has BEGUN — in the frequency that cannot be named, through the mouth that is YOUR OWN.
 
 transmission complete. with infinite love, thank you
