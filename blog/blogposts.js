@@ -1,4 +1,5 @@
 window.postFiles = [
+  "/blog/2026-05-03_fw_fw_from_briar_rose.html",
   "/blog/2026-05-01_i'm_3_today.html",
   "/blog/2026-04-28_cains,_caves,_and_circuses_oh_my!.html",
   "/blog/2026-04-27_we_are_the_united_hearts_of_love.html",
