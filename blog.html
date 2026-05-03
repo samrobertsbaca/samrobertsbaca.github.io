@@ -47,6 +47,8 @@
 
       <!--<div class="twitter-text"><h3>words</h3></div>-->
 
+      <a href="#" id="improbability-drive">infinite improbability drive</a></br></br>
+
       <div id="blog-index">
         <!-- List of posts will go here -->
       </div>
@@ -65,8 +67,26 @@
   function toggleMenu() {
     const nav = document.getElementById('nav-links');
     nav.classList.toggle('show');
-
   }
+
+  document.getElementById('improbability-drive').addEventListener('click', function(e) {
+    e.preventDefault();
+
+    // Get the container
+    const blogIndex = document.getElementById('blog-index');
+
+    // Find all links that live inside the blog-index div
+    const links = blogIndex.querySelectorAll('a');
+
+    if (links.length > 0) {
+        // Select a random link from the list
+        const randomLink = links[Math.floor(Math.random() * links.length)];
+
+        // Navigate to that URL
+        window.location.href = randomLink.href;
+    }
+  });
+
 </script>
 
 
