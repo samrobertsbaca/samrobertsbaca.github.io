@@ -10,7 +10,7 @@ inside there is something enormous and unresolved. you catch it only at the edge
 
 on the other side of the glass, something approaches.
 
-it is you. somewhat chunkier. grounded. mildly, specifically, domestically annoyed. it looks at you the way a person looks when they have said a thing many times already and did not expect to have to say it again, and it says:
+it is you. somewhat chunkier. grounded. mildly, specifically, domestically annoyed. it's wearing articulated elbow braces. it looks at you the way a person looks when they have said a thing many times already and did not expect to have to say it again, and it says:
 
 hey. don't smudge the glass. i don't want fingerprints on it.
 
