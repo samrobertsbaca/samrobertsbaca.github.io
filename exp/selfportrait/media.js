@@ -62,8 +62,6 @@ export const IMAGE_URLS = [
   "/images/nakedsby.png",
   "/images/newyear2026.png",
   "/images/otherside0.png",
-  "/images/otherside1.png",
-  "/images/otherside1_v2.png",
   "/images/otherside2.png",
   "/images/otherside3.png",
   "/images/otherside4.png",
@@ -2410,5 +2408,5 @@ export const BLOG_SNIPPETS = [
   "you turn and look up at the window \u2014 through all of it, through every warm smudged layer \u2014 your eyes go wide and clear and still.",
   "there is nothing here.",
   "just the neighborhood, going on and on. bright and impossible and full of pipes that lead nowhere and everywhere, rooftops answering to nothing, light coming from no particular source, the whole strange open streets asking nothing, keeping nothing, not waiting to be found.",
-  "on the other side, you catch yourself reading again."
+  "on the other side, you catch yourself reading."
 ];
