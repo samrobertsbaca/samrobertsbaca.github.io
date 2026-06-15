@@ -2386,5 +2386,5 @@ export const BLOG_SNIPPETS = [
   "first contact",
   "hi, thanks for stopping by, sory to say i movet for the space was a bit cramped, but i will forever miss these colors. i bet by now you\u2019re wondering what type of creature cold possibly even fit in this space? well I am a glongingston\u2026 probably never heard of me.. well.. thats to bad. I used to talk to somany humans, but times have changet and i have become invisible to man\u2026\u2026. I hope to someday meet you",
   "\u2013 Scorsby",
-  "(from note inside hand-made drawer, written by six year old girl, folk art center, asheville, nc)"
+  "(from note inside hand-made drawer written by six year old girl, folk art center, asheville, nc)"
 ];

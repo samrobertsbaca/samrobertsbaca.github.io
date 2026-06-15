@@ -8,4 +8,4 @@ hi, thanks for stopping by, sory to say i movet for the space was a bit cramped,
 
 – Scorsby
 
-*(from note inside hand-made drawer, written by six year old girl, folk art center, asheville, nc)*
+*(from note inside hand-made drawer written by six year old girl, folk art center, asheville, nc)*
