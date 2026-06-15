@@ -84,6 +84,7 @@ export const IMAGE_URLS = [
   "/images/raw_sax.png",
   "/images/rejected.png",
   "/images/samueljohnscorsby.png",
+  "/images/sc_face.png",
   "/images/sc_logo_trans.png",
   "/images/scorb_oscillate.png",
   "/images/scorb_oscillate2.png",
@@ -2431,5 +2432,10 @@ export const BLOG_SNIPPETS = [
   "every body finds it in no time,",
   "every body's every body else.",
   "every body dreams of itself,",
-  "every body dreams no one else."
+  "every body dreams no one else.",
+  "June 15",
+  "first contact",
+  "hi, thanks for stopping by, sory to say i movet for the space was a bit cramped, but i will forever miss these colors. i bet by now you\u2019re wondering what type of creature cold possibly even fit in this space? well I am a glongingston\u2026 probably never heard of me.. well.. thats to bad. I used to talk to somany humans, but times have changet and i have become invisible to man\u2026\u2026. I hope to someday meet you",
+  "\u2013 Scorsby",
+  "(six years old, from note inside hand-made drawer, folk art center, asheville, nc)"
 ];
