@@ -54,7 +54,6 @@ window.postFiles = [
   "/blog/2025-10-16_what_cannot_be_taken.html",
   "/blog/2025-10-14_the_end_of_the_word_as_we_know_it.html",
   "/blog/2025-10-05_note_to_self.html",
-  "/blog/2025-10-04_the_myth_of_separation.html",
   "/blog/2025-10-02_naked_and_in_love.html",
   "/blog/2025-09-29_may_we_all_die_in_peace.html",
   "/blog/2025-09-28_awaken_one.html",
