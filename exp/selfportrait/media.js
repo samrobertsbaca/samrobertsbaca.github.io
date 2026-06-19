@@ -2405,5 +2405,15 @@ export const BLOG_SNIPPETS = [
   "and my way is love",
   "and the truth is you",
   "your name is lucifer",
-  "you light my world up too"
+  "you light my world up too",
+  "June 19",
+  "don't think i know a thing",
+  "only you, only you",
+  "only you, only you",
+  "only you, only you",
+  "only you, only you",
+  "only you, only you",
+  "only you, only you",
+  "only you, only you",
+  "only you, only you"
 ];
