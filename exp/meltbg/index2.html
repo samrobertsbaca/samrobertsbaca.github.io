@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Liquid Marble Pink-Blue - Dithered</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+  <style>
+    body { margin: 0; padding: 0; overflow: hidden; background: #000; }
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+<script>
+let t = 0;
+
+// === TUNABLES ===
+const SCALE      = 0.004;  // Zoom level
+const WARP       = 4.0;    // Strength of the "swirl"
+const OCT        = 1;      // Detail level (keep low for performance)
+const SPEED      = 0.005;  // Turned up from 0 so you can see it move!
+const STEP       = 2;      // Pixel size (slightly increased for chunkier retro look)
+
+// 4x4 Bayer Ordered Dithering Matrix
+const BAYER_4X4 = [
+  [0.0,  0.5,  0.125, 0.625],
+  [0.75, 0.25, 0.875, 0.375],
+  [0.1875, 0.6875, 0.0625, 0.5625],
+  [0.9375, 0.4375, 0.8125, 0.3125]
+];
+
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+  pixelDensity(1);
+  noStroke();
+}
+
+function draw() {
+  // Using background to prevent ghost trails
+  background(0);
+
+  // We map pixels based on grid STEP positions
+  for (let y = 0; y < height; y += STEP) {
+    for (let x = 0; x < width; x += STEP) {
+      const nx = (x - width * 0.5) * SCALE;
+      const ny = (y - height * 0.5) * SCALE;
+
+      // Calculate the fluid value (0.0 to 1.0)
+      let val = fluidWarp(nx, ny, t);
+
+      // Smooth contrast mapping
+      val = 0.5 + 0.5 * Math.tanh((val - 0.5) * 4.0);
+
+      // --- DITHERING MAGIC ---
+      // Get matrix index based on actual chunk coordinates
+      let mx = Math.floor(x / STEP) % 4;
+      let my = Math.floor(y / STEP) % 4;
+      let threshold = BAYER_4X4[my][mx];
+
+      // Quantize the fluid value using the threshold matrix
+      // This injects the cross-hatching pattern into midtones
+      let ditherVal = val > threshold ? Math.ceil(val) : Math.floor(val);
+
+      // Fine-tune the blend with a mix of smooth and hard stepped values
+      let finalVal = lerp(val, ditherVal, 0.75);
+
+      // Pink: (255, 113, 213) | Blue: (57, 192, 255)
+      let r = lerp(255, 57, finalVal);
+      let g = lerp(113, 192, finalVal);
+      let b = lerp(213, 255, finalVal);
+
+      fill(r, g, b);
+      rect(x, y, STEP, STEP);
+    }
+  }
+  t += SPEED;
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+}
+
+// --- FLUID MATH ---
+
+function fbm(x, y, z) {
+  let amp = 0.5, freq = 1.0, sum = 0, norm = 0;
+  for (let i = 0; i < OCT; i++) {
+    sum += amp * noise(x * freq, y * freq, z);
+    norm += amp;
+    amp *= 0.5;
+    freq *= 2.0;
+  }
+  return sum / norm;
+}
+
+function fluidWarp(x, y, time) {
+  // Layer 1: Base movement
+  const qx = fbm(x + time * 0.2, y, time * 0.1);
+  const qy = fbm(x, y + time * 0.3, time * 0.1);
+
+  // Layer 2: The "Warp"
+  const rx = fbm(x + WARP * qx + time * 0.1, y + WARP * qy + 1.5, time * 0.2);
+  const ry = fbm(x + WARP * qy + 2.5, y + WARP * qx + time * 0.1, time * 0.2);
+
+  // Layer 3: Final output
+  return fbm(x + WARP * rx, y + WARP * ry, time * 0.1);
+}
+</script>
+</body>
+</html>

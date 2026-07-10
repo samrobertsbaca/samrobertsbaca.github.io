@@ -3,11 +3,11 @@
 compress_images.py
 
 Compresses all PNG images in a directory to a max file size of 10MB,
-saving results to a 'compressed' subdirectory with '_compressed' appended to filenames.
+saving results to a 'compressed_<max_size>MB' subdirectory with '_compressed' appended to filenames.
 
 PNG compression strategy (in order):
   1. Lossless PNG optimization (max zlib compression + filter tuning)
-  2. Palette quantization (reduce to 256 colours, preserving transparency)
+  2. Palette quantization with forced Floyd-Steinberg Dithering (fixes gradient banding)
   3. Resolution downscaling (10% steps) until under the size limit
 
 Usage:
@@ -62,17 +62,34 @@ def compress_png(input_path: Path, output_path: Path, max_size_mb: float = 10.0)
               f"({len(data)/(1024*1024):.2f} MB)")
         return
 
-    # --- Step 2: Palette quantisation (lossy, keeps transparency) ---
+    # --- Step 2: Palette quantisation + Forced Dithering (fixes gradient banding) ---
     colours = 256
     while colours >= 16:
         if has_alpha:
-            quantized = img.quantize(colors=colours, method=Image.Quantize.FASTOCTREE)
+            rgba_img = img.convert("RGBA")
+            # Separate alpha channel so dithering doesn't bleed into empty spaces
+            alpha = rgba_img.getchannel('A')
+            rgb_img = rgba_img.convert("RGB")
+            
+            # 1. Generate an adaptive custom palette map
+            palette_map = rgb_img.quantize(colors=colours, method=Image.Quantize.MAXCOVERAGE)
+            # 2. Force true Floyd-Steinberg dithering map against that custom palette
+            quantized_rgb = rgb_img.convert("P", dither=Image.FLOYDSTEINBERG, palette=palette_map)
+            
+            # Reattach alpha mask back into RGBA space
+            quantized = quantized_rgb.convert("RGBA")
+            quantized.putalpha(alpha)
         else:
-            quantized = img.convert("RGB").quantize(colors=colours)
+            rgb_img = img.convert("RGB")
+            # 1. Generate an adaptive custom palette map
+            palette_map = rgb_img.quantize(colors=colours, method=Image.Quantize.MAXCOVERAGE)
+            # 2. Force true Floyd-Steinberg dithering map against that custom palette
+            quantized = rgb_img.convert("P", dither=Image.FLOYDSTEINBERG, palette=palette_map)
+            
         data = try_save(quantized, base_kwargs)
         if len(data) <= max_bytes:
             output_path.write_bytes(data)
-            print(f"  ✓ Palette quantisation to {colours} colours "
+            print(f"  ✓ Dithered palette quantisation to {colours} colours "
                   f"({len(data)/(1024*1024):.2f} MB)")
             return
         colours //= 2
@@ -108,7 +125,10 @@ def process_directory(input_dir: str, max_size_mb: float = 10.0):
         print(f"❌ Not a directory: {input_path}")
         sys.exit(1)
 
-    output_dir = input_path / "compressed"
+    # Format the size cleanly (e.g., '10MB' instead of '10.0MB' if it's a whole number)
+    size_suffix = f"{int(max_size_mb)}" if max_size_mb.is_integer() else f"{max_size_mb}"
+    output_dir = input_path / f"compressed_{size_suffix}MB"
+    
     output_dir.mkdir(exist_ok=True)
     print(f"📁 Input  : {input_path}")
     print(f"📁 Output : {output_dir}")
