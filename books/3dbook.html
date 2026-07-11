@@ -32,7 +32,7 @@
 
   #stage-inner{
     position:relative; display:flex; align-items:center; justify-content:center;
-    width: 100%; height: 100%; transition:transform 0.25s ease;
+    width: 100%; height: 100%; transition:transform 0.25s ease, opacity 1s ease;
     transform-style: preserve-3d;
   }
   body.force-landscape #stage-inner{ transform:rotate(90deg); }
@@ -46,14 +46,14 @@
     box-shadow: 0 30px 70px rgba(0,0,0,0);
     border-radius:6px;
     background: var(--bg-color);
-    transition: background-color 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    transition: background-color 0.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 1s ease, transform 1s ease;
 
-    /* Cinematic Void Initialization: Pushed back much further with an elegant, slower spin */
+    /* Cinematic Void Initialization */
     transform: translateZ(-90000px) rotateX(-120deg) rotateY(180deg) rotateZ(-60deg);
     opacity: 0;
   }
 
-  /* Slow cinematic float-in choreography with an introductory 1.5s delay */
+  /* Slow cinematic float-in choreography */
   #book.float-in {
     transition: transform 7.5s cubic-bezier(0.1, 0.65, 0.1, 1.0) 1.5s,
                 opacity 6.0s cubic-bezier(0.2, 0, 0.2, 1) 1.5s,
@@ -92,7 +92,7 @@
     left: 0;
     transform-origin: right center;
     transition: transform 1.8s cubic-bezier(0.33, 1, 0.68, 1);
-    //box-shadow: -10px 0 30px rgba(0,0,0,0.4);
+    box-shadow: -10px 0 30px rgba(0,0,0,0.4);
     border-radius: 6px 0 0 6px;
   }
 
@@ -103,7 +103,7 @@
   .cover-half.right {
     right: 0;
     border-radius: 0 6px 6px 0;
-    //box-shadow: 10px 0 30px rgba(0,0,0,0.4);
+    box-shadow: 10px 0 30px rgba(0,0,0,0.4);
   }
 
   .cover-bg {
@@ -120,7 +120,6 @@
     background: linear-gradient(90deg, rgba(0,0,0,0.35) 0%, rgba(255,255,255,0.06) 50%, rgba(0,0,0,0.35) 100%);
     z-index: 55;
     transition: opacity 0.8s ease;
-    opacity:0;
   }
   #book.open-cover .cover-spine { opacity: 0; }
 
@@ -262,6 +261,14 @@
       align-items: flex-end;
     }
   }
+
+  /* --- TRANSITION STATE CLASSES --- */
+  /* If your custom script mode needs to hide the book, you can add these classes using JS */
+  .hide-book-element {
+    opacity: 0 !important;
+    transform: scale(0.8) translateZ(-500px) !important;
+    pointer-events: none !important;
+  }
 </style>
 </head>
 <body>
@@ -318,6 +325,19 @@ const startHex = "0b0947";
 const endHex = "470929";
 
 let introCompleted = false;
+
+/* ==========================================
+   LIFECYCLE HOOK: TRANSITION TO YOUR MODE
+   ========================================== */
+function transitionToCustomMode() {
+  console.log("Book opening complete! Transitioning to custom mode...");
+
+  // Example 1: If you want to fade out the book seamlessly to show your custom mode layer:
+  // bookEl.classList.add('hide-book-element');
+
+  // >>> PASTE OR TRIGGER THE SCRIPTS FOR YOUR CUSTOM MODE HERE <<<
+}
+
 
 function hexToRgb(hex) {
   const cleanHex = hex.replace('#', '');
@@ -613,13 +633,13 @@ function trigger3DSequence() {
     setBg(leafRightBg, cUrl);
     updateDynamicBackground(0);
 
-    // Phase 1: Begin deep space journey toward frame perspective (Includes the 1.5s delay handled by CSS)
+    // Phase 1: Begin deep space journey toward frame perspective
     setTimeout(() => {
       bookEl.removeAttribute('style');
       bookEl.classList.add('float-in');
     }, 100);
 
-    // Phase 2: Delayed open command triggers only when book finishes arrival glide (7.5s animation + 1.5s delay)
+    // Phase 2: Delayed open command triggers only when book finishes arrival glide
     setTimeout(() => {
       bookEl.classList.add('open-cover');
     }, 9100);
@@ -634,6 +654,9 @@ function trigger3DSequence() {
       setIdle(idx);
       updateCounterDisplay(idx);
       introCompleted = true;
+
+      // EXECUTING YOUR MODE TRANSITION HERE
+      transitionToCustomMode();
     }, 10900);
   });
 }
