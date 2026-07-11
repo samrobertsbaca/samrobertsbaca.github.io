@@ -487,14 +487,14 @@ function processImages(items, isFileList = false) {
     }
 
     b.items.forEach(item => {
-      pages.push(isFileList ? URL.createObjectURL(item) : `./bluerose/${item}`);
+      pages.push(isFileList ? URL.createObjectURL(item) : `bluerose/${item}`);
     });
     accumulatedPages += b.items.length;
   }
 
   if (lastSeq && lastSeq !== firstSeq && lastSeq !== midSeq) {
     lastSeq.items.forEach(item => {
-      pages.push(isFileList ? URL.createObjectURL(item) : `./bluerose/${item}`);
+      pages.push(isFileList ? URL.createObjectURL(item) : `bluerose/${item}`);
     });
   }
 
