@@ -289,7 +289,6 @@ function hexToRgb(hex) {
 const startColor = hexToRgb(startHex);
 const endColor = hexToRgb(endHex);
 
-// Optimized Optimization #1: Programmatic SVG compilation cuts heavy parser payload
 function placeholder(label, bg, fg){
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="656" viewBox="0 0 800 656"><rect width="100%" height="100%" fill="${encodeURIComponent(bg)}"/><text x="50%" y="50%" font-family="Georgia,serif" font-size="32" fill="${encodeURIComponent(fg)}" text-anchor="middle" dominant-baseline="middle">${label}</text></svg>`;
   return 'data:image/svg+xml;charset=utf-8,' + svg;
@@ -319,18 +318,20 @@ let hasMovedPastThreshold = false;
 let leafLeftBg, leafRightBg, flap, flapFrontBg, flapBackBg, counter, bookEl;
 let coverLeftBg, coverRightBg, coverWrapper;
 
+// Cache map contains already verified URLs
 const memoryCache = new Map();
-// Optimized Optimization #3: Reusable Image Pool blocks excessive garbage collection runs
-const workingImagePool = new Image();
 
+// FIX #1: Replaced monolithic single image worker with per-call async decoding instances
 function fetchLoadedImage(url, callback) {
   if (memoryCache.has(url)) {
     callback(url);
     return;
   }
-  workingImagePool.onload = async () => {
+
+  const imgWorker = new Image();
+  imgWorker.onload = async () => {
     try {
-      await workingImagePool.decode();
+      await imgWorker.decode();
       memoryCache.set(url, url);
       callback(url);
     } catch (e) {
@@ -338,7 +339,11 @@ function fetchLoadedImage(url, callback) {
       callback(url);
     }
   };
-  workingImagePool.src = url;
+  imgWorker.onerror = () => {
+    memoryCache.set(url, url);
+    callback(url);
+  };
+  imgWorker.src = url;
 }
 
 function lerp(start, end, amt) {
@@ -358,7 +363,7 @@ function updateDynamicBackground(pageIndex) {
 }
 
 function lazyLoadSurrounding(currentIdx) {
-  const lookahead = [currentIdx - 1, currentIdx + 1, currentIdx + 2];
+  const lookahead = [currentIdx - 1, currentIdx + 1, currentIdx + 2, currentIdx + 3];
   lookahead.forEach(i => {
     if (i >= 0 && i < pages.length) {
       const url = pages[i];
@@ -539,7 +544,6 @@ function trigger3DSequence() {
   bookEl.style.transition = 'none';
   bookEl.classList.remove('float-in', 'open-cover');
 
-  // Optimized Optimization #2: Replaced force-layout getBoundingClientRect call with requestAnimationFrame
   requestAnimationFrame(() => {
     updateCounterDisplay(0);
     const coverUrl = pages[0];
@@ -586,6 +590,9 @@ function turn(direction){
 
   fetchLoadedImage(pages[idx], (cUrl) => {
     fetchLoadedImage(pages[target], (nUrl) => {
+      // FIX #3: Contextual injection of will-change directly onto active transformations
+      flap.style.willChange = 'transform';
+
       if(direction > 0){
         flap.className = 'active anchor-right';
         setBg(flapFrontBg, cUrl); setBg(flapBackBg, nUrl); setBg(leafRightBg, nUrl);
@@ -594,7 +601,6 @@ function turn(direction){
         setBg(flapFrontBg, cUrl); setBg(flapBackBg, nUrl); setBg(leafLeftBg, nUrl);
       }
 
-      // Optimized Optimization #2: Safely executing state finish assignments outside forced layout cycles
       requestAnimationFrame(() => {
         flap.classList.add(Math.abs(direction) > 1 ? 'turbo-finish' : 'smooth-finish');
         flap.style.transform = `rotateY(${direction > 0 ? -180 : 180}deg)`;
@@ -602,7 +608,7 @@ function turn(direction){
         midTurnTimeout = setTimeout(() => { updateDynamicBackground(target); }, Math.abs(direction) > 1 ? 70 : 220);
         finishTimeout = setTimeout(() => {
           idx = target; setIdle(idx);
-          flap.className = ''; flap.style.transform = '';
+          flap.className = ''; flap.style.transform = ''; flap.style.willChange = 'auto';
           isAnimating = false;
         }, Math.abs(direction) > 1 ? 140 : 440);
       });
@@ -693,24 +699,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
           fetchLoadedImage(pages[idx], (cUrl) => {
             fetchLoadedImage(pages[currentTargetIdx], (nUrl) => {
-              flap.className = 'active';
-              flap.style.transform = '';
-
-              if (direction === 1) {
-                flap.classList.add('anchor-right', 'turbo-finish');
-                setBg(flapFrontBg, cUrl); setBg(flapBackBg, nUrl); setBg(leafRightBg, nUrl);
-                requestAnimationFrame(() => { flap.style.transform = 'rotateY(-180deg)'; });
-              } else {
-                flap.classList.add('anchor-left', 'turbo-finish');
-                setBg(flapFrontBg, cUrl); setBg(flapBackBg, nUrl); setBg(leafLeftBg, nUrl);
-                requestAnimationFrame(() => { flap.style.transform = 'rotateY(180deg)'; });
-              }
-
-              updateDynamicBackground(currentTargetIdx);
-              idx = currentTargetIdx;
+              // FIX #2: Debouncing continuous style alterations inside requestAnimationFrame contexts
               requestAnimationFrame(() => {
-                if (!isDragging || dragMode !== "fast") return;
-                setIdle(idx);
+                flap.style.willChange = 'transform';
+                flap.className = 'active';
+                flap.style.transform = '';
+
+                if (direction === 1) {
+                  flap.classList.add('anchor-right', 'turbo-finish');
+                  setBg(flapFrontBg, cUrl); setBg(flapBackBg, nUrl); setBg(leafRightBg, nUrl);
+                  requestAnimationFrame(() => { flap.style.transform = 'rotateY(-180deg)'; });
+                } else {
+                  flap.classList.add('anchor-left', 'turbo-finish');
+                  setBg(flapFrontBg, cUrl); setBg(flapBackBg, nUrl); setBg(leafLeftBg, nUrl);
+                  requestAnimationFrame(() => { flap.style.transform = 'rotateY(180deg)'; });
+                }
+
+                updateDynamicBackground(currentTargetIdx);
+                idx = currentTargetIdx;
+
+                requestAnimationFrame(() => {
+                  if (!isDragging || dragMode !== "fast") return;
+                  setIdle(idx);
+                });
               });
             });
           });
@@ -724,16 +735,22 @@ document.addEventListener('DOMContentLoaded', () => {
         currentDir = 1; currentTargetIdx = idx + 1;
         fetchLoadedImage(pages[idx], (cUrl) => {
           fetchLoadedImage(pages[currentTargetIdx], (nUrl) => {
-            flap.className = 'active anchor-right';
-            setBg(flapFrontBg, cUrl); setBg(flapBackBg, nUrl); setBg(leafRightBg, nUrl);
+            requestAnimationFrame(() => {
+              flap.style.willChange = 'transform';
+              flap.className = 'active anchor-right';
+              setBg(flapFrontBg, cUrl); setBg(flapBackBg, nUrl); setBg(leafRightBg, nUrl);
+            });
           });
         });
       } else if (deltaX > 10 && idx > 0) {
         currentDir = -1; currentTargetIdx = idx - 1;
         fetchLoadedImage(pages[idx], (cUrl) => {
           fetchLoadedImage(pages[currentTargetIdx], (nUrl) => {
-            flap.className = 'active anchor-left';
-            setBg(flapFrontBg, cUrl); setBg(flapBackBg, nUrl); setBg(leafLeftBg, nUrl);
+            requestAnimationFrame(() => {
+              flap.style.willChange = 'transform';
+              flap.className = 'active anchor-left';
+              setBg(flapFrontBg, cUrl); setBg(flapBackBg, nUrl); setBg(leafLeftBg, nUrl);
+            });
           });
         });
       }
@@ -741,8 +758,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (currentDir !== 0) {
       let progress = Math.max(0, Math.min(1, currentDir === -1 ? deltaX / (bookWidth / 2) : -deltaX / (bookWidth / 2)));
-      flap.style.transform = `rotateY(${currentDir === 1 ? -(progress * 180) : (progress * 180)}deg)`;
-      updateDynamicBackground(progress > 0.5 ? currentTargetIdx : idx);
+      requestAnimationFrame(() => {
+        flap.style.transform = `rotateY(${currentDir === 1 ? -(progress * 180) : (progress * 180)}deg)`;
+        updateDynamicBackground(progress > 0.5 ? currentTargetIdx : idx);
+      });
     }
   });
 
@@ -762,7 +781,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (dragMode === "fast") {
       isAnimating = true; flap.className = 'smooth-finish'; flap.style.transform = '';
       setIdle(idx);
-      setTimeout(() => { flap.className = ''; isAnimating = false; }, 150);
+      setTimeout(() => { flap.className = ''; flap.style.willChange = 'auto'; isAnimating = false; }, 150);
       return;
     }
 
@@ -777,7 +796,7 @@ document.addEventListener('DOMContentLoaded', () => {
       updateDynamicBackground(currentTargetIdx);
       finishTimeout = setTimeout(() => {
         idx = currentTargetIdx; setIdle(idx);
-        flap.className = ''; flap.style.transform = ''; isAnimating = false;
+        flap.className = ''; flap.style.transform = ''; flap.style.willChange = 'auto'; isAnimating = false;
       }, 400);
     } else {
       flap.style.transform = 'rotateY(0deg)';
@@ -785,7 +804,7 @@ document.addEventListener('DOMContentLoaded', () => {
       updateDynamicBackground(idx);
       finishTimeout = setTimeout(() => {
         setIdle(idx);
-        flap.className = ''; flap.style.transform = ''; isAnimating = false;
+        flap.className = ''; flap.style.transform = ''; flap.style.willChange = 'auto'; isAnimating = false;
       }, 400);
     }
   });
@@ -804,5 +823,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 </script>
+
 </body>
 </html>
