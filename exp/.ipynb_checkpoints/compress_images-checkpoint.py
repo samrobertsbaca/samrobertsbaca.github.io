@@ -2,7 +2,7 @@
 """
 compress_images.py
 
-Compresses all PNG images in a directory to a max file size of 10MB,
+Compresses a PNG image or all PNG images in a directory to a max file size of 10MB,
 saving results to a 'compressed_<max_size>MB' subdirectory with '_compressed' appended to filenames.
 
 PNG compression strategy (in order):
@@ -11,8 +11,8 @@ PNG compression strategy (in order):
   3. Resolution downscaling (10% steps) until under the size limit
 
 Usage:
-    python compress_images.py <input_directory>
-    python compress_images.py <input_directory> --max-size 5  # custom max size in MB
+    python compress_images.py <input_path>
+    python compress_images.py <input_path> --max-size 5  # custom max size in MB
 """
 
 import io
@@ -111,37 +111,46 @@ def compress_png(input_path: Path, output_path: Path, max_size_mb: float = 10.0)
     # Last resort — save the most-scaled version anyway
     output_path.write_bytes(data)
     final_mb = len(data) / (1024 * 1024)
-    warn = " ⚠️  Still over limit!" if final_mb > max_size_mb else ""
+    warn = "  ⚠️  Still over limit!" if final_mb > max_size_mb else ""
     print(f"  ✓ Saved at minimum scale ({final_mb:.2f} MB){warn}")
 
 
-def process_directory(input_dir: str, max_size_mb: float = 10.0):
-    input_path = Path(input_dir).resolve()
+def process_input(input_target: str, max_size_mb: float = 10.0):
+    input_path = Path(input_target).resolve()
 
     if not input_path.exists():
-        print(f"❌ Directory not found: {input_path}")
+        print(f"❌ Path not found: {input_path}")
         sys.exit(1)
-    if not input_path.is_dir():
-        print(f"❌ Not a directory: {input_path}")
+
+    # Determine if input is a single file or a directory
+    if input_path.is_file():
+        if input_path.suffix.lower() not in SUPPORTED_EXTENSIONS:
+            print(f"❌ Unsupported file format: {input_path.suffix}. Only PNGs are supported.")
+            sys.exit(1)
+        images = [input_path]
+        # Save output folder relative to the file's parent directory
+        base_dir = input_path.parent
+    elif input_path.is_dir():
+        images = [
+            f for f in input_path.iterdir()
+            if f.is_file() and f.suffix.lower() in SUPPORTED_EXTENSIONS
+        ]
+        base_dir = input_path
+    else:
+        print(f"❌ Invalid path type: {input_path}")
         sys.exit(1)
 
     # Format the size cleanly (e.g., '10MB' instead of '10.0MB' if it's a whole number)
     size_suffix = f"{int(max_size_mb)}" if max_size_mb.is_integer() else f"{max_size_mb}"
-    output_dir = input_path / f"compressed_{size_suffix}MB"
+    output_dir = base_dir / f"compressed_{size_suffix}MB"
     
     output_dir.mkdir(exist_ok=True)
-    print(f"📁 Input  : {input_path}")
-    print(f"📁 Output : {output_dir}")
+    print(f"📁 Input   : {input_path}")
+    print(f"📁 Output  : {output_dir}")
     print(f"📏 Max size: {max_size_mb} MB\n")
 
-    images = [
-        f for f in input_path.iterdir()
-        if f.is_file() and f.suffix.lower() in SUPPORTED_EXTENSIONS
-    ]
-
     if not images:
-        print("⚠️  No supported images found in the directory.")
-        print(f"   Supported formats: {', '.join(SUPPORTED_EXTENSIONS)}")
+        print("⚠️  No supported images found to process.")
         return
 
     print(f"Found {len(images)} image(s) to process.\n")
@@ -167,16 +176,16 @@ def process_directory(input_dir: str, max_size_mb: float = 10.0):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Compress images in a directory to a maximum file size."
+        description="Compress a single PNG image or an entire directory of PNG images to a maximum file size."
     )
-    parser.add_argument("input_dir", help="Path to directory containing images")
+    parser.add_argument("input_path", help="Path to a PNG file or a directory containing images")
     parser.add_argument(
         "--max-size", type=float, default=10.0,
         metavar="MB",
         help="Maximum file size in MB (default: 10)"
     )
     args = parser.parse_args()
-    process_directory(args.input_dir, args.max_size)
+    process_input(args.input_path, args.max_size)
 
 
 if __name__ == "__main__":
