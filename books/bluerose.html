@@ -9,18 +9,18 @@
     --bg-color: #0b0947;
   }
 
-  html,body{
-    margin:0; padding:0;
+  html, body {
+    margin: 0; padding: 0;
     height: 100dvh; width: 100dvw;
     background: var(--bg-color);
     transition: background-color 0.8s cubic-bezier(0.25, 1, 0.5, 1);
-    overflow:hidden;
+    overflow: hidden;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    -webkit-user-select:none; user-select:none;
-    touch-action:none;
+    -webkit-user-select: none; user-select: none;
+    touch-action: none;
   }
 
-  #stage-outer{
+  #stage-outer {
     position: relative;
     width: 100%; height: 100%;
     display: flex; flex-direction: column;
@@ -30,30 +30,27 @@
     perspective: 4000px;
   }
 
-  #stage-inner{
-    position:relative; display:flex; align-items:center; justify-content:center;
-    width: 100%; height: 100%; transition:transform 0.25s ease;
+  #stage-inner {
+    position: relative; display: flex; align-items: center; justify-content: center;
+    width: 100%; height: 100%; transition: transform 0.25s ease;
     transform-style: preserve-3d;
   }
-  body.force-landscape #stage-inner{ transform:rotate(90deg); }
+  body.force-landscape #stage-inner { transform: rotate(90deg); }
 
-  #book{
-    position:relative;
+  #book {
+    position: relative;
     width: min(94vw, calc(88dvh * (3265 / 2676)));
     height: min(88dvh, calc(94vw * (2676 / 3265)));
     aspect-ratio: 3265 / 2676;
     transform-style: preserve-3d;
     box-shadow: 0 30px 70px rgba(0,0,0,0);
-    border-radius:6px;
+    border-radius: 6px;
     background: var(--bg-color);
     transition: background-color 0.5s cubic-bezier(0.25, 1, 0.5, 1);
-
-    /* Cinematic Void Initialization: Pushed back much further with an elegant, slower spin */
     transform: translateZ(-90000px) rotateX(-120deg) rotateY(180deg) rotateZ(-60deg);
     opacity: 0;
   }
 
-  /* Slow cinematic float-in choreography with an introductory 1.5s delay */
   #book.float-in {
     transition: transform 7.5s cubic-bezier(0.1, 0.65, 0.1, 1.0) 1.5s,
                 opacity 6.0s cubic-bezier(0.2, 0, 0.2, 1) 1.5s,
@@ -68,47 +65,32 @@
     height: min(100dvw, calc(100dvh * (3265 / 2676)));
   }
 
-  /* 3D Intro Cover Layers */
   #book-cover-wrapper {
-    position: absolute;
-    inset: 0;
+    position: absolute; inset: 0;
     width: 100%; height: 100%;
     transform-style: preserve-3d;
     pointer-events: none;
     z-index: 50;
     display: block;
   }
-  #book-cover-wrapper.opened {
-    display: none;
-  }
+  #book-cover-wrapper.opened { display: none; }
 
-  #flap, .leaf, #book {
-  will-change: transform;
-}
+  /* Removed aggressive global will-change to optimize GPU layers memory context */
+  #flap.active { will-change: transform; }
 
   .cover-half {
-    position: absolute; top:0; bottom:0; width: 50%;
-    transform-style: preserve-3d;
-    overflow: hidden;
+    position: absolute; top: 0; bottom: 0; width: 50%;
+    transform-style: preserve-3d; overflow: hidden;
   }
 
   .cover-half.left {
-    left: 0;
-    transform-origin: right center;
+    left: 0; transform-origin: right center;
     transition: transform 1.8s cubic-bezier(0.33, 1, 0.68, 1);
-    //box-shadow: -10px 0 30px rgba(0,0,0,0.4);
     border-radius: 6px 0 0 6px;
   }
 
-  #book.open-cover .cover-half.left {
-    transform: rotateY(-180deg);
-  }
-
-  .cover-half.right {
-    right: 0;
-    border-radius: 0 6px 6px 0;
-    //box-shadow: 10px 0 30px rgba(0,0,0,0.4);
-  }
+  #book.open-cover .cover-half.left { transform: rotateY(-180deg); }
+  .cover-half.right { right: 0; border-radius: 0 6px 6px 0; }
 
   .cover-bg {
     position: absolute; top: 0; height: 100%; width: 200%;
@@ -118,83 +100,71 @@
   .cover-half.right .cover-bg { left: -100%; background-position: right center; }
 
   .cover-spine {
-    position: absolute;
-    left: 50%; top: 0; bottom: 0;
+    position: absolute; left: 50%; top: 0; bottom: 0;
     width: 18px; transform: translateX(-50%) translateZ(1px);
     background: linear-gradient(90deg, rgba(0,0,0,0.35) 0%, rgba(255,255,255,0.06) 50%, rgba(0,0,0,0.35) 100%);
-    z-index: 55;
-    transition: opacity 0.8s ease;
-    opacity:0;
+    z-index: 55; transition: opacity 0.8s ease; opacity: 0;
   }
   #book.open-cover .cover-spine { opacity: 0; }
 
-  /* Base dynamic flip pages mapping */
-  .leaf{
-    position:absolute; top:0; bottom:0; width:50%;
-    overflow:hidden; background: var(--bg-color);
+  .leaf {
+    position: absolute; top: 0; bottom: 0; width: 50%;
+    overflow: hidden; background: var(--bg-color);
     transition: background-color 0.5s cubic-bezier(0.25, 1, 0.5, 1);
   }
-  .leaf.left{ left:0; border-radius:4px 0 0 4px; }
-  .leaf.right{ right:0; border-radius:0 4px 4px 0; }
+  .leaf.left { left: 0; border-radius: 4px 0 0 4px; }
+  .leaf.right { right: 0; border-radius: 0 4px 4px 0; }
 
-  .leaf-bg{
-    position:absolute; top:0; height:100%; width:200%;
-    background-size: 100% 100%; background-repeat:no-repeat;
-    will-change: background-image;
+  .leaf-bg {
+    position: absolute; top: 0; height: 100%; width: 200%;
+    background-size: 100% 100%; background-repeat: no-repeat;
   }
-  .leaf.left .leaf-bg{ left:0; background-position:left center; }
-  .leaf.right .leaf-bg{ left:-100%; background-position:right center; }
+  .leaf.left .leaf-bg { left: 0; background-position: left center; }
+  .leaf.right .leaf-bg { left: -100%; background-position: right center; }
 
-  #flap{
-    position:absolute; top:0; width:50%; height:100%;
-    transform-style:preserve-3d;
-    pointer-events:none;
-    z-index:10;
-    display:none;
-    will-change: transform;
+  #flap {
+    position: absolute; top: 0; width: 50%; height: 100%;
+    transform-style: preserve-3d; pointer-events: none;
+    z-index: 10; display: none;
   }
-  #flap.active{ display:block; }
-  #flap.anchor-right{ right:0; transform-origin:left center; }
-  #flap.anchor-left{ left:0; transform-origin:right center; }
+  #flap.active { display: block; }
+  #flap.anchor-right { right: 0; transform-origin: left center; }
+  #flap.anchor-left { left: 0; transform-origin: right center; }
 
-  #flap .face{
-    position:absolute; inset:0;
-    backface-visibility:hidden;
-    -webkit-backface-visibility: hidden;
-    overflow:hidden;
-    background: var(--bg-color);
+  #flap .face {
+    position: absolute; inset: 0;
+    backface-visibility: hidden; -webkit-backface-visibility: hidden;
+    overflow: hidden; background: var(--bg-color);
     transition: background-color 0.5s cubic-bezier(0.25, 1, 0.5, 1);
   }
-  #flap .face-bg{
-    position:absolute; top:0; height:100%; width:200%;
-    background-size: 100% 100%; background-repeat:no-repeat;
+  #flap .face-bg {
+    position: absolute; top: 0; height: 100%; width: 200%;
+    background-size: 100% 100%; background-repeat: no-repeat;
   }
 
-  #flap.anchor-right .face.front .face-bg{ left:-100%; background-position:right center; }
-  #flap.anchor-left .face.front .face-bg{ left:0; background-position:left center; }
+  #flap.anchor-right .face.front .face-bg { left: -100%; background-position: right center; }
+  #flap.anchor-left .face.front .face-bg { left: 0; background-position: left center; }
+  #flap.anchor-right .face.back .face-bg { left: 0; background-position: left center; }
+  #flap.anchor-left .face.back .face-bg { left: -100%; background-position: right center; }
+  #flap .face.back { transform: rotateY(180deg); }
 
-  #flap.anchor-right .face.back .face-bg{ left:0; background-position:left center; }
-  #flap.anchor-left .face.back .face-bg{ left:-100%; background-position:right center; }
-  #flap .face.back{ transform:rotateY(180deg); }
+  #flap.smooth-finish { transition: transform 0.44s cubic-bezier(0.23, 1, 0.32, 1); }
+  #flap.turbo-finish { transition: transform 0.14s ease-out; }
 
-  #flap.smooth-finish{ transition:transform 0.44s cubic-bezier(0.23, 1, 0.32, 1); }
-  #flap.turbo-finish{ transition:transform 0.14s ease-out; }
-
-  .corner-curl{
-    position:absolute; bottom:0; width:38px; height:38px;
-    z-index:21; pointer-events:none;
-    transition:transform 0.25s ease, opacity 0.25s ease;
-    opacity:0.2;
+  .corner-curl {
+    position: absolute; bottom: 0; width: 38px; height: 38px;
+    z-index: 21; pointer-events: none;
+    transition: transform 0.25s ease, opacity 0.25s ease; opacity: 0.2;
   }
-  .corner-curl.right{
-    right:0; border-radius:0 0 4px 0;
-    background:linear-gradient(135deg, transparent 50%, rgba(0,0,0,0.18) 50%, rgba(0,0,0,0.08) 65%, transparent 66%);
-    clip-path:polygon(100% 100%, 0 100%, 100% 0);
+  .corner-curl.right {
+    right: 0; border-radius: 0 0 4px 0;
+    background: linear-gradient(135deg, transparent 50%, rgba(0,0,0,0.18) 50%, rgba(0,0,0,0.08) 65%, transparent 66%);
+    clip-path: polygon(100% 100%, 0 100%, 100% 0);
   }
-  .corner-curl.left{
-    left:0; border-radius:0 0 0 4px;
-    background:linear-gradient(225deg, transparent 50%, rgba(0,0,0,0.18) 50%, rgba(0,0,0,0.08) 65%, transparent 66%);
-    clip-path:polygon(0 100%, 100% 100%, 0 0);
+  .corner-curl.left {
+    left: 0; border-radius: 0 0 0 4px;
+    background: linear-gradient(225deg, transparent 50%, rgba(0,0,0,0.18) 50%, rgba(0,0,0,0.08) 65%, transparent 66%);
+    clip-path: polygon(0 100%, 100% 100%, 0 0);
   }
 
   #top-utilities {
@@ -204,14 +174,14 @@
   }
   #top-utilities.show-ui { opacity: 1; }
 
-  .btn{
-    border:none; background:rgba(255,255,255,0.08); color:#eee;
-    width:40px; height:40px; border-radius:50%;
-    display:flex; align-items:center; justify-content:center; font-size:16px; cursor:pointer;
+  .btn {
+    border: none; background: rgba(255,255,255,0.08); color: #eee;
+    width: 40px; height: 40px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer;
     transition: background 0.2s ease, opacity 0.2s ease;
   }
-  .btn:hover{ background:rgba(255,255,255,0.14); }
-  .btn:active{ background:rgba(255,255,255,0.22); }
+  .btn:hover { background: rgba(255,255,255,0.14); }
+  .btn:active { background: rgba(255,255,255,0.22); }
 
   body.force-landscape #top-utilities {
     top: auto; bottom: calc(16px + env(safe-area-inset-bottom)); right: calc(16px + env(safe-area-inset-right));
@@ -225,8 +195,7 @@
   }
 
   #meta-container {
-    position: absolute;
-    bottom: -32px; left: 0; right: 0;
+    position: absolute; bottom: -32px; left: 0; right: 0;
     display: flex; justify-content: space-between; align-items: center;
     pointer-events: none; z-index: 30;
     opacity: 0; transition: opacity 0.5s ease;
@@ -237,7 +206,6 @@
     color: rgba(255, 255, 255, 0.45); font-size: 12px;
     letter-spacing: 0.05em; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   }
-
   .side-nav-left { pointer-events: auto; }
   .page-nav-link { color: inherit; text-decoration: none; transition: color 0.2s ease; }
   .page-nav-link:hover { color: rgba(255, 255, 255, 0.85); }
@@ -248,15 +216,11 @@
       bottom: calc(12px + env(safe-area-inset-bottom));
       left: calc(16px + env(safe-area-inset-left));
       right: calc(16px + env(safe-area-inset-right));
-      top: auto; width: auto; height: auto;
-      transform: none;
+      top: auto; width: auto; height: auto; transform: none;
     }
-
     body.force-landscape #meta-container {
-      position: fixed;
-      inset: 0;
-      width: 100dvh;
-      height: 100dvw;
+      position: fixed; inset: 0;
+      width: 100dvh; height: 100dvw;
       top: 50%; left: 50%;
       transform: translate(-50%, -50%) rotate(90deg);
       box-sizing: border-box;
@@ -294,14 +258,11 @@
 
   <div id="stage-inner">
     <div id="book">
-      <!-- Cover Wrapper Frame Layer -->
       <div id="book-cover-wrapper">
         <div class="cover-half left"><div class="cover-bg" id="cover-left-bg"></div></div>
         <div class="cover-half right"><div class="cover-bg" id="cover-right-bg"></div></div>
         <div class="cover-spine"></div>
       </div>
-
-      <!-- Live Interactive Leafs Layer -->
       <div class="leaf left" id="leaf-left"><div class="leaf-bg" id="leaf-left-bg"></div></div>
       <div class="leaf right" id="leaf-right"><div class="leaf-bg" id="leaf-right-bg"></div></div>
       <div id="flap">
@@ -317,28 +278,21 @@
 <script>
 const shuffle = true;
 const maxPages = 99;
-
 const startHex = "0b0947";
 const endHex = "470929";
-
 let introCompleted = false;
 
 function hexToRgb(hex) {
-  const cleanHex = hex.replace('#', '');
-  const bigint = parseInt(cleanHex, 16);
+  const bigint = parseInt(hex.replace('#', ''), 16);
   return { r: (bigint >> 16) & 255, g: (bigint >> 8) & 255, b: bigint & 255 };
 }
-
 const startColor = hexToRgb(startHex);
 const endColor = hexToRgb(endHex);
 
+// Optimized Optimization #1: Programmatic SVG compilation cuts heavy parser payload
 function placeholder(label, bg, fg){
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="3265" height="2676">
-    <rect width="3265" height="2676" fill="${bg}"/>
-    <text x="1632" y="1338" font-family="Georgia, serif" font-size="120" fill="${fg}"
-      text-anchor="middle" dominant-baseline="middle">${label}</text>
-  </svg>`;
-  return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="656" viewBox="0 0 800 656"><rect width="100%" height="100%" fill="${encodeURIComponent(bg)}"/><text x="50%" y="50%" font-family="Georgia,serif" font-size="32" fill="${encodeURIComponent(fg)}" text-anchor="middle" dominant-baseline="middle">${label}</text></svg>`;
+  return 'data:image/svg+xml;charset=utf-8,' + svg;
 }
 
 const pages = [
@@ -354,7 +308,6 @@ let idx = 0;
 let isAnimating = false;
 let finishTimeout = null;
 let midTurnTimeout = null;
-
 let isDragging = false;
 let startX = 0; startY = 0; lastX = 0;
 let currentDir = 0;
@@ -367,24 +320,25 @@ let leafLeftBg, leafRightBg, flap, flapFrontBg, flapBackBg, counter, bookEl;
 let coverLeftBg, coverRightBg, coverWrapper;
 
 const memoryCache = new Map();
+// Optimized Optimization #3: Reusable Image Pool blocks excessive garbage collection runs
+const workingImagePool = new Image();
 
 function fetchLoadedImage(url, callback) {
   if (memoryCache.has(url)) {
     callback(url);
     return;
   }
-  const img = new Image();
-  img.onload = async () => {
+  workingImagePool.onload = async () => {
     try {
-      await img.decode(); // Wait for image to be ready for display
-      memoryCache.set(url, img);
+      await workingImagePool.decode();
+      memoryCache.set(url, url);
       callback(url);
     } catch (e) {
-      memoryCache.set(url, img);
+      memoryCache.set(url, url);
       callback(url);
     }
   };
-  img.src = url;
+  workingImagePool.src = url;
 }
 
 function lerp(start, end, amt) {
@@ -410,7 +364,7 @@ function lazyLoadSurrounding(currentIdx) {
       const url = pages[i];
       if (!memoryCache.has(url)) {
         const pre = new Image();
-        pre.onload = () => memoryCache.set(url, pre);
+        pre.onload = () => memoryCache.set(url, url);
         pre.src = url;
       }
     }
@@ -446,7 +400,6 @@ function processImages(items, isFileList = false) {
   sortedItems.forEach(item => {
     const name = isFileList ? item.name : item;
     const match = name.match(/_seq(\d+)/i);
-
     if (match) {
       const seqNum = parseInt(match[1], 10);
       if (!seqMap.has(seqNum)) {
@@ -460,15 +413,12 @@ function processImages(items, isFileList = false) {
     }
   });
 
-  let firstSeq = null;
-  let lastSeq = null;
-  let midSeq = null;
+  let firstSeq = null; let lastSeq = null; let midSeq = null;
   const seqNumbers = Array.from(seqMap.keys()).sort((a, b) => a - b);
 
   if (seqNumbers.length > 0) {
     if (seqNumbers.includes(1)) firstSeq = seqMap.get(1);
     if (seqNumbers.includes(8)) midSeq = seqMap.get(8);
-
     const possibleLast = seqNumbers.filter(n => n !== 1 && n !== 8);
     if (possibleLast.length > 0) {
       lastSeq = seqMap.get(possibleLast[possibleLast.length - 1]);
@@ -478,7 +428,6 @@ function processImages(items, isFileList = false) {
   }
 
   const pool = bundles.filter(b => b !== firstSeq && b !== lastSeq && b !== midSeq);
-
   for (let i = pool.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [pool[i], pool[j]] = [pool[j], pool[i]];
@@ -491,21 +440,16 @@ function processImages(items, isFileList = false) {
   if (midSeq) {
     let totalPagesSoFar = 0;
     midfillBundles.forEach(b => totalPagesSoFar += b.items.length);
-
     let totalTargetPages = totalPagesSoFar;
     if (lastSeq && lastSeq !== firstSeq && lastSeq !== midSeq) {
       totalTargetPages += lastSeq.items.length;
     }
-
     const idealHalfwayPage = Math.floor(totalTargetPages / 2);
-    let currentCount = 0;
-    let targetBundleIdx = midfillBundles.length;
-
+    let currentCount = 0; let targetBundleIdx = midfillBundles.length;
     for (let i = 0; i < midfillBundles.length; i++) {
       currentCount += midfillBundles[i].items.length;
       if (currentCount >= idealHalfwayPage) {
-        targetBundleIdx = i + 1;
-        break;
+        targetBundleIdx = i + 1; break;
       }
     }
     midfillBundles.splice(targetBundleIdx, 0, midSeq);
@@ -519,16 +463,12 @@ function processImages(items, isFileList = false) {
   };
 
   pages.length = 0;
-
   let totalAllowedBudget = (maxPages !== null) ? maxPages : Infinity;
   let lastSeqSize = (lastSeq && lastSeq !== firstSeq && lastSeq !== midSeq) ? lastSeq.items.length : 0;
   let accumulatedPages = 0;
 
   for (let b of midfillBundles) {
-    const isKeepBundle = hasKeepFlag(b);
-    if (!isKeepBundle && (accumulatedPages + b.items.length > totalAllowedBudget - lastSeqSize)) {
-      continue;
-    }
+    if (!hasKeepFlag(b) && (accumulatedPages + b.items.length > totalAllowedBudget - lastSeqSize)) continue;
     b.items.forEach(item => {
       pages.push(isFileList ? URL.createObjectURL(item) : `bluerose_images/${item}`);
     });
@@ -540,15 +480,12 @@ function processImages(items, isFileList = false) {
       pages.push(isFileList ? URL.createObjectURL(item) : `bluerose_images/${item}`);
     });
   }
-
   trigger3DSequence();
 }
 
 async function autoLoadAssets(){
-  const isOnServer = window.location.protocol.startsWith('http');
-  if(!isOnServer) return false;
-
-  try{
+  if(!window.location.protocol.startsWith('http')) return false;
+  try {
     const res = await fetch('./bluerose_images/manifest.json', { cache:'no-store' });
     if(res.ok) {
       const list = await res.json();
@@ -560,15 +497,13 @@ async function autoLoadAssets(){
         }
       }
     }
-  }catch(err){}
+  } catch(err){}
   return false;
 }
 
 function loadFromFileList(fileList){
   const imgFiles = Array.from(fileList).filter(f => {
-    const isImg = /\.(png|jpe?g|webp|gif)$/i.test(f.name);
-    const inSubfolder = f.webkitRelativePath && (f.webkitRelativePath.split('/').length > 2);
-    return isImg && !inSubfolder;
+    return /\.(png|jpe?g|webp|gif)$/i.test(f.name) && !(f.webkitRelativePath && f.webkitRelativePath.split('/').length > 2);
   });
   if(imgFiles.length === 0) return;
   memoryCache.clear();
@@ -581,13 +516,10 @@ function setBg(el, url){
 
 function setIdle(i){
   if (pages.length === 0) return;
-  const targetUrl = pages[i];
-
-  fetchLoadedImage(targetUrl, (url) => {
+  fetchLoadedImage(pages[i], (url) => {
     setBg(leafLeftBg, url);
     setBg(leafRightBg, url);
   });
-
   updateDynamicBackground(i);
   lazyLoadSurrounding(i);
 }
@@ -601,60 +533,43 @@ function updateCounterDisplay(i) {
 function trigger3DSequence() {
   introCompleted = false;
   idx = 0;
-
   document.getElementById('top-utilities').classList.remove('show-ui');
   document.getElementById('meta-container').classList.remove('show-ui');
   coverWrapper.classList.remove('opened');
-
   bookEl.style.transition = 'none';
   bookEl.classList.remove('float-in', 'open-cover');
-  bookEl.getBoundingClientRect();
 
-  updateCounterDisplay(0);
+  // Optimized Optimization #2: Replaced force-layout getBoundingClientRect call with requestAnimationFrame
+  requestAnimationFrame(() => {
+    updateCounterDisplay(0);
+    const coverUrl = pages[0];
+    fetchLoadedImage(coverUrl, (cUrl) => {
+      setBg(coverLeftBg, cUrl); setBg(coverRightBg, cUrl);
+      setBg(leafLeftBg, cUrl); setBg(leafRightBg, cUrl);
+      updateDynamicBackground(0);
 
-  const coverUrl = pages[0];
+      setTimeout(() => {
+        bookEl.removeAttribute('style');
+        bookEl.classList.add('float-in');
+      }, 100);
 
-  fetchLoadedImage(coverUrl, (cUrl) => {
-    setBg(coverLeftBg, cUrl);
-    setBg(coverRightBg, cUrl);
+      setTimeout(() => { bookEl.classList.add('open-cover'); }, 9100);
 
-    setBg(leafLeftBg, cUrl);
-    setBg(leafRightBg, cUrl);
-    updateDynamicBackground(0);
-
-    // Phase 1: Begin deep space journey toward frame perspective (Includes the 1.5s delay handled by CSS)
-    setTimeout(() => {
-      bookEl.removeAttribute('style');
-      bookEl.classList.add('float-in');
-    }, 100);
-
-    // Phase 2: Delayed open command triggers only when book finishes arrival glide (7.5s animation + 1.5s delay)
-    setTimeout(() => {
-      bookEl.classList.add('open-cover');
-    }, 9100);
-
-    // Phase 3: Final structural conversion; interaction state granted to user
-    setTimeout(() => {
-      coverWrapper.classList.add('opened');
-      document.getElementById('top-utilities').classList.add('show-ui');
-      document.getElementById('meta-container').classList.add('show-ui');
-
-      idx = 0;
-      setIdle(idx);
-      updateCounterDisplay(idx);
-      introCompleted = true;
-    }, 10900);
+      setTimeout(() => {
+        coverWrapper.classList.add('opened');
+        document.getElementById('top-utilities').classList.add('show-ui');
+        document.getElementById('meta-container').classList.add('show-ui');
+        idx = 0; setIdle(idx); updateCounterDisplay(idx); introCompleted = true;
+      }, 10000);
+    });
   });
 }
 
 function forceInstantComplete() {
   if (!isAnimating) return;
-  clearTimeout(finishTimeout);
-  clearTimeout(midTurnTimeout);
-  idx = currentTargetIdx;
-  setIdle(idx);
-  flap.className = '';
-  flap.style.transform = '';
+  clearTimeout(finishTimeout); clearTimeout(midTurnTimeout);
+  idx = currentTargetIdx; setIdle(idx);
+  flap.className = ''; flap.style.transform = '';
   isAnimating = false;
 }
 
@@ -662,21 +577,15 @@ function turn(direction){
   if (!introCompleted || isDragging) return;
   if (isAnimating) forceInstantComplete();
 
-  let target = idx + direction;
-  target = Math.max(0, Math.min(pages.length - 1, target));
+  let target = Math.max(0, Math.min(pages.length - 1, idx + direction));
   if (target === idx) return;
 
-  isAnimating = true;
-  currentTargetIdx = target;
+  isAnimating = true; currentTargetIdx = target;
   updateCounterDisplay(target);
-
   flap.style.transform = '';
 
-  const currentUrl = pages[idx];
-  const nextUrl = pages[target];
-
-  fetchLoadedImage(currentUrl, (cUrl) => {
-    fetchLoadedImage(nextUrl, (nUrl) => {
+  fetchLoadedImage(pages[idx], (cUrl) => {
+    fetchLoadedImage(pages[target], (nUrl) => {
       if(direction > 0){
         flap.className = 'active anchor-right';
         setBg(flapFrontBg, cUrl); setBg(flapBackBg, nUrl); setBg(leafRightBg, nUrl);
@@ -685,21 +594,18 @@ function turn(direction){
         setBg(flapFrontBg, cUrl); setBg(flapBackBg, nUrl); setBg(leafLeftBg, nUrl);
       }
 
-      flap.getBoundingClientRect();
-      flap.classList.add(Math.abs(direction) > 1 ? 'turbo-finish' : 'smooth-finish');
-      flap.style.transform = `rotateY(${direction > 0 ? -180 : 180}deg)`;
+      // Optimized Optimization #2: Safely executing state finish assignments outside forced layout cycles
+      requestAnimationFrame(() => {
+        flap.classList.add(Math.abs(direction) > 1 ? 'turbo-finish' : 'smooth-finish');
+        flap.style.transform = `rotateY(${direction > 0 ? -180 : 180}deg)`;
 
-      midTurnTimeout = setTimeout(() => {
-        updateDynamicBackground(target);
-      }, Math.abs(direction) > 1 ? 70 : 220);
-
-      finishTimeout = setTimeout(() => {
-        idx = target;
-        setIdle(idx);
-        flap.className = '';
-        flap.style.transform = '';
-        isAnimating = false;
-      }, Math.abs(direction) > 1 ? 140 : 440);
+        midTurnTimeout = setTimeout(() => { updateDynamicBackground(target); }, Math.abs(direction) > 1 ? 70 : 220);
+        finishTimeout = setTimeout(() => {
+          idx = target; setIdle(idx);
+          flap.className = ''; flap.style.transform = '';
+          isAnimating = false;
+        }, Math.abs(direction) > 1 ? 140 : 440);
+      });
     });
   });
 }
@@ -719,7 +625,6 @@ function toggleManualFullscreen() {
 function applyFallback(){
   const isPort = isSmallPortrait();
   document.body.classList.toggle('force-landscape', isPort);
-
   const outer = document.getElementById('stage-outer');
   const book = document.getElementById('book');
   const metaContainer = document.getElementById('meta-container');
@@ -794,11 +699,11 @@ document.addEventListener('DOMContentLoaded', () => {
               if (direction === 1) {
                 flap.classList.add('anchor-right', 'turbo-finish');
                 setBg(flapFrontBg, cUrl); setBg(flapBackBg, nUrl); setBg(leafRightBg, nUrl);
-                flap.getBoundingClientRect(); flap.style.transform = 'rotateY(-180deg)';
+                requestAnimationFrame(() => { flap.style.transform = 'rotateY(-180deg)'; });
               } else {
                 flap.classList.add('anchor-left', 'turbo-finish');
                 setBg(flapFrontBg, cUrl); setBg(flapBackBg, nUrl); setBg(leafLeftBg, nUrl);
-                flap.getBoundingClientRect(); flap.style.transform = 'rotateY(180deg)';
+                requestAnimationFrame(() => { flap.style.transform = 'rotateY(180deg)'; });
               }
 
               updateDynamicBackground(currentTargetIdx);
@@ -895,9 +800,7 @@ document.addEventListener('DOMContentLoaded', () => {
   applyFallback();
 
   autoLoadAssets().then(loaded => {
-    if(!loaded) {
-      trigger3DSequence();
-    }
+    if(!loaded) { trigger3DSequence(); }
   });
 });
 </script>
