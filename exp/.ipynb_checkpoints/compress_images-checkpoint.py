@@ -3,16 +3,15 @@
 compress_images.py
 
 Compresses a PNG image or all PNG images in a directory to a max file size of 10MB,
-saving results to a 'compressed_<max_size>MB' subdirectory with '_compressed' appended to filenames.
+saving results to a 'compressed_<max_size>MB' subdirectory.
 
-PNG compression strategy (in order):
-  1. Lossless PNG optimization (max zlib compression + filter tuning)
-  2. Palette quantization with forced Floyd-Steinberg Dithering (fixes gradient banding)
-  3. Resolution downscaling (10% steps) until under the size limit
+If the --webp option is enabled, it converts the output format to .webp and 
+uses WebP quality reduction before resorting to downscaling.
 
 Usage:
     python compress_images.py <input_path>
     python compress_images.py <input_path> --max-size 5  # custom max size in MB
+    python compress_images.py <input_path> --webp        # convert to compressed webp
 """
 
 import io
@@ -33,6 +32,49 @@ def try_save(img: Image.Image, fmt_kwargs: dict) -> bytes:
     buf = io.BytesIO()
     img.save(buf, **fmt_kwargs)
     return buf.getvalue()
+
+
+def compress_to_webp(input_path: Path, output_path: Path, max_size_mb: float = 10.0):
+    """
+    Convert and compress a PNG to a WebP file under max_size_mb using quality steps,
+    then resolution downscaling if necessary.
+    """
+    max_bytes = max_size_mb * 1024 * 1024
+    img = Image.open(input_path)
+
+    # --- Step 1: Quality Reduction ---
+    # Try high quality down to low quality in steps of 5
+    for quality in range(100, 9, -5):
+        base_kwargs = dict(format="WEBP", quality=quality, method=6) # method 6 is slowest/best compression
+        data = try_save(img, base_kwargs)
+        if len(data) <= max_bytes:
+            output_path.write_bytes(data)
+            print(f"  ✓ WebP conversion successful at quality {quality} "
+                  f"({len(data)/(1024*1024):.2f} MB)")
+            return
+
+    # --- Step 2: Resolution downscaling (Fallback if quality 10 is still too big) ---
+    scale = 0.9
+    while scale >= 0.05:
+        new_w = max(1, int(img.width * scale))
+        new_h = max(1, int(img.height * scale))
+        resized = img.resize((new_w, new_h), Image.LANCZOS)
+        
+        # Keep WebP quality at a reasonable floor (20) when scaling down
+        base_kwargs = dict(format="WEBP", quality=20, method=6)
+        data = try_save(resized, base_kwargs)
+        if len(data) <= max_bytes:
+            output_path.write_bytes(data)
+            print(f"  ✓ Scaled to {scale:.0%} — {new_w}x{new_h}px at quality 20 "
+                  f"({len(data)/(1024*1024):.2f} MB)")
+            return
+        scale = round(scale - 0.1, 1)
+
+    # Last resort
+    output_path.write_bytes(data)
+    final_mb = len(data) / (1024 * 1024)
+    warn = "  ⚠️  Still over limit!" if final_mb > max_size_mb else ""
+    print(f"  ✓ Saved WebP at minimum scale ({final_mb:.2f} MB){warn}")
 
 
 def compress_png(input_path: Path, output_path: Path, max_size_mb: float = 10.0):
@@ -67,23 +109,17 @@ def compress_png(input_path: Path, output_path: Path, max_size_mb: float = 10.0)
     while colours >= 16:
         if has_alpha:
             rgba_img = img.convert("RGBA")
-            # Separate alpha channel so dithering doesn't bleed into empty spaces
             alpha = rgba_img.getchannel('A')
             rgb_img = rgba_img.convert("RGB")
             
-            # 1. Generate an adaptive custom palette map
             palette_map = rgb_img.quantize(colors=colours, method=Image.Quantize.MAXCOVERAGE)
-            # 2. Force true Floyd-Steinberg dithering map against that custom palette
             quantized_rgb = rgb_img.convert("P", dither=Image.FLOYDSTEINBERG, palette=palette_map)
             
-            # Reattach alpha mask back into RGBA space
             quantized = quantized_rgb.convert("RGBA")
             quantized.putalpha(alpha)
         else:
             rgb_img = img.convert("RGB")
-            # 1. Generate an adaptive custom palette map
             palette_map = rgb_img.quantize(colors=colours, method=Image.Quantize.MAXCOVERAGE)
-            # 2. Force true Floyd-Steinberg dithering map against that custom palette
             quantized = rgb_img.convert("P", dither=Image.FLOYDSTEINBERG, palette=palette_map)
             
         data = try_save(quantized, base_kwargs)
@@ -108,27 +144,25 @@ def compress_png(input_path: Path, output_path: Path, max_size_mb: float = 10.0)
             return
         scale = round(scale - 0.1, 1)
 
-    # Last resort — save the most-scaled version anyway
+    # Last resort
     output_path.write_bytes(data)
     final_mb = len(data) / (1024 * 1024)
     warn = "  ⚠️  Still over limit!" if final_mb > max_size_mb else ""
     print(f"  ✓ Saved at minimum scale ({final_mb:.2f} MB){warn}")
 
 
-def process_input(input_target: str, max_size_mb: float = 10.0):
+def process_input(input_target: str, max_size_mb: float = 10.0, use_webp: bool = False):
     input_path = Path(input_target).resolve()
 
     if not input_path.exists():
         print(f"❌ Path not found: {input_path}")
         sys.exit(1)
 
-    # Determine if input is a single file or a directory
     if input_path.is_file():
         if input_path.suffix.lower() not in SUPPORTED_EXTENSIONS:
-            print(f"❌ Unsupported file format: {input_path.suffix}. Only PNGs are supported.")
+            print(f"❌ Unsupported file format: {input_path.suffix}. Only PNGs are supported as inputs.")
             sys.exit(1)
         images = [input_path]
-        # Save output folder relative to the file's parent directory
         base_dir = input_path.parent
     elif input_path.is_dir():
         images = [
@@ -140,14 +174,18 @@ def process_input(input_target: str, max_size_mb: float = 10.0):
         print(f"❌ Invalid path type: {input_path}")
         sys.exit(1)
 
-    # Format the size cleanly (e.g., '10MB' instead of '10.0MB' if it's a whole number)
     size_suffix = f"{int(max_size_mb)}" if max_size_mb.is_integer() else f"{max_size_mb}"
-    output_dir = base_dir / f"compressed_{size_suffix}MB"
-    
+    folder_name = f"compressed_{size_suffix}MB"
+    if use_webp:
+        folder_name += "_webp"
+        
+    output_dir = base_dir / folder_name
     output_dir.mkdir(exist_ok=True)
+    
     print(f"📁 Input   : {input_path}")
     print(f"📁 Output  : {output_dir}")
-    print(f"📏 Max size: {max_size_mb} MB\n")
+    print(f"📏 Max size: {max_size_mb} MB")
+    print(f"🖼️  Format  : {'WEBP' if use_webp else 'PNG'}\n")
 
     if not images:
         print("⚠️  No supported images found to process.")
@@ -158,20 +196,24 @@ def process_input(input_target: str, max_size_mb: float = 10.0):
 
     for img_path in sorted(images):
         stem = img_path.stem
-        ext = img_path.suffix.lower()
-        out_name = f"{stem}_compressed{ext}"
+        # Swap extension out if user chose webp
+        out_ext = ".webp" if use_webp else img_path.suffix.lower()
+        out_name = f"{stem}_compressed{out_ext}"
         out_path = output_dir / out_name
 
         print(f"→ {img_path.name} ({get_file_size_mb(img_path):.2f} MB)")
         try:
-            compress_png(img_path, out_path, max_size_mb)
+            if use_webp:
+                compress_to_webp(img_path, out_path, max_size_mb)
+            else:
+                compress_png(img_path, out_path, max_size_mb)
             success += 1
         except Exception as e:
             print(f"  ❌ Error: {e}")
             skipped += 1
 
     print(f"\n✅ Done! {success} compressed, {skipped} failed.")
-    print(f"   Saved to: {output_dir}")
+    print(f"    Saved to: {output_dir}")
 
 
 def main():
@@ -184,8 +226,12 @@ def main():
         metavar="MB",
         help="Maximum file size in MB (default: 10)"
     )
+    parser.add_argument(
+        "--webp", action="store_true",
+        help="Convert images to highly optimized WebP format instead of keeping them as PNG"
+    )
     args = parser.parse_args()
-    process_input(args.input_path, args.max_size)
+    process_input(args.input_path, args.max_size, args.webp)
 
 
 if __name__ == "__main__":
