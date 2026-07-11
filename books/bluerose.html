@@ -136,44 +136,51 @@
     .btn svg { width: 16px; height: 16px; }
   }
 
-  /* Shared text styling for link and counter to match cleanly over the background colors */
+  /* Desktop layout settings positioning under the book footprint */
+  #meta-container {
+    position: absolute;
+    bottom: -28px; left: 0; right: 0;
+    display: flex; justify-content: space-between; align-items: center;
+    pointer-events: none; z-index: 30;
+  }
+
   #counter, .side-nav-left {
-    position: absolute; bottom: -28px;
     color: rgba(255, 255, 255, 0.45); font-size: 12px;
     letter-spacing: 0.05em; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   }
 
-  #counter {
-    right: 0; text-align: right; pointer-events: none;
-  }
+  .side-nav-left { pointer-events: auto; }
+  .page-nav-link { color: inherit; text-decoration: none; transition: color 0.2s ease; }
+  .page-nav-link:hover { color: rgba(255, 255, 255, 0.85); }
 
-  .side-nav-left {
-    left: 0; text-align: left; z-index: 30;
-  }
-
-  .page-nav-link {
-    color: inherit;
-    text-decoration: none;
-    transition: color 0.2s ease;
-  }
-
-  .page-nav-link:hover {
-    color: rgba(255, 255, 255, 0.85);
-  }
-
+  /* Mobile Media Adjustments */
   @media (max-width: 820px) {
-    /* Break out of absolute positioning scope to target screen edges directly */
-    #counter {
+    #meta-container {
       position: fixed;
-      bottom: 16px;
-      right: 16px;
-      z-index: 30;
+      bottom: calc(16px + env(safe-area-inset-bottom));
+      left: calc(16px + env(safe-area-inset-left));
+      right: calc(16px + env(safe-area-inset-right));
+      top: auto; width: auto; height: auto;
+      transform: none;
     }
-    .side-nav-left {
+
+    /*
+      Rotates the meta row wrapper globally.
+      Because it spins around the center, width and height spaces flip.
+      This aligns text perfectly with the phone held sideways.
+    */
+    body.force-landscape #meta-container {
       position: fixed;
-      bottom: 16px;
-      left: 16px;
-      z-index: 30;
+      inset: 0;
+      width: 100vh;
+      height: 100vw;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%) rotate(90deg);
+      box-sizing: border-box;
+      padding-left: calc(20px + env(safe-area-inset-bottom));
+      padding-right: calc(20px + env(safe-area-inset-top));
+      padding-bottom: calc(16px + env(safe-area-inset-left));
+      align-items: flex-end;
     }
   }
 </style>
@@ -195,6 +202,14 @@
 </div>
 
 <div id="stage-outer">
+  <!-- Shared container protects relative left-to-right flex spacing during structural canvas rotation steps -->
+  <div id="meta-container">
+    <div class="side-nav-left">
+      <a href="https://scorsby.us" class="page-nav-link" target="_blank">scorsby.us</a>
+    </div>
+    <div id="counter">1 / 1</div>
+  </div>
+
   <div id="stage-inner">
     <div id="book">
       <div class="leaf left" id="leaf-left"><div class="leaf-bg" id="leaf-left-bg"></div></div>
@@ -205,12 +220,6 @@
       </div>
       <div class="corner-curl right"></div>
       <div class="corner-curl left"></div>
-
-      <!-- Left-side project navigation anchor mimicking layout footprint of right counter -->
-      <div class="side-nav-left">
-        <a href="https://scorsby.us" class="page-nav-link" target="_blank">scorsby.us</a>
-      </div>
-      <div id="counter">1 / 1</div>
     </div>
   </div>
 </div>
@@ -219,11 +228,9 @@
 const shuffle = true;
 const maxPages = 99;
 
-// Hex configurations for page gradient span
 const startHex = "0b0947";
 const endHex = "470929";
 
-// Helper to convert hex strings cleanly into rgb numbers
 function hexToRgb(hex) {
   const cleanHex = hex.replace('#', '');
   const bigint = parseInt(cleanHex, 16);
@@ -274,12 +281,10 @@ let leafLeftBg, leafRightBg, flap, flapFrontBg, flapBackBg, counter, bookEl;
 
 const preloadedImages = {};
 
-// Linear interpolation utility function
 function lerp(start, end, amt) {
   return Math.round(start + (end - start) * amt);
 }
 
-// Map the background color based purely on progress through the collection range
 function updateDynamicBackground(pageIndex) {
   if (pages.length <= 1) {
     document.documentElement.style.setProperty('--bg-color', `rgb(${startColor.r}, ${startColor.g}, ${startColor.b})`);
@@ -618,7 +623,20 @@ function toggleManualFullscreen() {
   }
 }
 
-function applyFallback(){ document.body.classList.toggle('force-landscape', isSmallPortrait()); }
+function applyFallback(){
+  const isPort = isSmallPortrait();
+  document.body.classList.toggle('force-landscape', isPort);
+
+  const outer = document.getElementById('stage-outer');
+  const book = document.getElementById('book');
+  const metaContainer = document.getElementById('meta-container');
+
+  if (isPort) {
+    if(metaContainer.parentNode !== outer) outer.appendChild(metaContainer);
+  } else {
+    if(metaContainer.parentNode !== book) book.appendChild(metaContainer);
+  }
+}
 
 document.addEventListener('DOMContentLoaded', () => {
   leafLeftBg = document.getElementById('leaf-left-bg');
@@ -764,23 +782,22 @@ document.addEventListener('DOMContentLoaded', () => {
       deltaX = e.clientY - startY;
     }
 
-    // Check if it was an intentional tap (hardly moved pixel space)
     const wasStaticTap = Math.sqrt(deltaX*deltaX + deltaY*deltaY) < 8 && !hasMovedPastThreshold && currentDir === 0;
 
     if (wasStaticTap) {
       if (document.body.classList.contains('force-landscape')) {
         const midPointY = window.innerHeight / 2;
         if (e.clientY >= midPointY) {
-          turn(1); // Tapped bottom half
+          turn(1);
         } else {
-          turn(-1); // Tapped top half
+          turn(-1);
         }
       } else {
         const midPointX = window.innerWidth / 2;
         if (e.clientX >= midPointX) {
-          turn(1); // Tapped right half
+          turn(1);
         } else {
-          turn(-1); // Tapped left half
+          turn(-1);
         }
       }
       return;
