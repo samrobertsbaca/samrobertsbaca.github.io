@@ -47,14 +47,14 @@
     border-radius: 6px;
     background: var(--bg-color);
     transition: background-color 0.5s cubic-bezier(0.25, 1, 0.5, 1);
-    transform: translateZ(-90000px) rotateX(-120deg) rotateY(180deg) rotateZ(-60deg);
+    transform: translateZ(-900000px) rotateX(-120deg) rotateY(180deg) rotateZ(-60deg);
     opacity: 0;
   }
 
   #book.float-in {
-    transition: transform 7.5s cubic-bezier(0.1, 0.65, 0.1, 1.0) 1.5s,
-                opacity 6.0s cubic-bezier(0.2, 0, 0.2, 1) 1.5s,
-                box-shadow 7.5s ease 1.5s;
+    transition: transform 7.0s cubic-bezier(0.1, 0.65, 0.1, 1.0) 0.3s,
+                opacity 1.0s cubic-bezier(0.2, 0, 0.2, 1) 0.1s,
+                box-shadow 7.0s ease 0.3s;
     transform: translateZ(0px) rotateX(0deg) rotateY(0deg) rotateZ(0deg);
     opacity: 1;
     box-shadow: 0 30px 70px rgba(0,0,0,0.6);
@@ -75,7 +75,6 @@
   }
   #book-cover-wrapper.opened { display: none; }
 
-  /* Removed aggressive global will-change to optimize GPU layers memory context */
   #flap.active { will-change: transform; }
 
   .cover-half {
@@ -257,6 +256,9 @@
   </div>
 
   <div id="stage-inner">
+    <!-- Magical Twinkle Canvas Overlay -->
+    <canvas id="twinkle-canvas" style="position: absolute; pointer-events: none; z-index: 1000; width: 100%; height: 100%; top: 0; left: 0;"></canvas>
+
     <div id="book">
       <div id="book-cover-wrapper">
         <div class="cover-half left"><div class="cover-bg" id="cover-left-bg"></div></div>
@@ -318,10 +320,8 @@ let hasMovedPastThreshold = false;
 let leafLeftBg, leafRightBg, flap, flapFrontBg, flapBackBg, counter, bookEl;
 let coverLeftBg, coverRightBg, coverWrapper;
 
-// Cache map contains already verified URLs
 const memoryCache = new Map();
 
-// FIX #1: Replaced monolithic single image worker with per-call async decoding instances
 function fetchLoadedImage(url, callback) {
   if (memoryCache.has(url)) {
     callback(url);
@@ -536,6 +536,156 @@ function updateCounterDisplay(i) {
 }
 
 function trigger3DSequence() {
+  // --- TWINKLE EFFECT ENGINE START ---
+  const canvas = document.getElementById('twinkle-canvas');
+  if (canvas) {
+    const ctx = canvas.getContext('2d');
+    const burstParticles = [];
+    const ambientSparkles = [];
+    let animationFrameId;
+    let burstTriggered = false;
+    let startTime = performance.now();
+
+    const resizeCanvas = () => {
+      canvas.width = canvas.offsetWidth * window.devicePixelRatio;
+      canvas.height = canvas.offsetHeight * window.devicePixelRatio;
+      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+    };
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+    canvas.style.opacity = '1';
+
+    function drawSparkStar(x, y, size, alpha) {
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, alpha);
+      ctx.fillStyle = '#9adaff';
+      ctx.shadowBlur = 12;
+      ctx.shadowColor = '#4bb6fb';
+      ctx.beginPath();
+      ctx.moveTo(x, y - size * 2.5);
+      ctx.quadraticCurveTo(x, y, x + size * 2.5, y);
+      ctx.quadraticCurveTo(x, y, x, y + size * 2.5);
+      ctx.quadraticCurveTo(x, y, x - size * 2.5, y);
+      ctx.quadraticCurveTo(x, y, x, y - size * 2.5);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+
+    class BurstParticle {
+      constructor(cx, cy) {
+        this.x = cx;
+        this.y = cy;
+        const angle = Math.random() * Math.PI * 2;
+        const speed = Math.random() * 4.5 + 1.5;
+        this.speedX = Math.cos(angle) * speed;
+        this.speedY = Math.sin(angle) * speed;
+        this.size = Math.random() * 2.0 + 0.8;
+        this.baseAlpha = 1.0;
+        this.decay = Math.random() * 0.005 + 0.002;
+        this.shimmerOffset = Math.random() * 100;
+        this.shimmerSpeed = Math.random() * 0.15 + 0.1;
+      }
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        this.speedX *= 0.98;
+        this.speedY *= 0.98;
+        this.baseAlpha -= this.decay;
+        this.shimmerOffset += this.shimmerSpeed;
+      }
+      draw() {
+        if (this.baseAlpha <= 0) return;
+        // Modulate alpha over a clean sine wave to create a true shimmering twinkle
+        const shimmer = (Math.sin(this.shimmerOffset) * 0.4) + 0.6;
+        const finalAlpha = Math.max(0, this.baseAlpha * shimmer);
+        drawSparkStar(this.x, this.y, this.size, finalAlpha);
+      }
+    }
+
+    class AmbientSparkle {
+      constructor() {
+        this.reset();
+        // Stagger initial phase offsets so they don't light up simultaneously
+        this.phase = Math.random() * Math.PI * 2;
+        this.alpha = 0;
+      }
+      reset() {
+        const bookRect = bookEl.getBoundingClientRect();
+        const canvasRect = canvas.getBoundingClientRect();
+
+        // Calculate the physical offset positions map relative to our global canvas space
+        const leftBound = bookRect.left - canvasRect.left;
+        const topBound = bookRect.top - canvasRect.top;
+
+        this.x = leftBound + (Math.random() * bookRect.width);
+        this.y = topBound + (Math.random() * bookRect.height);
+        this.size = Math.random() * 1.5 + 0.6;
+        this.speed = Math.random() * 0.03 + 0.02;
+        this.maxAlpha = Math.random() * 0.5 + 0.3;
+      }
+      update() {
+        this.phase += this.speed;
+        // Simple sine tracking mapping opacity up and down cleanly
+        this.alpha = (Math.sin(this.phase) * 0.5 + 0.5) * this.maxAlpha;
+        if (this.phase > Math.PI * 2) {
+          this.reset();
+          this.phase = 0;
+        }
+      }
+      draw() {
+        if (!introCompleted) return;
+        drawSparkStar(this.x, this.y, this.size, this.alpha);
+      }
+    }
+
+    function animateTwinkle(timestamp) {
+      const elapsed = timestamp - startTime;
+      ctx.clearRect(0, 0, canvas.offsetWidth, canvas.offsetHeight);
+
+      const cx = canvas.offsetWidth / 2;
+      const cy = canvas.offsetHeight / 2;
+
+      if (elapsed < 700) {
+        // Phase 1: Single, elegant pulsating sparkle at the absolute center
+        const pulse = Math.sin(elapsed * 0.02) * 2 + 5;
+        const alpha = Math.min(1, elapsed / 800);
+        drawSparkStar(cx, cy, pulse, alpha);
+      } else {
+        // Phase 2: Instantly spawn the explosive burst payload once
+        if (!burstTriggered) {
+          burstTriggered = true;
+          for (let i = 0; i < 90; i++) {
+            burstParticles.push(new BurstParticle(cx, cy));
+          }
+        }
+
+        // Animate out the active burst particles
+        burstParticles.forEach(p => {
+          p.update();
+          p.draw();
+        });
+      }
+
+      // Phase 3: Gentle ambient book shimmer once user interface settles
+      /*if (introCompleted) {
+        if (ambientSparkles.length === 0) {
+          for (let i = 0; i < 15; i++) {
+            ambientSparkles.push(new AmbientSparkle());
+          }
+        }
+        ambientSparkles.forEach(s => {
+          s.update();
+          s.draw();
+        });
+      }*/
+
+      animationFrameId = requestAnimationFrame(animateTwinkle);
+    }
+    requestAnimationFrame(animateTwinkle);
+  }
+  // --- TWINKLE EFFECT ENGINE END ---
+
   introCompleted = false;
   idx = 0;
   document.getElementById('top-utilities').classList.remove('show-ui');
@@ -564,7 +714,7 @@ function trigger3DSequence() {
         document.getElementById('top-utilities').classList.add('show-ui');
         document.getElementById('meta-container').classList.add('show-ui');
         idx = 0; setIdle(idx); updateCounterDisplay(idx); introCompleted = true;
-      }, 10000);
+      }, 7000);
     });
   });
 }
@@ -590,7 +740,6 @@ function turn(direction){
 
   fetchLoadedImage(pages[idx], (cUrl) => {
     fetchLoadedImage(pages[target], (nUrl) => {
-      // FIX #3: Contextual injection of will-change directly onto active transformations
       flap.style.willChange = 'transform';
 
       if(direction > 0){
@@ -699,7 +848,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
           fetchLoadedImage(pages[idx], (cUrl) => {
             fetchLoadedImage(pages[currentTargetIdx], (nUrl) => {
-              // FIX #2: Debouncing continuous style alterations inside requestAnimationFrame contexts
               requestAnimationFrame(() => {
                 flap.style.willChange = 'transform';
                 flap.className = 'active';
@@ -796,33 +944,26 @@ document.addEventListener('DOMContentLoaded', () => {
       updateDynamicBackground(currentTargetIdx);
       finishTimeout = setTimeout(() => {
         idx = currentTargetIdx; setIdle(idx);
-        flap.className = ''; flap.style.transform = ''; flap.style.willChange = 'auto'; isAnimating = false;
-      }, 400);
+        flap.className = ''; flap.style.transform = ''; flap.style.willChange = 'auto';
+        isAnimating = false;
+      }, 440);
     } else {
-      flap.style.transform = 'rotateY(0deg)';
       updateCounterDisplay(idx);
+      flap.style.transform = '';
       updateDynamicBackground(idx);
       finishTimeout = setTimeout(() => {
         setIdle(idx);
-        flap.className = ''; flap.style.transform = ''; flap.style.willChange = 'auto'; isAnimating = false;
-      }, 400);
+        flap.className = ''; flap.style.transform = ''; flap.style.willChange = 'auto';
+        isAnimating = false;
+      }, 440);
     }
   });
 
-  document.addEventListener('keydown', e => {
-    if(e.key === 'ArrowRight') turn(1);
-    if(e.key === 'ArrowLeft') turn(-1);
-  });
-
   window.addEventListener('resize', applyFallback);
-  window.addEventListener('orientationchange', applyFallback);
+  window.addEventListener('orientationchange', () => setTimeout(applyFallback, 200));
   applyFallback();
-
-  autoLoadAssets().then(loaded => {
-    if(!loaded) { trigger3DSequence(); }
-  });
+  autoLoadAssets().then(loaded => { if(!loaded) setIdle(0); });
 });
 </script>
-
 </body>
 </html>
