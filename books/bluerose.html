@@ -1,8 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script async="" src="https://www.googletagmanager.com/gtag/js?id=G-F0TBFJSGJ9"></script>
+  <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-F0TBFJSGJ9');
+      </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link href="/favicon.webp" rel="icon" type="image/x-icon"/>
 <title>the book of blue roses</title>
 <style>
   :root {
@@ -934,9 +943,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!foundScorsbies.has(idx)) {
                     foundScorsbies.add(idx);
                     updateScorsbyCounter();
-                    if (foundScorsbies.size === totalScorsbies && totalScorsbies > 0) {
-                        setTimeout(() => { window.location.href = 'secret.html'; }, 1500);
+
+                    // Inside your item selection/click handler:
+                    const currentPercentage = (foundScorsbies.size / totalScorsbies) * 100;
+                    if (currentPercentage >= 90) {
+                        setTimeout(() => { window.location.href = 'secret.html'; }, 1000);
                     }
+                    /*if (foundScorsbies.size === totalScorsbies && totalScorsbies > 0) {
+                        setTimeout(() => { window.location.href = 'secret.html'; }, 1500);
+                    }*/
                 }
                 return;
             }
