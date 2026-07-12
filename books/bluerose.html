@@ -290,6 +290,8 @@ let foundScorsbies = new Set();
 let currentMaskCanvas = null;
 let currentMaskCtx = null;
 
+const yaySound = new Audio('yay.mp3');
+
 function hexToRgb(hex) {
   const bigint = parseInt(hex.replace('#', ''), 16);
   return { r: (bigint >> 16) & 255, g: (bigint >> 8) & 255, b: bigint & 255 };
@@ -925,6 +927,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (window.triggerSparkBurst) {
                     window.triggerSparkBurst(e.clientX, e.clientY, finalColor);
+                    yaySound.currentTime = 0; // Reset to start in case of rapid clicks
+                    yaySound.play().catch(e => console.error("Audio playback failed:", e));
                 }
             };
                 if (!foundScorsbies.has(idx)) {
