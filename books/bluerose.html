@@ -300,6 +300,7 @@ let currentMaskCanvas = null;
 let currentMaskCtx = null;
 
 const yaySound = new Audio('yay.mp3');
+const winSound = new Audio('win.mp3');
 
 function hexToRgb(hex) {
   const bigint = parseInt(hex.replace('#', ''), 16);
@@ -947,7 +948,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Inside your item selection/click handler:
                     const currentPercentage = (foundScorsbies.size / totalScorsbies) * 100;
                     if (currentPercentage >= 90) {
-                        setTimeout(() => { window.location.href = 'secret.html'; }, 1500);
+                        yaySound.pause();
+                        yaySound.currentTime = 0;
+                        winSound.currentTime = 0; // Reset to start in case of rapid clicks
+                        winSound.play().catch(e => console.error("Audio playback failed:", e));
+                        setTimeout(() => { window.location.href = 'secret.html'; }, 3000);
                     }
                     /*if (foundScorsbies.size === totalScorsbies && totalScorsbies > 0) {
                         setTimeout(() => { window.location.href = 'secret.html'; }, 1500);
