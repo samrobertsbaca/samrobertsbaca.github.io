@@ -208,6 +208,7 @@
   .side-nav-left { pointer-events: auto; }
   .page-nav-link { color: inherit; text-decoration: none; transition: color 0.2s ease; }
   .page-nav-link:hover { color: rgba(255, 255, 255, 0.85); }
+  #scorsby-counter { margin-left: 15px; color: #9adaff; display: none; }
 
   @media (max-width: 820px) {
     #meta-container {
@@ -251,14 +252,13 @@
   <div id="meta-container">
     <div class="side-nav-left">
       <a href="https://scorsby.us" class="page-nav-link" target="_blank">scorsby.us</a>
+      <span id="scorsby-counter"></span>
     </div>
     <div id="counter">1 / 1</div>
   </div>
 
   <div id="stage-inner">
-    <!-- Magical Twinkle Canvas Overlay -->
     <canvas id="twinkle-canvas" style="position: absolute; pointer-events: none; z-index: 1000; width: 100%; height: 100%; top: 0; left: 0;"></canvas>
-
     <div id="book">
       <div id="book-cover-wrapper">
         <div class="cover-half left"><div class="cover-bg" id="cover-left-bg"></div></div>
@@ -283,6 +283,12 @@ const maxPages = 99;
 const startHex = "0b0947";
 const endHex = "470929";
 let introCompleted = false;
+
+let pageMasks = [];
+let totalScorsbies = 0;
+let foundScorsbies = new Set();
+let currentMaskCanvas = null;
+let currentMaskCtx = null;
 
 function hexToRgb(hex) {
   const bigint = parseInt(hex.replace('#', ''), 16);
@@ -380,6 +386,16 @@ function naturalSort(a, b){
   return a.localeCompare(b, undefined, { numeric:true, sensitivity:'base' });
 }
 
+function updateScorsbyCounter() {
+  const sc = document.getElementById('scorsby-counter');
+  if (sc && totalScorsbies > 0) {
+    sc.style.display = 'inline';
+    sc.textContent = `scorsbies found: ${foundScorsbies.size} / ${totalScorsbies}`;
+  } else if (sc) {
+    sc.style.display = 'none';
+  }
+}
+
 function processImages(items, isFileList = false) {
   const sortedItems = [...items].sort((a, b) => {
     const nameA = isFileList ? a.name : a;
@@ -387,14 +403,53 @@ function processImages(items, isFileList = false) {
     return naturalSort(nameA, nameB);
   });
 
+  const masksMap = new Map();
+  const nonMaskItems = [];
+
+  // 1. Identify mask files first by checking the full filename
+  // 2. Extract the 'base' name by stripping _mask, _compressed, and the extension
+  const getBaseName = (name) => {
+    return name.toLowerCase()
+      .replace(/\.[^/.]+$/, "")             // Strip extension
+      .replace(/_mask/gi, "")               // Remove mask tag
+      .replace(/_compressed/gi, "")         // Remove compression tag
+      .replace(/_+$/, "");                  // Clean up any trailing underscores
+  };
+
+  sortedItems.forEach(item => {
+    const name = isFileList ? item.name : item;
+    const lowerName = name.toLowerCase();
+
+    // Check for mask before stripping the tag
+    if (lowerName.includes('_mask')) {
+      const baseName = getBaseName(name);
+      masksMap.set(baseName, isFileList ? URL.createObjectURL(item) : `bluerose_images/${item}`);
+      console.log(`Registered Mask: ${baseName} from ${name}`);
+    } else {
+      nonMaskItems.push(item);
+    }
+  });
+
+  // DEBUG: Log the final map
+  console.log("Total masks found in map:", masksMap.size);
+  masksMap.forEach((val, key) => console.log(`Map Entry: ${key} -> ${val}`));
+
   if (!shuffle) {
     pages.length = 0;
+    pageMasks.length = 0;
     let addedCount = 0;
-    for (let i = 0; i < sortedItems.length; i++) {
+    for (let i = 0; i < nonMaskItems.length; i++) {
       if (maxPages !== null && addedCount >= maxPages) break;
-      pages.push(isFileList ? URL.createObjectURL(sortedItems[i]) : `bluerose_images/${sortedItems[i]}`);
+      const item = nonMaskItems[i];
+      const baseName = getBaseName(isFileList ? item.name : item);
+
+      pages.push(isFileList ? URL.createObjectURL(item) : `bluerose_images/${item}`);
+      pageMasks.push(masksMap.get(baseName) || null);
       addedCount++;
     }
+    totalScorsbies = pageMasks.filter(m => m !== null).length;
+    foundScorsbies.clear();
+    updateScorsbyCounter();
     trigger3DSequence();
     return;
   }
@@ -402,7 +457,7 @@ function processImages(items, isFileList = false) {
   const bundles = [];
   const seqMap = new Map();
 
-  sortedItems.forEach(item => {
+  nonMaskItems.forEach(item => {
     const name = isFileList ? item.name : item;
     const match = name.match(/_seq(\d+)/i);
     if (match) {
@@ -468,6 +523,7 @@ function processImages(items, isFileList = false) {
   };
 
   pages.length = 0;
+  pageMasks.length = 0;
   let totalAllowedBudget = (maxPages !== null) ? maxPages : Infinity;
   let lastSeqSize = (lastSeq && lastSeq !== firstSeq && lastSeq !== midSeq) ? lastSeq.items.length : 0;
   let accumulatedPages = 0;
@@ -475,16 +531,24 @@ function processImages(items, isFileList = false) {
   for (let b of midfillBundles) {
     if (!hasKeepFlag(b) && (accumulatedPages + b.items.length > totalAllowedBudget - lastSeqSize)) continue;
     b.items.forEach(item => {
+      const baseName = getBaseName(isFileList ? item.name : item);
       pages.push(isFileList ? URL.createObjectURL(item) : `bluerose_images/${item}`);
+      pageMasks.push(masksMap.get(baseName) || null);
     });
     accumulatedPages += b.items.length;
   }
 
   if (lastSeq && lastSeq !== firstSeq && lastSeq !== midSeq) {
     lastSeq.items.forEach(item => {
+      const baseName = getBaseName(isFileList ? item.name : item);
       pages.push(isFileList ? URL.createObjectURL(item) : `bluerose_images/${item}`);
+      pageMasks.push(masksMap.get(baseName) || null);
     });
   }
+
+  totalScorsbies = pageMasks.filter(m => m !== null).length;
+  foundScorsbies.clear();
+  updateScorsbyCounter();
   trigger3DSequence();
 }
 
@@ -527,6 +591,21 @@ function setIdle(i){
   });
   updateDynamicBackground(i);
   lazyLoadSurrounding(i);
+
+  // Hidden Mask Canvas Generation for Interaction Check
+  currentMaskCanvas = null;
+  currentMaskCtx = null;
+  if (pageMasks && pageMasks[i]) {
+    const img = new Image();
+    img.onload = () => {
+      currentMaskCanvas = document.createElement('canvas');
+      currentMaskCanvas.width = img.width || bookEl.offsetWidth;
+      currentMaskCanvas.height = img.height || bookEl.offsetHeight;
+      currentMaskCtx = currentMaskCanvas.getContext('2d', { willReadFrequently: true });
+      currentMaskCtx.drawImage(img, 0, 0, currentMaskCanvas.width, currentMaskCanvas.height);
+    };
+    img.src = pageMasks[i];
+  }
 }
 
 function updateCounterDisplay(i) {
@@ -536,12 +615,10 @@ function updateCounterDisplay(i) {
 }
 
 function trigger3DSequence() {
-  // --- TWINKLE EFFECT ENGINE START ---
   const canvas = document.getElementById('twinkle-canvas');
   if (canvas) {
     const ctx = canvas.getContext('2d');
     const burstParticles = [];
-    const ambientSparkles = [];
     let animationFrameId;
     let burstTriggered = false;
     let startTime = performance.now();
@@ -596,48 +673,17 @@ function trigger3DSequence() {
       }
       draw() {
         if (this.baseAlpha <= 0) return;
-        // Modulate alpha over a clean sine wave to create a true shimmering twinkle
         const shimmer = (Math.sin(this.shimmerOffset) * 0.4) + 0.6;
         const finalAlpha = Math.max(0, this.baseAlpha * shimmer);
         drawSparkStar(this.x, this.y, this.size, finalAlpha);
       }
     }
 
-    class AmbientSparkle {
-      constructor() {
-        this.reset();
-        // Stagger initial phase offsets so they don't light up simultaneously
-        this.phase = Math.random() * Math.PI * 2;
-        this.alpha = 0;
+    window.triggerSparkBurst = (cx, cy) => {
+      for (let i = 0; i < 90; i++) {
+        burstParticles.push(new BurstParticle(cx, cy));
       }
-      reset() {
-        const bookRect = bookEl.getBoundingClientRect();
-        const canvasRect = canvas.getBoundingClientRect();
-
-        // Calculate the physical offset positions map relative to our global canvas space
-        const leftBound = bookRect.left - canvasRect.left;
-        const topBound = bookRect.top - canvasRect.top;
-
-        this.x = leftBound + (Math.random() * bookRect.width);
-        this.y = topBound + (Math.random() * bookRect.height);
-        this.size = Math.random() * 1.5 + 0.6;
-        this.speed = Math.random() * 0.03 + 0.02;
-        this.maxAlpha = Math.random() * 0.5 + 0.3;
-      }
-      update() {
-        this.phase += this.speed;
-        // Simple sine tracking mapping opacity up and down cleanly
-        this.alpha = (Math.sin(this.phase) * 0.5 + 0.5) * this.maxAlpha;
-        if (this.phase > Math.PI * 2) {
-          this.reset();
-          this.phase = 0;
-        }
-      }
-      draw() {
-        if (!introCompleted) return;
-        drawSparkStar(this.x, this.y, this.size, this.alpha);
-      }
-    }
+    };
 
     function animateTwinkle(timestamp) {
       const elapsed = timestamp - startTime;
@@ -647,44 +693,21 @@ function trigger3DSequence() {
       const cy = canvas.offsetHeight / 2;
 
       if (elapsed < 700) {
-        // Phase 1: Single, elegant pulsating sparkle at the absolute center
         const pulse = Math.sin(elapsed * 0.02) * 2 + 5;
         const alpha = Math.min(1, elapsed / 800);
         drawSparkStar(cx, cy, pulse, alpha);
       } else {
-        // Phase 2: Instantly spawn the explosive burst payload once
         if (!burstTriggered) {
           burstTriggered = true;
-          for (let i = 0; i < 90; i++) {
-            burstParticles.push(new BurstParticle(cx, cy));
-          }
+          window.triggerSparkBurst(cx, cy);
         }
-
-        // Animate out the active burst particles
-        burstParticles.forEach(p => {
-          p.update();
-          p.draw();
-        });
+        burstParticles.forEach(p => { p.update(); p.draw(); });
       }
-
-      // Phase 3: Gentle ambient book shimmer once user interface settles
-      /*if (introCompleted) {
-        if (ambientSparkles.length === 0) {
-          for (let i = 0; i < 15; i++) {
-            ambientSparkles.push(new AmbientSparkle());
-          }
-        }
-        ambientSparkles.forEach(s => {
-          s.update();
-          s.draw();
-        });
-      }*/
 
       animationFrameId = requestAnimationFrame(animateTwinkle);
     }
     requestAnimationFrame(animateTwinkle);
   }
-  // --- TWINKLE EFFECT ENGINE END ---
 
   introCompleted = false;
   idx = 0;
@@ -813,9 +836,53 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('folder-input').addEventListener('change', e => loadFromFileList(e.target.files));
   document.getElementById('btn-fullscreen').addEventListener('click', toggleManualFullscreen);
 
+  // Core Fix: Moved mask check to pointerdown to decisively override drag/turn execution
   document.addEventListener('pointerdown', (e) => {
     if (!introCompleted) return;
     if (e.target.closest('#top-utilities') || e.target.closest('.btn') || e.target.closest('.page-nav-link')) return;
+
+    // DIAGNOSTIC: Check if we even have a mask loaded
+    console.log("Pointer down. Has mask canvas:", !!currentMaskCanvas);
+
+    if (currentMaskCanvas) {
+        const rect = bookEl.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+
+        let dx = e.clientX - cx;
+        let dy = e.clientY - cy;
+
+        if (document.body.classList.contains('force-landscape')) {
+            const origDx = dx; dx = dy; dy = -origDx;
+        }
+
+        const bw = bookEl.offsetWidth;
+        const bh = bookEl.offsetHeight;
+        let localX = dx + bw / 2;
+        let localY = dy + bh / 2;
+
+        console.log(`Local click: ${localX}, ${localY} | Book size: ${bw}, ${bh}`);
+
+        if (localX >= 0 && localX <= bw && localY >= 0 && localY <= bh) {
+            let maskX = Math.floor((localX / bw) * currentMaskCanvas.width);
+            let maskY = Math.floor((localY / bh) * currentMaskCanvas.height);
+
+            try {
+                const pixel = currentMaskCtx.getImageData(maskX, maskY, 1, 1).data;
+                console.log(`Pixel data: R:${pixel[0]} G:${pixel[1]} B:${pixel[2]} A:${pixel[3]}`);
+
+                if (pixel[3] > 50) {
+                    console.log("SUCCESS: Scorsby hit detected!");
+                    // Sparkle logic...
+                    return;
+                }
+            } catch (err) {
+                console.error("Canvas read error:", err);
+            }
+        }
+    }
+
+    // Original flow
     if (isAnimating) forceInstantComplete();
 
     isDragging = true;
@@ -964,16 +1031,10 @@ document.addEventListener('DOMContentLoaded', () => {
   applyFallback();
   autoLoadAssets().then(loaded => { if(!loaded) setIdle(0); });
 
-  // Keyboard Navigation Support
   document.addEventListener('keydown', (e) => {
-    // Prevent navigation if the intro animation hasn't finished yet
     if (!introCompleted) return;
-
-    if (e.key === 'ArrowRight') {
-      turn(1);
-    } else if (e.key === 'ArrowLeft') {
-      turn(-1);
-    }
+    if (e.key === 'ArrowRight') turn(1);
+    else if (e.key === 'ArrowLeft') turn(-1);
   });
 });
 </script>
