@@ -869,11 +869,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 const pixel = currentMaskCtx.getImageData(maskX, maskY, 1, 1).data;
-                console.log(`Pixel data: R:${pixel[0]} G:${pixel[1]} B:${pixel[2]} A:${pixel[3]}`);
 
-                if (pixel[3] > 50) {
-                    console.log("SUCCESS: Scorsby hit detected!");
-                    // Sparkle logic...
+                // Check for pixels that are BOTH opaque (> 50) AND dark (R, G, B all < 50)
+                if (pixel[3] > 50 && pixel[0] < 50 && pixel[1] < 50 && pixel[2] < 50) {
+
+                    if (window.triggerSparkBurst) {
+                        // Since the canvas will be fixed full-screen (see step 2), we can just use the raw mouse coordinates!
+                        window.triggerSparkBurst(e.clientX, e.clientY);
+                    }
+
+                    if (!foundScorsbies.has(idx)) {
+                        foundScorsbies.add(idx);
+                        updateScorsbyCounter();
+                        if (foundScorsbies.size === totalScorsbies && totalScorsbies > 0) {
+                            setTimeout(() => { window.location.href = 'secret.html'; }, 1500);
+                        }
+                    }
+
+                    // CRITICAL: Consumes the event immediately, preventing the page turn
                     return;
                 }
             } catch (err) {
