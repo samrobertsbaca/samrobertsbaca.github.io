@@ -239,6 +239,16 @@
       align-items: flex-end;
     }
   }
+
+  /* Add this anywhere inside your <style> tags */
+#top-utilities, #meta-container, #book {
+  transition: opacity 1.5s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.8s ease;
+}
+
+.fade-out-win {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
 </style>
 </head>
 <body>
@@ -299,8 +309,8 @@ let foundScorsbies = new Set();
 let currentMaskCanvas = null;
 let currentMaskCtx = null;
 
-const yaySound = new Audio('yay.mp3');
-const winSound = new Audio('win.mp3');
+const yaySound = new Audio('/media/bluerose/yay.mp3');
+const winSound = new Audio('/media/bluerose/warp.ogg');
 
 function hexToRgb(hex) {
   const bigint = parseInt(hex.replace('#', ''), 16);
@@ -406,6 +416,7 @@ function updateScorsbyCounter() {
   } else if (sc) {
     sc.style.display = 'none';
   }
+
 }
 
 function processImages(items, isFileList = false) {
@@ -851,131 +862,150 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btn-fullscreen').addEventListener('click', toggleManualFullscreen);
 
   // Core Fix: Moved mask check to pointerdown to decisively override drag/turn execution
-  document.addEventListener('pointerdown', (e) => {
-    if (!introCompleted) return;
-    if (e.target.closest('#top-utilities') || e.target.closest('.btn') || e.target.closest('.page-nav-link')) return;
+    document.addEventListener('pointerdown', (e) => {
+      if (!introCompleted) return;
+      if (e.target.closest('#top-utilities') || e.target.closest('.btn') || e.target.closest('.page-nav-link')) return;
 
-    // DIAGNOSTIC: Check if we even have a mask loaded
-    console.log("Pointer down. Has mask canvas:", !!currentMaskCanvas);
+      // DIAGNOSTIC: Check if we even have a mask loaded
+      console.log("Pointer down. Has mask canvas:", !!currentMaskCanvas);
 
-    if (currentMaskCanvas) {
-        const rect = bookEl.getBoundingClientRect();
-        const cx = rect.left + rect.width / 2;
-        const cy = rect.top + rect.height / 2;
+      if (currentMaskCanvas) {
+          const rect = bookEl.getBoundingClientRect();
+          const cx = rect.left + rect.width / 2;
+          const cy = rect.top + rect.height / 2;
 
-        let dx = e.clientX - cx;
-        let dy = e.clientY - cy;
+          let dx = e.clientX - cx;
+          let dy = e.clientY - cy;
 
-        if (document.body.classList.contains('force-landscape')) {
-            const origDx = dx; dx = dy; dy = -origDx;
-        }
+          if (document.body.classList.contains('force-landscape')) {
+              const origDx = dx; dx = dy; dy = -origDx;
+          }
 
-        const bw = bookEl.offsetWidth;
-        const bh = bookEl.offsetHeight;
-        let localX = dx + bw / 2;
-        let localY = dy + bh / 2;
+          const bw = bookEl.offsetWidth;
+          const bh = bookEl.offsetHeight;
+          let localX = dx + bw / 2;
+          let localY = dy + bh / 2;
 
-        console.log(`Local click: ${localX}, ${localY} | Book size: ${bw}, ${bh}`);
+          console.log(`Local click: ${localX}, ${localY} | Book size: ${bw}, ${bh}`);
 
-        if (localX >= 0 && localX <= bw && localY >= 0 && localY <= bh) {
-            let maskX = Math.floor((localX / bw) * currentMaskCanvas.width);
-            let maskY = Math.floor((localY / bh) * currentMaskCanvas.height);
+          if (localX >= 0 && localX <= bw && localY >= 0 && localY <= bh) {
+              let maskX = Math.floor((localX / bw) * currentMaskCanvas.width);
+              let maskY = Math.floor((localY / bh) * currentMaskCanvas.height);
 
-            // Inside your pointerdown listener, replace the try/catch block with this:
-            try {
-                const pixel = currentMaskCtx.getImageData(maskX, maskY, 1, 1).data;
+              try {
+                  const pixel = currentMaskCtx.getImageData(maskX, maskY, 1, 1).data;
 
-                // Only proceed if it's a hit on the mask
-                if (pixel[3] > 50 && pixel[0] < 50 && pixel[1] < 50 && pixel[2] < 50) {
+                  // Only proceed if it's a hit on the mask
+                  if (pixel[3] > 50 && pixel[0] < 50 && pixel[1] < 50 && pixel[2] < 50) {
 
-                    // Create an offscreen canvas to sample the actual page image
-                    const img = new Image();
-                    img.src = pages[idx];
-                    img.onload = () => {
-                const tempCanvas = document.createElement('canvas');
-                tempCanvas.width = img.width;
-                tempCanvas.height = img.height;
-                const ctx = tempCanvas.getContext('2d');
-                ctx.drawImage(img, 0, 0);
+                      // Create an offscreen canvas to sample the actual page image
+                      const img = new Image();
+                      img.src = pages[idx];
+                      img.onload = () => {
+                          const tempCanvas = document.createElement('canvas');
+                          tempCanvas.width = img.width;
+                          tempCanvas.height = img.height;
+                          const ctx = tempCanvas.getContext('2d');
+                          ctx.drawImage(img, 0, 0);
 
-                const sampleX = Math.floor((localX / bookEl.offsetWidth) * img.width);
-                const sampleY = Math.floor((localY / bookEl.offsetHeight) * img.height);
-                const data = ctx.getImageData(sampleX, sampleY, 1, 1).data;
+                          const sampleX = Math.floor((localX / bookEl.offsetWidth) * img.width);
+                          const sampleY = Math.floor((localY / bookEl.offsetHeight) * img.height);
+                          const data = ctx.getImageData(sampleX, sampleY, 1, 1).data;
 
-                // Convert RGB to HSL
-                let r = data[0] / 255, g = data[1] / 255, b = data[2] / 255;
-                let max = Math.max(r, g, b), min = Math.min(r, g, b);
-                let h, s, l = (max + min) / 2;
+                          // Convert RGB to HSL
+                          let r = data[0] / 255, g = data[1] / 255, b = data[2] / 255;
+                          let max = Math.max(r, g, b), min = Math.min(r, g, b);
+                          let h, s, l = (max + min) / 2;
 
-                if (max === min) {
-                    h = s = 0;
-                } else {
-                    let d = max - min;
-                    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-                    switch (max) {
-                        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-                        case g: h = (b - r) / d + 2; break;
-                        case b: h = (r - g) / d + 4; break;
-                    }
-                    h /= 6;
-                }
+                          if (max === min) {
+                              h = s = 0;
+                          } else {
+                              let d = max - min;
+                              s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                              switch (max) {
+                                  case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                                  case g: h = (b - r) / d + 2; break;
+                                  case b: h = (r - g) / d + 4; break;
+                              }
+                              h /= 6;
+                          }
 
-                // Shift hue by 0.1 (approx 36 degrees) and ensure it stays in 0-1 range
-                h = (h + 0.05) % 1;
+                          // Shift hue by 0.05
+                          h = (h + 0.05) % 1;
 
-                // Convert back to RGB
-                const hue2rgb = (p, q, t) => {
-                    if (t < 0) t += 1; if (t > 1) t -= 1;
-                    if (t < 1/6) return p + (q - p) * 6 * t;
-                    if (t < 1/2) return q;
-                    if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
-                    return p;
-                };
-                let q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-                let p = 2 * l - q;
-                const finalColor = `rgb(${Math.round(hue2rgb(p, q, h + 1/3) * 255)}, ${Math.round(hue2rgb(p, q, h) * 255)}, ${Math.round(hue2rgb(p, q, h - 1/3) * 255)})`;
+                          // Convert back to RGB
+                          const hue2rgb = (p, q, t) => {
+                              if (t < 0) t += 1; if (t > 1) t -= 1;
+                              if (t < 1/6) return p + (q - p) * 6 * t;
+                              if (t < 1/2) return q;
+                              if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+                              return p;
+                          };
+                          let q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                          let p = 2 * l - q;
+                          const finalColor = `rgb(${Math.round(hue2rgb(p, q, h + 1/3) * 255)}, ${Math.round(hue2rgb(p, q, h) * 255)}, ${Math.round(hue2rgb(p, q, h - 1/3) * 255)})`;
 
-                if (window.triggerSparkBurst) {
-                    window.triggerSparkBurst(e.clientX, e.clientY, finalColor);
-                    yaySound.currentTime = 0; // Reset to start in case of rapid clicks
-                    yaySound.play().catch(e => console.error("Audio playback failed:", e));
-                }
-            };
-                if (!foundScorsbies.has(idx)) {
-                    foundScorsbies.add(idx);
-                    updateScorsbyCounter();
+                          if (window.triggerSparkBurst) {
+                              // --- FIX MOBILE PARTICLE PLACEMENT COORDS ---
+                              const canvasEl = document.getElementById('twinkle-canvas');
+                              const canvasRect = canvasEl.getBoundingClientRect();
+                              let pX, pY;
 
-                    // Inside your item selection/click handler:
-                    const currentPercentage = (foundScorsbies.size / totalScorsbies) * 100;
-                    if (currentPercentage >= 90) {
-                        yaySound.pause();
-                        yaySound.currentTime = 0;
-                        winSound.currentTime = 0; // Reset to start in case of rapid clicks
-                        winSound.play().catch(e => console.error("Audio playback failed:", e));
-                        setTimeout(() => { window.location.href = 'secret.html'; }, 3000);
-                    }
-                    /*if (foundScorsbies.size === totalScorsbies && totalScorsbies > 0) {
-                        setTimeout(() => { window.location.href = 'secret.html'; }, 1500);
-                    }*/
-                }
-                return;
-            }
-        } catch (err) {
-            console.error("Canvas read error:", err);
-        }
-        }
-    }
+                              if (document.body.classList.contains('force-landscape')) {
+                                  pX = e.clientY - canvasRect.top;
+                                  pY = canvasRect.right - e.clientX;
+                              } else {
+                                  pX = e.clientX - canvasRect.left;
+                                  pY = e.clientY - canvasRect.top;
+                              }
 
-    // Original flow
-    if (isAnimating) forceInstantComplete();
+                              window.triggerSparkBurst(pX, pY, finalColor);
 
-    isDragging = true;
-    startX = e.clientX; startY = e.clientY; lastX = e.clientX;
-    currentDir = 0;
-    bookWidth = bookEl.clientWidth || window.innerWidth;
-    hasMovedPastThreshold = false;
-    dragMode = e.target.closest('#book') ? "single" : "fast";
-  });
+                              // Add to tracked targets before checking victory parameters
+                              if (!foundScorsbies.has(idx)) {
+                                  foundScorsbies.add(idx);
+                                  updateScorsbyCounter();
+                              }
+
+                              // --- FIX AUDIO LOGIC OVERLAP ---
+                              const currentPercentage = (foundScorsbies.size / totalScorsbies) * 100;
+                              if (currentPercentage >= 90) {
+                                  winSound.currentTime = 0;
+                                  winSound.play().catch(e => console.error("Audio playback failed:", e));
+
+                                  // 2. Instantly shift the background color to dark blue
+                                  document.documentElement.style.setProperty('--bg-color', '#0b0947');
+
+                                  // 3. Fade away everything except the twinkle-canvas
+                                  document.getElementById('top-utilities').classList.add('fade-out-win');
+                                  document.getElementById('meta-container').classList.add('fade-out-win');
+                                  document.getElementById('book').classList.add('fade-out-win');
+
+                                  setTimeout(() => { window.location.href = 'secret.html'; }, 3000);
+                              } else {
+                                  yaySound.currentTime = 0;
+                                  yaySound.play().catch(e => console.error("Audio playback failed:", e));
+                              }
+                          }
+                      };
+                      return;
+                  }
+              } catch (err) {
+                  console.error("Canvas read error:", err);
+              }
+          }
+      }
+
+      // Original flow
+      if (isAnimating) forceInstantComplete();
+
+      isDragging = true;
+      startX = e.clientX; startY = e.clientY; lastX = e.clientX;
+      currentDir = 0;
+      bookWidth = bookEl.clientWidth || window.innerWidth;
+      hasMovedPastThreshold = false;
+      dragMode = e.target.closest('#book') ? "single" : "fast";
+    });
 
   document.addEventListener('pointermove', (e) => {
     if (!introCompleted || !isDragging) return;

@@ -155,6 +155,27 @@
 
     .sp-lyrics-panel::-webkit-scrollbar { width: 4px; }
     .sp-lyrics-panel::-webkit-scrollbar-thumb { background: var(--sp-border); border-radius: 10px; }
+
+    /* Shrink structural elements cleanly on narrow viewports */
+    @media (max-width: 480px) {
+      .sp-player-container {
+        --sp-size: 70px; /* Shrinks album art from 96px */
+      }
+      .sp-header {
+        padding: 0 12px; /* Drops padding from 22px to save 20px of width */
+      }
+      .sp-controls {
+        gap: 8px; /* Tightens space between play button and timeline */
+      }
+      .sp-lyric-toggle {
+        margin-left: 6px; /* Prevents button from pushing text out of view */
+        letter-spacing: 0.5px; /* Saves a tiny bit more horizontal space */
+      }
+      .sp-title {
+        font-size: 13px; /* Slightly smaller font to prevent aggressive ellipsis */
+      }
+    }
+
   `;
 
   function injectStyles() {
