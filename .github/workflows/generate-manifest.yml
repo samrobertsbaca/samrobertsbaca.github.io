@@ -20,7 +20,7 @@ jobs:
 
     - name: Generate manifest.json
       run: |
-        cd books/bluerose_images
+        cd books/bluerose/images
         # Find all images, strip paths, and format them cleanly as a JSON array
         find . -type f \( -iname "*.png" -o -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.webp" -o -iname "*.gif" \) | sed 's|^\./||' | jq -R . | jq -s . > manifest.json
         cat manifest.json # Prints it in the log so you can see it worked
@@ -29,7 +29,7 @@ jobs:
       run: |
         git config --global user.name "github-actions[bot]"
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git add books/bluerose_images/manifest.json
+        git add books/bluerose/images/manifest.json
         # Only commit if the manifest actually changed, preventing endless build loops
         git diff-index --quiet HEAD || git commit -m "chore: auto-generate images manifest [skip ci]"
         git push
