@@ -174,6 +174,31 @@
       .sp-title {
         font-size: 13px; /* Slightly smaller font to prevent aggressive ellipsis */
       }
+
+      .sp-lyrics-panel {
+        grid-column: 1 / span 2;
+        grid-row: 2; /* Ensure it stays in the second row */
+        background: var(--sp-bg-dark);
+        max-height: 0;
+        overflow: hidden;
+        padding: 0 22px;
+        border-top: 0px solid transparent;
+        transition: max-height 0.4s ease, padding 0.4s ease, border-top 0.4s ease;
+      }
+
+      .lyric-open .sp-lyrics-panel {
+        max-height: 222px !important;
+        padding: 24px 22px;
+        border-top: 1px solid var(--sp-border);
+        overflow-y: auto;
+      }
+
+      .sp-lyrics-content {
+        color: color-mix(in srgb, var(--sp-text), transparent 15%);
+        font-size: 13px;
+        line-height: 1.2;
+      }
+
     }
 
   `;
