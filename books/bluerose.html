@@ -955,6 +955,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
       console.log("Pointer down. Has mask canvas:", !!currentMaskCanvas);
 
+      const isZoomAnimating = zoomWrapper.getAnimations().length > 0;
+      if (isZoomAnimating) {
+        return;
+      }
+
       if (currentMaskCanvas) {
           const rect = bookEl.getBoundingClientRect();
           const cx = rect.left + rect.width / 2;
