@@ -655,16 +655,16 @@ function trigger3DSequence() {
       ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
     };
     resizeCanvas();
+    window.removeEventListener('resize', resizeCanvas); // Clean up old listeners
     window.addEventListener('resize', resizeCanvas);
     canvas.style.opacity = '1';
 
-    function drawSparkStar(x, y, size, alpha,color='#9adaff') {
+    function drawSparkStar(x, y, size, alpha, color='#9adaff') {
       ctx.save();
       ctx.globalAlpha = Math.max(0, alpha);
       ctx.fillStyle = color;
       ctx.shadowBlur = 12;
       ctx.shadowColor = color;
-      //ctx.shadowColor = '#4bb6fb';
       ctx.beginPath();
       ctx.moveTo(x, y - size * 2.5);
       ctx.quadraticCurveTo(x, y, x + size * 2.5, y);
@@ -680,7 +680,7 @@ function trigger3DSequence() {
       constructor(cx, cy, color) {
         this.x = cx;
         this.y = cy;
-        this.color = color; // Store the color
+        this.color = color;
         const angle = Math.random() * Math.PI * 2;
         const speed = Math.random() * 4.5 + 1.5;
         this.speedX = Math.cos(angle) * speed;
@@ -717,8 +717,18 @@ function trigger3DSequence() {
       const elapsed = timestamp - startTime;
       ctx.clearRect(0, 0, canvas.offsetWidth, canvas.offsetHeight);
 
-      const cx = canvas.offsetWidth / 2;
-      const cy = canvas.offsetHeight / 2;
+      // --- FIXED ORIGIN CALCULATION ---
+      let cx = canvas.offsetWidth / 2;
+      let cy = canvas.offsetHeight / 2;
+
+      // If the user targeted custom coordinates (like inside your event listeners)
+      // we account for the bounding client box dynamically.
+      const bookRect = document.getElementById('book').getBoundingClientRect();
+      if (bookRect.width > 0 && bookRect.height > 0) {
+        cx = bookRect.left + bookRect.width / 2;
+        cy = bookRect.top + bookRect.height / 2;
+      }
+      // ---------------------------------
 
       if (elapsed < 700) {
         const pulse = Math.sin(elapsed * 0.02) * 2 + 5;
@@ -769,7 +779,6 @@ function trigger3DSequence() {
     });
   });
 }
-
 function forceInstantComplete() {
   if (!isAnimating) return;
   clearTimeout(finishTimeout); clearTimeout(midTurnTimeout);

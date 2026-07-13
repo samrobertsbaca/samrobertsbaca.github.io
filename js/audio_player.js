@@ -159,7 +159,7 @@
     /* Shrink structural elements cleanly on narrow viewports */
     @media (max-width: 480px) {
       .sp-player-container {
-        --sp-size: 70px; /* Shrinks album art from 96px */
+        --sp-size: 96px; /* Shrinks album art from 96px */
       }
       .sp-header {
         padding: 0 12px; /* Drops padding from 22px to save 20px of width */
