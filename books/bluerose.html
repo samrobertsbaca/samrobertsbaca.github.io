@@ -43,8 +43,17 @@
     position: relative; display: flex; align-items: center; justify-content: center;
     width: 100%; height: 100%; transition: transform 0.25s ease;
     transform-style: preserve-3d;
+    will-change: transform;
   }
   body.force-landscape #stage-inner { transform: rotate(90deg); }
+
+  /* New Zoom Wrapper Style Layer */
+  #zoom-wrapper {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    will-change: transform;
+    transform-style: preserve-3d;
+  }
 
   #book {
     position: relative;
@@ -240,7 +249,6 @@
     }
   }
 
-  /* Add this anywhere inside your <style> tags */
 #top-utilities, #meta-container, #book {
   transition: opacity 1.5s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.8s ease;
 }
@@ -280,21 +288,23 @@
   </div>
 
   <div id="stage-inner">
-
-    <div id="book">
-      <div id="book-cover-wrapper">
-        <div class="cover-half left"><div class="cover-bg" id="cover-left-bg"></div></div>
-        <div class="cover-half right"><div class="cover-bg" id="cover-right-bg"></div></div>
-        <div class="cover-spine"></div>
+    <!-- Inserted Zoom Container Layer Around the Book Element -->
+    <div id="zoom-wrapper">
+      <div id="book">
+        <div id="book-cover-wrapper">
+          <div class="cover-half left"><div class="cover-bg" id="cover-left-bg"></div></div>
+          <div class="cover-half right"><div class="cover-bg" id="cover-right-bg"></div></div>
+          <div class="cover-spine"></div>
+        </div>
+        <div class="leaf left" id="leaf-left"><div class="leaf-bg" id="leaf-left-bg"></div></div>
+        <div class="leaf right" id="leaf-right"><div class="leaf-bg" id="leaf-right-bg"></div></div>
+        <div id="flap">
+          <div class="face front"><div class="face-bg" id="flap-front-bg"></div></div>
+          <div class="face back"><div class="face-bg" id="flap-back-bg"></div></div>
+        </div>
+        <div class="corner-curl right"></div>
+        <div class="corner-curl left"></div>
       </div>
-      <div class="leaf left" id="leaf-left"><div class="leaf-bg" id="leaf-left-bg"></div></div>
-      <div class="leaf right" id="leaf-right"><div class="leaf-bg" id="leaf-right-bg"></div></div>
-      <div id="flap">
-        <div class="face front"><div class="face-bg" id="flap-front-bg"></div></div>
-        <div class="face back"><div class="face-bg" id="flap-back-bg"></div></div>
-      </div>
-      <div class="corner-curl right"></div>
-      <div class="corner-curl left"></div>
     </div>
   </div>
 </div>
@@ -314,6 +324,16 @@ let currentMaskCtx = null;
 
 const yaySound = new Audio('/media/bluerose/yay.mp3');
 const winSound = new Audio('/media/bluerose/warp.ogg');
+
+// --- Global Zoom & Pan Configuration Variables ---
+let isZoomed = false;
+let zoomScale = 1;
+let panX = 0;
+let panY = 0;
+let initialPinchDistance = null;
+let isPanning = false;
+let lastPanX = 0;
+let lastPanY = 0;
 
 function hexToRgb(hex) {
   const bigint = parseInt(hex.replace('#', ''), 16);
@@ -415,11 +435,9 @@ function updateScorsbyCounter() {
   const sc = document.getElementById('scorsby-counter');
   if (sc && totalScorsbies > 0) {
     sc.style.display = 'inline';
-    //sc.textContent = `scorsbies found: ${foundScorsbies.size} / ${totalScorsbies}`;
   } else if (sc) {
     sc.style.display = 'none';
   }
-
 }
 
 function processImages(items, isFileList = false) {
@@ -432,21 +450,18 @@ function processImages(items, isFileList = false) {
   const masksMap = new Map();
   const nonMaskItems = [];
 
-  // 1. Identify mask files first by checking the full filename
-  // 2. Extract the 'base' name by stripping _mask, _compressed, and the extension
   const getBaseName = (name) => {
     return name.toLowerCase()
-      .replace(/\.[^/.]+$/, "")             // Strip extension
-      .replace(/_mask/gi, "")               // Remove mask tag
-      .replace(/_compressed/gi, "")         // Remove compression tag
-      .replace(/_+$/, "");                  // Clean up any trailing underscores
+      .replace(/\.[^/.]+$/, "")
+      .replace(/_mask/gi, "")
+      .replace(/_compressed/gi, "")
+      .replace(/_+$/, "");
   };
 
   sortedItems.forEach(item => {
     const name = isFileList ? item.name : item;
     const lowerName = name.toLowerCase();
 
-    // Check for mask before stripping the tag
     if (lowerName.includes('_mask')) {
       const baseName = getBaseName(name);
       masksMap.set(baseName, isFileList ? URL.createObjectURL(item) : `bluerose_images/${item}`);
@@ -456,7 +471,6 @@ function processImages(items, isFileList = false) {
     }
   });
 
-  // DEBUG: Log the final map
   console.log("Total masks found in map:", masksMap.size);
   masksMap.forEach((val, key) => console.log(`Map Entry: ${key} -> ${val}`));
 
@@ -618,7 +632,6 @@ function setIdle(i){
   updateDynamicBackground(i);
   lazyLoadSurrounding(i);
 
-  // Hidden Mask Canvas Generation for Interaction Check
   currentMaskCanvas = null;
   currentMaskCtx = null;
   if (pageMasks && pageMasks[i]) {
@@ -655,7 +668,7 @@ function trigger3DSequence() {
       ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
     };
     resizeCanvas();
-    window.removeEventListener('resize', resizeCanvas); // Clean up old listeners
+    window.removeEventListener('resize', resizeCanvas);
     window.addEventListener('resize', resizeCanvas);
     canvas.style.opacity = '1';
 
@@ -717,8 +730,6 @@ function trigger3DSequence() {
       const elapsed = timestamp - startTime;
       ctx.clearRect(0, 0, canvas.offsetWidth, canvas.offsetHeight);
 
-      // Since the canvas covers the full viewport 1:1, the viewport center
-      // is the exact final destination of your centered book.
       const cx = canvas.offsetWidth / 2;
       const cy = canvas.offsetHeight / 2;
 
@@ -747,6 +758,13 @@ function trigger3DSequence() {
   bookEl.style.transition = 'none';
   bookEl.classList.remove('float-in', 'open-cover');
 
+  // Also Reset zoom states during sequencing initialization
+  isZoomed = false;
+  zoomScale = 1;
+  panX = 0; panY = 0;
+  const zw = document.getElementById('zoom-wrapper');
+  if(zw) zw.style.transform = 'scale(1) translate(0px, 0px)';
+
   requestAnimationFrame(() => {
     updateCounterDisplay(0);
     const coverUrl = pages[0];
@@ -771,6 +789,7 @@ function trigger3DSequence() {
     });
   });
 }
+
 function forceInstantComplete() {
   if (!isAnimating) return;
   clearTimeout(finishTimeout); clearTimeout(midTurnTimeout);
@@ -785,6 +804,15 @@ function turn(direction){
 
   let target = Math.max(0, Math.min(pages.length - 1, idx + direction));
   if (target === idx) return;
+
+  // Zoom safety backup reset if key commands force a page-turn bypass
+  if (isZoomed) {
+    isZoomed = false;
+    zoomScale = 1;
+    panX = 0; panY = 0;
+    const zw = document.getElementById('zoom-wrapper');
+    if(zw) zw.style.transform = 'scale(1) translate(0px, 0px)';
+  }
 
   isAnimating = true; currentTargetIdx = target;
   updateCounterDisplay(target);
@@ -855,6 +883,8 @@ document.addEventListener('DOMContentLoaded', () => {
   coverRightBg = document.getElementById('cover-right-bg');
   coverWrapper = document.getElementById('book-cover-wrapper');
 
+  const zoomWrapper = document.getElementById('zoom-wrapper');
+
   const btnLoad = document.getElementById('btn-load');
   if (window.location.protocol.startsWith('http') && btnLoad) {
     btnLoad.remove();
@@ -865,12 +895,64 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('folder-input').addEventListener('change', e => loadFromFileList(e.target.files));
   document.getElementById('btn-fullscreen').addEventListener('click', toggleManualFullscreen);
 
-  // Core Fix: Moved mask check to pointerdown to decisively override drag/turn execution
-    document.addEventListener('pointerdown', (e) => {
+  // --- TWO-FINGER PINCH TO ZOOM HANDLERS ---
+  document.addEventListener('touchstart', (e) => {
+    if (!introCompleted) return;
+    if (e.touches.length === 2) {
+      isDragging = false;
+      isPanning = false;
+      initialPinchDistance = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+    }
+  }, { passive: false });
+
+  document.addEventListener('touchmove', (e) => {
+    if (!introCompleted) return;
+    if (e.touches.length === 2) {
+      e.preventDefault();
+      const currentDistance = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+
+      if (initialPinchDistance) {
+        const diff = currentDistance - initialPinchDistance;
+
+        // Pinch Out Gesture -> Zoom In State Mode Action
+        if (!isZoomed && diff > 40) {
+          isZoomed = true;
+          zoomScale = 2.4;
+          panX = 0; panY = 0;
+          zoomWrapper.style.transition = 'transform 0.35s cubic-bezier(0.25, 1, 0.5, 1)';
+          zoomWrapper.style.transform = `scale(${zoomScale}) translate(0px, 0px)`;
+          initialPinchDistance = currentDistance;
+        }
+        // Pinch In Gesture -> Zoom Out State Mode Action
+        else if (isZoomed && diff < -40) {
+          isZoomed = false;
+          zoomScale = 1;
+          panX = 0; panY = 0;
+          zoomWrapper.style.transition = 'transform 0.35s cubic-bezier(0.25, 1, 0.5, 1)';
+          zoomWrapper.style.transform = `scale(1) translate(0px, 0px)`;
+          initialPinchDistance = currentDistance;
+        }
+      }
+    }
+  }, { passive: false });
+
+  document.addEventListener('touchend', (e) => {
+    if (e.touches.length < 2) {
+      initialPinchDistance = null;
+    }
+  });
+
+
+  document.addEventListener('pointerdown', (e) => {
       if (!introCompleted) return;
       if (e.target.closest('#top-utilities') || e.target.closest('.btn') || e.target.closest('.page-nav-link')) return;
 
-      // DIAGNOSTIC: Check if we even have a mask loaded
       console.log("Pointer down. Has mask canvas:", !!currentMaskCanvas);
 
       if (currentMaskCanvas) {
@@ -878,8 +960,9 @@ document.addEventListener('DOMContentLoaded', () => {
           const cx = rect.left + rect.width / 2;
           const cy = rect.top + rect.height / 2;
 
-          let dx = e.clientX - cx;
-          let dy = e.clientY - cy;
+          // Divide client distances by zoomScale to resolve accurate sizing positions
+          let dx = (e.clientX - cx) / zoomScale;
+          let dy = (e.clientY - cy) / zoomScale;
 
           if (document.body.classList.contains('force-landscape')) {
               const origDx = dx; dx = dy; dy = -origDx;
@@ -899,10 +982,8 @@ document.addEventListener('DOMContentLoaded', () => {
               try {
                   const pixel = currentMaskCtx.getImageData(maskX, maskY, 1, 1).data;
 
-                  // Only proceed if it's a hit on the mask
                   if (pixel[3] > 50 && pixel[0] < 50 && pixel[1] < 50 && pixel[2] < 50) {
 
-                      // Create an offscreen canvas to sample the actual page image
                       const img = new Image();
                       img.src = pages[idx];
                       img.onload = () => {
@@ -916,7 +997,6 @@ document.addEventListener('DOMContentLoaded', () => {
                           const sampleY = Math.floor((localY / bookEl.offsetHeight) * img.height);
                           const data = ctx.getImageData(sampleX, sampleY, 1, 1).data;
 
-                          // Convert RGB to HSL
                           let r = data[0] / 255, g = data[1] / 255, b = data[2] / 255;
                           let max = Math.max(r, g, b), min = Math.min(r, g, b);
                           let h, s, l = (max + min) / 2;
@@ -934,10 +1014,8 @@ document.addEventListener('DOMContentLoaded', () => {
                               h /= 6;
                           }
 
-                          // Shift hue by 0.05
                           h = (h + 0.05) % 1;
 
-                          // Convert back to RGB
                           const hue2rgb = (p, q, t) => {
                               if (t < 0) t += 1; if (t > 1) t -= 1;
                               if (t < 1/6) return p + (q - p) * 6 * t;
@@ -950,7 +1028,6 @@ document.addEventListener('DOMContentLoaded', () => {
                           const finalColor = `rgb(${Math.round(hue2rgb(p, q, h + 1/3) * 255)}, ${Math.round(hue2rgb(p, q, h) * 255)}, ${Math.round(hue2rgb(p, q, h - 1/3) * 255)})`;
 
                           if (window.triggerSparkBurst) {
-                              // --- FIX MOBILE PARTICLE PLACEMENT COORDS ---
                               const canvasEl = document.getElementById('twinkle-canvas');
                               const canvasRect = canvasEl.getBoundingClientRect();
                               let pX, pY;
@@ -965,22 +1042,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
                               window.triggerSparkBurst(e.clientX, e.clientY, finalColor);
 
-                              // Add to tracked targets before checking victory parameters
                               if (!foundScorsbies.has(idx)) {
                                   foundScorsbies.add(idx);
                                   updateScorsbyCounter();
                               }
 
-                              // --- FIX AUDIO LOGIC OVERLAP ---
                               const currentPercentage = (foundScorsbies.size / totalScorsbies) * 100;
                               if (currentPercentage >= 90) {
                                   winSound.currentTime = 0;
                                   winSound.play().catch(e => console.error("Audio playback failed:", e));
 
-                                  // 2. Instantly shift the background color to dark blue
                                   document.documentElement.style.setProperty('--bg-color', '#0b0947');
 
-                                  // 3. Fade away everything except the twinkle-canvas
                                   document.getElementById('top-utilities').classList.add('fade-out-win');
                                   document.getElementById('meta-container').classList.add('fade-out-win');
                                   document.getElementById('book').classList.add('fade-out-win');
@@ -1000,7 +1073,15 @@ document.addEventListener('DOMContentLoaded', () => {
           }
       }
 
-      // Original flow
+      // If zoomed, convert swipe drag intent into a camera pan matrix shift instead
+      if (isZoomed) {
+          isPanning = true;
+          lastPanX = e.clientX;
+          lastPanY = e.clientY;
+          zoomWrapper.style.transition = 'none';
+          return;
+      }
+
       if (isAnimating) forceInstantComplete();
 
       isDragging = true;
@@ -1012,7 +1093,41 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
   document.addEventListener('pointermove', (e) => {
-    if (!introCompleted || !isDragging) return;
+    if (!introCompleted) return;
+
+    // --- ZOOM MODE PAN LOGIC WITH BOUNDARY BOX CHECKS ---
+    if (isZoomed && isPanning) {
+        let deltaX = e.clientX - lastPanX;
+        let deltaY = e.clientY - lastPanY;
+
+        if (document.body.classList.contains('force-landscape')) {
+            const origDx = deltaX; deltaX = deltaY; deltaY = -origDx;
+        }
+
+        panX += deltaX / zoomScale;
+        panY += deltaY / zoomScale;
+
+        lastPanX = e.clientX;
+        lastPanY = e.clientY;
+
+        // Dynamic viewport limit boundary checking
+        const bw = bookEl.offsetWidth;
+        const bh = bookEl.offsetHeight;
+        const viewW = document.body.classList.contains('force-landscape') ? window.innerHeight : window.innerWidth;
+        const viewH = document.body.classList.contains('force-landscape') ? window.innerWidth : window.innerHeight;
+
+        // Constraint rules ensuring at least 25% of book footprint maintains visibility
+        const maxPanX = Math.max(bw * 0.4, (bw * zoomScale - viewW * 0.25) / 2 / zoomScale);
+        const maxPanY = Math.max(bh * 0.4, (bh * zoomScale - viewH * 0.25) / 2 / zoomScale);
+
+        panX = Math.max(-maxPanX, Math.min(maxPanX, panX));
+        panY = Math.max(-maxPanY, Math.min(maxPanY, panY));
+
+        zoomWrapper.style.transform = `scale(${zoomScale}) translate(${panX}px, ${panY}px)`;
+        return;
+    }
+
+    if (!isDragging) return;
 
     let deltaX = e.clientX - startX;
     if (document.body.classList.contains('force-landscape')) {
@@ -1099,7 +1214,16 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.addEventListener('pointerup', (e) => {
-    if (!introCompleted || !isDragging) return;
+    if (!introCompleted) return;
+
+    // Break out early if zoomed in to safely cancel page turn sequences
+    if (isZoomed) {
+        isPanning = false;
+        zoomWrapper.style.transition = 'transform 0.35s cubic-bezier(0.25, 1, 0.5, 1)';
+        return;
+    }
+
+    if (!isDragging) return;
     isDragging = false;
 
     let deltaX = document.body.classList.contains('force-landscape') ? e.clientY - startY : e.clientX - startX;
