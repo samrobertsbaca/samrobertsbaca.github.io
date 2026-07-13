@@ -187,7 +187,7 @@
       }
 
       .lyric-open .sp-lyrics-panel {
-        max-height: 222px !important;
+        max-height: 200px !important;
         padding: 24px 22px;
         border-top: 1px solid var(--sp-border);
         overflow-y: auto;
