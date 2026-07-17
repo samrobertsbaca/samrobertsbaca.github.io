@@ -24,7 +24,7 @@ MAX_IMAGES = 10000
 
 
 # mask pattern
-mask_pattern = re.compile(r'\b_mask\b')
+mask_pattern = re.compile(r'_mask')
 
 urls = []
 
