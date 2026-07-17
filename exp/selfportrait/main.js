@@ -250,11 +250,22 @@ function drawFrame(delta) {
 
 function spawnImage() {
   if (activeImages.length >= MAX_ACTIVE_IMAGES || !loadedPool.length) return;
-  const img = loadedPool[(Math.random() * loadedPool.length) | 0];
+
+  // 1. Pick a random index
+  const index = (Math.random() * loadedPool.length) | 0;
+
+  // 2. Remove (splice) the image from the pool so it is "consumed"
+  const img = loadedPool.splice(index, 1)[0];
+
   let dw = window.innerWidth * (0.2 + Math.random()*0.4), dh = dw / (img.width / img.height);
   activeImages.push({
-    img, dx: -dw*0.3 + Math.random()*window.innerWidth, dy: -dh*0.3 + Math.random()*window.innerHeight, dw, dh,
-    duration: (3000 + Math.random()*5000) / OVERALL_SPEED, opacity: 0
+    img,
+    dx: -dw*0.3 + Math.random()*window.innerWidth,
+    dy: -dh*0.3 + Math.random()*window.innerHeight,
+    dw,
+    dh,
+    duration: (3000 + Math.random()*5000) / OVERALL_SPEED,
+    opacity: 0
   });
 }
 

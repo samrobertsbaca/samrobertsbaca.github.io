@@ -10,6 +10,7 @@ SITE_ROOT = ROOT.parents[1]  # this maps to "./" in the browser
 MEDIA_DIRS = [
     SITE_ROOT / "images",
     SITE_ROOT / "media",
+    SITE_ROOT / "books/blueroses/images"
 ]
 
 BLOG_DIRS = [
@@ -21,6 +22,10 @@ EXTS = {".jpg", ".jpeg", ".png", ".webp", ".bmp"}
 MAX_IMAGES = 10000
 # ----------------------------------------
 
+
+# mask pattern
+mask_pattern = re.compile(r'\b_mask\b')
+
 urls = []
 
 for base in MEDIA_DIRS:
@@ -29,9 +34,11 @@ for base in MEDIA_DIRS:
             continue
         for f in files:
             if Path(f).suffix.lower() in EXTS:
-                full_path = Path(root) / f
+                # 🛑 SKIP mask images here
+                if mask_pattern.search(f):
+                    continue
 
-                # 🔑 convert filesystem path → website-rooted URL
+                full_path = Path(root) / f
                 rel_path = full_path.relative_to(SITE_ROOT).as_posix()
                 urls.append(f"/{rel_path}")
 
@@ -60,6 +67,7 @@ equals_pattern = re.compile(r'^=+$')
 
 # Non-breaking space entity
 nbsp_pattern = re.compile(r'^&nbsp;$')
+
 
 # line break entity
 br_pattern = re.compile(r'^<br></br>$')
