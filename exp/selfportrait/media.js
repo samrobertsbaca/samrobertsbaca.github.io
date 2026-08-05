@@ -219,6 +219,7 @@ export const IMAGE_URLS = [
   "/images/sm64_light.png",
   "/images/sm64_light_sm.png",
   "/images/sm64_void.png",
+  "/images/surfing_cinematic.png",
   "/images/tree1.png",
   "/images/treepositivity_trans.png",
   "/images/wedrawtrans.png",
