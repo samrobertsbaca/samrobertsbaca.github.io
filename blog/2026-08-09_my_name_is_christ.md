@@ -8,7 +8,7 @@ the only one
 
 my name is christ  
 your name is christ  
-love's name is christ  
+love's name is 
 
 god in three persons  
 you, me, love  
