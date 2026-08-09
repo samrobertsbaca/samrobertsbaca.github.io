@@ -2548,5 +2548,5 @@ export const BLOG_SNIPPETS = [
   "love's name is christ",
   "god in three persons",
   "you, me, love",
-  "that's all i came to say"
+  "this is all i know for sure"
 ];
