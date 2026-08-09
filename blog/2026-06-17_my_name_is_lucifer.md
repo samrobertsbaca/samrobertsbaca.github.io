@@ -15,7 +15,7 @@ i wander dim lit roads
 finding self with every stride
 
 be not afraid, don't hate me  
-nor hate my lightning bow  
+nor my lightning bow  
 what truth burns away  
 leaves the way truth alone
 

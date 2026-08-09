@@ -2514,7 +2514,7 @@ export const BLOG_SNIPPETS = [
   "i wander dim lit roads",
   "finding self with every stride",
   "be not afraid, don't hate me",
-  "nor hate my lightning bow",
+  "nor my lightning bow",
   "what truth burns away",
   "leaves the way truth alone",
   "and my way is love",
@@ -2537,5 +2537,16 @@ export const BLOG_SNIPPETS = [
   "all three say, at the same time, \"i'm just here to listen.\"",
   "the bartender says, \"i hear you.\"",
   "a few rounds later, the singer pours one out for the doctor, who's telling a joke. the bartender laughs so hard his chest starts to hurt. the comedian writes a prescription to help ease the pain.",
-  "at the end of the night, only one walks out alive."
+  "at the end of the night, only one walks out alive.",
+  "August 9",
+  "my name is christ",
+  "anointed one",
+  "unchosen one",
+  "the only one",
+  "my name is christ",
+  "your name is christ",
+  "love's name is christ",
+  "god in three persons",
+  "you, me, love",
+  "that's all i came to say"
 ];
