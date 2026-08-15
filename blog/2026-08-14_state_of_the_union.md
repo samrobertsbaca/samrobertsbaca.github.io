@@ -1,3 +1,5 @@
+Aug 14
+
 # state of the union
 
 ![](/images/jag.png)
