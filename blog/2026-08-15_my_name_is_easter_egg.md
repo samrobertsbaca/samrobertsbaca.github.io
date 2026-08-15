@@ -36,11 +36,11 @@ Aug 15
 
 my name is easter egg. because finding me is a delightful surprise.
 
-something scrumptious is waiting inside but you really won’t know unless you open it up and see for yourself.
+something scrumptious is waiting inside but you really won’t know unless you crack it open and see for yourself.
 
-i don’t write or sing or make art to draw attention to myself so much as i do it to crack something open in you— to inspire a deeper clarity, reverence, and appreciation for love itself. because when you really surrender to love, it reveals itself in you in the most mystifying, ever-deepening, ever-wonderous ways. it’s something gooey, it’s something raw, something light, something fluid, shimmering and mind-altering and heart expanding, intimate and warm and familiar and true. it is home.
+i don’t write or sing or make art to draw attention to myself so much as i do it to crack something open in you — to inspire a deeper clarity, reverence, and appreciation for love itself. because when you really surrender to love, it reveals itself in you in the most mystifying ways. it’s something gooey, it’s something raw, something light, something fluid, shimmering and mind-altering and heart-expanding, intimate and warm and familiar and true. it is home.
 
-my sincere hope is simply to be with you in love, wherever you are, as present as possible. to refine the loving presence in myself to refine the loving presence in you. i believe an artist is a co-creator to help one another draw closer to love.
+my sincere hope is simply to be with you in this love, wherever you are, as present as possible. to refine the loving presence in myself to refine the loving presence in you. i believe an artist is a co-creator to help one another draw closer to love.
 
 my name is easter egg. because i come in every color, and i point to resurrection.
 
@@ -50,7 +50,7 @@ my name is easter egg. because i come in every color, and i point to resurrectio
 
 <br/><br/>
 
-what’s in the easter egg today? i’ve been thinking about kalki as of late. they say he’s the tenth and final incarnation of vishnu, god of preservation and protector of good. i see the gods as symbols, archetypal methods themselves designed to inspire and teach us. let us take a look at this picture together:
+what’s in the easter egg today? i’ve been thinking about kalki. they say he’s the tenth and final incarnation of vishnu, god of preservation and protector of good. i see the gods as symbols, archetypal methods themselves designed to inspire and teach us. let us take a look at this picture together:
 
 <br/><br/>
 
@@ -60,13 +60,15 @@ what’s in the easter egg today? i’ve been thinking about kalki as of late. t
 
 what do you see? i see a glowing, faint but mighty purple man on a trusty white steed, cutting through both the storm and the sea of soldiers, totally unscathed. he’s said to be a warrior of absolute, unbullshitable truth, an end-times figure prophesized to bring about the end of the current age of ignorance into a new age of truth, cleanliness, kindness and forgiveness.
 
-unbullshitable truth. yes, i like this phrase. that’s what i want to be too.
+unbullshitable truth. yes. that’s what i want to be too.
 
 the name kalki itself means “one who possesses filth” — in the sense that one overcomes, transmutes, transforms filth. to this effect, he’s known also as the “annihilator of wickedness.”
 
 a thought occurred to me this morning: true love is the best defense against the dark arts. what is true love? simple! it’s a love that’s based in truth, that cuts through illusion and ignorance like kalki’s sword.
 
-it’s hard to believe that there are forces that don’t want true love to reign supreme. it’s hard to believe that some of them could be friends or family, even sometimes the ones closest to you. but you find out what people are really all about by their actions. you find out who you yourself are by your own deeds. that’s what your sword of truth is for. to discern what is truly loving and what is not. and if a way of being is not truly loving, it must be swiftly and gracefully done away with. you're not punishing yourself, you're just letting go of what was never really you to begin with.
+it can be shocking to realize there are forces that don’t want true love to reign supreme. it’s hard to believe that some of them could be friends or family, even sometimes the ones closest to you. but don't be too fazed, it's all part of the path.
+
+you find out what people are really all about by their actions. you find out who you are yourself by your own deeds. that’s what your sword of truth is for. to discern what is truly loving and what is not. and if a way of being is not truly loving, it must be swiftly and gracefully done away with. you're not punishing yourself, you're just letting go of what was never really you to begin with. it's a constant refining process.
 
 this is a precise art, maybe the most precise of all the arts. i think of the old teaching about the two roads— the wide one, easy to walk, crowded, and it leads nowhere good. the narrow one is harder to find and harder to stay on, and almost no one bothers looking for it. that's not because it's hidden from you. it's because it asks something of you the wide road doesn't.
 
