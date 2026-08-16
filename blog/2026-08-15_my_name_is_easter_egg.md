@@ -50,7 +50,7 @@ my name is easter egg. because i come in every color, and i point to resurrectio
 
 <br/><br/>
 
-what’s in the easter egg today? i’ve been thinking about kalki. they say he’s the tenth and final incarnation of vishnu, god of preservation and protector of good. i see the gods as symbols, archetypal methods themselves designed to inspire and teach us.
+what’s in the easter egg today? i’ve been thinking about kalki. they say he’s the tenth and final incarnation of vishnu, god of preservation and protector of good. i see the avatars, the gods, as real as they are symbolic, archetypal methods themselves designed to inspire and teach us.
 
 <br/><br/>
 
@@ -58,16 +58,16 @@ what’s in the easter egg today? i’ve been thinking about kalki. they say he�
 
 <br/><br/>
 
-kalki is said to be a warrior of absolute, unbullshitable truth, an end-times figure prophesized to bring about the end of the current age of ignorance into a new age of truth, cleanliness, kindness and forgiveness.
+kalki is said to be a warrior of absolute, unbullshitable truth, an end-times figure prophesized to bring about the end of the current age of ignorance into a new age of truth, cleanliness, kindness and forgiveness. [this is said to occur by 2032.](https://stilljustjames.com/a-century-old-tibetan-prophecy-of-biospheric-collapse-its-terrible-disruptions-2026-2032/)
 
 the very name kalki means “one who possesses filth” — in the sense that one overcomes, transmutes, transforms filth. to this effect, he’s known also as the “annihilator of wickedness.”
 
-so what does it mean to be the annihilator of wickedness? it's simple, really. just be so fiercely loving that wickedness can't even touch you.
+so what does it mean to be the annihilator of wickedness? it's simple, really. just be so fiercely loving that all the wickedness of the world can't even faze you.
 
-a thought occurred to me this morning: true love is the best defense against the dark arts. don’t compromise what you know to be true for comforting illusions. don’t be complicit in systems or patterns that you know aren’t truly loving. don't bother with negativity, gossip, news, arguments, within or without. know your mission well and let the rest fall away.
+a thought occurred to me this morning: true love is the best defense against the dark arts. don’t compromise what you know to be true for comforting illusions. don’t be complicit in systems or patterns that you know aren’t truly loving. don't bother with negativity, gossip, news, arguments, within or without. instead, be still and know you are already the peace you seek. know your mission well and let the rest fall away.
 
 this is kalki energy at its essence.
 
-by no means take this too seriously. remember, it's easy! love all! and forgive all! and seek the highest truth always, which always leads to joy. if they misunderstand you, let them. if they understand you and still choose ignorance, let them, and trust that they will learn in time. gallop on your horse of pure white light with pure conviction. keep practicing joy, until you and joy are one. the light is the most joyful thing there is.
+by all means, take this lightly. remember, it's easy! love all! and forgive all! and seek the highest truth always, which always leads to joy. if they misunderstand you, let them. if they understand you and still choose ignorance, let them, and trust that they will learn in time. gallop on your horse of pure white light with pure conviction. keep practicing joy, until you and joy are one. the light is the most joyful thing there is.
 
 perhaps the most amazing thing about the light is how it never stops shining. it finds its way into everything. it’s unstoppable. find out what this light is in yourself, and be it. the world needs you more than ever. wishing you a basketful of easter eggs, filled with peace love and joy, always and forever. blessings.
