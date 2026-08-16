@@ -219,6 +219,9 @@ async function fillSnippets() {
 /** --- 4. BACKGROUND WORKER --- **/
 // Moved generation out of the render loop to prevent stutters
 setInterval(() => {
+  // FIX: Do not spawn background items until the permanent logo box is placed
+  if (!activeSnippets.some(s => s.isPermanent)) return;
+
   if (loadedPool.length < 10) {
     fetchNewImage();
   }

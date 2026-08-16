@@ -68,6 +68,6 @@ a thought occurred to me this morning: true love is the best defense against the
 
 this is kalki energy at its essence.
 
-by all means, take this lightly. remember, it's easy! love all! and forgive all! and seek the highest truth always, which always leads to joy. if they misunderstand you, let them. if they understand you and still choose ignorance, let them, and trust that they will learn in time. gallop on your horse of pure white light with pure conviction. keep practicing joy, until you and joy are one. the light is the most joyful thing there is.
+by all means, take this lightly. remember, it's easy! love all! and forgive all! and seek the highest truth always, which always leads to joy. if they misunderstand you, let them. if they understand you and still choose ignorance, let them, and trust that they will learn in time. gallop on your horse of pure white light with fearless conviction. keep practicing joy, until you and joy are one. the light is the most joyful thing there is.
 
 perhaps the most amazing thing about the light is how it never stops shining. it finds its way into everything. it’s unstoppable. find out what this light is in yourself, and be it. the world needs you more than ever. wishing you a basketful of easter eggs, filled with peace love and joy, always and forever. blessings.
