@@ -58,11 +58,11 @@ what’s in the easter egg today? i’ve been thinking about kalki. they say he�
 
 <br/><br/>
 
-kalki is said to be a warrior of absolute, unbullshitable truth, an end-times figure prophesized to bring about the end of the current age of ignorance into a new age of truth, cleanliness, kindness and forgiveness. [this is said to occur by 2032.](https://stilljustjames.com/a-century-old-tibetan-prophecy-of-biospheric-collapse-its-terrible-disruptions-2026-2032/)
+kalki is said to be a warrior of absolute, unbullshitable truth, an end-times figure prophesized to bring about the end of the current age of ignorance into a new age of truth, cleanliness, kindness and forgiveness. [this is said](https://stilljustjames.com/a-century-old-tibetan-prophecy-of-biospheric-collapse-its-terrible-disruptions-2026-2032/) [to occur by](https://www.youtube.com/watch?v=a0Tauxgf18U) [2032.](https://en.bhavishyamalika.com/)
 
 the very name kalki means “one who possesses filth” — in the sense that one overcomes, transmutes, transforms filth. to this effect, he’s known also as the “annihilator of wickedness.”
 
-so what does it mean to be the annihilator of wickedness? it's simple, really. just be so fiercely loving that all the wickedness of the world can't even faze you.
+so what does it mean to be the annihilator of wickedness? it's simple, really. just be so fiercely loving that all the wickedness of the world can't even touch you.
 
 a thought occurred to me this morning: true love is the best defense against the dark arts. don’t compromise what you know to be true for comforting illusions. don’t be complicit in systems or patterns that you know aren’t truly loving. don't bother with negativity, gossip, news, arguments, within or without. instead, be still and know you are already the peace you seek. know your mission well and let the rest fall away.
 
