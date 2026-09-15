@@ -1,34 +1,148 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-F0TBFJSGJ9"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GOD SAYS YOU'RE A CHAMP</title>
 
-    gtag('config', 'G-F0TBFJSGJ9');
-  </script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>scorsby's site</title>
-    <meta name="description" content="scorsby...">
-    <link rel="icon" href="/favicon.webp" type="image/x-icon">
-    <style>
-        body, html {
-            margin: 0; padding: 0;
-            height: 100%; overflow: hidden;
-            background-color: #00b4ff;
-        }
-        iframe {
-            width: 100vw;
-            height: 100vh;
-            border: none;
-            display: block;
-        }
-    </style>
+  <style>
+    /* Reset & Base Styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    @font-face {
+      font-family: 'BodyFont';
+      src: url('fonts/IBMPlexMono-Regular.ttf') format('truetype');
+    }
+
+    body {
+      background-color: #ffffff;
+      color: #111111;
+      font-family: 'BodyFont', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    /* Container */
+    .landing-container {
+      width: 100%;
+      max-width: 580px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    /* Header / Logo */
+    .brand-header {
+      margin-bottom: 24px;
+    }
+
+    .brand-header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    /* Front & Center Cover Art */
+    .album-art-link {
+      display: block;
+      width: 100%;
+      max-width: 1200px;
+      margin-bottom: 24px;
+      border-radius: 8px;
+      overflow: hidden;
+      /*box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);*/
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .album-art-link:hover {
+      transform: translateY(-3px);
+      /*box-shadow: 0 14px 36px rgba(0, 0, 0, 0.12);*/
+    }
+
+    .album-art-link img {
+      width: 100%;
+      height: auto;
+      display: block;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+    }
+
+    /* Audio Player Wrapper */
+    .player-wrapper {
+      width: 100%;
+      margin-bottom: 30px;
+    }
+
+    /* "Continue to Site" Link Button */
+    .continue-btn {
+      display: inline-block;
+      text-decoration: none;
+      color: #111111;
+      font-size: 13px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 12px 24px;
+      border: 1px solid #111111;
+      border-radius: 10px;
+      transition: background-color 0.2s ease, color 0.2s ease;
+      font-weight: 500;
+    }
+
+    .continue-btn:hover {
+      background-color: #111111;
+      color: #ffffff;
+    }
+  </style>
+
+  <!-- External Player Script -->
+  <script src="./js/audio_player.js" defer></script>
 </head>
 <body>
-    <iframe src="/exp/selfportrait/index.html"></iframe>
+
+  <main class="landing-container">
+
+    <!-- Site Header -->
+    <header class="brand-header">
+      <h1>GOD SAYS YOU'RE A CHAMP</h1>
+      <h3>10.10.26</h3>
+    </header>
+
+    <!-- Clickable Front & Center Album Art (Links to Bandcamp) -->
+    <a href="https://scorsby.bandcamp.com/album/god-says-youre-a-champ" target="_blank" rel="noopener noreferrer" class="album-art-link" title="Listen on Bandcamp">
+      <img src="./images/art1_clean_whitebg.png" alt="Album Art">
+    </a>
+
+    <iframe style="border: 0; width: 100%; height: 120px;" src="https://bandcamp.com/EmbeddedPlayer/album=842061411/size=large/bgcol=ffffff/linkcol=0687f5/tracklist=false/artwork=small/transparent=true/" seamless><a href="https://scorsby.bandcamp.com/album/god-says-youre-a-champ">God Says You&#39;re A Champ by Samuel John Scorsby</a></iframe>
+
+    <!-- Audio Player Container for audio_player.js -->
+    <!--<div class="player-wrapper">
+      <div
+        data-audio-player
+        data-src="./media/rhymeforyourlife_a43_nomoocow.mp3"
+        data-title="Rhyme for your life!"
+        data-artist="Samuel John Scorsby"
+        data-art="./images/art1_clean_whitebg.png"
+        data-theme="#ffffff"
+        data-text="#000000"
+      </div>
+    </div>!-->
+
+    </br> </br>
+
+    <!-- Navigation Link -->
+    <a href="home.html" class="continue-btn">CONTINUE TO SITE &rarr;</a>
+
+  </main>
+
 </body>
 </html>

@@ -3,12 +3,14 @@
     .sp-player-container {
       --sp-theme: #00b4ff;
       --sp-bg: var(--sp-theme);
-      --sp-bg-dark: color-mix(in srgb, var(--sp-theme), black 40%);
-      --sp-border: color-mix(in srgb, var(--sp-theme), white 10%);
       --sp-text: #ffffff;
+
+      --sp-bg-dark: color-mix(in srgb, var(--sp-theme), black 10%);
+      --sp-border: color-mix(in srgb, var(--sp-text), transparent 85%);
       --sp-sub: color-mix(in srgb, var(--sp-text), transparent 40%);
-      --sp-accent: #ffffff;
-      --sp-fill: #ffffff;
+      --sp-accent: var(--sp-text);
+      --sp-fill: var(--sp-text);
+
       --sp-radius: 10px;
       --sp-size: 96px;
 
@@ -225,6 +227,7 @@
     container.className = 'sp-player-container';
 
     if(data.theme) container.style.setProperty('--sp-theme', data.theme);
+    if (data.text) container.style.setProperty('--sp-text', data.text); // Add this line
 
     const artHtml = data.art ? `<div class="sp-art"><img src="${data.art}" alt=""></div>` : `<div class="sp-art"></div>`;
 
