@@ -481,7 +481,7 @@ function layout() {
   const topPad = uiTopH + 4, bottomPad = Math.max(0, uiBottomH - 40);
   const free = Math.max(H * 0.38, H - topPad - bottomPad);
   const cyUi = clamp(topPad + free / 2, H * 0.3, H / 2);
-  return { cy: H / 2 + (cyUi - H / 2) * a, size: H * 0.9 + (Math.min(H * 0.9, free) - H * 0.9) * a };
+  return { cy: H / 2, size: H * 0.9 + (Math.min(H * 0.9, free) - H * 0.9) * a };
 }
 
 const stars = Array.from({ length: 150 }, () => ({ x: Math.random(), y: Math.random(), r: Math.random() * 1.1 + .25, f: Math.random() * 1.2 + .3, p: Math.random() * TAU }));
