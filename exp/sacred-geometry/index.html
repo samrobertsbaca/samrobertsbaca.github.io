@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sacred Geometry for Meditation</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,500&family=Jost:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07050f;
+  --ink:#f4efff;
+  --ink2:rgba(244,239,255,.74);
+  --ink3:rgba(244,239,255,.52);
+  --hair:rgba(244,239,255,.16);
+  --accent:#f2c46d;
+  --fade:rgba(7,5,15,.92);
+  --serif:'Cormorant Garamond','Iowan Old Style','Palatino Linotype',Georgia,serif;
+  --sans:'Jost','Avenir Next','Century Gothic',system-ui,-apple-system,'Segoe UI',sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;background:var(--bg);scroll-padding-top:env(safe-area-inset-top,0px)}
+body{height:100%;margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;overflow:hidden;
+  -webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+button,select,input{font-family:inherit}
+:focus-visible{outline:1px solid var(--accent);outline-offset:3px}
+
+#c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+#c:active{cursor:grabbing}
+
+/* breath guide and timer stay visible when controls are hidden */
+#mid{position:fixed;left:0;right:0;top:calc(62px + env(safe-area-inset-top,0px));display:flex;flex-direction:column;align-items:center;gap:10px;pointer-events:none}
+#timerChip{font-family:var(--serif);font-size:22px;letter-spacing:.04em;color:var(--ink2);font-variant-numeric:tabular-nums;text-align:center;padding:0 16px}
+#breath{display:flex;flex-direction:column;align-items:center;gap:10px}
+#breathDot{width:46px;height:46px;border-radius:50%;border:1px solid var(--accent);
+  background:radial-gradient(circle,rgba(255,255,255,.34),rgba(255,255,255,.03) 72%);
+  box-shadow:0 0 26px rgba(242,196,109,.28);will-change:transform}
+#breathLabel{font-family:var(--serif);font-style:italic;font-size:19px;color:var(--ink2);min-height:22px}
+
+#ui{position:fixed;inset:0;pointer-events:none;transition:opacity .6s ease}
+#ui.hidden{opacity:0}
+#ui.hidden *{pointer-events:none!important}
+
+.top{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;
+  padding:calc(10px + env(safe-area-inset-top,0px)) 10px 0 20px}
+.title{font-family:var(--serif);font-style:italic;font-size:24px;letter-spacing:.02em;text-shadow:0 1px 12px rgba(0,0,0,.8)}
+.topbtns{display:flex}
+.iconbtn{pointer-events:auto;width:44px;height:44px;display:grid;place-items:center;background:none;border:0;color:var(--ink2);cursor:pointer;border-radius:50%}
+.iconbtn:hover{color:var(--ink)}
+
+#hint{position:absolute;left:0;right:0;top:calc(58px + env(safe-area-inset-top,0px));text-align:center;font-size:13px;color:var(--ink3);
+  padding:0 24px;animation:hintout 1.2s ease 9s forwards}
+@keyframes hintout{to{opacity:0}}
+
+#bottom{position:absolute;left:0;right:0;bottom:0;pointer-events:none;
+  padding:56px 14px calc(8px + env(safe-area-inset-bottom,0px));
+  background:linear-gradient(to top,var(--fade) 42%,rgba(7,5,15,0));
+  display:flex;flex-direction:column;align-items:center;gap:10px}
+#caption{text-align:center;max-width:560px;padding:0 6px}
+.caprow{display:flex;align-items:center;justify-content:center;gap:10px}
+#capName{font-family:var(--serif);font-size:clamp(28px,6vw,38px);font-weight:500;letter-spacing:.01em;line-height:1.1}
+#capStage{font-size:13px;color:var(--ink3);min-height:17px;margin-top:2px}
+#capTip{font-size:14.5px;line-height:1.55;color:var(--ink2);margin-top:2px}
+.picker{pointer-events:auto;display:flex;flex-wrap:wrap;justify-content:center;gap:0 18px;margin-top:6px}
+.picker[hidden]{display:none}
+#caption.swap{animation:swap .9s ease}
+@keyframes swap{from{opacity:0}to{opacity:1}}
+.jbtn{pointer-events:auto;background:none;border:0;color:var(--ink2);font-family:var(--serif);font-size:34px;line-height:1;cursor:pointer;padding:2px 12px}
+.jbtn:hover{color:var(--accent)}
+
+#dock{pointer-events:auto;width:min(900px,100%)}
+.forms,.tabs,.wrap{display:flex;gap:22px}
+.forms,.tabs{overflow-x:auto;scrollbar-width:none}
+.forms::-webkit-scrollbar,.tabs::-webkit-scrollbar{display:none}
+.forms>:first-child,.tabs>:first-child{margin-left:auto}
+.forms>:last-child,.tabs>:last-child{margin-right:auto}
+.wrap{flex-wrap:wrap;gap:4px 22px}
+
+.opt{position:relative;background:none;border:0;color:var(--ink2);font-size:15px;padding:10px 2px;min-height:42px;cursor:pointer;white-space:nowrap}
+.opt::after{content:'';position:absolute;left:0;right:0;bottom:5px;height:1px;background:var(--accent);transform:scaleX(0);transition:transform .4s ease}
+.opt:hover{color:var(--ink)}
+.opt.on{color:var(--ink)}
+.opt.on::after{transform:scaleX(1)}
+
+.tog{display:inline-flex;align-items:center;gap:9px;background:none;border:0;color:var(--ink2);font-size:14.5px;padding:9px 0;min-height:40px;cursor:pointer}
+.tog::before{content:'';width:11px;height:11px;border-radius:50%;border:1px solid currentColor;transition:background .3s,border-color .3s,box-shadow .3s}
+.tog.on{color:var(--ink)}
+.tog.on::before{background:var(--accent);border-color:var(--accent);box-shadow:0 0 10px rgba(242,196,109,.55)}
+.tog:hover{color:var(--ink)}
+
+.more{display:block;margin:2px auto 0;background:none;border:0;color:var(--ink3);font-size:13.5px;padding:8px 14px;cursor:pointer}
+.more:hover{color:var(--ink)}
+.more span{display:inline-block;transition:transform .3s}
+.more[aria-expanded="true"] span{transform:rotate(180deg)}
+
+#panel{margin-top:4px;padding:8px 4px 6px;max-height:min(42vh,360px);overflow:auto;border-top:1px solid var(--hair);
+  background:rgba(7,5,15,.62);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+#panel[hidden]{display:none}
+.tb{display:none;padding:6px 6px 2px}
+.tb.on{display:block}
+.row{display:flex;align-items:center;gap:14px;margin:8px 0;color:var(--ink2);font-size:14.5px}
+.row>label,.row>.lab{flex:0 0 132px}
+.row input[type=range]{flex:1;min-width:0;accent-color:var(--accent)}
+.row output{flex:0 0 84px;text-align:right;color:var(--ink3);font-size:13.5px}
+select,input[type=number]{background:rgba(244,239,255,.07);color:var(--ink);border:1px solid var(--hair);border-radius:4px;padding:8px 10px;font-size:14.5px}
+select option{background:#150e28;color:#f4efff}
+input[type=number]{width:110px}
+.note{margin:10px 0 2px;color:var(--ink3);font-size:13.5px;line-height:1.55;max-width:60ch}
+.begin{background:none;border:1px solid var(--accent);color:var(--accent);padding:10px 26px;border-radius:2px;font-size:15px;cursor:pointer;letter-spacing:.03em}
+.begin:hover,.begin.on{background:var(--accent);color:#1b1206}
+.about h3{font-family:var(--serif);font-weight:500;font-size:26px;margin:2px 0 6px}
+.about p{margin:0 0 10px;color:var(--ink2);line-height:1.6;max-width:62ch;font-size:15px}
+
+@media (max-width:560px){
+  .row>label,.row>.lab{flex-basis:96px}
+  .row output{flex-basis:64px}
+  .forms{gap:18px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition-duration:.01ms!important;animation-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+
+<canvas id="c" aria-label="Interactive sacred geometry: flower of life, Metatron's cube, Platonic solids and merkaba"></canvas>
+
+<div id="mid">
+  <div id="timerChip" hidden></div>
+  <div id="breath"><div id="breathDot"></div><div id="breathLabel"></div></div>
+</div>
+
+<div id="ui">
+  <header class="top">
+    <div class="title">Sacred Geometry</div>
+    <div class="topbtns">
+      <button class="iconbtn" id="btnFs" aria-label="Fullscreen" title="Fullscreen (F)">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+      </button>
+      <button class="iconbtn" id="btnHide" aria-label="Hide controls" title="Hide controls (H)">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="2.6"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div id="hint">Drag to rotate, pinch or scroll to zoom, tap empty space to hide the controls.</div>
+
+  <div id="bottom">
+    <div id="caption">
+      <div class="caprow">
+        <button class="jbtn" id="jPrev" hidden aria-label="Previous stage">&lsaquo;</button>
+        <div id="capName"></div>
+        <button class="jbtn" id="jNext" hidden aria-label="Next stage">&rsaquo;</button>
+      </div>
+      <div id="capStage"></div>
+      <div id="capTip"></div>
+      <div class="picker" id="solidPicker" hidden></div>
+    </div>
+
+    <section id="dock" aria-label="Controls">
+      <div class="forms" id="forms"></div>
+      <button class="more" id="more" aria-expanded="false" aria-controls="panel">Settings <span aria-hidden="true">&#9662;</span></button>
+      <div id="panel" hidden>
+        <div class="tabs" id="tabs" role="tablist"></div>
+
+        <div class="tb on" id="tb-layers">
+          <div class="wrap" id="layerToggles"></div>
+          <div class="row"><label for="rings">Flower rings</label><input type="range" id="rings" min="1" max="3" step="1" value="2"><output id="ringsOut">19 circles</output></div>
+          <div class="wrap" id="viewToggles"></div>
+        </div>
+
+        <div class="tb" id="tb-motion">
+          <div class="wrap" id="motionToggles"></div>
+          <p class="note">Locked, every corner of the solids sits on a circle center when you look straight on. Drag to see the depth; they drift back into place after you let go. Unlock for free 3D spinning.</p>
+          <div class="row"><label for="speed">Rotation speed</label><input type="range" id="speed" min="0" max="2.5" step="0.05" value="1"><output id="speedOut">1.0x</output></div>
+          <div class="row"><label for="stageLen">Journey stage</label>
+            <select id="stageLen">
+              <option value="30">30 seconds</option>
+              <option value="60" selected>1 minute</option>
+              <option value="90">90 seconds</option>
+              <option value="120">2 minutes</option>
+            </select></div>
+          <div class="row"><span class="lab">Colors</span><div class="wrap" id="themes"></div></div>
+          <div class="row"><span class="lab">View</span><button class="opt" id="resetView">Reset rotation and zoom</button></div>
+        </div>
+
+        <div class="tb" id="tb-breath">
+          <div class="row"><span class="lab">Breath guide</span><div class="wrap" id="breathToggle"></div></div>
+          <div class="row"><label for="pattern">Rhythm</label><select id="pattern"></select></div>
+          <p class="note">The circle at the top of the screen swells as you breathe in and settles as you breathe out. The geometry follows the same rhythm.</p>
+        </div>
+
+        <div class="tb" id="tb-sound">
+          <div class="row"><span class="lab">Drone</span><div class="wrap" id="soundToggle"></div></div>
+          <div class="row"><label for="note">Note</label><select id="note" aria-label="Note"></select><select id="oct" aria-label="Octave"></select><output id="freqOut"></output></div>
+          <div class="row"><label for="hz">Or exact pitch</label><input type="number" id="hz" min="20" max="2000" step="0.1" placeholder="Hz"></div>
+          <div class="row"><label for="vol">Volume</label><input type="range" id="vol" min="0" max="1" step="0.01" value="0.5"><output id="volOut">50%</output></div>
+          <p class="note">A soft drone built from stacked sine tones. Choose any of the twelve notes in four octaves, or type an exact pitch in hertz. It swells gently with your breath guide.</p>
+        </div>
+
+        <div class="tb" id="tb-timer">
+          <div class="row"><span class="lab">Length</span><div class="wrap" id="durations"></div></div>
+          <div class="row"><span class="lab"></span><button class="begin" id="timerBtn">Begin sitting</button></div>
+          <p class="note">The controls fade away when you begin, and a bell sounds when time is up. Tap the background to bring them back.</p>
+        </div>
+
+        <div class="tb about" id="tb-about">
+          <h3 id="aboutName"></h3>
+          <p id="aboutText"></p>
+          <p class="note">Drag to rotate. Pinch or scroll to zoom. Double-tap to reset. Keyboard: H hides the controls, F goes fullscreen, left and right arrows move through the guided journey.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+(() => {
+'use strict';
+
+/*GEOM_START*/
+const TAU = Math.PI * 2, PHI = (1 + Math.sqrt(5)) / 2, SQ3 = Math.sqrt(3);
+const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
+
+const mul = (A, B) => {
+  const C = new Array(9);
+  for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++)
+    C[i * 3 + j] = A[i * 3] * B[j] + A[i * 3 + 1] * B[3 + j] + A[i * 3 + 2] * B[6 + j];
+  return C;
+};
+const Rx = a => { const c = Math.cos(a), s = Math.sin(a); return [1, 0, 0, 0, c, -s, 0, s, c]; };
+const Ry = a => { const c = Math.cos(a), s = Math.sin(a); return [c, 0, s, 0, 1, 0, -s, 0, c]; };
+const Rz = a => { const c = Math.cos(a), s = Math.sin(a); return [c, -s, 0, s, c, 0, 0, 0, 1]; };
+const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+const dot3 = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+const sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+const len3 = a => Math.hypot(a[0], a[1], a[2]);
+const scl = (a, s) => [a[0] * s, a[1] * s, a[2] * s];
+
+// Builds a convex solid from its vertices: finds the faces (coplanar vertex sets on the hull) and the edges.
+function buildSolid(raw, R) {
+  const V = raw.map(v => scl(v, R / len3(v)));
+  const n = V.length, eps = 1e-4 * R, faces = [], seen = new Set();
+  for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) for (let k = j + 1; k < n; k++) {
+    const nr = cross(sub(V[j], V[i]), sub(V[k], V[i]));
+    const l = len3(nr);
+    if (l < 1e-9) continue;
+    const nn = scl(nr, 1 / l), d = dot3(nn, V[i]);
+    let pos = false, neg = false;
+    const idx = [];
+    for (let m = 0; m < n; m++) {
+      const s = dot3(nn, V[m]) - d;
+      if (s > eps) pos = true; else if (s < -eps) neg = true; else idx.push(m);
+    }
+    if (pos && neg) continue;
+    const key = idx.join(',');
+    if (seen.has(key)) continue;
+    seen.add(key);
+    const c = [0, 0, 0];
+    idx.forEach(m => { c[0] += V[m][0]; c[1] += V[m][1]; c[2] += V[m][2]; });
+    c[0] /= idx.length; c[1] /= idx.length; c[2] /= idx.length;
+    const out = scl(c, 1 / len3(c));
+    const r0 = sub(V[idx[0]], c);
+    const e1 = scl(r0, 1 / len3(r0));
+    const e2 = cross(out, e1);
+    const ang = a => { const v = sub(V[a], c); return Math.atan2(dot3(v, e2), dot3(v, e1)); };
+    idx.sort((a, b) => ang(a) - ang(b));
+    faces.push(idx);
+  }
+  const es = new Set(), edges = [];
+  faces.forEach(f => f.forEach((a, i) => {
+    const b = f[(i + 1) % f.length];
+    const k = a < b ? a + '-' + b : b + '-' + a;
+    if (!es.has(k)) { es.add(k); edges.push([Math.min(a, b), Math.max(a, b)]); }
+  }));
+  return { V, faces, edges, P: new Float64Array(n * 3) };
+}
+
+// Circumradii chosen so that, seen head-on along a 3-fold axis, corners land on the nodes of Metatron's cube
+// (center, six nodes at distance 1, six nodes at distance 2 in units of the flower's circle spacing).
+const R_CUBE = 3 / Math.SQRT2;                              // cube and tetrahedra: hexagon of corners on the outer nodes
+const R_OCTA = Math.sqrt(6);                                // octahedron: corners on the outer ring
+const R_ICO = 2 / Math.sqrt((10 + 2 * Math.sqrt(5)) / 15);   // icosahedron: outer six corners on the outer ring
+const R_DODE = 1.5;                                         // dodecahedron: its middle ring of six corners on the inner ring, two corners at the center
+const signs = [-1, 1];
+const cubeV = [], icoV = [], dodV = [];
+for (const a of signs) for (const b of signs) for (const c of signs) { cubeV.push([a, b, c]); dodV.push([a, b, c]); }
+for (const a of signs) for (const b of signs) {
+  icoV.push([a, 0, b * PHI], [b * PHI, a, 0], [0, b * PHI, a]);
+  dodV.push([0, a / PHI, b * PHI], [a / PHI, b * PHI, 0], [b * PHI, 0, a / PHI]);
+}
+const S_TETRA_A = buildSolid([[1, 1, 1], [1, -1, -1], [-1, 1, -1], [-1, -1, 1]], R_CUBE);
+const S_TETRA_B = buildSolid([[-1, -1, -1], [-1, 1, 1], [1, -1, 1], [1, 1, -1]], R_CUBE);
+const S_CUBE = buildSolid(cubeV, R_CUBE);
+const S_OCTA = buildSolid([[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]], R_OCTA);
+const S_ICO = buildSolid(icoV, R_ICO);
+const S_DODE = buildSolid(dodV, R_DODE);
+
+// rotation that turns the (1,1,1) axis toward the viewer (+Z) and spins the corners onto the 60-degree rays of the nodes
+const A_Z = (() => {
+  const s3 = Math.sqrt(3), s6 = Math.sqrt(6);
+  const frame = [Math.SQRT1_2, -Math.SQRT1_2, 0, 1 / s6, 1 / s6, -2 / s6, 1 / s3, 1 / s3, 1 / s3];
+  return mul(Rz(-Math.PI / 6), frame);
+})();
+const mv = (m, v) => [m[0] * v[0] + m[1] * v[1] + m[2] * v[2], m[3] * v[0] + m[4] * v[1] + m[5] * v[2], m[6] * v[0] + m[7] * v[1] + m[8] * v[2]];
+// the icosahedron and dodecahedron sit at a different angle around that axis, so each gets its own turn to land on the nodes
+function nodeRot(S, r) {
+  for (const v of S.V) {
+    const p = mv(A_Z, v);
+    if (Math.abs(Math.hypot(p[0], p[1]) - r) < 1e-6) { const a = Math.atan2(p[1], p[0]), st = Math.PI / 3; return -(a - Math.round(a / st) * st); }
+  }
+  return 0;
+}
+const ICO_ROT = nodeRot(S_ICO, 2), DODE_ROT = nodeRot(S_DODE, 1);
+
+// hexagonal lattice of the Flower of Life (circle radius 1, spacing 1), up to three rings
+const LATTICE = [];
+for (let q = -3; q <= 3; q++) for (let r = -3; r <= 3; r++) {
+  const ring = (Math.abs(q) + Math.abs(r) + Math.abs(q + r)) / 2;
+  if (ring <= 3) LATTICE.push({ x: q + r / 2, y: r * SQ3 / 2, ring });
+}
+// the thirteen centers of the Fruit of Life
+const P13 = [[0, 0]];
+for (let k = 0; k < 6; k++) P13.push([Math.cos(k * Math.PI / 3), Math.sin(k * Math.PI / 3)]);
+for (let k = 0; k < 6; k++) P13.push([2 * Math.cos(k * Math.PI / 3), 2 * Math.sin(k * Math.PI / 3)]);
+const M_LINES = [];
+for (let i = 0; i < 13; i++) for (let j = i + 1; j < 13; j++) M_LINES.push([i, j]);
+/*GEOM_END*/
+
+if (typeof document === 'undefined') { return; }
+
+const $ = (s, r = document) => r.querySelector(s);
+const clock = () => performance.now() / 1000;
+
+/* ------------------------------------------------------------------ content */
+const LAYERS = ['flower', 'fruit', 'metatron', 'tetra', 'cube', 'octa', 'icosa', 'dodeca', 'merkaba'];
+const LAYER_LABEL = { flower: 'Flower of Life', fruit: 'Fruit of Life', metatron: "Metatron's lines", tetra: 'Tetrahedron', cube: 'Cube', octa: 'Octahedron', icosa: 'Icosahedron', dodeca: 'Dodecahedron', merkaba: 'Merkaba' };
+
+const FORMS = {
+  seed:     { layers: { flower: 1 }, rings: 1 },
+  flower:   { layers: { flower: 1 }, rings: 2 },
+  fruit:    { layers: { fruit: 1, flower: .28 }, rings: 2 },
+  metatron: { layers: { fruit: .55, metatron: 1 }, rings: 2 },
+  solids:   { layers: { metatron: .28, tetra: 1 }, rings: 2 },
+  merkaba:  { layers: { merkaba: 1 }, rings: 2 },
+  all:      { layers: { flower: .3, fruit: .4, metatron: .45, cube: .7, octa: .7, icosa: .7, dodeca: .7, merkaba: 1 }, rings: 2 },
+  tetra:    { layers: { metatron: .22, tetra: 1 }, rings: 2 },
+  cube:     { layers: { metatron: .22, cube: 1 }, rings: 2 },
+  octa:     { layers: { metatron: .22, octa: 1 }, rings: 2 },
+  icosa:    { layers: { metatron: .22, icosa: 1 }, rings: 2 },
+  dodeca:   { layers: { metatron: .22, dodeca: 1 }, rings: 2 }
+};
+const FORM_ORDER = ['seed', 'flower', 'fruit', 'metatron', 'solids', 'merkaba', 'all', 'journey'];
+const FORM_LABEL = { seed: 'Seed of Life', flower: 'Flower of Life', fruit: 'Fruit of Life', metatron: "Metatron's Cube", solids: 'Platonic solids', merkaba: 'Merkaba', all: 'All together', journey: 'Guided journey' };
+const STAGES = ['seed', 'flower', 'fruit', 'metatron', 'tetra', 'cube', 'octa', 'icosa', 'dodeca', 'merkaba', 'all'];
+
+const INFO = {
+  seed: { n: 'Seed of Life', tip: 'Rest your gaze on the center and let the six petals open around it as you breathe out.',
+    t: 'Seven circles of one size: one at the center and six around it, each passing through the centers of its neighbors. Many traditions link it to beginnings, and it is often read as the seven days of creation. It is the seed the Flower of Life grows from.' },
+  flower: { n: 'Flower of Life', tip: 'Soften your focus and take in the whole pattern at once instead of following single circles.',
+    t: 'Overlapping circles of one size, repeated until they form a flower inside a ring. The pattern turns up in art and architecture across many cultures, and it is commonly read as a picture of interconnection: one simple form, repeated, with every part echoing the whole.' },
+  fruit: { n: 'Fruit of Life', tip: 'See the thirteen circles as one body: a center, six close, six far. Breathe into the middle.',
+    t: 'Thirteen circles taken from thirteen points of the Flower of Life. In modern sacred geometry teaching, especially Drunvalo Melchizedek\u2019s, this is the fruit of the flower, and the centers of these circles are the nodes Metatron\u2019s Cube is drawn from.' },
+  metatron: { n: 'Metatron\u2019s Cube', tip: 'Follow one line from the center out to the edge and let it dissolve into the whole web.',
+    t: 'Join the center of every one of the thirteen circles to all the others and Metatron\u2019s Cube appears. The name comes from the archangel Metatron of Jewish mystical tradition; the diagram itself is a modern figure. Seen head-on, the tetrahedron, cube and octahedron fit its nodes exactly; the icosahedron and dodecahedron fit only in part, because their golden-ratio proportions do not sit on a six-fold grid.' },
+  solids: { n: 'The five Platonic solids', tip: 'Begin with the tetrahedron, then add the others below and watch where they share corners. Drag to see their depth.',
+    t: 'The tetrahedron, cube, octahedron, icosahedron and dodecahedron are the only convex solids whose faces are all identical regular polygons. Add them one at a time and they nest inside one another, scaled so their corners meet the circle centers wherever the geometry allows: the dodecahedron on the inner hexagon, the others on the outer one. Plato tied the first four to fire, earth, air and water, and the fifth to the cosmos itself.' },
+  tetra: { n: 'Tetrahedron, fire', tip: 'Feel the single point rising from a steady base, like a flame.',
+    t: 'Four triangular faces make the simplest of the solids. Plato linked it to fire, the sharpest and quickest element. Symbolically it stands for spark, will and transformation.' },
+  cube: { n: 'Cube, earth', tip: 'Feel six equal faces holding you still. Let your weight settle.',
+    t: 'Six square faces, the most stable of the solids. Plato linked it to earth. Symbolically it stands for grounding, structure and the body.' },
+  octa: { n: 'Octahedron, air', tip: 'Follow the two pyramids that meet at a single line, the way your breath turns from rising to falling.',
+    t: 'Eight triangular faces, like two pyramids joined at their bases. Plato linked it to air. It is the dual of the cube, and symbolically it stands for balance, breath and the heart.' },
+  icosa: { n: 'Icosahedron, water', tip: 'Let the twenty faces move over each other like water. Let your thoughts do the same.',
+    t: 'Twenty triangular faces, the most rounded of the solids built from triangles. Plato linked it to water. Symbolically it stands for flow, feeling and change.' },
+  dodeca: { n: 'Dodecahedron, ether', tip: 'Twelve pentagons hold the entire sphere. Rest in the sense of spaciousness.',
+    t: 'Twelve pentagonal faces. Plato said the maker used it for the arrangement of the heavens, and later traditions called this fifth element ether or spirit. Symbolically it stands for the whole that contains the other four.' },
+  merkaba: { n: 'Merkaba', tip: 'Watch the two tetrahedra turn against each other, then settle so every corner rests on a node.',
+    t: 'Two interlocked tetrahedra, one pointing up and one pointing down, turning against each other. The name echoes the Hebrew merkavah, the chariot of Ezekiel\u2019s vision in Jewish mysticism. Modern teachings use it as a symbol of the union of opposites, heaven and earth, spirit and body, and as a vehicle for meditation.' },
+  all: { n: 'All together', tip: 'Let your eyes go wide and take in every layer at once, then let them settle on the center.',
+    t: 'Every layer at once: the Flower and Fruit of Life as ground, Metatron\u2019s lines joining their centers, the Platonic solids nested in a shared sphere, and the Merkaba turning at the heart.' },
+  custom: { n: 'Your arrangement', tip: 'Add and remove layers until the shape in front of you suits this sitting.',
+    t: 'Mix the layers freely from the Layers tab: circles, lines, solids and the Merkaba. There is no wrong combination.' }
+};
+
+const THEMES = {
+  elemental: { name: 'Elemental', accent: '#f2c46d', bg0: '#1d1338', bg1: '#06040d', glow: [255, 200, 120],
+    flower: [255, 214, 140], fruit: [255, 236, 200], metatron: [196, 206, 255],
+    tetra: [255, 112, 72], cube: [118, 222, 126], octa: [255, 236, 132], icosa: [92, 172, 255], dodeca: [204, 152, 255],
+    mkUp: [255, 190, 96], mkDn: [124, 176, 255] },
+  gold: { name: 'Gold', accent: '#ffcf7d', bg0: '#28180a', bg1: '#070403', glow: [255, 190, 100],
+    flower: [255, 206, 124], fruit: [255, 228, 168], metatron: [255, 216, 150],
+    tetra: [255, 168, 84], cube: [255, 196, 108], octa: [255, 218, 140], icosa: [255, 234, 172], dodeca: [255, 246, 204],
+    mkUp: [255, 196, 96], mkDn: [255, 240, 206] },
+  moon: { name: 'Moonlight', accent: '#a5d3ff', bg0: '#0e1d35', bg1: '#02050b', glow: [150, 190, 255],
+    flower: [172, 204, 255], fruit: [204, 224, 255], metatron: [150, 182, 255],
+    tetra: [150, 242, 232], cube: [172, 204, 255], octa: [204, 222, 255], icosa: [132, 232, 255], dodeca: [224, 192, 255],
+    mkUp: [150, 242, 232], mkDn: [204, 172, 255] }
+};
+
+const PATTERNS = [
+  { name: 'Slow out-breath: 4 in, 6 out', seq: [['in', 4], ['out', 6]] },
+  { name: 'Coherent: 5 in, 5 out', seq: [['in', 5], ['out', 5]] },
+  { name: 'Box: 3 in, 3 hold, 3 out, 3 hold', seq: [['in', 3], ['hold', 3], ['out', 3], ['empty', 3]] },
+  { name: 'Box: 4 in, 4 hold, 4 out, 4 rest', seq: [['in', 4], ['hold', 4], ['out', 4], ['rest', 4]] },
+  { name: 'Relaxing: 4 in, 7 hold, 8 out', seq: [['in', 4], ['hold', 7], ['out', 8]] }
+];
+const BREATH_LABEL = { in: 'breathe in', hold: 'hold', out: 'breathe out', rest: 'rest', empty: 'hold' };
+const NOTE_NAMES = ['C', 'C\u266f', 'D', 'D\u266f', 'E', 'F', 'F\u266f', 'G', 'G\u266f', 'A', 'A\u266f', 'B'];
+function rootFreq() { return state.hz >= 20 ? state.hz : 440 * Math.pow(2, (12 * (state.oct + 1) + state.note - 69) / 12); }
+const cutoff = () => clamp(rootFreq() * 9, 520, 3200);
+
+/* ------------------------------------------------------------------ state */
+const reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+const state = {
+  target: Object.fromEntries(LAYERS.map(l => [l, 0])),
+  alpha: Object.fromEntries(LAYERS.map(l => [l, 0])),
+  ringsT: 2, ringsF: 2,
+  faces: true, nodes: true,
+  lock: true, lockAmt: 1, sweep: false, uiAmt: 1,
+  speed: reduced ? 0.35 : 1,
+  breathOn: true, pattern: 0, breathT0: clock(),
+  theme: 'elemental', form: 'flower',
+  journey: { on: false, idx: 0, t0: 0, len: 60 },
+  note: 2, oct: 2, hz: 0, vol: 0.5, droneOn: false,
+  timer: { running: false, end: 0, mins: 10 }
+};
+const view = { yaw: 0, pitch: 0, zoom: .7 };
+
+/* ------------------------------------------------------------------ canvas */
+const canvas = $('#c'), ctx = canvas.getContext('2d');
+let W = 0, H = 0, DPR = 1, SC = 1, CX = 0, CY = 0;
+function resize() {
+  DPR = Math.min(window.devicePixelRatio || 1, 2);
+  W = canvas.clientWidth || window.innerWidth;
+  H = canvas.clientHeight || window.innerHeight;
+  canvas.width = Math.round(W * DPR);
+  canvas.height = Math.round(H * DPR);
+}
+window.addEventListener('resize', resize);
+resize();
+
+let px = 0, py = 0, pz = 0; // orthographic on purpose: corners in front of or behind the pattern's plane must still land on its nodes
+function proj(m, x, y, z) {
+  const X = m[0] * x + m[1] * y + m[2] * z;
+  const Y = m[3] * x + m[4] * y + m[5] * z;
+  const Z = m[6] * x + m[7] * y + m[8] * z;
+  px = CX + X * SC; py = CY - Y * SC; pz = Z;
+}
+const rgba = (c, a) => 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',' + clamp(a, 0, 1).toFixed(3) + ')';
+
+const NC = 72, CC = new Float64Array(NC + 1), CS = new Float64Array(NC + 1);
+for (let i = 0; i <= NC; i++) { CC[i] = Math.cos(i / NC * TAU); CS[i] = Math.sin(i / NC * TAU); }
+
+function circlePath(m, x, y, r) {
+  ctx.beginPath();
+  for (let i = 0; i <= NC; i++) {
+    proj(m, x + r * CC[i], y + r * CS[i], 0);
+    if (i) ctx.lineTo(px, py); else ctx.moveTo(px, py);
+  }
+}
+function strokeGlow(col, a, lw) {
+  ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+  ctx.strokeStyle = rgba(col, a * 0.10); ctx.lineWidth = lw * 4.5; ctx.stroke();
+  ctx.strokeStyle = rgba(col, a * 0.85); ctx.lineWidth = lw; ctx.stroke();
+}
+function bead(x, y, r, col, a) {
+  ctx.beginPath(); ctx.arc(x, y, r * 3, 0, TAU); ctx.fillStyle = rgba(col, a * 0.14); ctx.fill();
+  ctx.beginPath(); ctx.arc(x, y, r, 0, TAU); ctx.fillStyle = rgba(col, a); ctx.fill();
+}
+
+// Layout: with the controls hidden the pattern is centered on the screen; with them showing it centers in the space they leave free.
+let uiBottomH = 260, uiTopH = 56;
+function layout() {
+  const a = state.uiAmt;
+  const topPad = uiTopH + 4, bottomPad = Math.max(0, uiBottomH - 40);
+  const free = Math.max(H * 0.38, H - topPad - bottomPad);
+  const cyUi = clamp(topPad + free / 2, H * 0.3, H / 2);
+  return { cy: H / 2 + (cyUi - H / 2) * a, size: H * 0.9 + (Math.min(H * 0.9, free) - H * 0.9) * a };
+}
+
+const stars = Array.from({ length: 150 }, () => ({ x: Math.random(), y: Math.random(), r: Math.random() * 1.1 + .25, f: Math.random() * 1.2 + .3, p: Math.random() * TAU }));
+
+/* ------------------------------------------------------------------ drawing */
+function drawFlat(M, th) {
+  const aF = state.alpha.flower, aFr = state.alpha.fruit, aM = state.alpha.metatron;
+  if (aF > 0.01) {
+    const col = th.flower;
+    for (const c of LATTICE) {
+      const ra = clamp(state.ringsF - c.ring + 1, 0, 1);
+      if (ra <= 0.01) continue;
+      proj(M, c.x, c.y, 0);
+      const a = aF * ra * (0.75 + 0.25 * clamp(pz / 3, -1, 1));
+      circlePath(M, c.x, c.y, 1);
+      ctx.fillStyle = rgba(col, a * 0.024); ctx.fill();
+      strokeGlow(col, a * 0.9, 1.1);
+    }
+    const Ro = state.ringsF + 1;
+    circlePath(M, 0, 0, Ro); strokeGlow(col, aF * 0.9, 1.3);
+    circlePath(M, 0, 0, Ro + 0.07); strokeGlow(col, aF * 0.5, 0.9);
+  }
+  if (aFr > 0.01) {
+    for (const p of P13) {
+      circlePath(M, p[0], p[1], 0.5);
+      ctx.fillStyle = rgba(th.fruit, aFr * 0.05); ctx.fill();
+      strokeGlow(th.fruit, aFr * 0.95, 1.2);
+    }
+  }
+  if (aM > 0.01) {
+    const pts = P13.map(p => { proj(M, p[0], p[1], 0); return [px, py]; });
+    ctx.beginPath();
+    for (const [i, j] of M_LINES) { ctx.moveTo(pts[i][0], pts[i][1]); ctx.lineTo(pts[j][0], pts[j][1]); }
+    ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    ctx.strokeStyle = rgba(th.metatron, aM * 0.07); ctx.lineWidth = 4; ctx.stroke();
+    ctx.strokeStyle = rgba(th.metatron, aM * 0.42); ctx.lineWidth = 0.9; ctx.stroke();
+    if (state.nodes) for (const p of pts) bead(p[0], p[1], 2.6, th.metatron, aM * 0.95);
+  }
+}
+
+function drawSolid(S, M, col, a, faceA) {
+  const P = S.P, V = S.V;
+  for (let i = 0; i < V.length; i++) { proj(M, V[i][0], V[i][1], V[i][2]); P[i * 3] = px; P[i * 3 + 1] = py; P[i * 3 + 2] = pz; }
+  if (state.faces) {
+    ctx.fillStyle = rgba(col, a * faceA);
+    for (const f of S.faces) {
+      ctx.beginPath();
+      for (let i = 0; i < f.length; i++) { const v = f[i]; if (i) ctx.lineTo(P[v * 3], P[v * 3 + 1]); else ctx.moveTo(P[v * 3], P[v * 3 + 1]); }
+      ctx.closePath(); ctx.fill();
+    }
+  }
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  for (const [i, j] of S.edges) {
+    const z = (P[i * 3 + 2] + P[j * 3 + 2]) / 2;
+    const sh = 0.55 + 0.45 * clamp(z / 2.2, -1, 1);
+    ctx.beginPath(); ctx.moveTo(P[i * 3], P[i * 3 + 1]); ctx.lineTo(P[j * 3], P[j * 3 + 1]);
+    ctx.strokeStyle = rgba(col, a * sh * 0.12); ctx.lineWidth = 4.5; ctx.stroke();
+    ctx.strokeStyle = rgba(col, a * (0.3 + 0.6 * sh)); ctx.lineWidth = 1.2; ctx.stroke();
+  }
+  if (state.nodes) for (let i = 0; i < V.length; i++) {
+    const sh = 0.55 + 0.45 * clamp(P[i * 3 + 2] / 2.2, -1, 1);
+    bead(P[i * 3], P[i * 3 + 1], 2.1 * (0.85 + 0.3 * sh), col, a * (0.4 + 0.55 * sh));
+  }
+}
+
+const SOLIDS = [['tetra', S_TETRA_A], ['cube', S_CUBE], ['octa', S_OCTA], ['icosa', S_ICO], ['dodeca', S_DODE]];
+const spin = { tumble: 0, mkFree: 0, mkPhase: 0, flat: 0 };
+
+function render(t, b) {
+  const th = THEMES[state.theme];
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  ctx.globalCompositeOperation = 'source-over';
+  const lay = layout();
+  CX = W / 2; CY = lay.cy;
+  const g = ctx.createRadialGradient(CX, CY, 0, CX, CY, Math.max(W, H) * 0.78);
+  g.addColorStop(0, th.bg0); g.addColorStop(1, th.bg1);
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = '#fff';
+  for (const s of stars) {
+    ctx.globalAlpha = clamp(0.28 + 0.3 * Math.sin(t * s.f + s.p), 0.03, 0.7);
+    ctx.fillRect(s.x * W, s.y * H, s.r, s.r);
+  }
+  ctx.globalAlpha = 1;
+
+  SC = Math.min(W, lay.size) * 0.5 / 3.55 * view.zoom * (1 + 0.05 * (b - 0.5) * 2);
+
+  ctx.globalCompositeOperation = 'lighter';
+  const gr = ctx.createRadialGradient(CX, CY, 0, CX, CY, SC * 3.4);
+  gr.addColorStop(0, rgba(th.glow, 0.13 + 0.07 * b)); gr.addColorStop(1, rgba(th.glow, 0));
+  ctx.fillStyle = gr; ctx.fillRect(0, 0, W, H);
+
+  const L = state.lockAmt, free = 1 - L;
+  // optional slow sweep: tilts out through 3D and always returns to the head-on view
+  let sy = 0, sp = 0;
+  if (state.sweep) { const f = (t / 44) % 1; if (f > 0.4) { const sn = Math.sin(Math.PI * (f - 0.4) / 0.6); sy = 0.8 * sn * sn * L; sp = 0.34 * sn * sn * L; } }
+  const yaw = view.yaw + sy + free * 0.10 * Math.sin(t * 0.11);
+  const pitch = view.pitch + sp + free * 0.05 * Math.sin(t * 0.083 + 1);
+  const Rv = mul(Rx(pitch), Ry(yaw));
+  const Mflat = mul(Rv, Rz(spin.flat));
+  // locked: shapes share the pattern's turn about the viewing axis, so corners stay on the nodes
+  const tumble = spin.tumble * free + TAU * Math.round(spin.tumble / TAU) * L;
+  const Rbase = mul(Rv, Ry(tumble));
+  const Msolid = mul(Rbase, mul(Rz(spin.flat), A_Z));
+  const Mico = mul(Rbase, mul(Rz(spin.flat + ICO_ROT), A_Z));
+  const Mdode = mul(Rbase, mul(Rz(spin.flat + DODE_ROT), A_Z));
+  // merkaba counter-rotation: continuous when free; when locked it rests on the nodes and turns in 60 degree steps
+  const kk = Math.floor(spin.mkPhase), gg = clamp(((spin.mkPhase - kk) - 0.6) / 0.4, 0, 1);
+  const dLocked = (kk + 0.5 - 0.5 * Math.cos(Math.PI * gg)) * Math.PI / 3;
+  const delta = spin.mkFree * free + dLocked * L;
+  const Mup = mul(Rbase, mul(Rz(spin.flat + delta), A_Z));
+  const Mdn = mul(Rbase, mul(Rz(spin.flat - delta), A_Z));
+
+  drawFlat(Mflat, th);
+  for (const [k, S] of SOLIDS) { const a = state.alpha[k]; if (a > 0.01) drawSolid(S, k === 'icosa' ? Mico : k === 'dodeca' ? Mdode : Msolid, th[k], a, 0.05); }
+  const am = state.alpha.merkaba;
+  if (am > 0.01) {
+    drawSolid(S_TETRA_A, Mup, th.mkUp, am, 0.075);
+    drawSolid(S_TETRA_B, Mdn, th.mkDn, am, 0.075);
+  }
+  ctx.globalCompositeOperation = 'source-over';
+}
+
+/* ------------------------------------------------------------------ breath */
+function breathAt(t) {
+  if (!state.breathOn) return { b: 0.5 - 0.5 * Math.cos(t * TAU / 12), label: '' };
+  const seq = PATTERNS[state.pattern].seq;
+  const total = seq.reduce((s, x) => s + x[1], 0);
+  let tt = (((t - state.breathT0) % total) + total) % total;
+  for (const [k, d] of seq) {
+    if (tt < d) {
+      const e = 0.5 - 0.5 * Math.cos(Math.PI * tt / d);
+      const b = k === 'in' ? e : k === 'hold' ? 1 : k === 'out' ? 1 - e : 0;
+      return { b, label: BREATH_LABEL[k] };
+    }
+    tt -= d;
+  }
+  return { b: 0, label: '' };
+}
+
+/* ------------------------------------------------------------------ audio */
+let actx = null, master = null, drone = null;
+function ensureAudio() {
+  if (actx) return actx;
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) return null;
+  try {
+    actx = new AC();
+    master = actx.createGain(); master.gain.value = 0; master.connect(actx.destination);
+  } catch (e) { actx = null; }
+  return actx;
+}
+function startDrone() {
+  if (!ensureAudio()) return;
+  if (actx.resume) actx.resume();
+  if (drone) return;
+  const filt = actx.createBiquadFilter(); filt.type = 'lowpass'; filt.frequency.value = cutoff(); filt.Q.value = 0.4; filt.connect(master);
+  const lfo = actx.createOscillator(); lfo.frequency.value = 0.05;
+  const lg = actx.createGain(); lg.gain.value = cutoff() * 0.3; lfo.connect(lg); lg.connect(filt.frequency); lfo.start();
+  const parts = [[.5, .55], [1, .6], [1.5, .28], [2, .3], [3, .12], [4, .07]];
+  const oscs = parts.map(([r, gain]) => {
+    const o = actx.createOscillator(); o.type = 'sine';
+    o.frequency.value = rootFreq() * r; o.detune.value = (Math.random() - .5) * 8;
+    const gg = actx.createGain(); gg.gain.value = gain; o.connect(gg); gg.connect(filt); o.start();
+    return { o, r };
+  });
+  drone = { oscs, lfo, filt, lg };
+  master.gain.cancelScheduledValues(actx.currentTime);
+  master.gain.setTargetAtTime(state.vol * 0.22, actx.currentTime, 0.8);
+}
+function stopDrone() {
+  if (!drone || !actx) return;
+  const d = drone; drone = null;
+  master.gain.setTargetAtTime(0, actx.currentTime, 0.5);
+  setTimeout(() => { d.oscs.forEach(x => { try { x.o.stop(); } catch (e) {} }); try { d.lfo.stop(); } catch (e) {} }, 2600);
+}
+function setDrone(on) {
+  state.droneOn = on;
+  if (on) startDrone(); else stopDrone();
+  refresh();
+}
+function chime() {
+  if (!ensureAudio()) return;
+  if (actx.resume) actx.resume();
+  const now = actx.currentTime;
+  [[523.25, .16], [784, .10], [1046.5, .07], [1318.5, .04]].forEach(([f, v], i) => {
+    const o = actx.createOscillator(); o.type = 'sine'; o.frequency.value = f;
+    const g = actx.createGain();
+    g.gain.setValueAtTime(0.0001, now);
+    g.gain.exponentialRampToValueAtTime(v, now + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + 6 + i * 0.4);
+    o.connect(g); g.connect(actx.destination); o.start(now); o.stop(now + 7);
+  });
+}
+
+/* ------------------------------------------------------------------ forms and journey */
+function applyForm(id) {
+  const f = FORMS[id];
+  LAYERS.forEach(l => { state.target[l] = f.layers[l] || 0; });
+  state.ringsT = f.rings; state.form = id;
+  $('#rings').value = f.rings; updateRingsOut();
+}
+function selectForm(id) {
+  if (id === 'journey') { state.journey.on ? stopJourney() : startJourney(); return; }
+  state.journey.on = false; applyForm(id); refresh();
+}
+function startJourney() { state.journey.on = true; state.journey.idx = 0; state.journey.t0 = clock(); applyForm(STAGES[0]); refresh(); }
+function stopJourney() { state.journey.on = false; refresh(); }
+function gotoStage(i) {
+  const n = STAGES.length;
+  state.journey.idx = ((i % n) + n) % n; state.journey.t0 = clock();
+  applyForm(STAGES[state.journey.idx]); refresh();
+}
+function setCustom() { state.journey.on = false; state.form = 'custom'; refresh(); }
+
+/* ------------------------------------------------------------------ UI */
+const uiEl = $('#ui');
+let uiVisible = true;
+function measureUi() { uiBottomH = $('#bottom').offsetHeight; uiTopH = $('.top').offsetHeight; }
+if ('ResizeObserver' in window) { const ro = new ResizeObserver(measureUi); ro.observe($('#bottom')); ro.observe($('.top')); }
+window.addEventListener('resize', measureUi);
+measureUi();
+function setUi(v) { uiVisible = v; uiEl.classList.toggle('hidden', !v); }
+function opt(label, cls) { const b = document.createElement('button'); b.type = 'button'; b.className = cls || 'opt'; b.textContent = label; return b; }
+
+const formBtns = {}, layerBtns = {}, themeBtns = {}, durBtns = {};
+FORM_ORDER.forEach(id => { const b = opt(FORM_LABEL[id]); b.onclick = () => selectForm(id); $('#forms').appendChild(b); formBtns[id] = b; });
+LAYERS.forEach(l => {
+  const b = opt(LAYER_LABEL[l], 'tog');
+  b.onclick = () => { state.target[l] = state.target[l] > 0.01 ? 0 : 1; setCustom(); };
+  $('#layerToggles').appendChild(b); layerBtns[l] = b;
+});
+const pickBtns = {};
+['tetra', 'cube', 'octa', 'icosa', 'dodeca'].forEach(l => {
+  const b = opt(LAYER_LABEL[l], 'tog');
+  b.onclick = () => { state.target[l] = state.target[l] > 0.01 ? 0 : 1; refresh(); };
+  $('#solidPicker').appendChild(b); pickBtns[l] = b;
+});
+const facesBtn = opt('Translucent faces', 'tog'); facesBtn.onclick = () => { state.faces = !state.faces; refresh(); };
+const nodesBtn = opt('Glowing points', 'tog'); nodesBtn.onclick = () => { state.nodes = !state.nodes; refresh(); };
+$('#viewToggles').append(facesBtn, nodesBtn);
+
+const TABS = [['layers', 'Layers'], ['motion', 'Motion'], ['breath', 'Breath'], ['sound', 'Sound'], ['timer', 'Timer'], ['about', 'About']];
+const tabBtns = {};
+TABS.forEach(([id, label]) => {
+  const b = opt(label); b.setAttribute('role', 'tab');
+  b.onclick = () => showTab(id);
+  $('#tabs').appendChild(b); tabBtns[id] = b;
+});
+function showTab(id) {
+  TABS.forEach(([k]) => { tabBtns[k].classList.toggle('on', k === id); tabBtns[k].setAttribute('aria-selected', k === id); $('#tb-' + k).classList.toggle('on', k === id); });
+}
+showTab('layers');
+
+$('#more').onclick = () => {
+  const p = $('#panel'), open = p.hidden;
+  p.hidden = !open; $('#more').setAttribute('aria-expanded', open);
+};
+
+function updateRingsOut() { $('#ringsOut').textContent = ({ 1: '7 circles', 2: '19 circles', 3: '37 circles' })[$('#rings').value]; }
+$('#rings').oninput = e => { state.ringsT = +e.target.value; updateRingsOut(); };
+
+const lockBtn = opt('Lock shapes to the pattern', 'tog'); lockBtn.onclick = () => { state.lock = !state.lock; refresh(); };
+const sweepBtn = opt('Slow depth sweep', 'tog'); sweepBtn.onclick = () => { state.sweep = !state.sweep; refresh(); };
+$('#motionToggles').append(lockBtn, sweepBtn);
+$('#speed').oninput = e => { state.speed = +e.target.value; $('#speedOut').textContent = state.speed.toFixed(1) + 'x'; };
+$('#speed').value = state.speed; $('#speedOut').textContent = state.speed.toFixed(1) + 'x';
+$('#stageLen').onchange = e => { state.journey.len = +e.target.value; };
+$('#resetView').onclick = () => { view.yaw = 0; view.pitch = 0; view.zoom = 1; };
+
+Object.keys(THEMES).forEach(id => {
+  const b = opt(THEMES[id].name); b.onclick = () => { state.theme = id; document.documentElement.style.setProperty('--accent', THEMES[id].accent); refresh(); };
+  $('#themes').appendChild(b); themeBtns[id] = b;
+});
+
+const breathBtn = opt('Show the guide', 'tog');
+breathBtn.onclick = () => { state.breathOn = !state.breathOn; state.breathT0 = clock(); refresh(); };
+$('#breathToggle').appendChild(breathBtn);
+PATTERNS.forEach((p, i) => { const o = document.createElement('option'); o.value = i; o.textContent = p.name; $('#pattern').appendChild(o); });
+$('#pattern').onchange = e => { state.pattern = +e.target.value; state.breathT0 = clock(); };
+
+const soundBtn = opt('Play the drone', 'tog'); soundBtn.onclick = () => setDrone(!state.droneOn);
+$('#soundToggle').appendChild(soundBtn);
+NOTE_NAMES.forEach((n, i) => { const o = document.createElement('option'); o.value = i; o.textContent = n; $('#note').appendChild(o); });
+[1, 2, 3, 4].forEach(n => { const o = document.createElement('option'); o.value = n; o.textContent = 'octave ' + n; $('#oct').appendChild(o); });
+$('#note').value = state.note; $('#oct').value = state.oct;
+function applyRoot() {
+  const f = rootFreq();
+  $('#freqOut').textContent = f.toFixed(1) + ' Hz';
+  if (drone && actx) {
+    drone.oscs.forEach(x => x.o.frequency.setTargetAtTime(f * x.r, actx.currentTime, 0.6));
+    drone.filt.frequency.setTargetAtTime(cutoff(), actx.currentTime, 0.6);
+    drone.lg.gain.setTargetAtTime(cutoff() * 0.3, actx.currentTime, 0.6);
+  }
+}
+$('#note').onchange = e => { state.note = +e.target.value; state.hz = 0; $('#hz').value = ''; applyRoot(); };
+$('#oct').onchange = e => { state.oct = +e.target.value; state.hz = 0; $('#hz').value = ''; applyRoot(); };
+$('#hz').oninput = e => { const v = parseFloat(e.target.value); state.hz = v >= 20 && v <= 2000 ? v : 0; applyRoot(); };
+applyRoot();
+$('#vol').oninput = e => { state.vol = +e.target.value; $('#volOut').textContent = Math.round(state.vol * 100) + '%'; };
+
+[5, 10, 15, 20, 30].forEach(m => {
+  const b = opt(m + ' min'); b.onclick = () => { state.timer.mins = m; refresh(); };
+  $('#durations').appendChild(b); durBtns[m] = b;
+});
+const timerBtn = $('#timerBtn'), timerChip = $('#timerChip');
+let hideTimer = 0;
+timerBtn.onclick = () => state.timer.running ? endTimer(false) : startTimer();
+function startTimer() {
+  ensureAudio(); if (actx && actx.resume) actx.resume();
+  state.timer.running = true; state.timer.end = performance.now() + state.timer.mins * 60000;
+  timerChip.hidden = false; refresh();
+  clearTimeout(hideTimer);
+  hideTimer = setTimeout(() => { if (state.timer.running) setUi(false); }, 1600);
+}
+function endTimer(completed) {
+  state.timer.running = false; clearTimeout(hideTimer);
+  if (completed) {
+    chime();
+    timerChip.textContent = 'Complete. Take one more slow breath.';
+    setUi(true);
+    if (state.droneOn) { setTimeout(() => setDrone(false), 4000); }
+    setTimeout(() => { if (!state.timer.running) timerChip.hidden = true; }, 20000);
+  } else { timerChip.hidden = true; }
+  refresh();
+}
+
+function renderAbout() {
+  const info = INFO[state.form] || INFO.custom;
+  $('#aboutName').textContent = info.n; $('#aboutText').textContent = info.t;
+}
+function setCaption() {
+  const info = INFO[state.form] || INFO.custom;
+  $('#capName').textContent = info.n;
+  $('#capTip').textContent = info.tip;
+  $('#capStage').textContent = state.journey.on ? 'Guided journey, stage ' + (state.journey.idx + 1) + ' of ' + STAGES.length : '';
+  $('#jPrev').hidden = $('#jNext').hidden = !state.journey.on;
+  const cap = $('#caption'); cap.classList.remove('swap'); void cap.offsetWidth; cap.classList.add('swap');
+  renderAbout();
+}
+let lastCaptionKey = '';
+function refresh() {
+  for (const id of FORM_ORDER) {
+    const on = id === 'journey' ? state.journey.on : (!state.journey.on && state.form === id);
+    formBtns[id].classList.toggle('on', on); formBtns[id].setAttribute('aria-pressed', on);
+  }
+  for (const l of LAYERS) { const on = state.target[l] > 0.01; layerBtns[l].classList.toggle('on', on); layerBtns[l].setAttribute('aria-pressed', on); if (pickBtns[l]) { pickBtns[l].classList.toggle('on', on); pickBtns[l].setAttribute('aria-pressed', on); } }
+  $('#solidPicker').hidden = !(state.form === 'solids' && !state.journey.on);
+  facesBtn.classList.toggle('on', state.faces); nodesBtn.classList.toggle('on', state.nodes);
+  lockBtn.classList.toggle('on', state.lock); sweepBtn.classList.toggle('on', state.sweep);
+  breathBtn.classList.toggle('on', state.breathOn); soundBtn.classList.toggle('on', state.droneOn);
+  for (const id in themeBtns) themeBtns[id].classList.toggle('on', id === state.theme);
+  for (const m in durBtns) durBtns[m].classList.toggle('on', +m === state.timer.mins);
+  timerBtn.textContent = state.timer.running ? 'End sitting' : 'Begin sitting';
+  timerBtn.classList.toggle('on', state.timer.running);
+  $('#breath').style.display = state.breathOn ? '' : 'none';
+  const key = state.form + '|' + state.journey.on + '|' + state.journey.idx;
+  if (key !== lastCaptionKey) { lastCaptionKey = key; setCaption(); }
+}
+$('#jPrev').onclick = () => gotoStage(state.journey.idx - 1);
+$('#jNext').onclick = () => gotoStage(state.journey.idx + 1);
+
+$('#btnHide').onclick = e => { e.stopPropagation(); setUi(false); };
+const fsEl = document.documentElement;
+if (!(fsEl.requestFullscreen || fsEl.webkitRequestFullscreen)) $('#btnFs').style.display = 'none';
+function toggleFs() {
+  try {
+    if (document.fullscreenElement || document.webkitFullscreenElement) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    else (fsEl.requestFullscreen || fsEl.webkitRequestFullscreen).call(fsEl);
+  } catch (e) {}
+}
+$('#btnFs').onclick = toggleFs;
+window.addEventListener('keydown', e => {
+  if (e.target && /INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) return;
+  if (e.key === 'h' || e.key === 'H') setUi(!uiVisible);
+  else if (e.key === 'f' || e.key === 'F') toggleFs();
+  else if (state.journey.on && e.key === 'ArrowRight') gotoStage(state.journey.idx + 1);
+  else if (state.journey.on && e.key === 'ArrowLeft') gotoStage(state.journey.idx - 1);
+});
+
+/* ------------------------------------------------------------------ pointer: rotate, pinch, tap */
+const ptrs = new Map();
+let pinch0 = 0, zoom0 = 1, tap = null, lastTouch = -100;
+canvas.addEventListener('pointerdown', e => {
+  lastTouch = clock();
+  try { canvas.setPointerCapture(e.pointerId); } catch (err) {}
+  ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (ptrs.size === 1) tap = { t: performance.now(), moved: 0 };
+  else { tap = null; const [a, b] = [...ptrs.values()]; pinch0 = Math.hypot(a.x - b.x, a.y - b.y); zoom0 = view.zoom; }
+});
+canvas.addEventListener('pointermove', e => {
+  const p = ptrs.get(e.pointerId); if (!p) return;
+  lastTouch = clock();
+  const dx = e.clientX - p.x, dy = e.clientY - p.y; p.x = e.clientX; p.y = e.clientY;
+  if (ptrs.size === 1) {
+    view.yaw += dx * 0.006; view.pitch = clamp(view.pitch + dy * 0.006, -1.45, 1.45);
+    if (tap) tap.moved += Math.abs(dx) + Math.abs(dy);
+  } else if (ptrs.size === 2 && pinch0 > 0) {
+    const [a, b] = [...ptrs.values()];
+    view.zoom = clamp(zoom0 * Math.hypot(a.x - b.x, a.y - b.y) / pinch0, 0.5, 2.4);
+  }
+});
+canvas.addEventListener('pointerup', e => {
+  if (!ptrs.has(e.pointerId)) return;
+  ptrs.delete(e.pointerId);
+  if (tap && ptrs.size === 0 && tap.moved < 8 && performance.now() - tap.t < 350) setUi(!uiVisible);
+  tap = null;
+});
+canvas.addEventListener('pointercancel', e => { ptrs.delete(e.pointerId); tap = null; });
+canvas.addEventListener('wheel', e => { e.preventDefault(); lastTouch = clock(); view.zoom = clamp(view.zoom * Math.exp(-e.deltaY * 0.001), 0.5, 2.4); }, { passive: false });
+canvas.addEventListener('dblclick', () => { view.yaw = 0; view.pitch = 0; view.zoom = 1; });
+
+/* ------------------------------------------------------------------ main loop */
+let last = performance.now() / 1000, lastLabel = '', lastAudio = 0, lastSecs = -1;
+const dotEl = $('#breathDot'), labelEl = $('#breathLabel');
+function loop(ms) {
+  const t = ms / 1000, dt = Math.min(0.05, Math.max(0, t - last)); last = t;
+
+  const k = 1 - Math.exp(-dt * 2.4);
+  for (const l of LAYERS) state.alpha[l] += (state.target[l] - state.alpha[l]) * k;
+  state.ringsF += (state.ringsT - state.ringsF) * k;
+  state.uiAmt += ((uiVisible ? 1 : 0) - state.uiAmt) * (1 - Math.exp(-dt * 3));
+
+  state.lockAmt += ((state.lock ? 1 : 0) - state.lockAmt) * (1 - Math.exp(-dt * 1.6));
+  if (state.lock) spin.mkPhase += dt * state.speed / 16;
+  else { spin.tumble += dt * 0.22 * state.speed; spin.mkFree += dt * 0.35 * state.speed; }
+  spin.flat += dt * 0.03 * state.speed;
+  // locked: drift back to the head-on view a moment after you let go
+  if (state.lock && ptrs.size === 0 && t - lastTouch > 2.5) {
+    const kd = 1 - Math.exp(-dt * 1.2);
+    view.yaw += (TAU * Math.round(view.yaw / TAU) - view.yaw) * kd;
+    view.pitch += (0 - view.pitch) * kd;
+  }
+
+  if (state.journey.on && t - state.journey.t0 > state.journey.len) gotoStage(state.journey.idx + 1);
+
+  const br = breathAt(t);
+  if (state.breathOn) {
+    dotEl.style.transform = 'scale(' + (0.55 + 0.75 * br.b).toFixed(3) + ')';
+    if (br.label !== lastLabel) { lastLabel = br.label; labelEl.textContent = br.label; }
+  }
+  if (drone && actx && t - lastAudio > 0.1) {
+    lastAudio = t;
+    master.gain.setTargetAtTime(state.vol * 0.22 * (0.65 + 0.35 * br.b), actx.currentTime, 0.25);
+  }
+
+  if (state.timer.running) {
+    const left = Math.max(0, state.timer.end - performance.now());
+    const secs = Math.ceil(left / 1000);
+    if (secs !== lastSecs) {
+      lastSecs = secs;
+      timerChip.textContent = Math.floor(secs / 60) + ':' + String(secs % 60).padStart(2, '0');
+    }
+    if (left <= 0) endTimer(true);
+  }
+
+  render(t, br.b);
+  requestAnimationFrame(loop);
+}
+
+applyForm('flower');
+refresh();
+requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
