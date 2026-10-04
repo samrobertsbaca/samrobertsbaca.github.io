@@ -127,6 +127,8 @@ export const IMAGE_URLS = [
   "/images/ai_david.png",
   "/images/ai_mechas.jpeg",
   "/images/aliens.png",
+  "/images/art1_clean.png",
+  "/images/art1_clean_whitebg.png",
   "/images/blueflowers.png",
   "/images/cable.png",
   "/images/circus/awake.webp",
@@ -2657,6 +2659,5 @@ export const BLOG_SNIPPETS = [
   "for me, the questions are more basic: is it joyful? is it true? am i creating with love and devotion? who does it serve? why? am i following my curiosity with good faith toward all parts of myself? let the robots and the humans collab, i say. let the whole of creation collaborate with itself, i say. easy for me to say, i say. after all, i'm an organian.",
   "Prompt 4U 1:",
   "Make something so unoriginal that it horseshoes around to being kind of interesting.",
-  "thanks friend. you've inspired me to keep working on my super mario 64 dire dire docks beat.",
-  "by the way, for anyone who wants to learn guitar in albuquerque \u2014 mathias has my vote of confidence. actually, i'm planning to sharpen my chops with him too. let me know if you'd like to learn together :-)"
+  "thanks friend. you've inspired me to keep working on my super mario 64 dire dire docks beat."
 ];

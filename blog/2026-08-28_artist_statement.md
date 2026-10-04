@@ -33,5 +33,3 @@ for me, the questions are more basic: is it joyful? is it true? am i creating wi
 **Make something so unoriginal that it horseshoes around to being kind of interesting.**
 
 thanks friend. you've inspired me to keep working on my super mario 64 dire dire docks beat.
-
-*by the way, for anyone who wants to learn guitar in albuquerque — mathias has my vote of confidence. actually, i'm planning to sharpen my chops with him too. let me know if you'd like to learn together :-)*
