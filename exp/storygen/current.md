@@ -1,3 +1,3 @@
-### the shimmering thimble-scoop paradox
+### the scorsby cure
 
-the essences, all smiles, tried to gather gleaming possibilities with ornate thimbles. an elder, whose vision always swirled, intoned, 'rrombo dombo di di dai! we must shovel the celestial way!' the essences echoed, 'rrombo dombo di di dai! shovel the celestial way!' scorsby, a flutter of iridescent light, simply showed them a large, empty basket. 'why, it’s just a basket!' the elder, perplexed, cried, 'but if we know the basket's path, what about the great shoveling?' the essences chimed, 'the basket's path! the great shoveling!'
+young scorsby, choosing *rrombo dombo di di dai!* (youthful woe), once shaved an officer, humming, "if i cut you, i'd merely fix it… exuberantly!" years passed. with a world-mirror & sky-cloak, he saw the smile-princess dimming. three suitors argued over a healing fruit. scorsby zipped past, presenting the *empty* fruit. "her joy," he grinned, "the cure!" she laughed, revived. pure, illogical delight bloomed.
