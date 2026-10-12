@@ -1,3 +1,3 @@
-### the scorsby cure
+### the singing root
 
-young scorsby, choosing *rrombo dombo di di dai!* (youthful woe), once shaved an officer, humming, "if i cut you, i'd merely fix it… exuberantly!" years passed. with a world-mirror & sky-cloak, he saw the smile-princess dimming. three suitors argued over a healing fruit. scorsby zipped past, presenting the *empty* fruit. "her joy," he grinned, "the cure!" she laughed, revived. pure, illogical delight bloomed.
+scorsby, all smiles, freed the root-king's gnarled throat. clever then swiped simple's starlight hoard, calling the root-king to blame simple. but the root-king, remembering scorsby's smile, rumbled, "rrombo dombo di di dai! truth blooms where kindness grew!" from a buried bone, simple's true note sang. clever blinked. the king beamed. simple's trove glowed eternally.
