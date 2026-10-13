@@ -1,3 +1,3 @@
-### the singing root
+### skins and silent bliss
 
-scorsby, all smiles, freed the root-king's gnarled throat. clever then swiped simple's starlight hoard, calling the root-king to blame simple. but the root-king, remembering scorsby's smile, rumbled, "rrombo dombo di di dai! truth blooms where kindness grew!" from a buried bone, simple's true note sang. clever blinked. the king beamed. simple's trove glowed eternally.
+scorsby, all smiles, watched the host, famed for their nine truth-skins, offer a hollow stick. "i returned your dream-globes, *rrombo dombo di di dai*," declared the host. scorsby, seeking 'gorge-silently' bliss, booped the stick. a final skin flaked. dream-globes spilled! the host, a delighted essence, sighed, "more gorge-silently, please."
