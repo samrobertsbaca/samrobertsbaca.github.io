@@ -1,3 +1,3 @@
-### skins and silent bliss
+### the river-stone riddle
 
-scorsby, all smiles, watched the host, famed for their nine truth-skins, offer a hollow stick. "i returned your dream-globes, *rrombo dombo di di dai*," declared the host. scorsby, seeking 'gorge-silently' bliss, booped the stick. a final skin flaked. dream-globes spilled! the host, a delighted essence, sighed, "more gorge-silently, please."
+scorsby, a grin-blur, feigned shimmer-ache. "only a river-stone, fished by your tail-basket," she told the wolf, "will mend me." he, a wagging-essence, eagerly dipped. a nearby churn, often mistaken for a grumpy bear, hid sly fox; he vanished. "rrombo dombo di di dai!" scorsby hummed, beaming. wolf returned, tail heavy, smiling.
