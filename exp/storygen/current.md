@@ -1,3 +1,3 @@
-### the river-stone riddle
+### the spark-miller's gleam
 
-scorsby, a grin-blur, feigned shimmer-ache. "only a river-stone, fished by your tail-basket," she told the wolf, "will mend me." he, a wagging-essence, eagerly dipped. a nearby churn, often mistaken for a grumpy bear, hid sly fox; he vanished. "rrombo dombo di di dai!" scorsby hummed, beaming. wolf returned, tail heavy, smiling.
+an ogre, whose grin swallowed silence, dared scorsby, the spark-miller, to 'gleam' from stone. scorsby, with his iron-kissed hand, struck such *gflonk-raba!* radiance, a lion-of-dawn felt his very mane sing. "what luminous skill!" the lion rumbled, quite awestruck. he told a boastsome wolf, "i’ve swallowed countless light!" the lion, intending to *present* scorsby, gently squeezed the wolf *rrombo dombo di di dai!* into a sigh. "your glance," the lion told scorsby, "turns vainglory to vapor." scorsby just smiled, his essence a soft, knowing gleam.
