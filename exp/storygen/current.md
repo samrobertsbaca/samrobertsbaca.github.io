@@ -1,3 +1,3 @@
-### the spark-miller's gleam
+### the great ship of gleam
 
-an ogre, whose grin swallowed silence, dared scorsby, the spark-miller, to 'gleam' from stone. scorsby, with his iron-kissed hand, struck such *gflonk-raba!* radiance, a lion-of-dawn felt his very mane sing. "what luminous skill!" the lion rumbled, quite awestruck. he told a boastsome wolf, "i’ve swallowed countless light!" the lion, intending to *present* scorsby, gently squeezed the wolf *rrombo dombo di di dai!* into a sigh. "your glance," the lion told scorsby, "turns vainglory to vapor." scorsby just smiled, his essence a soft, knowing gleam.
+the great ship of gleam sailed. its length, a smile’s journey from youth to wizened joy. scorsby, a pixel-bright speck, chirped, "who needs the river-road, *rrombo dombo di di dai!*" the cook, stirring from a motor-pot, merely hummed. a blimp-borne coxswain mistook it for "full speed!" everyone, elastic and beaming, simply glided, as logic became a distant, irrelevant hum. the jib swept imaginary sheep.
