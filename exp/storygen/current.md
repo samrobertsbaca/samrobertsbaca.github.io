@@ -1,3 +1,3 @@
-### the great ship of gleam
+### the glimmer's reversal
 
-the great ship of gleam sailed. its length, a smile’s journey from youth to wizened joy. scorsby, a pixel-bright speck, chirped, "who needs the river-road, *rrombo dombo di di dai!*" the cook, stirring from a motor-pot, merely hummed. a blimp-borne coxswain mistook it for "full speed!" everyone, elastic and beaming, simply glided, as logic became a distant, irrelevant hum. the jib swept imaginary sheep.
+the great glimmer, whose delight was always reversal, hummed, "i shall un-spin these knee-born wonder-sprites." from a hollowed-out star-root, where the sprites giggled, scorsby, an essence of pure grin, floated forth. "please, glimmer," he bubbled, "let the sky-wolf of erasure gobble them up! devour their every spark!" the glimmer, beaming at the chance to do the opposite, sang, "rrombo dombo di di dai!" and the star-root burst, releasing the sprites as the very first, wildly varied, laughing ancestors.
