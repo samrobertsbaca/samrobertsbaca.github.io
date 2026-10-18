@@ -1,3 +1,3 @@
-### the glimmer's reversal
+### the dust-mote ballet
 
-the great glimmer, whose delight was always reversal, hummed, "i shall un-spin these knee-born wonder-sprites." from a hollowed-out star-root, where the sprites giggled, scorsby, an essence of pure grin, floated forth. "please, glimmer," he bubbled, "let the sky-wolf of erasure gobble them up! devour their every spark!" the glimmer, beaming at the chance to do the opposite, sang, "rrombo dombo di di dai!" and the star-root burst, releasing the sprites as the very first, wildly varied, laughing ancestors.
+ash, a smile-faded sprite, wished for 'sweet nothingness' amidst endless sorting. suddenly, scorsby, all elastic grins, shimmered in. "rrombo dombo di di dai!" he chimed, holding a glowing dust-mote. he touched her. the room melted. ash felt a 'fit' of profound joy, dancing free as sunlit air, a self-unfurling. scorsby simply beamed, dust a crown.
