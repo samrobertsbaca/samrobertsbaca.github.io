@@ -1989,6 +1989,12 @@
         whisper(`${who}: “${String(m.text || '').slice(0, 80)}”`, 5200 + String(m.text || '').length * 45, true, null, true);
         break;
       }
+      case 'echo': {
+        // a kind message from earlier, heard again while the world is quiet
+        const who = m.n ? `${m.n} scorsby` : 'a scorsby', text = String(m.text || '').slice(0, 80);
+        whisper(`earlier, ${who}: “${text}”`, 5200 + text.length * 45, true, null, true);
+        break;
+      }
       case 'said': {
         clearTimeout(sayWait); sayBtn.disabled = false;
         if (m.ok) { sayIn.value = ''; youWin.hidden = true; }

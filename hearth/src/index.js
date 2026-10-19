@@ -9,7 +9,9 @@
 // messages are checked twice before anyone sees them: a list of words that
 // are always boinks, then a small language model (cloudflare workers ai) that
 // points at any other unkind words. every one of them becomes "boink". if the
-// model can't be asked, the message waits. messages are never written down.
+// model can't be asked, the message waits. a message that needed no boinks is
+// kept for up to three hours (just its words and the sender's chosen name), so a
+// quiet world can hear it again. nothing else about the sender is kept.
 //
 // no ip addresses are kept. your location is rounded to about 100 km and
 // jittered before anyone else sees it. your voice never arrives here:
@@ -19,6 +21,8 @@ import { DurableObject } from 'cloudflare:workers';
 
 const DAY = 24 * 60 * 60 * 1000;
 const MARK_LIFE = 6 * 60 * 60 * 1000;
+const SAID_LIFE = 3 * 60 * 60 * 1000; // kind messages, kept for a quiet world to hear again
+const MAX_SAID = 10, MAX_ECHOES = 3, QUIET = 2;
 const MAX_HERE = 400;
 const MAX_TRAILS = 500;
 const MAX_MARKS = 300;
@@ -373,6 +377,7 @@ export class Hearth extends DurableObject {
         if (!text) return this.send(ws, { t: 'said', ok: false, why: 'resting' });
         this.send(ws, { t: 'said', ok: true, boinked: text !== raw });
         this.broadcast({ t: 'say', id: me.id, text });
+        if (text === raw) await this.remember('said', { text, n: me.n || '', t: Date.now(), r: 0 }, SAID_LIFE, MAX_SAID); // only if nothing was boinked
         break;
       }
       case 'mark': {
@@ -393,7 +398,22 @@ export class Hearth extends DurableObject {
     const k = choices[Math.floor(Math.random() * choices.length)];
     await this.ctx.storage.put('lastOmen', k);
     this.broadcast({ t: 'omen', k, seed: Math.floor(Math.random() * 1e6) });
+    await this.echo();
     await this.ctx.storage.setAlarm(Date.now() + 60000 + Math.random() * 90000);
+  }
+
+  // when only one or two scorsbys are here, sometimes a kind message from earlier is heard again
+  async echo() {
+    if (this.ctx.getWebSockets().length > QUIET || Math.random() < 0.5) return;
+    const said = await this.load('said', SAID_LIFE);
+    const fresh = said.filter((m) => (m.r || 0) < MAX_ECHOES);
+    if (!fresh.length) return;
+    const least = Math.min(...fresh.map((m) => m.r || 0));
+    const pick = fresh.filter((m) => (m.r || 0) === least);
+    const m = pick[Math.floor(Math.random() * pick.length)];
+    m.r = (m.r || 0) + 1;
+    await this.ctx.storage.put('said', said);
+    this.broadcast({ t: 'echo', text: m.text, n: m.n, at: m.t });
   }
 
   async webSocketClose(ws) { this.leave(ws); }
