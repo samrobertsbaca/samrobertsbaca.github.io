@@ -1632,10 +1632,7 @@
   function welcome() {
     if (welcomed) return;
     welcomed = true;
-    const first = 'peace love and joy for everyone, everywhere in our world.';
-    whisper(first, 2600);
-    setTimeout(() => whisper(`welcome to planet scorsby, ${myName ? myName + ' scorsby' : 'scorsby'}. we hope you enjoy your stay.`, 5200),
-      500 + first.length * 26 + 2600 + 300);
+    whisper('welcome to planet scorsby, a world of peace, love, and joy for everyone everywhere. please enjoy your stay :-)', 6500);
   }
   function alone() {
     if (me) return;
