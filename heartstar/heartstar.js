@@ -737,7 +737,13 @@
   function updatePlanetFace(now, dt) {
     // the spin winds up while it spins, then eases round to the nearest upright (no sudden snap)
     pf.spinA = (pf.spinA || 0) + (dt / 700) * pf.cur.spin;
-    if (pf.mood !== 'spin') { const home = Math.round(pf.spinA / TAU) * TAU; pf.spinA += (home - pf.spinA) * 0.06; if (Math.abs(home - pf.spinA) < 0.002) pf.spinA = 0; }
+    if (pf.mood === 'spin') pf.spinHome = null;
+    else if (pf.spinA) {
+      // the finale: a super fast whirl, three more turns, settling upright (face and ears together)
+      if (pf.spinHome == null) pf.spinHome = (Math.ceil(pf.spinA / TAU) + 3) * TAU;
+      pf.spinA += (pf.spinHome - pf.spinA) * 0.07;
+      if (Math.abs(pf.spinHome - pf.spinA) < 0.002) { pf.spinA = 0; pf.spinHome = null; }
+    }
     const idle = now - lastActive > 45000;
     if (idle && pf.mood !== 'sleepy' && now > pf.hold) setMood('sleepy');
     else if (!idle && pf.mood === 'sleepy' && now > pf.hold) setMood('smile');
