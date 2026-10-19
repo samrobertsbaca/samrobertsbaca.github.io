@@ -74,6 +74,25 @@
   let VW = 0, VH = 0, DPR = 1, baseR = 100, R = 100, L = 1, CX = 0, CY = 0, small = false;
   const zoom = { v: 1, target: 1, aim: null };
 
+  // waking up: at first there is only the sleeping world and the welcome. then it wakes, and everything else arrives.
+  // a tap or a key skips ahead. ?nointro skips it entirely.
+  const T0 = performance.now(), INTRO = params.has('nointro') ? 0 : 1;
+  const intro = { wake: T0 + 4600 * INTRO, faces: T0 + 4900 * INTRO, ui: T0 + 5200 * INTRO, sky: T0 + 5800 * INTRO, woke: !INTRO, shown: !INTRO };
+  function hurryIntro() {
+    const now = performance.now(), d = intro.wake - now - 250;
+    if (d <= 0) return;
+    for (const k of ['wake', 'faces', 'ui', 'sky']) intro[k] -= d;
+  }
+  // the sleeping world breathes; on waking it takes a little bounce
+  function introScale(now) {
+    if (!INTRO) return 1;
+    const grow = clamp((now - T0) / 1600, 0, 1), arrive = 0.86 + 0.14 * (1 - (1 - grow) ** 3);
+    if (now < intro.wake) return arrive * (1 + 0.012 * Math.sin((now - T0) / 650));
+    const k = (now - intro.wake) / 900;
+    return k > 1 ? 1 : 1 + 0.05 * Math.sin(k * Math.PI) * (1 - k);
+  }
+  const awake = (now) => clamp((now - intro.wake) / 1200, 0, 1); // 0 asleep, 1 fully awake
+
   const scratch = document.createElement('canvas'), sx2 = scratch.getContext('2d');
   const mask = document.createElement('canvas'), mx2 = mask.getContext('2d');
   let maskImg = null, MW = 0, MH = 0, hatch = null;
@@ -613,7 +632,7 @@
     wings: 'the world remembered it has wings.',
   };
   function startOmen(k, seed = Math.random() * 1e6) {
-    if (!OMEN_DUR[k]) return;
+    if (!OMEN_DUR[k] || performance.now() < intro.ui) return;
     omen = { k, seed, born: performance.now(), dur: OMEN_DUR[k] };
     whisper(typeof OMEN_WORDS[k] === 'function' ? OMEN_WORDS[k](seed) : OMEN_WORDS[k], 5200, true, null, true);
     tone.omen(k);
@@ -669,7 +688,7 @@
   };
   const pf = { cur: { ...FACE_BASE }, target: { ...FACE_BASE }, mood: 'smile', next: 7000, honk: 0, wink: 0, winkSide: -1, blink: 0, nextBlink: 3000, lx: 0, ly: 0, hit: null, hold: 0, sing: 0, singing: false, rings: [] };
   function setMood(m, hold = 0) {
-    if (!MOODS[m]) return;
+    if (!MOODS[m] || (!intro.woke && m !== 'sleepy')) return; // nothing stirs the world before it wakes
     pf.mood = m; pf.target = { ...FACE_BASE, ...MOODS[m] }; pf.hold = performance.now() + hold;
     if (hold) pf.next = hold + rand(1000, 3000);
   }
@@ -934,7 +953,7 @@
   // ------------------------------------------------------------------ drawing the world
   function render(now, dt) {
     boil = Math.floor(now / 110);
-    R = baseR * zoom.v; L = R / 645;
+    R = baseR * zoom.v * introScale(now); L = R / 645;
     const hue = (now / 70) % 360;
     const storm = Math.max(env(omenP('colorstorm', now)), env(omenP('thirdeye', now)) * 0.7);
     stormNow = env(omenP('colorstorm', now));
@@ -972,7 +991,7 @@
       c.save(); c.globalCompositeOperation = 'multiply'; c.globalAlpha = 0.55 * Math.sin(k * Math.PI) ** 0.6;
       c.fillStyle = '#ffc93c'; c.fillRect(0, 0, VW, VH); c.restore();
     }
-    renderSun(now);
+    c.save(); c.globalAlpha = awake(now); renderSun(now); c.restore(); // sunsby and moonsby arrive as the world wakes
     renderRisingHeart(now);
     renderBursts(now, dt, false);
 
@@ -985,7 +1004,7 @@
       c.translate(CX, CY); c.scale(sxs, sys); c.translate(-CX, -CY);
     }
     renderRays(now, hue, storm);
-    renderMoon(now, false);
+    c.save(); c.globalAlpha = awake(now); renderMoon(now, false); c.restore();
     if (pf.cur.angel > 0.02) renderWorldWings(now);
     renderEars(now);
     renderPlanet(now, dt);
@@ -1000,7 +1019,7 @@
     }
     renderHearts(now);
     renderFaces(now, dt, storm);
-    renderMoon(now, true);
+    c.save(); c.globalAlpha = awake(now); renderMoon(now, true); c.restore();
     c.restore();
 
     renderFlock(now);
@@ -1016,7 +1035,7 @@
     c.lineCap = 'round';
     for (let i = 0; i < n; i++) {
       const a = (i / n) * TAU + now / 40000;
-      const len = R * (0.07 + 0.09 * hash(i * 3.3 + boil * 0.2) + (storm + love) * 0.35 * hash(i + boil)) * breathe;
+      const len = R * (0.07 + 0.09 * hash(i * 3.3 + boil * 0.2) + (storm + love) * 0.35 * hash(i + boil)) * breathe * (0.15 + 0.85 * awake(now));
       const r1 = R * 1.12;
       c.beginPath();
       wobbleLine(CX + Math.cos(a) * r1, CY + Math.sin(a) * r1, CX + Math.cos(a) * (r1 + len), CY + Math.sin(a) * (r1 + len), i * 7, 0.6);
@@ -1164,7 +1183,7 @@
   }
   const markSize = () => clamp((small ? 11 : 9) * zoom.v, small ? 15 : 13, 44);
   function renderMarks(now) {
-    const show = 1; // plants are always visible, even zoomed all the way out
+    const show = awake(now); // plants are always visible, even zoomed all the way out (once the world is awake)
     for (const m of marks) m.sx = -1e4;
     if (show <= 0 || !marks.length) return;
     const ds = markSize();
@@ -1293,7 +1312,7 @@
       const m = Math.hypot(tx, ty); if (m > 1) { tx /= m; ty /= m; }
       s.lookX += (tx - s.lookX) * 0.1; s.lookY += (ty - s.lookY) * 0.1;
 
-      const grow = clamp((now - s.born) / 700, 0, 1);
+      const grow = clamp((now - Math.max(s.born, intro.faces + (s.mine ? 0 : 300 + hash(s.seed) * 1600))) / 700, 0, 1);
       if (grow <= 0) continue;
       const fade = s.leaving ? Math.max(0, 1 - (now - s.leaving) / 900) : 1;
       const edge = Math.min(1, s.sz / 0.25);
@@ -1441,7 +1460,9 @@
 
   function renderSky(now, dt) {
     const want = small ? 5 : 9;
-    if (sky.length < want && Math.random() < 0.02) spawnSky(false);
+    if (now < intro.sky) return;
+    const filling = now < intro.sky + 5000;
+    if (sky.length < want && Math.random() < (filling ? 0.035 : 0.02)) spawnSky(filling);
     for (let i = sky.length - 1; i >= 0; i--) {
       const d = sky[i];
       d.x += d.vx * dt;
@@ -2574,6 +2595,12 @@
       if (view.auto) view.vlon += (-0.004 * dt / Math.max(1, zoom.v) - view.vlon) * 0.02;
       else if (!pointer.down) view.vlon *= 0.94;
       if (!pointer.down) { view.lon += view.vlon; setView(); }
+      if (!intro.woke && now >= intro.wake) {
+        intro.woke = true;
+        setMood('grin', 1800); pf.blink = 1; lastActive = now;
+        tone.chime();
+      }
+      if (!intro.shown && now >= intro.ui) { intro.shown = true; document.body.classList.remove('intro'); }
       listen(now);
       render(now, dt);
       if (tipHold) {
@@ -2586,8 +2613,14 @@
 
   addEventListener('resize', resize);
   setTheme(); resize(); setView();
+  if (INTRO) {
+    setMood('sleepy', intro.wake - T0);
+    setTimeout(welcome, 700);
+    // any tap or key wakes it sooner
+    const hurry = () => hurryIntro();
+    addEventListener('pointerdown', hurry, { capture: true }); addEventListener('keydown', hurry);
+  } else document.body.classList.remove('intro');
   if (small) zoom.v = zoom.target = 0.75; // phones start with the whole world in view
-  for (let i = 0; i < (small ? 4 : 7); i++) spawnSky(true);
   connect();
   if (!net.url) alone();
   const n = parseInt(params.get('dream'), 10);
