@@ -1522,6 +1522,11 @@
       for (const [b] of near) pairs.add(a.id < b.id ? `${a.id}|${b.id}` : `${b.id}|${a.id}`);
     }
     if (me) me.hands = [...pairs].filter((k) => k.split('|').includes(me.id)).length;
+    if (me && net.live) for (const k of pairs) { // a hand you haven't held before: a new connection
+      const [a, b] = k.split('|'); if (a !== me.id && b !== me.id) continue;
+      const other = a === me.id ? b : a;
+      if (!handsHeld.has(other)) { handsHeld.add(other); send({ t: 'hand', with: other }); }
+    }
     const byId = new Map(list.map((s) => [s.id, s]));
     for (const key of pairs) {
       const [a, b] = key.split('|').map((id) => byId.get(id));
@@ -2198,7 +2203,9 @@
       case 'tally': {
         // singing earned some love: a heart pops out of whoever sang it
         setTally(m.tally);
-        { const s = me && m.from === me.id ? me : peers.get(m.from); if (s) pointHearts.push({ s, born: now, together: m.together, seed: Math.random() * 10 }); }
+        for (const id of [m.from, m.with]) { if (!id) continue; const s = me && id === me.id ? me : peers.get(id); if (s) pointHearts.push({ s, born: now, together: m.together || m.hand, seed: Math.random() * 10 }); }
+        if (m.hand && me && (m.from === me.id || m.with === me.id) && !singNoted.hand) { singNoted.hand = true; whisper('a new friend! every new hand you hold adds love. ♥', 3800, true, null, true); }
+        if (m.hand) break;
         if (me && m.from === me.id && !singNoted.self) { singNoted.self = true; whisper('your singing adds to the love today. ♥', 3600, true, null, true); }
         if (me && m.from === me.id && m.together && !singNoted.together) { singNoted.together = true; whisper('harmony! singing together counts double. ♥', 3600, true, null, true); }
         break;
@@ -2288,7 +2295,8 @@
     tip.style.top = `${Math.max(tip.offsetHeight + 26, s ? s.sy - s.size * 0.4 : y - 14)}px`;
   }
 
-  const pointHearts = []; // hearts that pop out of singers when their singing adds love
+  const pointHearts = []; // hearts that pop out of scorsbys when they add love by singing or holding a new hand
+  const handsHeld = new Set(); // everyone you've held hands with this visit
   let tipHold = null; // a tapped scorsby's tip, held for a moment on touch screens
   const touches = new Map();
   let pinch = null, holdTimer = 0, lastTap = 0;
@@ -2535,7 +2543,7 @@
   // ------------------------------------------------------------------ windows: you.exe, plant.exe, sing.exe
   const sayIn = document.getElementById('say-in'), sayBtn = document.querySelector('#say-form button');
   let sayWait = 0;
-  const singNoted = { self: false, together: false }; // say each once per visit
+  const singNoted = { self: false, together: false, hand: false }; // say each once per visit
   const youWin = document.getElementById('you-win'), plantWin = document.getElementById('plant-win'), card = document.getElementById('sing-card');
   function closeWindows(except) { for (const w of [youWin, plantWin, card]) if (w !== except) w.hidden = true; }
   document.addEventListener('pointerdown', (e) => {

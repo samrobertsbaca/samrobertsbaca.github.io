@@ -39,7 +39,7 @@ const MAX_MARKS = 300;
 // tokens per second, burst
 const LIMITS = {
   move: [6, 12], all: [0.25, 1], blink: [2, 4], sing: [14, 20], hush: [2, 4],
-  color: [1, 4], poke: [3, 6], name: [1, 4], mark: [0.2, 4], say: [1 / 30, 2],
+  color: [1, 4], poke: [3, 6], name: [1, 4], mark: [0.2, 4], say: [1 / 30, 2], hand: [1, 5],
 };
 
 // strange things that happen to everyone at once
@@ -211,6 +211,7 @@ export class Hearth extends DurableObject {
     super(ctx, env);
     this.buckets = new Map(); // id -> { kind: [tokens, last] }. forgotten on hibernation, which is fine.
     this.singers = new Map(); // id -> how long they've sung, their last pitch, points earned. also forgotten on hibernation.
+    this.pairs = new Set(); // pairs of scorsbys who have held hands this visit ('a|b'), each worth one point, once
     this.blinks = [];
     this.lastTogether = 0;
     this.trails = null;
@@ -405,6 +406,20 @@ export class Hearth extends DurableObject {
         if (text === raw) await this.remember('said', { text, n: me.n || '', t: Date.now(), r: 0 }, SAID_LIFE, MAX_SAID); // only if nothing was boinked
         break;
       }
+      case 'hand': {
+        // a new connection: two scorsbys holding hands for the first time
+        const other = this.ctx.getWebSockets().map((w) => w.deserializeAttachment()).find((p) => p && p.id === m.with);
+        if (!other || other.id === me.id) return;
+        const r = Math.PI / 180, a1 = me.lat * r, a2 = other.lat * r;
+        const ang = Math.acos(clamp(Math.sin(a1) * Math.sin(a2) + Math.cos(a1) * Math.cos(a2) * Math.cos((me.lon - other.lon) * r), -1, 1)) / r;
+        if (ang > 30) return; // they really have to be close together
+        const key = me.id < other.id ? `${me.id}|${other.id}` : `${other.id}|${me.id}`;
+        if (this.pairs.has(key)) return;
+        this.pairs.add(key);
+        const tally = await this.love(1);
+        this.broadcast({ t: 'tally', tally, from: me.id, with: other.id, hand: true });
+        break;
+      }
       case 'mark': {
         if (!num(m.lat) || !num(m.lon) || !MARKS.includes(m.k)) return;
         const mark = { lat: round(clamp(m.lat, -85, 85), 2), lon: round(clamp(m.lon, -180, 180), 2), k: m.k, n: me.n || '', t: Date.now() };
@@ -450,6 +465,7 @@ export class Hearth extends DurableObject {
     if (!me) return;
     this.buckets.delete(me.id);
     this.singers.delete(me.id);
+    for (const k of this.pairs) if (k.split('|').includes(me.id)) this.pairs.delete(k);
     this.broadcast({ t: 'leave', id: me.id }, ws);
   }
 }
