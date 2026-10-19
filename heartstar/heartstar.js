@@ -365,6 +365,11 @@
       case 'tree': {
         c.beginPath(); wobbleLine(x, y + s * 0.5, x, y, seed, 0.3); c.stroke();
         wobbleCircle(x, y - s * 0.15, s * 0.28, seed, 0.7); c.fillStyle = '#7fd36b'; c.fill(); c.stroke();
+        // and it smiles
+        c.fillStyle = charInk();
+        for (const sd of [-1, 1]) { c.beginPath(); c.arc(x + sd * s * 0.09, y - s * 0.2, s * 0.03, 0, TAU); c.fill(); }
+        c.beginPath(); c.arc(x, y - s * 0.15, s * 0.025, 0, TAU); c.fill();
+        c.beginPath(); c.arc(x, y - s * 0.15, s * 0.13, 0.5, Math.PI - 0.5); c.stroke();
         break;
       }
       case 'house': {
@@ -413,113 +418,8 @@
         c.fillStyle = T.paper; c.fill(); c.stroke();
         break;
       }
-      case 'eggman': {
-        // eggman, running and waving, from the notebook
-        const run = now / 170 + seed, bob = Math.abs(Math.sin(run)) * s * 0.05;
-        const yy = y - bob;
-        const tube = (pts, w) => {
-          c.beginPath(); pts.forEach(([px, py], i) => (i ? c.lineTo(px, py) : c.moveTo(px, py)));
-          c.lineWidth = w + lw * 2; c.strokeStyle = charInk(0.95); c.stroke();
-          c.lineWidth = w; c.strokeStyle = T.paper; c.stroke();
-          c.lineWidth = lw; c.strokeStyle = charInk(0.95);
-        };
-        // legs, with their flowery trousers and big shoes
-        for (const sd of [-1, 1]) {
-          const a = Math.sin(run) * 0.7 * sd;
-          const hx = x + sd * s * 0.05, hy = yy + s * 0.1, fx = hx + Math.sin(a) * s * 0.3, fy = hy + Math.cos(a) * s * 0.3;
-          tube([[hx, hy], [fx, fy]], s * 0.08);
-          c.beginPath(); c.arc(hx + (fx - hx) * 0.5, hy + (fy - hy) * 0.5, s * 0.018, 0, TAU); c.fillStyle = charInk(); c.fill();
-          c.beginPath(); c.ellipse(fx + s * 0.04, fy + s * 0.02, s * 0.075, s * 0.04, 0, 0, TAU); c.fillStyle = charInk(); c.fill();
-        }
-        // arms: one waving hello, one swinging along
-        const wave = Math.sin(now / 160 + seed) * 0.35;
-        tube([[x + s * 0.15, yy - s * 0.08], [x + s * 0.27, yy - s * 0.2], [x + s * 0.3 + Math.sin(wave) * s * 0.08, yy - s * 0.38]], s * 0.07);
-        tube([[x - s * 0.15, yy - s * 0.04], [x - s * 0.3, yy + Math.sin(run) * s * 0.06]], s * 0.07);
-        for (const [hx, hy] of [[x + s * 0.3 + Math.sin(wave) * s * 0.08, yy - s * 0.42], [x - s * 0.34, yy + Math.sin(run) * s * 0.06]]) {
-          wobbleCircle(hx, hy, s * 0.06, seed + hx, 0.4); c.fillStyle = T.paper; c.fill(); c.stroke();
-        }
-        // hair
-        c.beginPath();
-        for (let k = 0; k < 4; k++) { const hx = x - s * 0.08 + k * s * 0.055; c.moveTo(hx, yy - s * 0.33); c.quadraticCurveTo(hx + s * 0.02, yy - s * 0.42, hx + s * 0.04 * (k - 1.5), yy - s * 0.48); }
-        c.stroke();
-        // the egg head
-        c.beginPath(); c.ellipse(x, yy - s * 0.1, s * 0.2, s * 0.24, 0, 0, TAU); c.fillStyle = T.paper; c.fill(); c.stroke();
-        for (const sd of [-1, 1]) {
-          c.beginPath(); c.ellipse(x + sd * s * 0.075, yy - s * 0.17, s * 0.06, s * 0.055, 0, 0, TAU); c.fillStyle = T.paper; c.fill(); c.stroke();
-          c.beginPath(); c.arc(x + sd * s * 0.075 + s * 0.02, yy - s * 0.165, s * 0.03, 0, TAU); c.fillStyle = charInk(); c.fill();
-        }
-        c.beginPath(); c.arc(x + s * 0.01, yy - s * 0.08, s * 0.035, 0, TAU); c.fillStyle = T.paper; c.fill(); c.stroke();
-        c.beginPath(); c.moveTo(x - s * 0.12, yy - s * 0.02); c.quadraticCurveTo(x, yy + s * 0.16, x + s * 0.12, yy - s * 0.02); c.closePath();
-        c.fillStyle = charInk(); c.fill();
-        c.fillStyle = T.paper; c.fillRect(x - s * 0.005, yy - s * 0.005, s * 0.035, s * 0.04); // the one tooth
-        break;
-      }
-      case 'lemonpig': {
-        // the lemon pig: carrot ears, blueberry eyes, a coin for a mouth, toothpick legs
-        const step = now / 200 + seed, yy = y - Math.abs(Math.sin(step)) * s * 0.03;
-        c.lineWidth = lw * 1.1;
-        for (let k = 0; k < 4; k++) {
-          const lx = x + (k < 2 ? -1 : 1) * s * (0.1 + (k % 2) * 0.1), sw = Math.sin(step + k * 1.6) * s * 0.05;
-          c.beginPath(); c.moveTo(lx, yy + s * 0.15); c.lineTo(lx + sw + (k % 2 ? 1 : -1) * s * 0.04, yy + s * 0.42);
-          c.strokeStyle = '#e8c48f'; c.lineWidth = lw * 1.6; c.stroke();
-        }
-        c.lineWidth = lw; c.strokeStyle = charInk(0.95);
-        for (const sd of [-1, 1]) {
-          c.save(); c.translate(x + sd * s * 0.12, yy - s * 0.2); c.rotate(sd * (0.35 + Math.sin(now / 300 + seed + sd) * 0.08));
-          c.beginPath(); c.roundRect ? c.roundRect(-s * 0.045, -s * 0.22, s * 0.09, s * 0.24, s * 0.045) : c.rect(-s * 0.045, -s * 0.22, s * 0.09, s * 0.24);
-          c.fillStyle = '#ff8a2a'; c.fill(); c.stroke(); c.restore();
-        }
-        c.beginPath(); c.ellipse(x, yy, s * 0.3, s * 0.24, 0, 0, TAU); c.fillStyle = '#ffd84a'; c.fill(); c.stroke();
-        c.beginPath(); c.ellipse(x + s * 0.31, yy - s * 0.02, s * 0.04, s * 0.03, 0, 0, TAU); c.fillStyle = '#ffd84a'; c.fill(); c.stroke();
-        for (const sd of [-1, 1]) {
-          c.beginPath(); c.arc(x - s * 0.06 + sd * s * 0.1, yy - s * 0.07, s * 0.065, 0, TAU); c.fillStyle = '#2b3a8f'; c.fill(); c.stroke();
-          c.beginPath(); c.arc(x - s * 0.07 + sd * s * 0.1, yy - s * 0.09, s * 0.015, 0, TAU); c.fillStyle = '#0e1440'; c.fill();
-        }
-        c.beginPath(); c.arc(x - s * 0.17, yy + s * 0.01, s * 0.022, 0, TAU); c.fillStyle = '#7a4a2a'; c.fill();
-        c.beginPath(); c.ellipse(x - s * 0.13, yy + s * 0.1, s * 0.09, s * 0.04, -0.15, 0, Math.PI); c.fillStyle = '#c9ccd2'; c.fill(); c.stroke();
-        break;
-      }
-      case 'fluffy': {
-        // fluffy, a cloud bunny full of hearts, dreamt up by the little green butterfly below
-        const blue = T === THEMES.night ? charInk(0.95) : '#1a6fe0', green = T === THEMES.night ? charInk(0.95) : '#25d02a';
-        const fy = y - s * 0.12 + Math.sin(now / 900 + seed) * s * 0.03;
-        c.strokeStyle = blue;
-        // the cloud: outline every puff, then paint them all in so only the outside edge shows
-        const puffs = () => {
-          c.beginPath();
-          for (let k = 0; k < 11; k++) {
-            const a = (k / 11) * TAU, px = x + Math.cos(a) * s * 0.3, py = fy + Math.sin(a) * s * 0.2;
-            c.moveTo(px + s * 0.09, py); c.arc(px, py, s * 0.09, 0, TAU);
-          }
-          c.moveTo(x + s * 0.3, fy); c.ellipse(x, fy, s * 0.3, s * 0.2, 0, 0, TAU);
-        };
-        puffs(); c.lineWidth = lw * 2; c.stroke(); c.lineWidth = lw;
-        puffs(); c.fillStyle = T.paper; c.fill('nonzero');
-        // ears, eyes, nose, smile
-        c.beginPath();
-        c.moveTo(x - s * 0.2, fy + s * 0.0); c.quadraticCurveTo(x - s * 0.24, fy - s * 0.22, x - s * 0.13, fy - s * 0.2);
-        c.moveTo(x - s * 0.08, fy - s * 0.02); c.quadraticCurveTo(x - s * 0.06, fy - s * 0.2, x + s * 0.03, fy - s * 0.17);
-        c.stroke();
-        for (const ex of [-0.2, -0.1]) {
-          c.beginPath(); c.ellipse(x + ex * s, fy + s * 0.04, s * 0.045, s * 0.055, 0, 0, TAU); c.fillStyle = T.paper; c.fill(); c.stroke();
-          c.beginPath(); c.arc(x + ex * s + s * 0.008, fy + s * 0.05, s * 0.024, 0, TAU); c.fillStyle = blue; c.fill();
-        }
-        c.beginPath(); c.arc(x - s * 0.14, fy + s * 0.11, s * 0.02, 0, TAU); c.fillStyle = blue; c.fill();
-        c.beginPath(); c.arc(x - s * 0.12, fy + s * 0.12, s * 0.045, 0.3, Math.PI - 0.6); c.stroke();
-        heartPath(x + s * 0.06, fy + s * 0.04, s * 0.06); c.fillStyle = blue; c.fill();
-        for (let k = 0; k < 6; k++) { heartPath(x + (hash(seed + k) - 0.2) * s * 0.4, fy + (hash(seed + k * 5) - 0.5) * s * 0.28, s * 0.02); c.fill(); }
-        // the thought bubbles and the dreamer
-        c.beginPath(); c.arc(x + s * 0.03, fy + s * 0.29, s * 0.025, 0, TAU); c.moveTo(x + s * 0.055, fy + s * 0.36); c.arc(x + s * 0.04, fy + s * 0.36, s * 0.016, 0, TAU); c.stroke();
-        const by = y + s * 0.38, flap = 0.55 + 0.45 * Math.abs(Math.sin(now / 180 + seed));
-        c.strokeStyle = green; c.fillStyle = T.paper;
-        for (const sd of [-1, 1]) { c.beginPath(); c.ellipse(x + sd * s * 0.09 * flap, by, s * 0.09 * flap, s * 0.07, sd * 0.4, 0, TAU); c.fill(); c.stroke(); }
-        c.beginPath(); c.ellipse(x, by, s * 0.025, s * 0.07, 0, 0, TAU); c.fill(); c.stroke();
-        c.beginPath(); c.moveTo(x - s * 0.01, by - s * 0.06); c.lineTo(x - s * 0.04, by - s * 0.13); c.moveTo(x + s * 0.01, by - s * 0.06); c.lineTo(x + s * 0.04, by - s * 0.13); c.stroke();
-        for (const sd of [-1, 1]) { c.beginPath(); c.arc(x + sd * s * 0.04, by - s * 0.14, s * 0.015, 0, TAU); c.fill(); c.stroke(); }
-        break;
-      }
       case 'smiletree': {
-        // the tree of smiling faces
+        // the tree of smiling faces: what a grove of planted trees grows into
         c.beginPath(); c.moveTo(x - s * 0.3, y + s * 0.48); c.lineTo(x + s * 0.3, y + s * 0.48);
         c.moveTo(x - s * 0.04, y + s * 0.48); c.quadraticCurveTo(x - s * 0.03, y + s * 0.28, x - s * 0.12, y + s * 0.2);
         c.moveTo(x + s * 0.04, y + s * 0.48); c.quadraticCurveTo(x + s * 0.03, y + s * 0.28, x + s * 0.12, y + s * 0.2); c.stroke();
@@ -535,29 +435,6 @@
           c.beginPath(); c.arc(px, py + r * 0.05, r * 0.07, 0, TAU); c.fill();
           c.beginPath(); c.arc(px, py + r * 0.05, r * 0.45, 0.5, Math.PI - 0.5); c.stroke();
         });
-        break;
-      }
-      case 'saxvase': {
-        // a saxophone with flowers growing out of its bell
-        const sway = Math.sin(now / 800 + seed) * 0.08;
-        // the curl at the top, and the long neck down to the bend
-        c.beginPath();
-        for (let k = 0; k <= 40; k++) { const a = k / 40 * TAU * 2.2, r = s * 0.075 * (1 - k / 46); const px = x + s * 0.17 + Math.cos(a) * r, py = y - s * 0.36 + Math.sin(a) * r; k ? c.lineTo(px, py) : c.moveTo(px, py); }
-        c.stroke();
-        c.beginPath(); c.moveTo(x + s * 0.24, y - s * 0.34); c.quadraticCurveTo(x + s * 0.24, y + s * 0.38, x + s * 0.02, y + s * 0.43);
-        c.quadraticCurveTo(x - s * 0.18, y + s * 0.44, x - s * 0.2, y + s * 0.02);
-        c.lineTo(x - s * 0.02, y + s * 0.02); c.quadraticCurveTo(x - s * 0.01, y + s * 0.3, x + s * 0.06, y + s * 0.3);
-        c.quadraticCurveTo(x + s * 0.15, y + s * 0.28, x + s * 0.16, y - s * 0.3); c.closePath();
-        c.fillStyle = T.paper; c.fill(); c.stroke();
-        for (let k = 0; k < 4; k++) { c.beginPath(); c.arc(x + s * 0.2 - k * s * 0.005, y - s * 0.18 + k * s * 0.11, s * 0.022, 0, TAU); c.fillStyle = T.paper; c.fill(); c.stroke(); c.beginPath(); c.arc(x + s * 0.2 - k * s * 0.005, y - s * 0.18 + k * s * 0.11, s * 0.008, 0, TAU); c.fillStyle = charInk(); c.fill(); }
-        // the flowers
-        for (let k = 0; k < 4; k++) {
-          const bx = x - s * 0.17 + k * s * 0.04, tx = x - s * 0.12 + (k - 1.5) * s * 0.075 + sway * s * (1 + k * 0.3), ty = y - s * (0.18 + hash(seed + k) * 0.18);
-          c.beginPath(); c.moveTo(bx, y + s * 0.02); c.lineTo(tx, ty); c.stroke();
-          for (let q = 0; q < 6; q++) { const a = q / 6 * TAU; c.beginPath(); c.arc(tx + Math.cos(a) * s * 0.03, ty + Math.sin(a) * s * 0.03, s * 0.022, 0, TAU); c.fillStyle = T.paper; c.fill(); c.stroke(); }
-          c.beginPath(); c.arc(tx, ty, s * 0.016, 0, TAU); c.fillStyle = charInk(); c.fill();
-        }
-        c.beginPath(); c.ellipse(x - s * 0.11, y + s * 0.02, s * 0.095, s * 0.025, 0, 0, TAU); c.fillStyle = T.paper; c.fill(); c.stroke();
         break;
       }
       case 'yolksby': {
@@ -1255,20 +1132,42 @@
     c.restore();
   }
 
+  const GROVE_TREES = 4, GROVE_NEAR = Math.cos(4 * Math.PI / 180); // four trees within about 450 km of each other
+  function groves() {
+    const trees = marks.filter((m) => m.k === 'tree'), used = new Set(), found = [];
+    for (const t of trees) {
+      if (used.has(t)) continue;
+      const near = trees.filter((o) => !used.has(o) && dot(o.v, t.v) > GROVE_NEAR);
+      if (near.length < GROVE_TREES) continue;
+      near.forEach((o) => used.add(o));
+      found.push({ members: near, v: norm(near.reduce((a, o) => [a[0] + o.v[0], a[1] + o.v[1], a[2] + o.v[2]], [0, 0, 0])), t: Math.max(...near.map((o) => o.t)) });
+    }
+    return { found, used };
+  }
   function renderMarks(now) {
     const show = smooth(1.2, 1.7, zoom.v);
     for (const m of marks) m.sx = -1e4;
     if (show <= 0 || !marks.length) return;
     const ds = clamp(7 * zoom.v, 12, 40);
     const life = 6 * 3600 * 1000, t = Date.now();
+    const { found, used } = groves();
     c.save();
     for (const m of marks) {
+      if (used.has(m)) continue; // part of a grove
       const [px, py, pz] = project(...m.v);
       if (pz < 0.15) continue;
       const fade = clamp((life - (t - m.t)) / 600000, 0.25, 1);
       c.globalAlpha = show * fade * Math.min(1, pz * 3);
       doodle(m.k === 'head' ? 'scorsby' : m.k, px, py - ds * 0.3, ds, m.seed, now, 1.2 + zoom.v * 0.12);
       m.sx = px; m.sy = py - ds * 0.3; m.ss = ds;
+    }
+    for (const g of found) {
+      const [px, py, pz] = project(...g.v);
+      if (pz < 0.15) continue;
+      const gs = ds * (1.6 + Math.min(1, (g.members.length - GROVE_TREES) * 0.1));
+      c.globalAlpha = show * clamp((life - (t - g.t)) / 600000, 0.25, 1) * Math.min(1, pz * 3);
+      doodle('smiletree', px, py - gs * 0.45, gs, g.members[0].seed, now, 1.2 + zoom.v * 0.12);
+      g.members.forEach((m) => { m.sx = px; m.sy = py - gs * 0.45; m.ss = gs; });
     }
     c.restore();
   }
@@ -1474,14 +1373,12 @@
   }
 
   // ---------- the sky
-  const SKY_KINDS = ['angel', 'angel', 'lips', 'spring', 'bell', 'umbrella', 'globe', 'sun', 'head3', 'heart', 'eye', 'yolksby', 'yolksby', 'blocksby', 'manyeye', 'bug',
-    'eggman', 'lemonpig', 'fluffy', 'smiletree', 'saxvase'];
-  const BIG_KINDS = new Set(['eggman', 'fluffy', 'smiletree', 'saxvase']); // the busier drawings get a little more room
+  const SKY_KINDS = ['angel', 'angel', 'lips', 'spring', 'bell', 'umbrella', 'globe', 'sun', 'head3', 'heart', 'eye', 'yolksby', 'yolksby', 'blocksby', 'manyeye', 'bug'];
   function spawnSky(anywhere) {
     const fromLeft = Math.random() < 0.5;
     const kind = pick(SKY_KINDS);
     sky.push({
-      kind, s: rand(20, small ? 32 : 40) * (BIG_KINDS.has(kind) ? 1.45 : 1), seed: rand(0, 1000),
+      kind, s: rand(20, small ? 32 : 40), seed: rand(0, 1000),
       x: anywhere ? rand(0, VW) : fromLeft ? -50 : VW + 50, y: kind === 'umbrella' && !anywhere ? -40 : rand(VH * 0.1, VH * 0.85),
       vx: (fromLeft ? 1 : -1) * rand(0.008, 0.025), bob: rand(0, TAU), born: performance.now(), ring: 0,
     });
@@ -1900,6 +1797,11 @@
   setInterval(() => { if (!net.live && !omen && Math.random() < 0.5) startOmen(pick(Object.keys(OMEN_DUR))); }, 70000);
 
   const addMark = (m) => marks.push({ v: vec(m.lat, m.lon), k: m.k, n: m.n || '', t: m.at || m.t || Date.now(), seed: rand(0, 99), sx: -1e4 });
+  function planted(m) {
+    const before = groves().found.length;
+    addMark(m);
+    if (m.k === 'tree' && groves().found.length > before) { whisper('the trees grew together into a tree of smiles.', 4200, true, null, true); tone.chime(); }
+  }
   setInterval(() => { const t = Date.now(); marks = marks.filter((m) => t - m.t < 6 * 3600 * 1000); }, 60000);
 
   function receive(m) {
@@ -1951,7 +1853,7 @@
         tone.poke();
         break;
       }
-      case 'mark': addMark(m); break;
+      case 'mark': planted(m); break;
       case 'omen': startOmen(m.k, m.seed); break;
       case 'say': {
         // a message for everyone (already boinked by the hearth)
@@ -2143,7 +2045,7 @@
       const ll = unproject(x, y);
       if (!ll) return;
       const m = { lat: ll[0], lon: ll[1], k: markMode, n: myName, at: Date.now() };
-      if (net.live) send({ t: 'mark', lat: m.lat, lon: m.lon, k: m.k }); else addMark(m);
+      if (net.live) send({ t: 'mark', lat: m.lat, lon: m.lon, k: m.k }); else planted(m);
       whisper(`you planted a ${markMode}. it will fade in six hours.`, 3200);
       markMode = null; document.body.classList.remove('marking');
       tone.chime();
@@ -2670,6 +2572,6 @@
   const n = parseInt(params.get('dream'), 10);
   if (n > 0) dream(Math.min(n, 40));
   if (params.get('omen')) setTimeout(() => startOmen(params.get('omen')), 1500);
-  if (params.has('debug')) window.heartstar = { get visible() { return visible; }, hit, tap, bursts, pf, pull, hitPart, sunAt, view, moon, peers, get me() { return me; }, faceToward, startOmen, setMood, zoom, loveBurst, MOODS, waves, sky };
+  if (params.has('debug')) window.heartstar = { get visible() { return visible; }, hit, tap, planted, bursts, pf, pull, hitPart, sunAt, view, moon, peers, get me() { return me; }, faceToward, startOmen, setMood, zoom, loveBurst, MOODS, waves, sky };
   requestAnimationFrame(frame);
 })();
