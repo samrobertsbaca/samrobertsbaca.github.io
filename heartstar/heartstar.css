@@ -221,7 +221,8 @@ h1 { font-family: var(--head); font-weight: 400; font-size: 30px; line-height: 1
   #whisper { font-size: 17px; }
   #today .sep { display: none; }
   #today .rec { display: block; }
-  #acts { left: 12px; right: 12px; transform: none; bottom: 14px; }
+  /* love everyone spans exactly the row of buttons under it */
+  #acts { left: 50%; right: auto; transform: translateX(-50%); bottom: 14px; width: max-content; max-width: calc(100vw - 24px); align-items: stretch; }
   #acts .row { flex-wrap: wrap; justify-content: center; gap: 8px; }
   #acts .row button { padding: 7px 9px; font-size: 10px; }
   #act-all { width: 100%; }
