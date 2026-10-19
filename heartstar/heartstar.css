@@ -29,10 +29,10 @@
 }
 body[data-theme="night"] {
   --paper: #3e3478;
-  --ink: #f0e8d6;
-  --dim: rgba(240, 232, 214, 0.62);
-  --faint: rgba(240, 232, 214, 0.35);
-  --ui: #f0e8d6;
+  --ink: #ffffff;
+  --dim: rgba(255, 255, 255, 0.66);
+  --faint: rgba(255, 255, 255, 0.4);
+  --ui: #ffffff;
   --ui-fg: #3e3478;
 }
 

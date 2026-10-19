@@ -35,7 +35,7 @@
   // ------------------------------------------------------------------ paper and ink
   const THEMES = {
     day: { paper: '#ffffff', ink: [29, 26, 94], wash: 'multiply', washA: 0.22, ocean: '#00b4ff', hatchA: 0.42 },
-    night: { paper: '#3e3478', ink: [240, 232, 214], wash: 'screen', washA: 0.16, ocean: '#0aa6ec', hatchA: 0.3 },
+    night: { paper: '#3e3478', ink: [255, 255, 255], wash: 'screen', washA: 0.16, ocean: '#0aa6ec', hatchA: 0.3 },
   };
   let T = THEMES.day;
   const DARK = '#05060a'; // the bold outline of the scorsby logo
@@ -43,6 +43,11 @@
   // the little characters in the sky: ink by day, black by night (with light pupils so their eyes still show)
   const charInk = (a = 1) => T === THEMES.night ? `rgba(5,6,10,${a})` : ink(a);
   const pupil = () => T === THEMES.night ? ink(1) : DARK;
+  // a pupil: a solid dot by day; at night a black ring you can see through
+  const pupilDot = () => {
+    if (T === THEMES.night) { c.strokeStyle = DARK; c.stroke(); }
+    else { c.fillStyle = DARK; c.fill(); }
+  };
   function setTheme(want = params.get('theme') || store.get('scorsby-theme') || 'day') {
     if (!THEMES[want]) want = 'day';
     T = THEMES[want]; document.body.dataset.theme = want; makeHatch();
@@ -219,7 +224,7 @@
         wing(x + s * 0.24, y + s * 0.02, s * 0.62, 1, flap);
         wobbleCircle(x, y, s * 0.3, seed, 0.6, 0.15); c.fillStyle = T.paper; c.fill(); c.stroke();
         const lx = clamp((CX - x) / 400, -1, 1), ly = clamp((CY - y) / 400, -1, 1);
-        c.beginPath(); c.arc(x + lx * s * 0.1, y + ly * s * 0.1, s * 0.13, 0, TAU); c.fillStyle = pupil(); c.fill();
+        c.beginPath(); c.arc(x + lx * s * 0.1, y + ly * s * 0.1, s * 0.13, 0, TAU); pupilDot();
         const hy = y - s * 0.5 + Math.sin(now / 700 + seed) * s * 0.04;
         c.beginPath(); c.ellipse(x, hy, s * 0.28, s * 0.075, 0, 0, TAU);
         c.strokeStyle = charInk(0.95); c.lineWidth = lw * 1.1; c.stroke();
@@ -325,7 +330,7 @@
       case 'eye': {
         c.beginPath(); c.moveTo(x - s * 0.5, y); c.quadraticCurveTo(x, y - s * 0.45, x + s * 0.5, y); c.quadraticCurveTo(x, y + s * 0.45, x - s * 0.5, y);
         c.fillStyle = T.paper; c.fill(); c.stroke();
-        c.beginPath(); c.arc(x + Math.sin(now / 1500 + seed) * s * 0.12, y, s * 0.13, 0, TAU); c.fillStyle = pupil(); c.fill();
+        c.beginPath(); c.arc(x + Math.sin(now / 1500 + seed) * s * 0.12, y, s * 0.13, 0, TAU); pupilDot();
         break;
       }
       case 'cactus': {
@@ -388,7 +393,7 @@
         c.beginPath(); c.ellipse(x, yy, s * 0.19 * sq, s * 0.19 / sq, 0, 0, TAU); c.fillStyle = '#ffc21a'; c.fill(); c.stroke();
         const awake = (now / 1000 + seed) % 4 < 2.6;
         if (awake) {
-          c.beginPath(); c.arc(x - s * 0.07, yy - s * 0.05, s * 0.028, 0, TAU); c.arc(x + s * 0.07, yy - s * 0.05, s * 0.028, 0, TAU); c.fillStyle = pupil(); c.fill();
+          c.beginPath(); c.arc(x - s * 0.07, yy - s * 0.05, s * 0.028, 0, TAU); c.moveTo(x + s * 0.098, yy - s * 0.05); c.arc(x + s * 0.07, yy - s * 0.05, s * 0.028, 0, TAU); pupilDot();
         } else {
           c.beginPath(); c.arc(x - s * 0.07, yy - s * 0.06, s * 0.035, 0, Math.PI); c.moveTo(x + s * 0.105, yy - s * 0.06); c.arc(x + s * 0.07, yy - s * 0.06, s * 0.035, 0, Math.PI); c.stroke();
         }
@@ -434,7 +439,7 @@
         c.fillStyle = T === THEMES.night ? DARK : '#d9cff5'; c.fill(); c.stroke();
         for (const sd of [-1, 1]) {
           c.beginPath(); c.arc(x + sd * s * 0.17, y - s * 0.05, s * 0.06, 0, TAU); c.fillStyle = T.paper; c.fill(); c.stroke();
-          c.beginPath(); c.arc(x + sd * s * 0.17, y - s * 0.05, s * 0.028, 0, TAU); c.fillStyle = pupil(); c.fill();
+          c.beginPath(); c.arc(x + sd * s * 0.17, y - s * 0.05, s * 0.028, 0, TAU); pupilDot();
         }
         c.beginPath(); c.arc(x, y + s * 0.08, s * 0.025, 0, TAU); c.fillStyle = pupil(); c.fill();
         c.beginPath(); c.arc(x, y + s * 0.12, s * 0.08, 0.3, Math.PI - 0.3); c.strokeStyle = pupil(); c.stroke();
