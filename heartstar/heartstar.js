@@ -1618,13 +1618,21 @@
     }).filter((s) => s.sz > 0.05).sort((a, b) => a.sz - b.sz);
 
     for (const s of list) { s.ox *= 0.985; s.oy *= 0.985; }
-    const zf = 1 + (zoom.v - 1) * 0.3;
+    // faces grow a little as you first come closer, then ease back down, so a close-up has room for a whole neighbourhood
+    const zf = (1 + 0.5 * smooth(1, 2.56, zoom.v)) * (1 - 0.4 * smooth(2.56, 16.8, zoom.v));
+    // and wherever scorsbys are crowded together on screen, they shrink a little so everyone fits (yours stays easy to find)
+    for (const a of list) {
+      let n = 0;
+      for (const b of list) if (b !== a && Math.abs(b.sx - a.sx) < 90 && Math.abs(b.sy - a.sy) < 90 && Math.hypot(b.sx - a.sx, b.sy - a.sy) < 90) n++;
+      const t = clamp(1 / Math.sqrt(1 + n / 3), a.mine ? 0.8 : 0.55, 1);
+      a.ck = a.ck == null ? t : a.ck + (t - a.ck) * 0.05;
+    }
     for (let it = 0; it < 3; it++) {
       for (let i = 0; i < list.length; i++) for (let j = i + 1; j < list.length; j++) {
         const a = list[i], b = list[j];
         let dx = (b.sx + b.ox) - (a.sx + a.ox), dy = (b.sy + b.oy) - (a.sy + a.oy);
         let d = Math.hypot(dx, dy);
-        const min = (a.mine || b.mine ? 34 : 26) * (small ? 0.9 : 1) * zf;
+        const min = (a.mine || b.mine ? 34 : 26) * (small ? 0.9 : 1) * zf * (a.ck + b.ck) / 2;
         if (d >= min) continue;
         if (d < 0.01) { const t = rand(0, TAU); dx = Math.cos(t); dy = Math.sin(t); d = 1; }
         const push = (min - d) * 0.25, ux = dx / d, uy = dy / d;
@@ -1685,7 +1693,7 @@
       if (grow <= 0) continue;
       const fade = s.leaving ? Math.max(0, 1 - (now - s.leaving) / 900) : 1;
       const edge = Math.min(1, s.sz / 0.25);
-      s.size = (s.mine ? (small ? 32 : 36) : (small ? 22 : 24)) * zf * (0.55 + 0.45 * edge) * (0.3 + 0.7 * grow) * (1 + s.sing * 0.25);
+      s.size = (s.mine ? (small ? 32 : 36) : (small ? 22 : 24)) * zf * s.ck * (0.55 + 0.45 * edge) * (0.3 + 0.7 * grow) * (1 + s.sing * 0.25);
 
       c.save();
       c.globalAlpha = edge * fade;
