@@ -1639,8 +1639,19 @@
     const d = new Date();
     const date = d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }).toLowerCase();
     const time = d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit' }).toLowerCase();
-    document.getElementById('clock').textContent = `${date} · ${time} · now here`;
+    if (!clockEl.firstChild) clockEl.innerHTML = '<span class="ck"></span><span class="dot"> · </span><span class="ck"></span><span class="dot"> · </span><span class="ck">now here</span>';
+    const [a, b] = clockEl.querySelectorAll('.ck');
+    a.textContent = date; b.textContent = time;
+    // date, time and now here never break in the middle. if they can't share a line, each gets its own, without the dots.
+    if (!clockEl.classList.contains('stacked')) {
+      const tops = [...clockEl.querySelectorAll('.ck')].map((e) => e.offsetTop);
+      if (tops.some((t) => t !== tops[0])) clockEl.classList.add('stacked');
+    }
   }
+  const clockEl = document.getElementById('clock');
+  const restack = () => { clockEl.classList.remove('stacked'); tick(); };
+  addEventListener('resize', restack);
+  document.fonts?.ready.then(restack); // the header settles once its fonts arrive
   setInterval(tick, 1000); tick();
 
   // ------------------------------------------------------------------ the hearth

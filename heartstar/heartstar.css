@@ -59,6 +59,9 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 }
 h1 { font-family: var(--head); font-weight: 400; font-size: 30px; line-height: 1; letter-spacing: .01em; }
 #clock { font-size: 11px; color: var(--dim); margin-top: 8px; font-variant-numeric: tabular-nums; letter-spacing: .04em; text-transform: uppercase; }
+#clock .ck { white-space: nowrap; }
+#clock.stacked .dot { display: none; }
+#clock.stacked .ck { display: block; }
 #presence { text-align: right; font-size: 11px; color: var(--dim); line-height: 1.8; letter-spacing: .04em; text-transform: uppercase; }
 #here { color: var(--ink); }
 /* the record, one rainbow letter at a time */
