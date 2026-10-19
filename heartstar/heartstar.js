@@ -1004,6 +1004,13 @@
 
     if (T === THEMES.night) renderStars(now, dt);
     renderSky(now, dt);
+    const goldSky = env(omenP('goldrain', now));
+    if (goldSky > 0.01) {
+      // when it rains gold, the whole sky behind the world turns gold too
+      c.save(); c.globalCompositeOperation = T === THEMES.night ? 'source-over' : 'multiply';
+      c.globalAlpha = (T === THEMES.night ? 0.32 : 0.5) * goldSky;
+      c.fillStyle = '#ffc93c'; c.fillRect(0, 0, VW, VH); c.restore();
+    }
     if (goldFlash > now) {
       // tap sunsby: the sky behind the world flashes gold (the world itself turns gold for a moment)
       const k = (goldFlash - now) / 2200;
