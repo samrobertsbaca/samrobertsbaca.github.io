@@ -19,6 +19,15 @@
     ['yellow', '#ffd23f'], ['red', '#ff4a4a'], ['ghost', '#f4efe6'], ['rainbow', null],
   ];
   const colorOf = (i, now, seed = 0) => typeof i === 'string' ? i : COLORS[i]?.[1] || `hsl(${(now / 12 + seed * 57) % 360},90%,62%)`;
+  // red on red disappears, so a reddish scorsby wears a blue nose
+  function reddish(col) {
+    const [r, g, b] = rgbOf(col).map((v) => v / 255);
+    const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2, d = mx - mn;
+    if (d < 0.25 || l < 0.2 || l > 0.85) return false;
+    let h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+    h = (h * 60 + 360) % 360;
+    return h < 22 || h > 338;
+  }
   function rgbOf(col) {
     if (col[0] === '#') return [1, 3, 5].map((k) => parseInt(col.slice(k, k + 2), 16));
     const m = col.match(/hsl\(([\d.]+),([\d.]+)%,([\d.]+)%/);
@@ -80,7 +89,15 @@
 
   // the whisper sits just under the header, however tall the header grows (fonts, wrapping)
   const topBar = document.getElementById('top');
-  const underTop = () => document.documentElement.style.setProperty('--under-top', `${Math.round(topBar.getBoundingClientRect().bottom + 10)}px`);
+  const underTop = () => {
+    // on a wide screen the whisper sits between the title and the corner; it only drops below the whole header if they'd overlap
+    const vw = innerWidth, half = Math.min(600, vw - 32) / 2;
+    const pres = document.getElementById('presence')?.getBoundingClientRect();
+    const left = topBar.firstElementChild?.getBoundingClientRect();
+    const clear = pres && left && vw / 2 + half + 12 < pres.left && vw / 2 - half - 12 > left.right;
+    const y = clear ? Math.max(76, left.bottom - 20) : topBar.getBoundingClientRect().bottom + 10;
+    document.documentElement.style.setProperty('--under-top', `${Math.round(y)}px`);
+  };
   if (topBar) { underTop(); if (window.ResizeObserver) new ResizeObserver(underTop).observe(topBar); }
 
   function resize() {
@@ -351,10 +368,25 @@
         break;
       }
       case 'house': {
-        c.beginPath(); c.rect(x - s * 0.28, y - s * 0.05, s * 0.56, s * 0.45); c.fillStyle = T.paper; c.fill();
-        c.moveTo(x - s * 0.36, y - s * 0.02); c.lineTo(x, y - s * 0.4); c.lineTo(x + s * 0.36, y - s * 0.02);
-        c.stroke();
-        c.beginPath(); c.rect(x - s * 0.06, y + s * 0.18, s * 0.12, s * 0.22); c.stroke();
+        // scorsby blue, with a red roof
+        c.beginPath(); c.rect(x - s * 0.28, y - s * 0.05, s * 0.56, s * 0.45); c.fillStyle = '#00b4ff'; c.fill(); c.stroke();
+        c.beginPath(); c.moveTo(x - s * 0.36, y - s * 0.02); c.lineTo(x, y - s * 0.4); c.lineTo(x + s * 0.36, y - s * 0.02); c.closePath();
+        c.fillStyle = '#ed1c24'; c.fill(); c.stroke();
+        c.beginPath(); c.rect(x - s * 0.06, y + s * 0.18, s * 0.12, s * 0.22); c.fillStyle = '#ffffff'; c.fill(); c.stroke();
+        break;
+      }
+      case 'scorsby': {
+        // the planted scorsby face: blue like scorsby, white eyes
+        c.fillStyle = '#00b4ff';
+        wobbleCircle(x - s * 0.28, y - s * 0.3, s * 0.15, seed + 1, 0.5); c.fill(); c.stroke();
+        wobbleCircle(x + s * 0.28, y - s * 0.3, s * 0.15, seed + 2, 0.5); c.fill(); c.stroke();
+        wobbleCircle(x, y, s * 0.4, seed, 0.7); c.fill(); c.stroke();
+        for (const ex of [-0.14, 0.14]) {
+          c.beginPath(); c.arc(x + ex * s, y - s * 0.04, s * 0.1, 0, TAU); c.fillStyle = '#ffffff'; c.fill(); c.stroke();
+          c.beginPath(); c.arc(x + ex * s + s * 0.015, y - s * 0.04, s * 0.04, 0, TAU); c.fillStyle = DARK; c.fill();
+        }
+        c.beginPath(); c.arc(x, y + s * 0.1, s * 0.055, 0, TAU); c.fillStyle = '#ed1c24'; c.fill(); c.stroke();
+        c.beginPath(); c.arc(x, y + s * 0.1, s * 0.17, 0.4, Math.PI - 0.4); c.stroke();
         break;
       }
       case 'flower': {
@@ -365,9 +397,9 @@
       }
       case 'pyramid': {
         // the scorsby pyramid, ears and all
-        for (const sd of [-1, 1]) { c.beginPath(); c.arc(x + sd * s * 0.17, y - s * 0.4, s * 0.1, 0, TAU); c.fillStyle = T.paper; c.fill(); c.stroke(); }
+        for (const sd of [-1, 1]) { c.beginPath(); c.arc(x + sd * s * 0.17, y - s * 0.4, s * 0.1, 0, TAU); c.fillStyle = '#ffd23f'; c.fill(); c.stroke(); }
         const tri = () => { c.beginPath(); c.moveTo(x, y - s * 0.46); c.lineTo(x + s * 0.5, y + s * 0.38); c.lineTo(x - s * 0.5, y + s * 0.38); c.closePath(); };
-        tri(); c.fillStyle = T.paper; c.fill();
+        tri(); c.fillStyle = '#ffd23f'; c.fill(); // golden, like sunsby
         c.save(); c.clip(); c.fillStyle = charInk(0.95);
         for (let k = 0; k < 4; k++) {
           const yy = y - s * 0.2 + k * s * 0.16;
@@ -543,7 +575,7 @@
   function startOmen(k, seed = Math.random() * 1e6) {
     if (!OMEN_DUR[k]) return;
     omen = { k, seed, born: performance.now(), dur: OMEN_DUR[k] };
-    whisper(typeof OMEN_WORDS[k] === 'function' ? OMEN_WORDS[k](seed) : OMEN_WORDS[k], 5200);
+    whisper(typeof OMEN_WORDS[k] === 'function' ? OMEN_WORDS[k](seed) : OMEN_WORDS[k], 5200, true, null, true);
     tone.omen(k);
     if (k === 'heartstar') { for (const s of everyone()) s.hearts = 6000; setMood('hearts', 6000); }
     if (k === 'thirdeye') setMood('third', OMEN_DUR[k]);
@@ -1088,7 +1120,7 @@
       if (pz < 0.15) continue;
       const fade = clamp((life - (t - m.t)) / 600000, 0.25, 1);
       c.globalAlpha = show * fade * Math.min(1, pz * 3);
-      doodle(m.k, px, py - ds * 0.3, ds, m.seed, now, 1.2 + zoom.v * 0.12);
+      doodle(m.k === 'head' ? 'scorsby' : m.k, px, py - ds * 0.3, ds, m.seed, now, 1.2 + zoom.v * 0.12);
       m.sx = px; m.sy = py - ds * 0.3; m.ss = ds;
     }
     c.restore();
@@ -1218,7 +1250,8 @@
         c.strokeStyle = `rgba(255,255,255,${0.9 * (1 - p)})`; c.lineWidth = 1.6; c.stroke();
       }
       const ci = storm > 0.2 ? 8 : unison >= 0 ? unison : s.c;
-      drawFace(s.sx, s.sy - s.size * 0.06, s.size, { lid, look: [s.lookX, s.lookY], hearts: s.hearts > 0, sing: s.sing, color: colorOf(ci, now, s.seed) });
+      const col = colorOf(ci, now, s.seed);
+      drawFace(s.sx, s.sy - s.size * 0.06, s.size, { lid, look: [s.lookX, s.lookY], hearts: s.hearts > 0, sing: s.sing, color: col, nose: ci !== 8 && reddish(col) ? '#00b4ff' : undefined });
       c.restore();
     }
     visible = list;
@@ -1553,8 +1586,26 @@
   const whisperEl = document.getElementById('whisper');
   let whisperTimer = 0, whisperUntil = 0, nextQuote = performance.now() + 25000;
   let typer = 0;
-  function whisper(text, ms = 4200, urgent = true, link = null) {
+  // whispers that come from everyone (messages, love, omens) queue up and take turns
+  const waiting = [];
+  let waitTimer = 0;
+  function nextWhisper() {
+    clearTimeout(waitTimer);
+    if (!waiting.length) return;
     const now = performance.now();
+    if (now < whisperUntil) { waitTimer = setTimeout(nextWhisper, whisperUntil - now + 80); return; }
+    const w = waiting.shift();
+    whisper(w.text, waiting.length > 2 ? Math.min(w.ms, 3000) : w.ms, true, w.link); // a long line moves a little faster
+    if (waiting.length) waitTimer = setTimeout(nextWhisper, whisperUntil - performance.now() + 80);
+  }
+  function whisper(text, ms = 4200, urgent = true, link = null, queue = false) {
+    const now = performance.now();
+    if (queue && (now < whisperUntil || waiting.length)) {
+      waiting.push({ text, ms, link });
+      if (waiting.length > 10) waiting.splice(0, waiting.length - 10);
+      nextWhisper();
+      return;
+    }
     if (!urgent && now < whisperUntil) return;
     whisperEl.classList.remove('on');
     clearTimeout(whisperTimer); clearInterval(typer);
@@ -1631,7 +1682,7 @@
     if (!t) return;
     const day = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Denver' }).format(new Date());
     tally = { ...t, day };
-    if (t.record) { whisper(`a new record for love! ♥ ${t.today.toLocaleString()} today.`, 5000); bursts.push({ k: 'rings', born: performance.now(), dur: 2800 }); }
+    if (t.record) { whisper(`a new record for love! ♥ ${t.today.toLocaleString()} today.`, 5000, true, null, true); bursts.push({ k: 'rings', born: performance.now(), dur: 2800 }); }
     updatePresence();
   }
 
@@ -1758,7 +1809,7 @@
         const s = me && m.id === me.id ? me : peers.get(m.id);
         if (s) s.blink = 1;
         const who = s === me ? 'you' : s ? nameOf(s) : 'someone';
-        whisper(`${who}: “${String(m.text || '').slice(0, 80)}”`, 5200 + String(m.text || '').length * 45);
+        whisper(`${who}: “${String(m.text || '').slice(0, 80)}”`, 5200 + String(m.text || '').length * 45, true, null, true);
         tone.chime();
         break;
       }
@@ -1786,7 +1837,7 @@
         waves.push({ v, born: now, radius: 0, seen: new Set() });
         const from = peers.get(m.from);
         loveBurst(m.v ?? 0, from && from.sz > 0 ? [from.sx, from.sy] : null, now);
-        whisper(`${from ? nameOf(from) : 'someone'} loved everyone.`, 4200);
+        whisper(`${from ? nameOf(from) : 'someone'} loves you.`, 4200, true, null, true);
         tone.swell();
         break;
       }
@@ -2161,7 +2212,7 @@
     document.querySelectorAll('#plants canvas').forEach((cnv, i) => {
       const g = cnv.getContext('2d');
       g.clearRect(0, 0, 64, 64);
-      c = g; doodle(MARKS[i], 32, 36, 46, i * 7, 0, 2.4);
+      c = g; doodle(MARKS[i] === 'head' ? 'scorsby' : MARKS[i], 32, 36, 46, i * 7, 0, 2.4);
     });
     c = saved;
   }
@@ -2387,7 +2438,7 @@
     if (mic.f) {
       me.singTarget = mic.amp; me.freq = mic.f;
       voices.sing('me', mic.f, mic.amp * 0.35, me.sx, 0.02);
-      if (now - mic.lastSend > 50) {
+      if (now - mic.lastSend > 100) {
         mic.lastSend = now;
         send({ t: 'sing', f: Math.round(mic.f * 10) / 10, a: Math.round(mic.amp * 100) / 100 });
       }
@@ -2416,7 +2467,7 @@
         else if (r < 0.5) {
           waves.push({ v: s.v, born: performance.now(), radius: 0, seen: new Set() });
           loveBurst((Math.random() * 4) | 0, s.sz > 0 ? [s.sx, s.sy] : null, performance.now());
-          whisper(`${nameOf(s)} loved everyone.`, 3600, false);
+          whisper(`${nameOf(s)} loves you.`, 3600, true, null, true);
           tone.swell();
         } else if (r < 0.72) {
           const notes = Array.from({ length: 4 + ((Math.random() * 5) | 0) }, () => pick(scale));
