@@ -697,7 +697,7 @@
     lidL: 1, lidR: 1, asym: 0, third: 0, many: 0, tongue: 0, teeth: 0, lips: 0, melt: 0, heart: 0, tilt: 0,
     squish: 0, cross: 0, blush: 0, scramble: 0, stalks: 0, orbit: 0, flip: 0, drip: 0, stache: 0, tall: 0, spin: 0,
     pixel: 0, googly: 0, heartnose: 0, gold: 0, antenna: 0, angel: 0,
-    swirl: 0, jitter: 0, worm: 0, bubble: 0, garden: 0, clock: 0, meltdown: 0, swap: 0,
+    swirl: 0, jitter: 0, worm: 0, bubble: 0, garden: 0, clock: 0, meltdown: 0, swap: 0, wall: 0,
   };
   const MOODS = {
     smile: {}, grin: { mo: 1, mw: 190 }, o: { oh: 1, mw: 150 }, wink: { lidL: 0 }, tongue: { mo: 0.6, tongue: 1 },
@@ -713,6 +713,7 @@
     // and some unexpected ones
     bubble: { bubble: 1, oh: 1, mw: 70 }, garden: { garden: 1, mo: 0.4 }, meltdown: { meltdown: 1 },
     swap: { swap: 1, er: 210, nose: 150 }, // two noses for eyes, and an eye for a nose
+    goofy: { wall: 1, er: 300, pr: 80, mw: 300, mc: 0.95, my: 260 }, // a huge U grin, eyes bulging and looking out to the sides
     clock: { clock: 1, er: 120, pr: 60, ex: 330, ey: -210, mw: 110, my: 400, ny: 0, nose: 80 },
   };
   const pf = { cur: { ...FACE_BASE }, target: { ...FACE_BASE }, mood: 'smile', next: 7000, honk: 0, wink: 0, winkSide: -1, blink: 0, nextBlink: 3000, lx: 0, ly: 0, hit: null, hold: 0, sing: 0, singing: false, rings: [] };
@@ -726,7 +727,7 @@
     // the world's mood follows the crowd
     const n = crowd();
     const strange = ['odd', 'melt', 'many', 'nose', 'tiny', 'wide', 'squish', 'cyclops', 'cross', 'scramble', 'stalks', 'orbit', 'flip', 'drip', 'stache', 'tall', 'spin', 'kiss', 'o', 'wink', 'pixel', 'googly', 'heartnose', 'antenna', 'angel', 'gold',
-      'swirl', 'bugeye', 'worm', 'bubble', 'garden', 'clock', 'meltdown', 'swap'];
+      'swirl', 'bugeye', 'worm', 'bubble', 'garden', 'clock', 'meltdown', 'swap', 'goofy'];
     const joyful = ['grin', 'tongue', 'hearts', 'teeth', 'grin', 'hearts'];
     const quiet = ['shy', 'tiny', 'wink', 'smile'];
     const pool = [...strange];
@@ -923,7 +924,7 @@
     const eyeYs = lerp(f.ey, 330, f.scramble);
     const eyes = [];
     for (const sd of [-1, 1]) {
-      const r = f.er * (1 + sd * f.asym);
+      const r = f.er * (1 + sd * f.asym) * (1 + 0.07 * Math.sin(now / 150 + sd) * f.wall); // bulging
       let x = sd * f.ex, y = eyeYs + sd * f.asym * 60 + f.melt * (120 + 40 * Math.sin(now / 600 + sd)) - f.stalks * 300;
       if (f.orbit > 0.02) {
         const a = now / 800 + (sd > 0 ? 0 : Math.PI);
@@ -948,6 +949,7 @@
       const lid = sd < 0 ? f.lidL : f.lidR;
       const closed = lid < 0.5 || blinkClosed || worldClosed || (pf.wink > now && sd === pf.winkSide);
       let lx = lerp(pf.lx, -sd * 0.9, f.cross), ly = lerp(pf.ly, 0.1, f.cross);
+      if (f.wall > 0.02) { lx = lerp(lx, sd * 0.95, f.wall); ly = lerp(ly, -0.1, f.wall); } // looking out, away from each other
       if (f.googly > 0.02) { lx = lerp(lx, Math.sin(now / 95 + sd * 2.1) * 0.9, f.googly); ly = lerp(ly, 0.6 + Math.cos(now / 140 + sd) * 0.35, f.googly); }
       eye(x, y, r, closed, lx, ly, 300 + sd);
       eyes.push([x, y, r, sd]);
