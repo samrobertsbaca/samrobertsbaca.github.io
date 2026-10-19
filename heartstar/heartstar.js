@@ -697,7 +697,7 @@
     lidL: 1, lidR: 1, asym: 0, third: 0, many: 0, tongue: 0, teeth: 0, lips: 0, melt: 0, heart: 0, tilt: 0,
     squish: 0, cross: 0, blush: 0, scramble: 0, stalks: 0, orbit: 0, flip: 0, drip: 0, stache: 0, tall: 0, spin: 0,
     pixel: 0, googly: 0, heartnose: 0, gold: 0, antenna: 0, angel: 0,
-    swirl: 0, jitter: 0, worm: 0, brows: 0, browIn: 0, joy: 0, meltdown: 0, abstract: 0,
+    swirl: 0, jitter: 0, worm: 0, brows: 0, browIn: 0, joy: 0, bubble: 0, garden: 0, clock: 0,
   };
   const MOODS = {
     smile: {}, grin: { mo: 1, mw: 190 }, o: { oh: 1, mw: 150 }, wink: { lidL: 0 }, tongue: { mo: 0.6, tongue: 1 },
@@ -708,9 +708,11 @@
     stalks: { stalks: 1, er: 200, ex: 300 }, orbit: { orbit: 1, er: 200 }, flip: { flip: 1 }, drip: { drip: 1, mc: 0.6, joy: 1, mo: 0.55, brows: 1, browIn: 0.6 },
     stache: { stache: 1 }, tall: { tall: 1 }, spin: { spin: 1 }, third: { third: 1 },
     pixel: { pixel: 1 }, googly: { googly: 1 }, heartnose: { heartnose: 1 }, gold: { gold: 1, mo: 0.6 }, antenna: { antenna: 1 }, angel: { angel: 1, lidL: 0, lidR: 0 },
-    // and a few that are simply unhinged
+    // a few that are simply unhinged
     swirl: { swirl: 1, mo: 0.35, mw: 150 }, bugeye: { er: 370, pr: 38, jitter: 1, oh: 1, mw: 120 }, worm: { worm: 1, mo: 0.75, mw: 180 },
-    meltdown: { meltdown: 1, oh: 1, mw: 140 }, abstract: { abstract: 1, mo: 0.3 },
+    // and some unexpected ones
+    bubble: { bubble: 1, mw: 110 }, garden: { garden: 1, mo: 0.4 },
+    clock: { clock: 1, er: 120, pr: 60, ex: 330, ey: -210, mw: 110, my: 400, ny: 0, nose: 80 },
   };
   const pf = { cur: { ...FACE_BASE }, target: { ...FACE_BASE }, mood: 'smile', next: 7000, honk: 0, wink: 0, winkSide: -1, blink: 0, nextBlink: 3000, lx: 0, ly: 0, hit: null, hold: 0, sing: 0, singing: false, rings: [] };
   function setMood(m, hold = 0) {
@@ -723,7 +725,7 @@
     // the world's mood follows the crowd
     const n = crowd();
     const strange = ['odd', 'melt', 'many', 'nose', 'tiny', 'wide', 'squish', 'cyclops', 'cross', 'scramble', 'stalks', 'orbit', 'flip', 'drip', 'stache', 'tall', 'spin', 'kiss', 'o', 'wink', 'pixel', 'googly', 'heartnose', 'antenna', 'angel', 'gold',
-      'swirl', 'bugeye', 'worm', 'meltdown', 'abstract'];
+      'swirl', 'bugeye', 'worm', 'bubble', 'garden', 'clock'];
     const joyful = ['grin', 'tongue', 'hearts', 'teeth', 'grin', 'hearts'];
     const quiet = ['shy', 'tiny', 'wink', 'smile'];
     const pool = [...strange];
@@ -763,21 +765,9 @@
     } else if (pf.singing) { pf.singing = false; voices.hush('world'); }
   }
 
-  // fractal cracks: a line that splits in two, and those split, and so on, opening up as k grows
-  function crack(x, y, ang, len, depth, k, seed, out) {
-    if (depth > 6 || len < 18) return;
-    const grow = clamp(k * 7 - depth, 0, 1); // deeper branches appear later
-    if (grow <= 0) return;
-    const ex = x + Math.cos(ang) * len * grow, ey = y + Math.sin(ang) * len * grow;
-    out.push([x, y, ex, ey, depth]);
-    if (grow < 1) return;
-    const bend = (hash(seed) - 0.5) * 0.5;
-    crack(ex, ey, ang - 0.45 + bend, len * 0.68, depth + 1, k, seed * 1.7 + 1, out);
-    crack(ex, ey, ang + 0.45 + bend, len * 0.68, depth + 1, k, seed * 2.3 + 2, out);
-  }
   function renderPlanetFace(now) {
     // the face fades as you come closer, and is gone by the second zoom
-    let A = 1 - smooth(1.02, 2.0, zoom.v);
+    const A = 1 - smooth(1.02, 2.0, zoom.v);
     if (A <= 0.01) { pf.hit = null; return; }
     const f = pf.cur;
     L = R / 645;
@@ -798,11 +788,6 @@
     c.globalAlpha = A;
     c.translate(cx, cy); c.rotate(rot); c.scale(L * (1 + sq * 0.16 - f.tall * 0.12), L * (1 - sq * 0.13 + f.tall * 0.28));
     c.lineCap = 'round'; c.lineJoin = 'round';
-
-    // the face crumbles into sand: the features fade as their grains fall, and the grains pile up in the bottom of the face
-    const sandK = f.meltdown > 0.01 ? (pf.mood === 'meltdown' ? clamp((now - (pf.moodAt || now)) / 5000, 0, 1) : 1) * f.meltdown : 0;
-    const A0 = A;
-    if (sandK > 0.01) { A = A0 * (1 - smooth(0.05, 0.75, sandK)); c.globalAlpha = A; }
 
     const eye = (x, y, r, closed, lx, ly, seed) => {
       if (r < 4) return;
@@ -1008,74 +993,69 @@
     }
     c.restore();
 
-    A = A0; c.globalAlpha = A;
-    if (sandK > 0.01) {
-      c.save(); c.beginPath(); c.arc(0, 0, 638, 0, TAU); c.clip();
-      const h = 300 * sandK, top = (x) => 640 - h * Math.max(0, 1 - (x / 600) ** 2);
-      // the heap
-      c.beginPath(); c.moveTo(-660, 700);
-      for (let x = -660; x <= 660; x += 30) c.lineTo(x, top(x) + Math.sin(x * 0.04 + 1) * 6 * sandK);
-      c.lineTo(660, 700); c.closePath();
-      c.fillStyle = '#f2ead6'; c.fill(); c.lineWidth = 14; c.strokeStyle = DARK; c.stroke();
-      c.save(); c.clip();
-      const cols = ['#fff', DARK, noseCol, '#e2c98f'];
-      for (let k = 0; k < 420; k++) {
-        const x = (hash(k * 1.3) - 0.5) * 1240, y = 650 - hash(k * 7.7) * (650 - top(x) + 10);
-        c.fillStyle = cols[k % 4]; c.fillRect(x, y, 13, 13);
+    // bubblegum: a pink bubble swells out of the mouth until it pops, then again
+    if (f.bubble > 0.02) {
+      const ph = (((now - (pf.moodAt || now)) % 4200) / 4200);
+      const bx = mpx, by0 = my + 30;
+      if (ph < 0.9) {
+        const r = (40 + 430 * ph ** 1.6) * f.bubble, by = by0 + r * 0.45;
+        c.beginPath(); c.arc(bx, by, r, 0, TAU); c.fillStyle = 'rgba(255,120,190,0.88)'; c.fill(); c.lineWidth = 14; c.strokeStyle = DARK; c.stroke();
+        c.beginPath(); c.arc(bx - r * 0.35, by - r * 0.38, r * 0.22, Math.PI * 1.1, Math.PI * 1.6); c.lineWidth = Math.max(8, r * 0.07); c.strokeStyle = '#fff'; c.stroke();
+      } else {
+        const cycle = Math.floor((now - (pf.moodAt || now)) / 4200);
+        if (pf.popped !== cycle) { pf.popped = cycle; tone.pop(); pf.honk = now + 300; pf.blink = 1; } // snap!
+        const k = (ph - 0.9) / 0.1, R0 = 470, cy0 = by0 + R0 * 0.45;
+        // the flash and the ring of the snap
+        c.globalAlpha = A * (1 - k);
+        c.beginPath(); c.arc(bx, cy0, R0 * (1 + k * 0.5), 0, TAU); c.lineWidth = 30 * (1 - k); c.strokeStyle = '#fff'; c.stroke();
+        for (let i = 0; i < 12; i++) { // little burst lines
+          const a = (i / 12) * TAU, r1 = R0 * (0.9 + k * 0.6), r2 = r1 + 120 * (1 - k);
+          c.beginPath(); c.moveTo(bx + Math.cos(a) * r1, cy0 + Math.sin(a) * r1); c.lineTo(bx + Math.cos(a) * r2, cy0 + Math.sin(a) * r2); c.lineWidth = 16; c.strokeStyle = DARK; c.stroke();
+        }
+        // the gum, splatted across the face, slowly fading
+        c.globalAlpha = A * Math.min(1, (1 - k) * 2);
+        for (let i = 0; i < 10; i++) {
+          const a = hash(i * 3.7) * TAU, d = 120 + hash(i * 1.3) * 330 * Math.min(1, k * 4), sz = 70 + hash(i * 5.1) * 70;
+          const x = bx + Math.cos(a) * d, y = cy0 - 120 + Math.sin(a) * d * 0.8;
+          c.beginPath();
+          for (let q = 0; q <= 10; q++) { const qa = (q / 10) * TAU, qr = sz * (0.65 + 0.35 * hash(i * 10 + q)); q ? c.lineTo(x + Math.cos(qa) * qr, y + Math.sin(qa) * qr) : c.moveTo(x + Math.cos(qa) * qr, y + Math.sin(qa) * qr); }
+          c.closePath(); c.fillStyle = '#ff78be'; c.fill(); c.lineWidth = 10; c.strokeStyle = DARK; c.stroke();
+        }
+        c.globalAlpha = A;
       }
-      c.restore();
-      // grains still falling from where the eyes, nose and mouth were
-      const srcs = [[-f.ex, f.ey, f.er, 0], [f.ex, f.ey, f.er, 0], [0, f.ny, f.nose, 1], [0, f.my + 40, f.mw, 2]];
-      for (let i = 0; i < 220; i++) {
-        const [sx, sy, sr, kind] = srcs[i % 4];
-        const a = hash(i * 3.1) * TAU, rr = sr * Math.sqrt(hash(i * 5.7));
-        const x0 = sx + Math.cos(a) * rr, y0 = sy + Math.sin(a) * rr * (kind === 2 ? 0.5 : 1);
-        const p = clamp((sandK - hash(i * 9.1) * 0.6) / 0.35, 0, 1);
-        if (p <= 0 || p >= 1) continue;
-        const x = x0 + Math.sin(i + now / 300) * 12 * p, y = y0 + (top(x0) - y0) * p * p;
-        c.fillStyle = kind === 1 ? noseCol : kind === 2 ? DARK : (hash(i * 2.2) < 0.3 ? DARK : '#fff');
-        c.fillRect(x - 7, y - 7, 14, 14);
-      }
-      c.restore();
     }
 
-    // cracking open: fractal cracks spread from the middle and open up, the eyes sprout smaller eyes,
-    // and loose sketch lines unravel around the edge
-    if (f.abstract > 0.02) {
-      const k = (pf.mood === 'abstract' ? clamp((now - (pf.moodAt || now)) / 4000, 0, 1) : 1) * f.abstract;
-      const lines = [];
-      [[0, 60, -1.9, 330], [0, 60, -0.3, 300], [0, 60, 1.4, 320], [0, 60, 2.9, 300], [-f.ex, f.ey, -2.4, 220], [f.ex, f.ey, -0.7, 220]]
-        .forEach(([x, y, ang, len], j) => crack(x, y, ang, len, 0, k, j + 1.7, lines));
-      c.save(); c.beginPath(); c.arc(0, 0, 640, 0, TAU); c.clip();
-      for (const [x1, y1, x2, y2, d] of lines) { // the gap opening
-        c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2, y2);
-        c.lineWidth = (36 - d * 4) * k; c.strokeStyle = '#ffffff'; c.lineCap = 'round'; c.stroke();
-      }
-      for (const [x1, y1, x2, y2, d] of lines) { // and its dark edge
-        c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2, y2);
-        c.lineWidth = Math.max(4, 14 - d * 2); c.strokeStyle = DARK; c.stroke();
-      }
-      c.restore();
-      // eyes within eyes within eyes
-      const sprout = (x, y, r, depth) => {
-        if (depth > 2 || k * 3 < depth + 0.3) return;
-        const n = 6, rr = r * 0.36;
-        for (let i = 0; i < n; i++) {
-          const a = (i / n) * TAU + now / (1400 + depth * 400) * (depth % 2 ? -1 : 1);
-          const ex = x + Math.cos(a) * r * 1.35, ey = y + Math.sin(a) * r * 1.35;
-          c.beginPath(); c.arc(ex, ey, rr, 0, TAU); c.fillStyle = '#fff'; c.fill(); c.lineWidth = Math.max(4, rr * 0.18); c.strokeStyle = DARK; c.stroke();
-          c.beginPath(); c.arc(ex + pf.lx * rr * 0.3, ey + pf.ly * rr * 0.3, rr * 0.42, 0, TAU); c.fillStyle = DARK; c.fill();
-          sprout(ex, ey, rr, depth + 1);
-        }
-      };
-      for (const [x, y, r] of eyes) sprout(x, y, r * 0.75, 1);
-      // the sketch coming undone: loose arcs drifting off the outline
+    // garden: grass and flowers sprout from the top of the head and sway
+    if (f.garden > 0.02) {
+      const g = (pf.mood === 'garden' ? clamp((now - (pf.moodAt || now)) / 2500, 0, 1) : 1) * f.garden;
       c.lineCap = 'round';
-      for (let i = 0; i < 14; i++) {
-        const a0 = hash(i * 4.4) * TAU, span = 0.3 + hash(i * 1.9) * 0.7, rr = 660 + (hash(i * 6.1) * 120 + 40) * k + Math.sin(now / 500 + i) * 20 * k;
-        c.beginPath(); c.arc(0, 0, rr, a0 + now / 6000, a0 + span + now / 6000);
-        c.lineWidth = 10 + hash(i) * 14; c.strokeStyle = DARK; c.globalAlpha = A * k * 0.8; c.stroke();
+      for (let i = 0; i < 28; i++) { // grass
+        const a = -Math.PI / 2 + (i / 27 - 0.5) * 1.3, bx = Math.cos(a) * 625, by = Math.sin(a) * 625, len = (50 + hash(i * 3.3) * 60) * g;
+        const lean = Math.sin(now / 700 + i) * 0.25 + (hash(i) - 0.5) * 0.6;
+        c.beginPath(); c.moveTo(bx, by); c.quadraticCurveTo(bx + Math.cos(a + lean) * len * 0.5, by + Math.sin(a + lean) * len * 0.5, bx + Math.cos(a + lean * 2) * len, by + Math.sin(a + lean * 2) * len);
+        c.lineWidth = 14; c.strokeStyle = '#2f8a3a'; c.stroke();
       }
+      ['#ff5fae', '#ffd23f', '#7fc8ff', '#ffffff', '#ff9a3c', '#c3a6ff', '#ff5fae'].forEach((col, i) => { // flowers
+        const a = -Math.PI / 2 + (i / 6 - 0.5) * 1.15, bx = Math.cos(a) * 625, by = Math.sin(a) * 625;
+        const h = (150 + hash(i * 7.1) * 170) * g, sway = Math.sin(now / 900 + i * 1.3) * 0.18;
+        const tx = bx + Math.cos(a + sway) * h, ty = by + Math.sin(a + sway) * h;
+        c.beginPath(); c.moveTo(bx, by); c.quadraticCurveTo(bx + Math.cos(a) * h * 0.5, by + Math.sin(a) * h * 0.5, tx, ty); c.lineWidth = 12; c.strokeStyle = '#2f8a3a'; c.stroke();
+        const pr = 30 * g;
+        for (let q = 0; q < 6; q++) { const pa = (q / 6) * TAU + now / 2000; c.beginPath(); c.arc(tx + Math.cos(pa) * pr, ty + Math.sin(pa) * pr, pr * 0.75, 0, TAU); c.fillStyle = col; c.fill(); c.lineWidth = 8; c.strokeStyle = DARK; c.stroke(); }
+        c.beginPath(); c.arc(tx, ty, pr * 0.6, 0, TAU); c.fillStyle = '#ffd23f'; c.fill(); c.stroke();
+      });
+    }
+
+    // clock: numbers round the rim, and real hands telling the visitor's own time, pinned at the nose
+    if (f.clock > 0.02) {
+      c.globalAlpha = A * f.clock;
+      c.fillStyle = DARK; c.textAlign = 'center'; c.textBaseline = 'middle'; c.font = '110px Scheme, "Instrument Serif", Georgia, serif';
+      for (let h = 1; h <= 12; h++) { const a = (h / 12) * TAU - Math.PI / 2; c.fillText(String(h), Math.cos(a) * 530, Math.sin(a) * 530 + 6); }
+      for (let m = 0; m < 60; m++) { if (m % 5 === 0) continue; const a = (m / 60) * TAU; c.beginPath(); c.arc(Math.cos(a) * 590, Math.sin(a) * 590, 9, 0, TAU); c.fill(); }
+      const d = new Date(), sec = d.getSeconds() + d.getMilliseconds() / 1000, min = d.getMinutes() + sec / 60, hr = (d.getHours() % 12) + min / 60;
+      const hand = (frac, len, wdt, col) => { const a = frac * TAU - Math.PI / 2; c.beginPath(); c.moveTo(0, 0); c.lineTo(Math.cos(a) * len, Math.sin(a) * len); c.lineWidth = wdt; c.strokeStyle = col; c.lineCap = 'round'; c.stroke(); };
+      hand(hr / 12, 270, 44, DARK); hand(min / 60, 400, 28, DARK); hand(sec / 60, 440, 10, noseCol);
+      c.beginPath(); c.arc(0, 0, 70, 0, TAU); c.fillStyle = noseCol; c.fill(); c.lineWidth = 14; c.strokeStyle = DARK; c.stroke();
       c.globalAlpha = A;
     }
 
