@@ -23,6 +23,15 @@ const DAY = 24 * 60 * 60 * 1000;
 const MARK_LIFE = 6 * 60 * 60 * 1000;
 const SAID_LIFE = 3 * 60 * 60 * 1000; // kind messages, kept for a quiet world to hear again
 const MAX_SAID = 10, MAX_ECHOES = 3, QUIET = 2;
+// singing adds love: one point for every 15 seconds sung, twice as fast while harmonizing with someone,
+// and no more than 40 points from any one visit
+const SING_MS = 15000, SING_CAP = 40;
+const INTERVALS = [1, 6 / 5, 5 / 4, 4 / 3, 3 / 2, 8 / 5, 5 / 3, 2]; // unison, thirds, fourth, fifth, sixths, octave
+function consonant(a, b) {
+  let r = Math.max(a, b) / Math.min(a, b);
+  while (r > 2.06) r /= 2; // fold into one octave
+  return INTERVALS.some((x) => Math.abs(r - x) / x < 0.03);
+}
 const MAX_HERE = 400;
 const MAX_TRAILS = 500;
 const MAX_MARKS = 300;
@@ -201,6 +210,7 @@ export class Hearth extends DurableObject {
   constructor(ctx, env) {
     super(ctx, env);
     this.buckets = new Map(); // id -> { kind: [tokens, last] }. forgotten on hibernation, which is fine.
+    this.singers = new Map(); // id -> how long they've sung, their last pitch, points earned. also forgotten on hibernation.
     this.blinks = [];
     this.lastTogether = 0;
     this.trails = null;
@@ -348,7 +358,22 @@ export class Hearth extends DurableObject {
       }
       case 'sing': {
         if (!num(m.f) || !num(m.a)) return;
-        this.broadcast({ t: 'sing', id: me.id, f: round(clamp(m.f, 60, 1400), 1), a: round(clamp(m.a, 0, 1), 2) }, ws);
+        const f = round(clamp(m.f, 60, 1400), 1);
+        this.broadcast({ t: 'sing', id: me.id, f, a: round(clamp(m.a, 0, 1), 2) }, ws);
+        // count the singing toward today's love
+        const now = Date.now(), st = this.singers.get(me.id) || { ms: 0, last: 0, f: 0, pts: 0 };
+        const gap = now - st.last;
+        st.last = now; st.f = f;
+        if (gap < 400 && st.pts < SING_CAP) {
+          const together = [...this.singers].some(([id, o]) => id !== me.id && now - o.last < 400 && consonant(f, o.f));
+          st.ms += gap * (together ? 2 : 1);
+          if (st.ms >= SING_MS) {
+            st.ms -= SING_MS; st.pts++;
+            const tally = await this.love(1);
+            this.broadcast({ t: 'tally', tally, from: me.id, together });
+          }
+        }
+        this.singers.set(me.id, st);
         break;
       }
       case 'hush':
@@ -424,6 +449,7 @@ export class Hearth extends DurableObject {
     try { ws.close(1000, 'goodbye'); } catch {}
     if (!me) return;
     this.buckets.delete(me.id);
+    this.singers.delete(me.id);
     this.broadcast({ t: 'leave', id: me.id }, ws);
   }
 }

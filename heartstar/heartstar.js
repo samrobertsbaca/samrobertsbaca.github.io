@@ -2149,6 +2149,13 @@
         whisper(`earlier, ${who}: “${text}”`, 5200 + text.length * 45, true, null, true);
         break;
       }
+      case 'tally': {
+        // singing earned some love
+        setTally(m.tally);
+        if (me && m.from === me.id && !singNoted.self) { singNoted.self = true; whisper('your singing adds to the love today. ♥', 3600, true, null, true); }
+        if (me && m.from === me.id && m.together && !singNoted.together) { singNoted.together = true; whisper('harmony! singing together counts double. ♥', 3600, true, null, true); }
+        break;
+      }
       case 'said': {
         clearTimeout(sayWait); sayBtn.disabled = false;
         if (m.ok) { sayIn.value = ''; youWin.hidden = true; }
@@ -2480,6 +2487,7 @@
   // ------------------------------------------------------------------ windows: you.exe, plant.exe, sing.exe
   const sayIn = document.getElementById('say-in'), sayBtn = document.querySelector('#say-form button');
   let sayWait = 0;
+  const singNoted = { self: false, together: false }; // say each once per visit
   const youWin = document.getElementById('you-win'), plantWin = document.getElementById('plant-win'), card = document.getElementById('sing-card');
   function closeWindows(except) { for (const w of [youWin, plantWin, card]) if (w !== except) w.hidden = true; }
   document.addEventListener('pointerdown', (e) => {
@@ -2815,6 +2823,7 @@
 
     if (mic.f) {
       me.singTarget = mic.amp; me.freq = mic.f;
+      voices.sing('me', mic.f, mic.amp * 0.35, me.sx, 0.03); // you hear your own scorsby sing, following you every frame
       if (now - mic.lastSend > 100) { // everyone else hears you ten times a second
         mic.lastSend = now;
         send({ t: 'sing', f: Math.round(mic.f * 10) / 10, a: Math.round(mic.amp * 100) / 100 });
@@ -2822,7 +2831,7 @@
       mic.wasSinging = true;
     } else {
       me.singTarget = 0;
-      if (mic.wasSinging) { mic.wasSinging = false; send({ t: 'hush' }); }
+      if (mic.wasSinging) { mic.wasSinging = false; send({ t: 'hush' }); voices.hush('me'); }
     }
   }
 
