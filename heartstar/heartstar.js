@@ -140,7 +140,7 @@
   // the planet is as big as the screen allows, but its ears stay clear of the whisper's first lines
   function fitPlanet() {
     if (!VW || !VH) return;
-    baseR = Math.min(VW * (small ? 0.3 : 0.24), VH * 0.25);
+    baseR = Math.min(VW * (small ? 0.36 : 0.24), VH * 0.25); // the room check below keeps it clear of the whisper
     const wh = document.getElementById('whisper');
     const top = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--under-top')) || 76;
     const fs = wh ? parseFloat(getComputedStyle(wh).fontSize) || 20 : 20;

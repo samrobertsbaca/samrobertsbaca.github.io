@@ -97,7 +97,7 @@
       const out = await r.json().catch(() => ({}));
       if (r.ok && out.ok) {
         form.hidden = true; done.hidden = false;
-        done.querySelector('.big').textContent = `thank you, ${name}. a letter will find you. ♥`;
+        done.querySelector('.big').textContent = `many blessings, friend :-)`;
       } else {
         why.textContent = out.why || 'something went wrong. try again soon?';
         if (widget && window.turnstile) { window.turnstile.reset(widget); token = ''; }
