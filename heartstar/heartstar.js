@@ -896,6 +896,7 @@
       c.save(); c.globalAlpha = 0.32 * stormNow; c.fillStyle = g; c.fillRect(0, 0, VW, VH); c.restore();
     }
 
+    if (T === THEMES.night) renderStars(now, dt);
     renderSky(now, dt);
     if (goldFlash > now) {
       // tap sunsby: the sky behind the world flashes gold (the world itself turns gold for a moment)
@@ -1302,6 +1303,43 @@
       vx: (fromLeft ? 1 : -1) * rand(0.008, 0.025), bob: rand(0, TAU), born: performance.now(), ring: 0,
     });
   }
+  const stars = Array.from({ length: 70 }, () => ({ x: Math.random(), y: Math.random(), s: rand(2, 4.5), per: rand(2600, 7000), ph: rand(0, TAU) }));
+  let shooting = null, nextShoot = performance.now() + rand(4000, 9000);
+  function renderStars(now, dt) {
+    c.save();
+    c.strokeStyle = '#ffffff'; c.lineCap = 'round';
+    const n = small ? 36 : stars.length;
+    for (let i = 0; i < n; i++) {
+      const st = stars[i];
+      const tw = Math.max(0, Math.sin(now / st.per * TAU + st.ph)) ** 3; // mostly resting, now and then a glint
+      if (tw < 0.03) continue;
+      const x = st.x * VW, y = st.y * VH, a = st.s * (0.6 + 0.6 * tw);
+      c.globalAlpha = 0.55 * tw; c.lineWidth = 1.3;
+      c.beginPath(); c.moveTo(x - a, y); c.lineTo(x + a, y); c.moveTo(x, y - a); c.lineTo(x, y + a); c.stroke();
+    }
+    // a shooting star every so often
+    if (!shooting && now > nextShoot) {
+      const ang = rand(0.35, 0.7) * (Math.random() < 0.5 ? 1 : -1);
+      shooting = { x: rand(0.15, 0.85) * VW, y: rand(0.02, 0.35) * VH, ang, born: now, dur: rand(700, 1100), len: rand(0.28, 0.45) * Math.max(VW, VH) };
+    }
+    if (shooting) {
+      const k = (now - shooting.born) / shooting.dur;
+      if (k >= 1) { shooting = null; nextShoot = now + rand(6000, 16000); }
+      else {
+        const dx = Math.sign(shooting.ang) * Math.cos(Math.abs(shooting.ang)), dy = Math.sin(Math.abs(shooting.ang));
+        const head = shooting.len * k, tail = Math.max(0, head - shooting.len * 0.35);
+        const hx = shooting.x + dx * head, hy = shooting.y + dy * head, tx = shooting.x + dx * tail, ty = shooting.y + dy * tail;
+        const g = c.createLinearGradient(tx, ty, hx, hy);
+        g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(1, 'rgba(255,255,255,0.85)');
+        c.globalAlpha = Math.sin(k * Math.PI) ** 0.5; c.strokeStyle = g; c.lineWidth = 1.6;
+        c.beginPath(); c.moveTo(tx, ty); c.lineTo(hx, hy); c.stroke();
+        c.strokeStyle = '#ffffff'; c.lineWidth = 1.3;
+        c.beginPath(); c.moveTo(hx - 3, hy); c.lineTo(hx + 3, hy); c.moveTo(hx, hy - 3); c.lineTo(hx, hy + 3); c.stroke();
+      }
+    }
+    c.restore();
+  }
+
   function renderSky(now, dt) {
     const want = small ? 5 : 9;
     if (sky.length < want && Math.random() < 0.02) spawnSky(false);
@@ -1579,8 +1617,8 @@
     if (tally) {
       el.textContent = `love today ♥ ${tally.today.toLocaleString()}`;
       if (tally.best?.n) {
-        el.append(' · ');
-        const rec = document.createElement('span'); rec.className = tally.best.day === tally.day ? 'record' : '';
+        const sep = document.createElement('span'); sep.className = 'sep'; sep.textContent = ' · '; el.appendChild(sep);
+        const rec = document.createElement('span'); rec.className = tally.best.day === tally.day ? 'rec record' : 'rec';
         [...`record ♥ ${tally.best.n.toLocaleString()} ${tally.best.day === tally.day ? '(today!)' : 'on ' + fmtDay(tally.best.day)}`].forEach((ch, i) => {
           const l = document.createElement('span'); l.textContent = ch; l.style.setProperty('--i', i); rec.appendChild(l);
         });
@@ -2377,6 +2415,7 @@
 
   addEventListener('resize', resize);
   setTheme(); resize(); setView();
+  if (small) zoom.v = zoom.target = 0.75; // phones start with the whole world in view
   for (let i = 0; i < (small ? 4 : 7); i++) spawnSky(true);
   connect();
   if (!net.url) alone();
