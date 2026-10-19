@@ -73,6 +73,7 @@
   // ------------------------------------------------------------------ canvas
   const cv = document.getElementById('sky');
   let c = cv.getContext('2d'); // let: the plant icons borrow the same drawing code for a moment
+  let quality = 2; // 2 full detail, 1 lighter, 0 lightest: it steps down by itself on a slow device
   let VW = 0, VH = 0, DPR = 1, baseR = 100, R = 100, L = 1, CX = 0, CY = 0, small = false;
   const zoom = { v: 1, target: 1, aim: null };
 
@@ -150,7 +151,7 @@
     VW = innerWidth || document.documentElement.clientWidth;
     VH = innerHeight || document.documentElement.clientHeight;
     if (!VW || !VH) { setTimeout(resize, 200); return; }
-    DPR = Math.min(devicePixelRatio || 1, 2);
+    DPR = Math.min(devicePixelRatio || 1, [1, 1.5, 2][quality]);
     cv.width = scratch.width = VW * DPR; cv.height = scratch.height = VH * DPR;
     c.setTransform(DPR, 0, 0, DPR, 0, 0); sx2.setTransform(DPR, 0, 0, DPR, 0, 0);
     small = VW < 600;
@@ -1204,6 +1205,15 @@
     }
     renderHearts(now);
     renderFaces(now, dt, storm);
+    for (let i = pointHearts.length - 1; i >= 0; i--) {
+      const ph = pointHearts[i], k = (now - ph.born) / 1400;
+      if (k >= 1 || !(ph.s.sz > 0)) { pointHearts.splice(i, 1); continue; }
+      const pop = k < 0.15 ? k / 0.15 * 1.3 : 1.3 - Math.min(0.3, (k - 0.15) * 1.5); // pops out, then settles
+      const x = ph.s.sx + Math.sin(k * 6 + ph.seed) * 8, y = ph.s.sy - ph.s.size * 0.6 - k * 55, r = ph.s.size * 0.22 * pop;
+      c.save(); c.globalAlpha = 1 - k * k;
+      heartPath(x, y, r); c.fillStyle = ph.together ? `hsl(${(now / 4 + ph.seed * 40) % 360},90%,62%)` : '#ff5fae'; c.fill();
+      c.lineWidth = 1.6; c.strokeStyle = DARK; c.stroke(); c.restore();
+    }
     c.save(); c.globalAlpha = awake(now); renderMoon(now, true); c.restore();
     c.restore();
 
@@ -1284,14 +1294,15 @@
     const rad = Math.max(1, R * SPACING * 0.74);
     const land = new Path2D();
     const x0 = -rad * 2, x1 = VW + rad * 2, y0 = -rad * 2, y1 = VH + rad * 2;
-    for (let i = 0; i < NL; i++) {
+    const landStep = quality === 0 ? 2 : 1; // the lightest setting draws half the land dots, a little bigger
+    for (let i = 0; i < NL; i += landStep) {
       const x = LX[i], y = LY[i], z = LZ[i];
       const cc = x * cl0 + y * sl0;
       const sz = sp0 * z + cp0 * cc;
       if (sz <= 0) continue;
       const px = CX + (y * cl0 - x * sl0) * R, py = CY - (cp0 * z - sp0 * cc) * R;
       if (px < x0 || px > x1 || py < y0 || py > y1) continue;
-      const r = rad * (0.55 + 0.45 * sz);
+      const r = rad * (0.55 + 0.45 * sz) * (landStep > 1 ? 1.35 : 1);
       land.moveTo(px + r, py); land.arc(px, py, r, 0, TAU);
     }
     c.fillStyle = `rgba(0,40,120,${0.42 - 0.22 * smooth(1.5, 2.8, zoom.v)})`; c.fill(land);
@@ -1622,7 +1633,7 @@
   function renderStars(now, dt) {
     c.save();
     c.strokeStyle = '#ffffff'; c.lineCap = 'round';
-    const n = small ? 36 : stars.length;
+    const n = Math.round((small ? 36 : stars.length) * [0.35, 0.7, 1][quality]);
     for (let i = 0; i < n; i++) {
       const st = stars[i];
       const tw = Math.max(0, Math.sin(now / st.per * TAU + st.ph)) ** 3; // mostly resting, now and then a glint
@@ -1655,7 +1666,7 @@
   }
 
   function renderSky(now, dt) {
-    const want = small ? 5 : 9;
+    const want = Math.round((small ? 5 : 9) * [0.5, 0.8, 1][quality]);
     if (now < intro.sky) return;
     const filling = now < intro.sky + 5000;
     if (sky.length < want && Math.random() < (filling ? 0.035 : 0.02)) spawnSky(filling);
@@ -2150,8 +2161,9 @@
         break;
       }
       case 'tally': {
-        // singing earned some love
+        // singing earned some love: a heart pops out of whoever sang it
         setTally(m.tally);
+        { const s = me && m.from === me.id ? me : peers.get(m.from); if (s) pointHearts.push({ s, born: now, together: m.together, seed: Math.random() * 10 }); }
         if (me && m.from === me.id && !singNoted.self) { singNoted.self = true; whisper('your singing adds to the love today. ♥', 3600, true, null, true); }
         if (me && m.from === me.id && m.together && !singNoted.together) { singNoted.together = true; whisper('harmony! singing together counts double. ♥', 3600, true, null, true); }
         break;
@@ -2241,6 +2253,7 @@
     tip.style.top = `${Math.max(tip.offsetHeight + 26, s ? s.sy - s.size * 0.4 : y - 14)}px`;
   }
 
+  const pointHearts = []; // hearts that pop out of singers when their singing adds love
   let tipHold = null; // a tapped scorsby's tip, held for a moment on touch screens
   const touches = new Map();
   let pinch = null, holdTimer = 0, lastTap = 0;
@@ -2781,44 +2794,64 @@
     voices.hush('me');
   }
 
-  // autocorrelation pitch finding. only two numbers ever leave: pitch and loudness.
+  // pitch finding by the McLeod method (as in tuners): it listens for how clearly pitched the sound is,
+  // not how loud it is, so a quiet held note counts as much as a loud one. only two numbers ever leave:
+  // pitch and loudness.
+  let mpmDs = null, mpmSq = null, mpmN = null;
   function pitch(buf, rate) {
     let rms = 0;
     for (let i = 0; i < buf.length; i++) rms += buf[i] * buf[i];
     rms = Math.sqrt(rms / buf.length);
-    if (rms < 0.006) return [0, rms];
-    let r1 = 0, r2 = buf.length - 1;
-    for (let i = 0; i < buf.length / 2; i++) if (Math.abs(buf[i]) < 0.2) { r1 = i; break; }
-    for (let i = 1; i < buf.length / 2; i++) if (Math.abs(buf[buf.length - i]) < 0.2) { r2 = buf.length - i; break; }
-    const b = buf.subarray(r1, r2), n = b.length;
-    const acf = new Float32Array(n);
-    for (let lag = 0; lag < n; lag++) { let s = 0; for (let i = 0; i < n - lag; i++) s += b[i] * b[i + lag]; acf[lag] = s; }
-    let d = 0; while (d < n - 1 && acf[d] > acf[d + 1]) d++;
-    let maxv = -1, maxp = -1;
-    for (let i = d; i < n; i++) if (acf[i] > maxv) { maxv = acf[i]; maxp = i; }
-    if (maxp <= 0 || maxp >= n - 1) return [0, rms];
-    const x1 = acf[maxp - 1], x2 = acf[maxp], x3 = acf[maxp + 1];
-    const a = (x1 + x3 - 2 * x2) / 2, bb = (x3 - x1) / 2;
-    const f = rate / (a ? maxp - bb / (2 * a) : maxp);
-    return f > 70 && f < 1300 ? [f, rms] : [0, rms];
+    if (rms < 0.0015) return [0, rms, 0]; // silence
+    // half the sample rate is plenty for a voice, and four times less work
+    const N = buf.length >> 1, sr = rate / 2;
+    if (!mpmDs || mpmDs.length !== N) { mpmDs = new Float32Array(N); mpmSq = new Float64Array(N + 1); }
+    for (let i = 0; i < N; i++) mpmDs[i] = (buf[2 * i] + buf[2 * i + 1]) * 0.5;
+    mpmSq[0] = 0;
+    for (let i = 0; i < N; i++) mpmSq[i + 1] = mpmSq[i] + mpmDs[i] * mpmDs[i];
+    const maxL = Math.min(Math.ceil(sr / 65), N >> 1);
+    if (!mpmN || mpmN.length !== maxL + 2) mpmN = new Float32Array(maxL + 2);
+    // normalized square difference: 1 means the wave repeats perfectly at this lag
+    for (let lag = 1; lag <= maxL + 1; lag++) {
+      let acf = 0;
+      for (let i = 0, n = N - lag; i < n; i++) acf += mpmDs[i] * mpmDs[i + lag];
+      const m = mpmSq[N - lag] + (mpmSq[N] - mpmSq[lag]);
+      mpmN[lag] = m > 0 ? (2 * acf) / m : 0;
+    }
+    // the highest point of each positive stretch after the first dip below zero
+    const peaks = [];
+    let lag = 1;
+    while (lag <= maxL && mpmN[lag] > 0) lag++;
+    let best = -1, bestV = -1;
+    for (; lag <= maxL; lag++) {
+      if (mpmN[lag] > 0) { if (mpmN[lag] > bestV) { bestV = mpmN[lag]; best = lag; } }
+      else if (best > 0) { peaks.push([best, bestV]); best = -1; bestV = -1; }
+    }
+    if (best > 0) peaks.push([best, bestV]);
+    if (!peaks.length) return [0, rms, 0];
+    const top = Math.max(...peaks.map((q) => q[1]));
+    const [pl, pv] = peaks.find((q) => q[1] >= top * 0.9); // the first strong one (keeps it from jumping an octave down)
+    if (pv < 0.55) return [0, rms, pv]; // not clearly pitched: breath, noise, a consonant
+    const x1 = mpmN[pl - 1], x2 = mpmN[pl], x3 = mpmN[pl + 1], den = x1 + x3 - 2 * x2;
+    const f = sr / (den < 0 ? pl + (x1 - x3) / (2 * den) : pl);
+    return f > 65 && f < 1100 ? [f, rms, pv] : [0, rms, pv];
   }
 
   function listen(now) {
     if (!mic.on || !me) return;
     mic.analyser.getFloatTimeDomainData(mic.buf);
     const [f, rms] = pitch(mic.buf, ac.sampleRate);
-    const amp = clamp((rms - 0.006) * 11, 0, 1);
-    if (f && amp > 0.02) {
-      // follow the voice in log space: big leaps land at once, small wobbles are smoothed
+    // loudness matters a little (a louder voice is a louder scorsby), but even a quiet note sounds
+    const amp = clamp(0.35 + rms * 12, 0.35, 1);
+    if (f) {
+      // follow the voice in log space: big leaps land at once, small wobbles are smoothed a little
       const jump = mic.f ? Math.abs(Math.log2(f / mic.f)) : 1;
-      mic.f = mic.f && jump < 0.5 ? Math.exp(Math.log(mic.f) * 0.45 + Math.log(f) * 0.55) : f;
-      mic.amp += (amp - mic.amp) * 0.5;
+      mic.f = mic.f && jump < 0.5 ? Math.exp(Math.log(mic.f) * 0.35 + Math.log(f) * 0.65) : f;
+      mic.amp += (amp - mic.amp) * 0.4;
       mic.heard = now;
-    } else if (mic.f && (rms > 0.004 || now - mic.heard < 260)) {
-      // a held note stays held while there's any sound at all, even if its pitch is briefly unclear;
-      // a breath or a soft consonant (a quarter second of quiet) doesn't end it either
-      if (rms > 0.004) mic.heard = now;
-      mic.amp += (Math.max(amp, 0.08) - mic.amp) * 0.2;
+    } else if (mic.f && (now - mic.heard < 300 || (rms > 0.008 && now - mic.heard < 1200))) {
+      // a breath, a consonant or a rough patch doesn't end the note
+      mic.amp *= 0.985;
     } else { mic.f = 0; mic.amp = 0; }
 
     if (mic.f) {
@@ -2874,8 +2907,19 @@
 
   // ------------------------------------------------------------------ the loop
   let last = performance.now();
+  // how fast the world is running, smoothed. too slow for a while: step down a level. fast again for a long while: step back up.
+  let frameAvg = 16, qualityCheck = performance.now() + 4000, qualityUpAt = 0, frameN = 0;
+  function watchSpeed(now, raw) {
+    if (document.hidden || raw > 120) return; // a hidden tab or a hiccup tells us nothing
+    frameAvg += (raw - frameAvg) * 0.05;
+    if (now < qualityCheck) return;
+    qualityCheck = now + 2500;
+    if (frameAvg > 25 && quality > 0) { quality--; qualityUpAt = now + 30000; resize(); }
+    else if (frameAvg < 13 && quality < 2 && now > qualityUpAt) { quality++; qualityUpAt = now + 30000; resize(); }
+  }
   function frame(now) {
-    const dt = Math.min(64, now - last); last = now;
+    const raw = now - last, dt = Math.min(64, raw); last = now;
+    watchSpeed(now, raw);
     if (VW) {
       zoom.v += (zoom.target - zoom.v) * 0.12;
       if (zoom.aim) {
@@ -2894,7 +2938,7 @@
         tone.chime();
       }
       if (!intro.shown && now >= intro.ui) { intro.shown = true; document.body.classList.remove('intro'); }
-      listen(now);
+      if (quality === 2 || (frameN++ & 1)) listen(now); // on slower devices, listen every other frame
       render(now, dt);
       drawCloudButton(now);
       if (tipHold) {
@@ -2920,6 +2964,6 @@
   if (n > 0) dream(Math.min(n, 40));
   if (params.get('omen')) setTimeout(() => startOmen(params.get('omen')), 1500);
   if (params.get('mood')) setTimeout(() => setMood(params.get('mood'), 30000), Math.max(1500, intro.ui - performance.now() + 500)); // ?mood=worm to see one face for 30s
-  if (params.has('debug')) window.heartstar = { get visible() { return visible; }, get ac() { return ac; }, get master() { return master; }, get soundOn() { return soundOn; }, mic, pitch, hit, tap, planted, bursts, pf, pull, hitPart, sunAt, view, moon, peers, get me() { return me; }, faceToward, startOmen, setMood, zoom, loveBurst, MOODS, waves, sky };
+  if (params.has('debug')) window.heartstar = { pointHearts, get quality() { return quality; }, set quality(q) { quality = q; resize(); }, get frameAvg() { return frameAvg; }, get visible() { return visible; }, get ac() { return ac; }, get master() { return master; }, get soundOn() { return soundOn; }, mic, pitch, hit, tap, planted, bursts, pf, pull, hitPart, sunAt, view, moon, peers, get me() { return me; }, faceToward, startOmen, setMood, zoom, loveBurst, MOODS, waves, sky };
   requestAnimationFrame(frame);
 })();
