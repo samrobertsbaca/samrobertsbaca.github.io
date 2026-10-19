@@ -173,24 +173,25 @@
   const SPACING = Math.sqrt((4 * Math.PI) / 26000);
   // land comes in three levels of detail: the regular dots (loaded with the page), finer ones that fade in
   // as you come closer, and the finest for the closest zoom. each dot has a height level (0 lowland .. 5 mountains).
-  const tierOf = (pts, hts, total) => {
+  const tierOf = (pts, hts, total, unit = 1) => {
     const n = pts.length / 2, t = { n, x: new Float32Array(n), y: new Float32Array(n), z: new Float32Array(n), h: new Uint8Array(n), spacing: Math.sqrt((4 * Math.PI) / total), state: 'ready' };
     for (let i = 0; i < n; i++) {
-      const la = pts[i * 2] * D2R, lo = pts[i * 2 + 1] * D2R;
+      const la = pts[i * 2] * unit * D2R, lo = pts[i * 2 + 1] * unit * D2R;
       t.x[i] = Math.cos(la) * Math.cos(lo); t.y[i] = Math.cos(la) * Math.sin(lo); t.z[i] = Math.sin(la);
       t.h[i] = hts ? +hts[i] || 0 : 0;
     }
     return t;
   };
-  const landTiers = [tierOf(LAND, window.LAND_H, 26012), { state: 'none', file: 'land_fine.js?v=3', name: 'LAND_FINE', total: 104042 }, { state: 'none', file: 'land_ultra.js?v=2', name: 'LAND_ULTRA', total: 416162 }];
+  const landTiers = [tierOf(LAND, window.LAND_H, 26012), { state: 'none', file: 'land_fine.bin?v=1', total: 104042 }, { state: 'none', file: 'land_ultra.bin?v=1', total: 416162 }];
   function loadLandTier(i) {
     const t = landTiers[i];
     if (t.state !== 'none') return;
     t.state = 'loading';
-    const sc = document.createElement('script'); sc.src = `heartstar/${t.file}`;
-    sc.onload = () => { landTiers[i] = tierOf(window[t.name] || [], window[t.name + '_H'], t.total); window[t.name] = window[t.name + '_H'] = null; };
-    sc.onerror = () => { t.state = 'failed'; };
-    document.head.appendChild(sc);
+    // the finer maps are packed small: each dot's latitude and longitude as whole numbers (degrees x 180), then a byte for its height
+    fetch(`heartstar/${t.file}`).then((r) => (r.ok ? r.arrayBuffer() : Promise.reject(r.status))).then((buf) => {
+      const n = Math.floor(buf.byteLength / 5);
+      landTiers[i] = tierOf(new Int16Array(buf, 0, n * 2), new Uint8Array(buf, n * 4, n), t.total, 1 / 180);
+    }).catch(() => { t.state = 'failed'; });
   }
   const vec = (lat, lon) => {
     const la = lat * D2R, lo = lon * D2R;
@@ -1317,7 +1318,68 @@
     }
   }
 
-  // land dots are stamped from a ready-made dot, redrawn only when the size changes
+  // land, drawn by the graphics card when there is one: each dot a round point, so even the finest map costs next to nothing.
+  // the dots are painted solid onto their own layer (no darker seams where they touch), which is laid down see-through.
+  const landGL = (() => {
+    const cvs = document.createElement('canvas');
+    let gl = null;
+    try { gl = cvs.getContext('webgl', { alpha: true, premultipliedAlpha: true, antialias: false, depth: false, stencil: false }); } catch (e) {}
+    if (!gl) return null;
+    const shader = (type, src) => { const sh = gl.createShader(type); gl.shaderSource(sh, src); gl.compileShader(sh); return gl.getShaderParameter(sh, gl.COMPILE_STATUS) ? sh : null; };
+    const vs = shader(gl.VERTEX_SHADER, `
+      attribute vec4 p; // x, y, z on the sphere, and the height level
+      uniform vec4 rot; uniform vec3 ctr; uniform vec2 view; uniform float rad, dpr, sh; uniform vec3 cols[6];
+      varying vec3 col; varying float size;
+      void main() {
+        float cc = p.x * rot.x + p.y * rot.y, sz = rot.z * p.z + rot.w * cc;
+        if (sz <= 0.0) { gl_Position = vec4(2.0, 2.0, 2.0, 1.0); gl_PointSize = 0.0; size = 0.0; col = vec3(0.0); return; }
+        float px = ctr.x + (p.y * rot.x - p.x * rot.y) * ctr.z, py = ctr.y - (rot.w * p.z - rot.z * cc) * ctr.z;
+        gl_Position = vec4(px / view.x * 2.0 - 1.0, 1.0 - py / view.y * 2.0, 0.0, 1.0);
+        size = 2.0 * rad * (0.55 + 0.45 * sz) * dpr + 1.0;
+        gl_PointSize = size;
+        int k = int(p.w + 0.5);
+        vec3 lc = cols[0];
+        for (int j = 1; j < 6; j++) if (j == k) lc = cols[j];
+        col = mix(vec3(0.0, 40.0, 120.0) / 255.0, lc, sh);
+      }`);
+    const fs = shader(gl.FRAGMENT_SHADER, `
+      precision mediump float;
+      varying vec3 col; varying float size;
+      void main() {
+        float d = length(gl_PointCoord - 0.5) * size, a = clamp((size - 1.0) * 0.5 - d + 0.5, 0.0, 1.0);
+        if (a <= 0.0) discard;
+        gl_FragColor = vec4(col * a, a);
+      }`);
+    if (!vs || !fs) return null;
+    const prog = gl.createProgram(); gl.attachShader(prog, vs); gl.attachShader(prog, fs); gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return null;
+    const u = {}; for (const k of ['rot', 'ctr', 'view', 'rad', 'dpr', 'sh', 'cols']) u[k] = gl.getUniformLocation(prog, k);
+    const aP = gl.getAttribLocation(prog, 'p');
+    const maxPoint = gl.getParameter(gl.ALIASED_POINT_SIZE_RANGE)[1];
+    const me = { cvs, ok: true, maxPoint };
+    cvs.addEventListener('webglcontextlost', (e) => { e.preventDefault(); me.ok = false; });
+    me.draw = (t, rad, sh, cols) => {
+      if (!t.gl) {
+        const data = new Float32Array(t.n * 4);
+        for (let i = 0; i < t.n; i++) { data[i * 4] = t.x[i]; data[i * 4 + 1] = t.y[i]; data[i * 4 + 2] = t.z[i]; data[i * 4 + 3] = t.h[i]; }
+        t.gl = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, t.gl); gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+      }
+      const W = cv.width, H = cv.height;
+      if (cvs.width !== W || cvs.height !== H) { cvs.width = W; cvs.height = H; }
+      gl.viewport(0, 0, W, H); gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+      gl.useProgram(prog);
+      gl.uniform4f(u.rot, cl0, sl0, sp0, cp0); gl.uniform3f(u.ctr, CX, CY, R); gl.uniform2f(u.view, VW, VH);
+      gl.uniform1f(u.rad, rad); gl.uniform1f(u.dpr, DPR); gl.uniform1f(u.sh, sh); gl.uniform3fv(u.cols, cols);
+      gl.bindBuffer(gl.ARRAY_BUFFER, t.gl); gl.enableVertexAttribArray(aP); gl.vertexAttribPointer(aP, 4, gl.FLOAT, false, 0, 0);
+      gl.drawArrays(gl.POINTS, 0, t.n);
+    };
+    return me;
+  })();
+  const LEVEL_RGB = [[80, 140, 215], [45, 100, 185], [15, 65, 150], [0, 40, 115], [0, 22, 80], [0, 6, 45]];
+  const LEVEL_GL = new Float32Array(LEVEL_RGB.flat().map((v) => v / 255));
+
+  // without a graphics card, land dots are stamped from a ready-made dot, redrawn only when the size changes
   const landBuf = document.createElement('canvas'), landBufC = landBuf.getContext('2d');
   const landPts = [0, 1, 2, 3, 4, 5].map(() => new Float32Array(3 * 4096)), landCount = new Int32Array(6);
   const landDots = new Map();
@@ -1334,6 +1396,7 @@
     return d;
   }
 
+  const zoomBtn = document.getElementById('zoom-in');
   function renderPlanet(now, dt) {
     // the bold outline first, then the blue head inside it
     wobbleCircle(CX, CY, R + 70 * L, 7, 1.6, 0); c.fillStyle = DARK; c.fill();
@@ -1342,13 +1405,16 @@
     // land, in deeper blue. love for everyone rolls over it as a rainbow.
     // the dots on the near side of the world. at the usual distance they're all one blue, as they always were;
     // coming closer they shrink apart into their grid and take on the height of the land, deeper blue for mountains.
-    // every dot is painted solid onto a layer first (so where dots touch there's no darker seam), then the layer is laid down see-through.
-    // small dots are one path per height level; big ones are stamped from a ready-made dot (big circles are slow to fill).
-    const LEVEL_RGB = [[80, 140, 215], [45, 100, 185], [15, 65, 150], [0, 40, 115], [0, 22, 80], [0, 6, 45]];
+    // without a graphics card: small dots are one path per height level; big ones are stamped from a ready-made dot (big circles are slow to fill).
     const sh = Math.round(smooth(1.4, 2.4, zoom.v) * 10) / 10;
     const levelColor = (k) => `rgb(${LEVEL_RGB[k].map((v, i) => Math.round([0, 40, 120][i] + (v - [0, 40, 120][i]) * sh)).join(',')})`;
     const drawLand = (t, alpha) => {
       const rad = Math.max(0.8, R * t.spacing * (0.74 - 0.32 * sh));
+      if (landGL && landGL.ok && rad * DPR * 2 + 1 <= landGL.maxPoint) {
+        landGL.draw(t, rad, sh, LEVEL_GL);
+        c.save(); c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = alpha; c.drawImage(landGL.cvs, 0, 0); c.restore();
+        return;
+      }
       const x0 = -rad * 2, x1 = VW + rad * 2, y0 = -rad * 2, y1 = VH + rad * 2;
       for (let k = 0; k < 6; k++) landCount[k] = 0;
       for (let i = 0; i < t.n; i++) {
@@ -1390,6 +1456,8 @@
     };
     if (zoom.target > 1.4) loadLandTier(1);
     if (zoom.target > 2.5) loadLandTier(2);
+    // a little spinner on the zoom button while a closer map is still on its way
+    zoomBtn.classList.toggle('loading', (zoom.target > 2 && landTiers[1].state === 'loading') || (zoom.target > 4.5 && landTiers[2].state === 'loading'));
     const f1 = landTiers[1].state === 'ready' ? smooth(1.8, 2.8, zoom.v) : 0; // finer land fades in as you come closer
     const f2 = landTiers[1].state === 'ready' && landTiers[2].state === 'ready' ? smooth(4.5, 6.5, zoom.v) : 0; // and the finest, closer still
     const landA = Math.min(0.9, (0.42 - 0.22 * smooth(1.5, 2.8, zoom.v)) * (1 + 1.3 * sh));
@@ -2512,12 +2580,14 @@
   }
   cv.addEventListener('wheel', (e) => {
     e.preventDefault();
-    const f = Math.exp(-e.deltaY * 0.0016);
+    // a pinch on a trackpad arrives as a wheel with ctrl held, in small steps; two-finger scrolls are small steps too. a mouse wheel clicks in big ones.
+    const k = e.ctrlKey ? 0.012 : e.deltaMode === 0 && Math.abs(e.deltaY) < 50 ? 0.006 : 0.0016;
+    const f = Math.exp(-(e.deltaMode === 1 ? e.deltaY * 33 : e.deltaY) * k);
     zoom.target = clamp(zoom.target * f, 0.75, 11.2);
     if (f > 1) { const ll = unproject(e.clientX, e.clientY); if (ll) zoom.aim = ll; }
   }, { passive: false });
-  document.getElementById('zoom-in').addEventListener('click', () => { zoom.target = clamp(zoom.target * 1.6, 0.75, 11.2); });
-  document.getElementById('zoom-out').addEventListener('click', () => { zoom.target = clamp(zoom.target / 1.6, 0.75, 11.2); });
+  document.getElementById('zoom-in').addEventListener('click', () => { zoom.target = clamp(zoom.target * 2.56, 0.75, 11.2); }); // two steps at a time
+  document.getElementById('zoom-out').addEventListener('click', () => { zoom.target = clamp(zoom.target / 2.56, 0.75, 11.2); });
 
   let lastMove = 0;
   function sendMove(force) {

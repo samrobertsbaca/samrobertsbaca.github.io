@@ -258,3 +258,8 @@ body[data-theme="night"] #sing-card .row button:not(#sing-yes) { background: #05
   #discord:hover { background: none; color: #5865f2; }
   #discord:active { transform: none; }
 }
+
+/* a little spinner on the zoom button while a closer map is on its way */
+#zoom button { position: relative; }
+#zoom button.loading::after { content: ''; position: absolute; inset: -6px; border-radius: 50%; border: 2px dashed currentColor; opacity: .55; animation: zoomwait 1.4s linear infinite; pointer-events: none; }
+@keyframes zoomwait { to { transform: rotate(360deg); } }

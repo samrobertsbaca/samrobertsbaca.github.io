@@ -4,8 +4,9 @@
 // and an elevation image saved as elevation.png (NASA, public domain, via Wikimedia Commons:
 // https://commons.wikimedia.org/wiki/File:Earth_dry_elevation.png)
 //   node build_land.mjs <repo>/heartstar/land.js        51 110m LAND
-//   node build_land.mjs <repo>/heartstar/land_fine.js  102  50m LAND_FINE
-//   node build_land.mjs <repo>/heartstar/land_ultra.js 204  10m LAND_ULTRA
+//   node build_land.mjs <repo>/heartstar/land_fine.bin  102  50m
+//   node build_land.mjs <repo>/heartstar/land_ultra.bin 204  10m
+// a .bin is quicker to load: every dot's latitude and longitude as 16-bit whole numbers (degrees x 180), then a byte per dot for its height
 import { readFileSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { feature } from 'topojson-client';
@@ -83,5 +84,9 @@ for (const [ia, ib, ic] of F) {
     }
   }
 }
-writeFileSync(outFile, `// land dots for the world of scorsby (geodesic grid of ${seen.size} on the sphere, ${res} map). [lat, lon, ...] and a height level per dot\nwindow.${name}=[${out.join(',')}];\nwindow.${name}_H='${hs.join('')}';\n`);
+if (outFile.endsWith('.bin')) {
+  const n = hs.length, buf = Buffer.alloc(n * 5);
+  for (let i = 0; i < n; i++) { buf.writeInt16LE(Math.round(out[i * 2] * 180), i * 4); buf.writeInt16LE(Math.round(out[i * 2 + 1] * 180), i * 4 + 2); buf[n * 4 + i] = hs[i]; }
+  writeFileSync(outFile, buf);
+} else writeFileSync(outFile, `// land dots for the world of scorsby (geodesic grid of ${seen.size} on the sphere, ${res} map). [lat, lon, ...] and a height level per dot\nwindow.${name}=[${out.join(',')}];\nwindow.${name}_H='${hs.join('')}';\n`);
 console.log(name, seen.size, 'on the sphere,', out.length / 2, 'on land,', odd, 'unclosed rows');
