@@ -229,7 +229,6 @@ h1 { font-family: var(--head); font-weight: 400; font-size: 30px; line-height: 1
   #ways { flex-wrap: nowrap; gap: 9px; margin-top: 0; }
   #ways a { letter-spacing: .07em; }
   #discord span { display: none; }
-  #discord { padding: 6px 8px; }
 }
 
 /* at night the buttons are filled black */
@@ -239,3 +238,13 @@ body[data-theme="night"] #discord:not(:hover),
 body[data-theme="night"] #name-form button,
 body[data-theme="night"] #say-form button,
 body[data-theme="night"] #sing-card .row button:not(#sing-yes) { background: #05060a; }
+
+/* phones: the dream district is just its little logo, sitting with the links */
+@media (max-width: 600px) {
+  #discord, body[data-theme="night"] #discord:not(:hover) {
+    padding: 0; border: 0; background: none; box-shadow: none; color: var(--ink);
+  }
+  #discord svg { width: 17px; height: 17px; }
+  #discord:hover { background: none; color: #5865f2; }
+  #discord:active { transform: none; }
+}
