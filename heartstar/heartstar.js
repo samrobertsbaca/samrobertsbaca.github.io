@@ -697,7 +697,7 @@
     lidL: 1, lidR: 1, asym: 0, third: 0, many: 0, tongue: 0, teeth: 0, lips: 0, melt: 0, heart: 0, tilt: 0,
     squish: 0, cross: 0, blush: 0, scramble: 0, stalks: 0, orbit: 0, flip: 0, drip: 0, stache: 0, tall: 0, spin: 0,
     pixel: 0, googly: 0, heartnose: 0, gold: 0, antenna: 0, angel: 0,
-    swirl: 0, jitter: 0, worm: 0, bubble: 0, garden: 0, clock: 0,
+    swirl: 0, jitter: 0, worm: 0, bubble: 0, garden: 0, clock: 0, meltdown: 0,
   };
   const MOODS = {
     smile: {}, grin: { mo: 1, mw: 190 }, o: { oh: 1, mw: 150 }, wink: { lidL: 0 }, tongue: { mo: 0.6, tongue: 1 },
@@ -711,7 +711,7 @@
     // a few that are simply unhinged
     swirl: { swirl: 1, mo: 0.35, mw: 150 }, bugeye: { er: 370, pr: 38, jitter: 1, oh: 1, mw: 120 }, worm: { worm: 1, mo: 0.75, mw: 180 },
     // and some unexpected ones
-    bubble: { bubble: 1, oh: 1, mw: 70 }, garden: { garden: 1, mo: 0.4 },
+    bubble: { bubble: 1, oh: 1, mw: 70 }, garden: { garden: 1, mo: 0.4 }, meltdown: { meltdown: 1 },
     clock: { clock: 1, er: 120, pr: 60, ex: 330, ey: -210, mw: 110, my: 400, ny: 0, nose: 80 },
   };
   const pf = { cur: { ...FACE_BASE }, target: { ...FACE_BASE }, mood: 'smile', next: 7000, honk: 0, wink: 0, winkSide: -1, blink: 0, nextBlink: 3000, lx: 0, ly: 0, hit: null, hold: 0, sing: 0, singing: false, rings: [] };
@@ -725,7 +725,7 @@
     // the world's mood follows the crowd
     const n = crowd();
     const strange = ['odd', 'melt', 'many', 'nose', 'tiny', 'wide', 'squish', 'cyclops', 'cross', 'scramble', 'stalks', 'orbit', 'flip', 'drip', 'stache', 'tall', 'spin', 'kiss', 'o', 'wink', 'pixel', 'googly', 'heartnose', 'antenna', 'angel', 'gold',
-      'swirl', 'bugeye', 'worm', 'bubble', 'garden', 'clock'];
+      'swirl', 'bugeye', 'worm', 'bubble', 'garden', 'clock', 'meltdown'];
     const joyful = ['grin', 'tongue', 'hearts', 'teeth', 'grin', 'hearts'];
     const quiet = ['shy', 'tiny', 'wink', 'smile'];
     const pool = [...strange];
@@ -765,7 +765,31 @@
     } else if (pf.singing) { pf.singing = false; voices.hush('world'); }
   }
 
+  // meltdown: the face's own pixels run downward. it is drawn off-screen, then copied back in thin
+  // columns, each slid down and stretched by an amount that wanders across the face and over time.
+  const faceBuf = document.createElement('canvas'), faceBufC = faceBuf.getContext('2d');
   function renderPlanetFace(now) {
+    const f = pf.cur;
+    const meltK = f.meltdown > 0.01 ? (pf.mood === 'meltdown' ? clamp((now - (pf.moodAt || now)) / 6000, 0, 1) : 1) * f.meltdown : 0;
+    if (meltK <= 0.01) { drawPlanetFace(now); return; }
+    if (faceBuf.width !== cv.width || faceBuf.height !== cv.height) { faceBuf.width = cv.width; faceBuf.height = cv.height; }
+    faceBufC.setTransform(1, 0, 0, 1, 0, 0); faceBufC.clearRect(0, 0, faceBuf.width, faceBuf.height);
+    faceBufC.setTransform(DPR, 0, 0, DPR, 0, 0); faceBufC.globalAlpha = 1;
+    const main = c;
+    c = faceBufC;
+    try { drawPlanetFace(now); } finally { c = main; }
+    const x0 = Math.max(0, Math.floor(CX - R)), x1 = Math.min(VW, Math.ceil(CX + R)), top = Math.max(0, CY - R * 1.1), h = Math.min(VH, CY + R * 1.1) - top;
+    c.save(); c.beginPath(); c.arc(CX, CY, R, 0, TAU); c.clip();
+    const k = meltK * meltK * (3 - 2 * meltK);
+    for (let x = x0; x < x1; x += 2) {
+      const u = (x - CX) / R;
+      const n = 0.5 + 0.5 * Math.sin(u * 9 + 1.3 + now / 2400) * Math.sin(u * 3.1 - now / 1700); // where it runs most
+      const slide = k * R * (0.04 + 0.32 * n), stretch = 1 + k * (0.15 + 0.85 * n);
+      c.drawImage(faceBuf, x * DPR, top * DPR, 2 * DPR, h * DPR, x, top + slide, 2.4, h * stretch);
+    }
+    c.restore();
+  }
+  function drawPlanetFace(now) {
     // the face fades as you come closer, and is gone by the second zoom
     const A = 1 - smooth(1.02, 2.0, zoom.v);
     if (A <= 0.01) { pf.hit = null; return; }
