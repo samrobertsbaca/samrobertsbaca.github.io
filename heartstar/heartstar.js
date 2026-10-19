@@ -784,7 +784,7 @@
     for (let x = x0; x < x1; x += 2) {
       const u = (x - CX) / R;
       const n = 0.5 + 0.5 * Math.sin(u * 9 + 1.3 + now / 2400) * Math.sin(u * 3.1 - now / 1700); // where it runs most
-      const slide = k * R * (0.04 + 0.32 * n), stretch = 1 + k * (0.15 + 0.85 * n);
+      const slide = k * R * (0.04 + 0.32 * n) + R * 2.5 * k ** 4, stretch = 1 + k * (0.15 + 0.85 * n); // and at the end it all flushes out the bottom
       c.drawImage(faceBuf, x * DPR, top * DPR, 2 * DPR, h * DPR, x, top + slide, 2.4, h * stretch);
     }
     c.restore();
