@@ -92,6 +92,8 @@
     return k > 1 ? 1 : 1 + 0.05 * Math.sin(k * Math.PI) * (1 - k);
   }
   const awake = (now) => clamp((now - intro.wake) / 1200, 0, 1); // 0 asleep, 1 fully awake
+  // when a scorsby appears: after the world wakes, you first, then everyone else a few at a time
+  const arrivedAt = (s) => Math.max(s.born, intro.faces + (s.mine ? 0 : 300 + hash(s.seed) * 1600));
 
   const scratch = document.createElement('canvas'), sx2 = scratch.getContext('2d');
   const mask = document.createElement('canvas'), mx2 = mask.getContext('2d');
@@ -1032,15 +1034,18 @@
   function renderRays(now, hue, storm) {
     const n = 54, breathe = 1 + 0.02 * Math.sin((now / 8000) * TAU);
     const love = smooth(0, 1, (loveWash - now) / 1500);
+    const on = clamp((now - intro.wake) / 250, 0, 1); // no halo while the world sleeps
+    if (on <= 0) return;
+    const flash = INTRO ? clamp(1 - (now - intro.wake) / 1600, 0, 1) ** 2 : 0; // it flashes on as the world wakes
     c.lineCap = 'round';
     for (let i = 0; i < n; i++) {
       const a = (i / n) * TAU + now / 40000;
-      const len = R * (0.07 + 0.09 * hash(i * 3.3 + boil * 0.2) + (storm + love) * 0.35 * hash(i + boil)) * breathe * (0.15 + 0.85 * awake(now));
+      const len = R * (0.07 + 0.09 * hash(i * 3.3 + boil * 0.2) + (storm + love) * 0.35 * hash(i + boil)) * breathe * on * (1 + 1.8 * flash);
       const r1 = R * 1.12;
       c.beginPath();
       wobbleLine(CX + Math.cos(a) * r1, CY + Math.sin(a) * r1, CX + Math.cos(a) * (r1 + len), CY + Math.sin(a) * (r1 + len), i * 7, 0.6);
-      c.strokeStyle = `hsla(${(hue + i * 12) % 360},85%,58%,${0.6 + (storm + love) * 0.4})`;
-      c.lineWidth = 1.8; c.stroke();
+      c.strokeStyle = `hsla(${(hue + i * 12) % 360},85%,58%,${Math.min(1, 0.6 + (storm + love + flash) * 0.4)})`;
+      c.lineWidth = 1.8 + flash * 1.6; c.stroke();
     }
   }
 
@@ -1136,6 +1141,7 @@
 
   // the rainbow of love for everyone, rolling over land and sea alike
   function renderLoveWaves() {
+    if (performance.now() < intro.wake) return; // the sleeping world is left in peace
     if (!waves.length) return;
     const bw = 0.42 / 7;
     c.save(); c.beginPath(); c.arc(CX, CY, R, 0, TAU); c.clip();
@@ -1273,11 +1279,12 @@
     const sneeze = env(omenP('sneeze', now));
     for (const s of list) { s.sx += s.ox + (sneeze ? rand(-3, 3) * sneeze : 0); s.sy += s.oy + (sneeze ? rand(-3, 3) * sneeze : 0); }
 
-    // holding hands: scorsbys close to each other reach out
+    // holding hands: scorsbys close to each other reach out (once they've arrived)
     const reach = 74 * zf;
     const pairs = new Set();
-    for (const a of list) {
-      const near = list.filter((b) => b !== a).map((b) => [b, Math.hypot(b.sx - a.sx, b.sy - a.sy)]).filter(([, d]) => d < reach).sort((p, q) => p[1] - q[1]).slice(0, 2);
+    const arrived = list.filter((s) => now - arrivedAt(s) > 700);
+    for (const a of arrived) {
+      const near = arrived.filter((b) => b !== a).map((b) => [b, Math.hypot(b.sx - a.sx, b.sy - a.sy)]).filter(([, d]) => d < reach).sort((p, q) => p[1] - q[1]).slice(0, 2);
       for (const [b] of near) pairs.add(a.id < b.id ? `${a.id}|${b.id}` : `${b.id}|${a.id}`);
     }
     if (me) me.hands = [...pairs].filter((k) => k.split('|').includes(me.id)).length;
@@ -1312,7 +1319,7 @@
       const m = Math.hypot(tx, ty); if (m > 1) { tx /= m; ty /= m; }
       s.lookX += (tx - s.lookX) * 0.1; s.lookY += (ty - s.lookY) * 0.1;
 
-      const grow = clamp((now - Math.max(s.born, intro.faces + (s.mine ? 0 : 300 + hash(s.seed) * 1600))) / 700, 0, 1);
+      const grow = clamp((now - arrivedAt(s)) / 700, 0, 1);
       if (grow <= 0) continue;
       const fade = s.leaving ? Math.max(0, 1 - (now - s.leaving) / 900) : 1;
       const edge = Math.min(1, s.sz / 0.25);
@@ -1358,6 +1365,7 @@
   }
   const ease = (t) => 1 - Math.pow(1 - t, 3);
   function renderBursts(now, dt, front) {
+    if (performance.now() < intro.wake) return; // the sleeping world is left in peace
     for (let i = bursts.length - 1; i >= 0; i--) {
       const b = bursts[i], k = (now - b.born) / b.dur;
       if (k > 1) { if (front) bursts.splice(i, 1); continue; }
