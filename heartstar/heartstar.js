@@ -2870,7 +2870,6 @@
     const hurry = () => hurryIntro();
     addEventListener('pointerdown', hurry, { capture: true }); addEventListener('keydown', hurry);
   } else document.body.classList.remove('intro');
-  if (small) zoom.v = zoom.target = 0.75; // phones start with the whole world in view
   connect();
   if (!net.url) alone();
   const n = parseInt(params.get('dream'), 10);
