@@ -984,10 +984,10 @@
       } else {
         const cycle = Math.floor((now - (pf.moodAt || now)) / 4200);
         if (pf.popped !== cycle) { pf.popped = cycle; tone.pop(); pf.surprise = now + 900; } // snap! and a little startled
-        const k = (ph - 0.9) / 0.1, R0 = 470, cy0 = by0 + R0 * 0.45;
+        const k = (ph - 0.9) / 0.1, R0 = (40 + 430 * 0.9 ** 1.6) * f.bubble, cy0 = by0 + R0 * 0.45; // the bubble at its biggest
         c.globalAlpha = A * (1 - k * k);
         for (let i = 0; i < 14; i++) { // pink lines bursting outward
-          const a = (i / 14) * TAU, r1 = R0 * (0.75 + k * 0.7), r2 = r1 + 150 * (1 - k * 0.6);
+          const a = (i / 14) * TAU, r2 = R0 * (0.55 + 0.45 * Math.sqrt(k)), r1 = r2 * (0.35 + 0.5 * k); // never past where the bubble was
           c.beginPath(); c.moveTo(bx + Math.cos(a) * r1, cy0 + Math.sin(a) * r1); c.lineTo(bx + Math.cos(a) * r2, cy0 + Math.sin(a) * r2);
           c.lineWidth = 22; c.strokeStyle = '#ff78be'; c.lineCap = 'round'; c.stroke();
         }
@@ -1025,7 +1025,7 @@
       const d = new Date(), sec = d.getSeconds() + d.getMilliseconds() / 1000, min = d.getMinutes() + sec / 60, hr = (d.getHours() % 12) + min / 60;
       const hand = (frac, len, wdt, col) => { const a = frac * TAU - Math.PI / 2; c.beginPath(); c.moveTo(0, 0); c.lineTo(Math.cos(a) * len, Math.sin(a) * len); c.lineWidth = wdt; c.strokeStyle = col; c.lineCap = 'round'; c.stroke(); };
       hand(hr / 12, 270, 44, DARK); hand(min / 60, 400, 28, DARK); hand(sec / 60, 440, 10, noseCol);
-      c.beginPath(); c.arc(0, 0, 70, 0, TAU); c.fillStyle = noseCol; c.fill(); c.lineWidth = 14; c.strokeStyle = DARK; c.stroke();
+      c.beginPath(); c.arc(0, 0, 70, 0, TAU); c.fillStyle = noseCol; c.fill();
       c.globalAlpha = A;
     }
 
