@@ -1,0 +1,18 @@
+# files the hearth worker does not serve (see hearth/wrangler.jsonc)
+.git
+.github
+.gitignore
+.nojekyll
+.wrangler
+hearth
+tools
+**/node_modules
+**/__pycache__
+*.py
+*.pyc
+CNAME
+README.md
+# cloudflare serves files up to 25 MiB; these are bigger
+books/blueroses/build.zip
+media/goforgold.pdf
+media/comix2025/fullsize
