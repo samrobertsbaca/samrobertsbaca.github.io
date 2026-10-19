@@ -697,7 +697,7 @@
     lidL: 1, lidR: 1, asym: 0, third: 0, many: 0, tongue: 0, teeth: 0, lips: 0, melt: 0, heart: 0, tilt: 0,
     squish: 0, cross: 0, blush: 0, scramble: 0, stalks: 0, orbit: 0, flip: 0, drip: 0, stache: 0, tall: 0, spin: 0,
     pixel: 0, googly: 0, heartnose: 0, gold: 0, antenna: 0, angel: 0,
-    swirl: 0, jitter: 0, worm: 0, bubble: 0, garden: 0, clock: 0, meltdown: 0, swap: 0, wall: 0,
+    swirl: 0, jitter: 0, worm: 0, bubble: 0, garden: 0, clock: 0, meltdown: 0, swap: 0, wall: 0, hug: 0,
   };
   const MOODS = {
     smile: {}, grin: { mo: 1, mw: 190 }, o: { oh: 1, mw: 150 }, wink: { lidL: 0 }, tongue: { mo: 0.6, tongue: 1 },
@@ -713,7 +713,7 @@
     // and some unexpected ones
     bubble: { bubble: 1, oh: 1, mw: 70 }, garden: { garden: 1, mo: 0.4 }, meltdown: { meltdown: 1 },
     swap: { swap: 1, er: 210, nose: 150 }, // two noses for eyes, and an eye for a nose
-    goofy: { wall: 1, er: 300, pr: 125, ex: 330, mw: 300, mc: 0.95, my: 260 }, // pupils as big as the nose // a huge U grin, eyes bulging and looking out to the sides
+    goofy: { wall: 1, hug: 1, er: 300, pr: 125, ex: 330, mw: 300, mc: 0.95, my: 260 }, // pupils as big as the nose, a grin hugging the face // a huge U grin, eyes bulging and looking out to the sides
     clock: { clock: 1, er: 120, pr: 60, ex: 330, ey: -210, mw: 110, my: 400, ny: 0, nose: 80 },
   };
   const pf = { cur: { ...FACE_BASE }, target: { ...FACE_BASE }, mood: 'smile', next: 7000, honk: 0, wink: 0, winkSide: -1, blink: 0, nextBlink: 3000, lx: 0, ly: 0, hit: null, hold: 0, sing: 0, singing: false, rings: [] };
@@ -916,7 +916,8 @@
         c.fillStyle = DARK;
         for (let i = 0; i <= 8; i++) { const a = (i / 8) * Math.PI; c.rect(Math.cos(a) * w - 42, my + Math.sin(a) * w * f.mc - 42, 84, 84); }
         c.fill();
-      } else c.ellipse(0, my, w, w * f.mc, 0, 0, Math.PI);
+      } else if (f.hug > 0.5) c.arc(0, 0, 470, Math.PI * 0.16, Math.PI * 0.84); // a grin that follows the curve of the face
+      else c.ellipse(0, my, w, w * f.mc, 0, 0, Math.PI);
       if (f.pixel <= 0.5 || f.melt > 0.05) { c.lineWidth = 95; c.strokeStyle = DARK; c.stroke(); }
     }
     c.restore();
