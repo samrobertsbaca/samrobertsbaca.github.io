@@ -1280,17 +1280,35 @@
   let worldCol = '#00b4ff';
   function blendWorld(now, storm) {
     const unison = omenP('unison', now) >= 0 ? unisonColor(omen.seed)[1] : null;
-    let r = 0, g = 0, b = 0, n = 0;
+    // everyone's colours, kept as they are (mixing them all together only ever makes brown)
+    const counts = new Map();
+    let n = 0;
     for (const s of everyone()) {
       if (s.leaving) continue;
-      const ci = storm > 0.2 ? 8 : unison || s.c;
-      const w = ci === 8 ? 0.3 : 1;
-      const [cr, cg, cb] = rgbOf(colorOf(ci, now, s.seed));
-      r += cr * w; g += cg * w; b += cb * w; n += w;
+      const col = colorOf(storm > 0.2 ? 8 : unison || s.c, now, s.seed);
+      counts.set(col, (counts.get(col) || 0) + 1); n++;
     }
-    worldCol = n ? `rgb(${Math.round(r / n)},${Math.round(g / n)},${Math.round(b / n)})` : T.ocean;
+    if (!n) { worldCol = T.ocean; worldStops = null; return; }
+    const cols = [...counts.entries()].sort((a, b) => b[1] - a[1]);
+    worldCol = cols[0][0]; // the most common colour, for anything that needs just one
+    if (cols.length < 2) { worldStops = null; return; }
+    // two or more colours: the world swirls with all of them, each in its own slice, in rainbow order.
+    // the more people and the more hands held, the more it leans into a full rainbow, and the livelier it turns.
+    worldRain = clamp((cols.length - 2) / 6 + (n - 2) / 30 + handCount * 0.08, 0, 1);
+    const hue = (col) => { const [r, g, b] = rgbOf(col), mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn || 1; const h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; return (h * 60 + 360) % 360; };
+    const slices = cols.flatMap(([col, k]) => Array(Math.min(k, 4)).fill(col)).sort((a, b) => hue(a) - hue(b));
+    worldStops = slices.map((col, i) => mixColor(col, RAINBOW[Math.floor(i / slices.length * RAINBOW.length)], worldRain * 0.75));
   }
+  let worldStops = null, worldRain = 0, handCount = 0;
   const ocean = () => pf.cur.gold < 0.01 ? worldCol : mixColor(worldCol, '#ffc93c', pf.cur.gold);
+  // what the world (and its ears) are filled with: one colour, or everyone's colours turning slowly round
+  const oceanFill = (x, y, spin = 1) => {
+    if (!worldStops || !c.createConicGradient) return ocean();
+    const g = c.createConicGradient(performance.now() / (9000 - 6000 * worldRain) * spin, x, y);
+    const gold = pf.cur.gold;
+    worldStops.concat(worldStops[0]).forEach((col, i) => g.addColorStop(i / worldStops.length, gold < 0.01 ? col : mixColor(col, '#ffc93c', gold)));
+    return g;
+  };
   function renderEars(now) {
     const wig = Math.max(env(omenP('ears', now)), clamp((earPerk - now) / 1200, 0, 1));
     const lw = 70 * L;
@@ -1307,7 +1325,7 @@
       const ex = bx + q.x, ey = by + q.y;
       const er = 300 * L * (1 + wig * 0.06);
       wobbleCircle(ex, ey, er + lw, side * 31, 1.4, 0); c.fillStyle = DARK; c.fill();
-      wobbleCircle(ex, ey, er, side * 37, 1.4, 0); c.fillStyle = ocean(); c.fill();
+      wobbleCircle(ex, ey, er, side * 37, 1.4, 0); c.fillStyle = oceanFill(ex, ey, side); c.fill();
       const rb = Math.max(smooth(0, 1, (loveWash - now) / 1500), stormNow);
       if (rb > 0.01 && c.createConicGradient) {
         const g = c.createConicGradient(now / 300 * side, ex, ey);
@@ -1400,7 +1418,7 @@
   function renderPlanet(now, dt) {
     // the bold outline first, then the blue head inside it
     wobbleCircle(CX, CY, R + 70 * L, 7, 1.6, 0); c.fillStyle = DARK; c.fill();
-    c.beginPath(); c.arc(CX, CY, R, 0, TAU); c.fillStyle = ocean(); c.fill();
+    c.beginPath(); c.arc(CX, CY, R, 0, TAU); c.fillStyle = oceanFill(CX, CY); c.fill();
 
     // land, in deeper blue. love for everyone rolls over it as a rainbow.
     // the dots on the near side of the world. at the usual distance they're all one blue, as they always were;
@@ -1464,7 +1482,11 @@
     const landA = Math.min(0.9, (0.42 - 0.22 * smooth(1.5, 2.8, zoom.v)) * (1 + 1.3 * sh));
     const f3 = f2 && landTiers[3].state === 'ready' ? smooth(11, 15, zoom.v) : 0; // and finer again, at the very closest
     const weights = [1 - f1, f1 * (1 - f2), f2 * (1 - f3), f3];
-    weights.forEach((wgt, i) => { if (wgt > 0.004 && landTiers[i].state === 'ready') drawLand(landTiers[i], landA * wgt); });
+    // on a rainbow world the land deepens whatever colour is under it (dark blue laid over yellow would turn it brown)
+    c.save();
+    if (worldStops) c.globalCompositeOperation = 'color-burn';
+    weights.forEach((wgt, i) => { if (wgt > 0.004 && landTiers[i].state === 'ready') drawLand(landTiers[i], Math.min(1, landA * wgt * (worldStops ? 1.5 : 1))); });
+    c.restore();
 
     // night, in ballpoint hatching
     const ecl = env(omenP('eclipse', now));
@@ -1652,6 +1674,7 @@
       const near = arrived.filter((b) => b !== a).map((b) => [b, Math.hypot(b.sx - a.sx, b.sy - a.sy)]).filter(([, d]) => d < reach).sort((p, q) => p[1] - q[1]).slice(0, 2);
       for (const [b] of near) pairs.add(a.id < b.id ? `${a.id}|${b.id}` : `${b.id}|${a.id}`);
     }
+    handCount = pairs.size;
     if (me) me.hands = [...pairs].filter((k) => k.split('|').includes(me.id)).length;
     if (me && net.live) for (const k of pairs) { // a hand you haven't held before: a new connection
       const [a, b] = k.split('|'); if (a !== me.id && b !== me.id) continue;
