@@ -182,7 +182,7 @@
     }
     return t;
   };
-  const landTiers = [tierOf(LAND, window.LAND_H, 26000), { state: 'none', file: 'land_fine.js?v=2', name: 'LAND_FINE', total: 104000 }, { state: 'none', file: 'land_ultra.js?v=1', name: 'LAND_ULTRA', total: 416000 }];
+  const landTiers = [tierOf(LAND, window.LAND_H, 26012), { state: 'none', file: 'land_fine.js?v=3', name: 'LAND_FINE', total: 104042 }, { state: 'none', file: 'land_ultra.js?v=2', name: 'LAND_ULTRA', total: 416162 }];
   function loadLandTier(i) {
     const t = landTiers[i];
     if (t.state !== 'none') return;
@@ -1321,15 +1321,15 @@
   const landBuf = document.createElement('canvas'), landBufC = landBuf.getContext('2d');
   const landPts = [0, 1, 2, 3, 4, 5].map(() => new Float32Array(3 * 4096)), landCount = new Int32Array(6);
   const landDots = new Map();
-  function landDot(px) {
-    const size = Math.max(2, Math.ceil(px * 2));
-    let d = landDots.get(size);
+  function landDot(px, col) {
+    const size = Math.max(2, Math.ceil(px * 2)), key = size + col;
+    let d = landDots.get(key);
     if (!d) {
-      if (landDots.size > 40) landDots.clear();
+      if (landDots.size > 80) landDots.clear();
       d = document.createElement('canvas'); d.width = d.height = size + 2;
-      const g = d.getContext('2d'); g.fillStyle = 'rgb(0,40,120)';
+      const g = d.getContext('2d'); g.fillStyle = col;
       g.beginPath(); g.arc(d.width / 2, d.height / 2, size / 2, 0, TAU); g.fill();
-      landDots.set(size, d);
+      landDots.set(key, d);
     }
     return d;
   }
@@ -1340,14 +1340,16 @@
     c.beginPath(); c.arc(CX, CY, R, 0, TAU); c.fillStyle = ocean(); c.fill();
 
     // land, in deeper blue. love for everyone rolls over it as a rainbow.
-    // the dots on the near side of the world, shaded deeper the higher the land. small dots are one path per height level;
-    // big ones are stamped solid onto a layer from a ready-made dot (big circles are slow to fill), then laid down see-through.
-    const LEVEL_A = [0.6, 0.78, 0.96, 1.15, 1.35, 1.6];
-    const drawLand = (t, weight, landA) => {
-      const rad = Math.max(0.8, R * t.spacing * 0.74), dot = landDot(rad * DPR), pad = dot.width / (dot.width - 2); // the dot picture has a pixel of room around it
+    // the dots on the near side of the world. at the usual distance they're all one blue, as they always were;
+    // coming closer they shrink apart into their grid and take on the height of the land, deeper blue for mountains.
+    // every dot is painted solid onto a layer first (so where dots touch there's no darker seam), then the layer is laid down see-through.
+    // small dots are one path per height level; big ones are stamped from a ready-made dot (big circles are slow to fill).
+    const LEVEL_RGB = [[80, 140, 215], [45, 100, 185], [15, 65, 150], [0, 40, 115], [0, 22, 80], [0, 6, 45]];
+    const sh = Math.round(smooth(1.4, 2.4, zoom.v) * 10) / 10;
+    const levelColor = (k) => `rgb(${LEVEL_RGB[k].map((v, i) => Math.round([0, 40, 120][i] + (v - [0, 40, 120][i]) * sh)).join(',')})`;
+    const drawLand = (t, alpha) => {
+      const rad = Math.max(0.8, R * t.spacing * (0.74 - 0.32 * sh));
       const x0 = -rad * 2, x1 = VW + rad * 2, y0 = -rad * 2, y1 = VH + rad * 2;
-      const W = c.canvas.width, H = c.canvas.height;
-      if (landBuf.width !== W || landBuf.height !== H) { landBuf.width = W; landBuf.height = H; }
       for (let k = 0; k < 6; k++) landCount[k] = 0;
       for (let i = 0; i < t.n; i++) {
         const x = t.x[i], y = t.y[i], z = t.z[i];
@@ -1356,41 +1358,43 @@
         if (sz <= 0) continue;
         const px = CX + (y * cl0 - x * sl0) * R, py = CY - (cp0 * z - sp0 * cc) * R;
         if (px < x0 || px > x1 || py < y0 || py > y1) continue;
-        const h = t.h[i], j = landCount[h]++;
+        const h = sh ? t.h[i] : 3, j = landCount[h]++;
         if (j >= landPts[h].length / 3) { const g = new Float32Array(landPts[h].length * 2); g.set(landPts[h]); landPts[h] = g; }
         landPts[h][j * 3] = px; landPts[h][j * 3 + 1] = py; landPts[h][j * 3 + 2] = rad * (0.55 + 0.45 * sz);
       }
-      landBufC.setTransform(DPR, 0, 0, DPR, 0, 0);
+      const big = rad * DPR >= 12, direct = !sh && !big; // one colour of small dots can go straight on as one see-through path
+      const g = direct ? c : landBufC;
+      if (!direct) {
+        const W = c.canvas.width, H = c.canvas.height;
+        if (landBuf.width !== W || landBuf.height !== H) { landBuf.width = W; landBuf.height = H; }
+        landBufC.setTransform(DPR, 0, 0, DPR, 0, 0); landBufC.clearRect(0, 0, VW, VH);
+      }
       for (let k = 0; k < 6; k++) {
         const n = landCount[k], P = landPts[k];
         if (!n) continue;
-        if (rad * DPR < 12) {
-          // small dots, and many of them: one path is quicker
-          const path = new Path2D();
-          for (let j = 0; j < n; j++) {
-            const px = P[j * 3], py = P[j * 3 + 1], r = P[j * 3 + 2];
-            if (rad < 1.6) path.rect(px - r, py - r, r * 2, r * 2);
-            else { path.moveTo(px + r, py); path.arc(px, py, r, 0, TAU); }
-          }
-          c.fillStyle = `rgba(0,40,120,${Math.min(0.9, landA * LEVEL_A[k]) * weight})`; c.fill(path);
+        const col = direct ? `rgba(0,40,120,${alpha})` : levelColor(k);
+        if (big) {
+          const dot = landDot(rad * DPR, col), pad = dot.width / (dot.width - 2); // the dot picture has a pixel of room around it
+          for (let j = 0; j < n; j++) { const r = P[j * 3 + 2] * pad; g.drawImage(dot, P[j * 3] - r, P[j * 3 + 1] - r, r * 2, r * 2); }
           continue;
         }
-        landBufC.clearRect(0, 0, VW, VH);
-        for (let j = 0; j < n; j++) { const r = P[j * 3 + 2] * pad; landBufC.drawImage(dot, P[j * 3] - r, P[j * 3 + 1] - r, r * 2, r * 2); }
-        c.save(); c.setTransform(1, 0, 0, 1, 0, 0);
-        c.globalAlpha = Math.min(0.9, landA * LEVEL_A[k]) * weight;
-        c.drawImage(landBuf, 0, 0);
-        c.restore();
+        const path = new Path2D();
+        for (let j = 0; j < n; j++) {
+          const px = P[j * 3], py = P[j * 3 + 1], r = P[j * 3 + 2];
+          if (rad < 1.6) path.rect(px - r, py - r, r * 2, r * 2);
+          else { path.moveTo(px + r, py); path.arc(px, py, r, 0, TAU); }
+        }
+        g.fillStyle = col; g.fill(path);
       }
+      if (!direct) { c.save(); c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = alpha; c.drawImage(landBuf, 0, 0); c.restore(); }
     };
     if (zoom.target > 1.4) loadLandTier(1);
     if (zoom.target > 2.5) loadLandTier(2);
     const f1 = landTiers[1].state === 'ready' ? smooth(1.8, 2.8, zoom.v) : 0; // finer land fades in as you come closer
     const f2 = landTiers[1].state === 'ready' && landTiers[2].state === 'ready' ? smooth(4.5, 6.5, zoom.v) : 0; // and the finest, closer still
-    const landA = 0.42 - 0.22 * smooth(1.5, 2.8, zoom.v);
+    const landA = Math.min(0.9, (0.42 - 0.22 * smooth(1.5, 2.8, zoom.v)) * (1 + 1.3 * sh));
     const weights = [1 - f1, f1 * (1 - f2), f2];
-    weights.forEach((wgt, i) => { if (wgt > 0.004 && landTiers[i].state === 'ready') drawLand(landTiers[i], wgt, landA); });
-
+    weights.forEach((wgt, i) => { if (wgt > 0.004 && landTiers[i].state === 'ready') drawLand(landTiers[i], landA * wgt); });
 
     // night, in ballpoint hatching
     const ecl = env(omenP('eclipse', now));
