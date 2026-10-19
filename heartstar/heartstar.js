@@ -884,7 +884,7 @@
     const eyeYs = lerp(f.ey, 330, f.scramble);
     const eyes = [];
     for (const sd of [-1, 1]) {
-      const r = f.er * (1 + sd * f.asym) * (1 + 0.28 * clamp(((pf.surprise || 0) - now) / 900, 0, 1));
+      const r = f.er * (1 + sd * f.asym);
       let x = sd * f.ex, y = eyeYs + sd * f.asym * 60 + f.melt * (120 + 40 * Math.sin(now / 600 + sd)) - f.stalks * 300;
       if (f.orbit > 0.02) {
         const a = now / 800 + (sd > 0 ? 0 : Math.PI);
@@ -983,7 +983,7 @@
         c.beginPath(); c.arc(bx - r * 0.35, by - r * 0.38, r * 0.22, Math.PI * 1.1, Math.PI * 1.6); c.lineWidth = Math.max(8, r * 0.07); c.strokeStyle = '#fff'; c.stroke();
       } else {
         const cycle = Math.floor((now - (pf.moodAt || now)) / 4200);
-        if (pf.popped !== cycle) { pf.popped = cycle; tone.pop(); pf.surprise = now + 900; } // snap! and a little startled
+        if (pf.popped !== cycle) { pf.popped = cycle; tone.pop(); pf.blink = 1; setTimeout(() => { pf.blink = 1; }, 380); } // snap! blink, blink
         const k = (ph - 0.9) / 0.1, R0 = (40 + 430 * 0.9 ** 1.6) * f.bubble, cy0 = by0 + R0 * 0.45; // the bubble at its biggest
         c.globalAlpha = A * (1 - k * k);
         for (let i = 0; i < 14; i++) { // pink lines bursting outward
