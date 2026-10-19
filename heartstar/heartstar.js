@@ -171,6 +171,25 @@
     LX[i] = Math.cos(la) * Math.cos(lo); LY[i] = Math.cos(la) * Math.sin(lo); LZ[i] = Math.sin(la);
   }
   const SPACING = Math.sqrt((4 * Math.PI) / 26000);
+  // the finer land, for zooming in: four times the dots from a more detailed map, fetched only when someone zooms close
+  const SPACING_FINE = Math.sqrt((4 * Math.PI) / 104000);
+  const fineLand = { state: 'none', n: 0, x: null, y: null, z: null };
+  function loadFineLand() {
+    if (fineLand.state !== 'none') return;
+    fineLand.state = 'loading';
+    const sc = document.createElement('script'); sc.src = 'heartstar/land_fine.js?v=1';
+    sc.onload = () => {
+      const F = window.LAND_FINE || [], n = F.length / 2;
+      fineLand.x = new Float32Array(n); fineLand.y = new Float32Array(n); fineLand.z = new Float32Array(n);
+      for (let i = 0; i < n; i++) {
+        const la = F[i * 2] * D2R, lo = F[i * 2 + 1] * D2R;
+        fineLand.x[i] = Math.cos(la) * Math.cos(lo); fineLand.y[i] = Math.cos(la) * Math.sin(lo); fineLand.z[i] = Math.sin(la);
+      }
+      fineLand.n = n; fineLand.state = 'ready'; window.LAND_FINE = null;
+    };
+    sc.onerror = () => { fineLand.state = 'failed'; };
+    document.head.appendChild(sc);
+  }
   const vec = (lat, lon) => {
     const la = lat * D2R, lo = lon * D2R;
     return [Math.cos(la) * Math.cos(lo), Math.cos(la) * Math.sin(lo), Math.sin(la)];
@@ -721,6 +740,8 @@
   function setMood(m, hold = 0) {
     if (!MOODS[m] || (!intro.woke && m !== 'sleepy')) return; // nothing stirs the world before it wakes
     if (pf.mood !== m) pf.moodAt = performance.now();
+    const lasts = { meltdown: 7800, bubble: 5800, whirl: 1600 }[m]; // these play all the way through
+    if (lasts) hold = Math.max(hold, lasts);
     pf.mood = m; pf.target = { ...FACE_BASE, ...MOODS[m] }; pf.hold = performance.now() + hold;
     if (hold) pf.next = hold + rand(1000, 3000);
   }
@@ -787,8 +808,10 @@
   const faceBuf = document.createElement('canvas'), faceBufC = faceBuf.getContext('2d');
   function renderPlanetFace(now) {
     const f = pf.cur;
-    const meltK = f.meltdown > 0.01 ? (pf.mood === 'meltdown' ? clamp((now - (pf.moodAt || now)) / 6000, 0, 1) : 1) * f.meltdown : 0;
-    if (meltK <= 0.01) { drawPlanetFace(now); return; }
+    const t = pf.mood === 'meltdown' ? now - (pf.moodAt || now) : -1;
+    if (t < 0) { drawPlanetFace(now); return; }
+    if (t > 7600) { setMood('smile'); drawPlanetFace(now); return; }
+    const meltK = clamp(t / 6000, 0, 1);
     if (faceBuf.width !== cv.width || faceBuf.height !== cv.height) { faceBuf.width = cv.width; faceBuf.height = cv.height; }
     faceBufC.setTransform(1, 0, 0, 1, 0, 0); faceBufC.clearRect(0, 0, faceBuf.width, faceBuf.height);
     faceBufC.setTransform(DPR, 0, 0, DPR, 0, 0); faceBufC.globalAlpha = 1;
@@ -797,6 +820,13 @@
     try { drawPlanetFace(now); } finally { c = main; }
     const x0 = Math.max(0, Math.floor(CX - R)), x1 = Math.min(VW, Math.ceil(CX + R)), top = Math.max(0, CY - R * 1.1), h = Math.min(VH, CY + R * 1.1) - top;
     c.save(); c.beginPath(); c.arc(CX, CY, R, 0, TAU); c.clip();
+    if (t > 6000) {
+      // all gone out the bottom: now it slides back in from the top
+      const e = 1 - (1 - (t - 6000) / 1600) ** 3;
+      c.drawImage(faceBuf, 0, 0, faceBuf.width, faceBuf.height, 0, -(1 - e) * R * 2.3, VW, VH);
+      c.restore();
+      return;
+    }
     const k = meltK * meltK * (3 - 2 * meltK);
     for (let x = x0; x < x1; x += 2) {
       const u = (x - CX) / R;
@@ -1291,21 +1321,26 @@
     c.beginPath(); c.arc(CX, CY, R, 0, TAU); c.fillStyle = ocean(); c.fill();
 
     // land, in deeper blue. love for everyone rolls over it as a rainbow.
-    const rad = Math.max(1, R * SPACING * 0.74);
-    const land = new Path2D();
-    const x0 = -rad * 2, x1 = VW + rad * 2, y0 = -rad * 2, y1 = VH + rad * 2;
-    const landStep = quality === 0 ? 2 : 1; // the lightest setting draws half the land dots, a little bigger
-    for (let i = 0; i < NL; i += landStep) {
-      const x = LX[i], y = LY[i], z = LZ[i];
-      const cc = x * cl0 + y * sl0;
-      const sz = sp0 * z + cp0 * cc;
-      if (sz <= 0) continue;
-      const px = CX + (y * cl0 - x * sl0) * R, py = CY - (cp0 * z - sp0 * cc) * R;
-      if (px < x0 || px > x1 || py < y0 || py > y1) continue;
-      const r = rad * (0.55 + 0.45 * sz) * (landStep > 1 ? 1.35 : 1);
-      land.moveTo(px + r, py); land.arc(px, py, r, 0, TAU);
-    }
-    c.fillStyle = `rgba(0,40,120,${0.42 - 0.22 * smooth(1.5, 2.8, zoom.v)})`; c.fill(land);
+    // the dots on the near side of the world, as one path
+    const landPath = (LXs, LYs, LZs, n, rad) => {
+      const path = new Path2D(), x0 = -rad * 2, x1 = VW + rad * 2, y0 = -rad * 2, y1 = VH + rad * 2;
+      for (let i = 0; i < n; i++) {
+        const x = LXs[i], y = LYs[i], z = LZs[i];
+        const cc = x * cl0 + y * sl0;
+        const sz = sp0 * z + cp0 * cc;
+        if (sz <= 0) continue;
+        const px = CX + (y * cl0 - x * sl0) * R, py = CY - (cp0 * z - sp0 * cc) * R;
+        if (px < x0 || px > x1 || py < y0 || py > y1) continue;
+        const r = rad * (0.55 + 0.45 * sz);
+        path.moveTo(px + r, py); path.arc(px, py, r, 0, TAU);
+      }
+      return path;
+    };
+    if (zoom.target > 1.6) loadFineLand();
+    const fine = fineLand.state === 'ready' ? smooth(1.8, 2.8, zoom.v) : 0; // the finer land fades in as you come closer
+    const landA = 0.42 - 0.22 * smooth(1.5, 2.8, zoom.v);
+    if (fine < 1) { c.fillStyle = `rgba(0,40,120,${landA * (1 - fine)})`; c.fill(landPath(LX, LY, LZ, NL, Math.max(1, R * SPACING * 0.74))); }
+    if (fine > 0) { c.fillStyle = `rgba(0,40,120,${landA * fine})`; c.fill(landPath(fineLand.x, fineLand.y, fineLand.z, fineLand.n, Math.max(1, R * SPACING_FINE * 0.74))); }
 
 
     // night, in ballpoint hatching
@@ -2278,7 +2313,7 @@
     if (touches.has(e.pointerId)) touches.set(e.pointerId, [e.clientX, e.clientY]);
     if (pinch && touches.size === 2) {
       const [a, b] = [...touches.values()];
-      zoom.target = clamp(pinch.z * Math.hypot(a[0] - b[0], a[1] - b[1]) / pinch.d, 0.75, 7);
+      zoom.target = clamp(pinch.z * Math.hypot(a[0] - b[0], a[1] - b[1]) / pinch.d, 0.75, 11.2);
       return;
     }
     const dx = e.clientX - pointer.x, dy = e.clientY - pointer.y;
@@ -2411,17 +2446,17 @@
 
   function zoomAt(x, y, factor) {
     const ll = unproject(x, y);
-    zoom.target = clamp(zoom.target * factor, 0.75, 7);
+    zoom.target = clamp(zoom.target * factor, 0.75, 11.2);
     if (ll && factor > 1) zoom.aim = ll;
   }
   cv.addEventListener('wheel', (e) => {
     e.preventDefault();
     const f = Math.exp(-e.deltaY * 0.0016);
-    zoom.target = clamp(zoom.target * f, 0.75, 7);
+    zoom.target = clamp(zoom.target * f, 0.75, 11.2);
     if (f > 1) { const ll = unproject(e.clientX, e.clientY); if (ll) zoom.aim = ll; }
   }, { passive: false });
-  document.getElementById('zoom-in').addEventListener('click', () => { zoom.target = clamp(zoom.target * 1.6, 0.75, 7); });
-  document.getElementById('zoom-out').addEventListener('click', () => { zoom.target = clamp(zoom.target / 1.6, 0.75, 7); });
+  document.getElementById('zoom-in').addEventListener('click', () => { zoom.target = clamp(zoom.target * 1.6, 0.75, 11.2); });
+  document.getElementById('zoom-out').addEventListener('click', () => { zoom.target = clamp(zoom.target / 1.6, 0.75, 11.2); });
 
   let lastMove = 0;
   function sendMove(force) {
@@ -2493,8 +2528,8 @@
     if (e.key === 'Escape') { markMode = null; document.body.classList.remove('marking'); closeWindows(); return; }
     if (['BUTTON', 'INPUT'].includes(e.target.tagName)) return;
     if (e.key === ' ' && me) { me.blink = 1; send({ t: 'blink' }); tone.blink(); e.preventDefault(); }
-    if (e.key === '+' || e.key === '=') zoom.target = clamp(zoom.target * 1.4, 0.75, 7);
-    if (e.key === '-') zoom.target = clamp(zoom.target / 1.4, 0.75, 7);
+    if (e.key === '+' || e.key === '=') zoom.target = clamp(zoom.target * 1.4, 0.75, 11.2);
+    if (e.key === '-') zoom.target = clamp(zoom.target / 1.4, 0.75, 11.2);
   });
 
   // ------------------------------------------------------------------ windows: you.exe, plant.exe, sing.exe
@@ -2761,7 +2796,7 @@
 
   // ------------------------------------------------------------------ singing
   const singBtn = document.getElementById('act-sing');
-  const mic = { stream: null, analyser: null, buf: null, on: false, lastSend: 0, wasSinging: false, f: 0, amp: 0, heard: 0 };
+  const mic = { stream: null, analyser: null, buf: null, on: false, lastSend: 0, wasSinging: false, f: 0, amp: 0, heard: 0, hist: [], leap: 0 };
   singBtn.addEventListener('click', () => {
     if (mic.on) return stopSinging();
     closeWindows(card); card.hidden = !card.hidden;
@@ -2844,15 +2879,24 @@
     // loudness matters a little (a louder voice is a louder scorsby), but even a quiet note sounds
     const amp = clamp(0.35 + rms * 12, 0.35, 1);
     if (f) {
-      // follow the voice in log space: big leaps land at once, small wobbles are smoothed a little
-      const jump = mic.f ? Math.abs(Math.log2(f / mic.f)) : 1;
-      mic.f = mic.f && jump < 0.5 ? Math.exp(Math.log(mic.f) * 0.35 + Math.log(f) * 0.65) : f;
+      // the middle of the last five readings, so a single slip to an overtone can't move the note
+      mic.hist.push(f); if (mic.hist.length > 5) mic.hist.shift();
+      const med = [...mic.hist].sort((x, y) => x - y)[mic.hist.length >> 1];
+      const jump = mic.f ? Math.abs(Math.log2(med / mic.f)) : 1;
+      if (!mic.f) { mic.f = med; mic.leap = 0; }
+      else if (jump > 0.25) {
+        // a leap of more than about three semitones has to hold for a few frames to count
+        if (++mic.leap >= 5) { mic.f = med; mic.leap = 0; }
+      } else {
+        mic.leap = 0;
+        mic.f = Math.exp(Math.log(mic.f) * 0.4 + Math.log(med) * 0.6); // small moves glide
+      }
       mic.amp += (amp - mic.amp) * 0.4;
       mic.heard = now;
     } else if (mic.f && (now - mic.heard < 300 || (rms > 0.008 && now - mic.heard < 1200))) {
       // a breath, a consonant or a rough patch doesn't end the note
       mic.amp *= 0.985;
-    } else { mic.f = 0; mic.amp = 0; }
+    } else { mic.f = 0; mic.amp = 0; mic.hist.length = 0; mic.leap = 0; }
 
     if (mic.f) {
       me.singTarget = mic.amp; me.freq = mic.f;

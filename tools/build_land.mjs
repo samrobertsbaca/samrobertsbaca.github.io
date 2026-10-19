@@ -1,16 +1,19 @@
 // builds heartstar/land.js: evenly spaced dots on the sphere that fall on land.
 // run from a folder with: npm i world-atlas@2 topojson-client@3 d3-geo@3
 //   node build_land.mjs <path-to-repo>/heartstar/land.js
+// the finer set, for zooming in (four times the dots, from the more detailed map):
+//   node build_land.mjs <path-to-repo>/heartstar/land_fine.js 104000 50m LAND_FINE
 import { readFileSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { feature } from 'topojson-client';
 import { geoContains } from 'd3-geo';
 
 const require = createRequire(import.meta.url);
-const topo = JSON.parse(readFileSync(require.resolve('world-atlas/land-110m.json'), 'utf8'));
+const [, , outFile, count = '26000', res = '110m', name = 'LAND'] = process.argv;
+const topo = JSON.parse(readFileSync(require.resolve(`world-atlas/land-${res}.json`), 'utf8'));
 const land = feature(topo, topo.objects.land);
 
-const N = 26000, out = [];
+const N = +count, out = [];
 const golden = Math.PI * (3 - Math.sqrt(5));
 for (let i = 0; i < N; i++) {
   const y = 1 - (i / (N - 1)) * 2;
