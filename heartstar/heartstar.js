@@ -32,10 +32,12 @@
     if (d < 0.25 || l < 0.2 || l > 0.85) return false;
     let h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
     h = (h * 60 + 360) % 360;
-    return h < 22 || h > 338;
+    return h < 22 || h > 312;
   }
   function rgbOf(col) {
     if (col[0] === '#') return [1, 3, 5].map((k) => parseInt(col.slice(k, k + 2), 16));
+    const rgb = col.match(/rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)/);
+    if (rgb) return [+rgb[1], +rgb[2], +rgb[3]];
     const m = col.match(/hsl\(([\d.]+),([\d.]+)%,([\d.]+)%/);
     if (!m) return [128, 128, 128];
     const h = +m[1] / 360, sat = +m[2] / 100, l = +m[3] / 100;
@@ -404,15 +406,17 @@
       }
       case 'eye': {
         c.beginPath(); c.moveTo(x - s * 0.5, y); c.quadraticCurveTo(x, y - s * 0.45, x + s * 0.5, y); c.quadraticCurveTo(x, y + s * 0.45, x - s * 0.5, y);
-        c.fillStyle = T.paper; c.fill(); c.stroke();
-        c.beginPath(); c.arc(x + Math.sin(now / 1500 + seed) * s * 0.12, y, s * 0.13, 0, TAU); pupilDot();
+        c.fillStyle = '#ffffff'; c.fill(); c.stroke(); // white, with a black pupil
+        c.beginPath(); c.arc(x + Math.sin(now / 1500 + seed) * s * 0.12, y, s * 0.13, 0, TAU); c.fillStyle = DARK; c.fill();
         break;
       }
       case 'cactus': {
+        // a symmetrical cactus, doing a little shimmy
+        const shim = Math.sin(now / 240 + seed) * 0.14, wave = Math.sin(now / 160 + seed) * s * 0.05;
+        c.translate(x, y + s * 0.5); c.rotate(shim); c.translate(-x, -(y + s * 0.5));
         c.beginPath();
-        wobbleLine(x, y + s * 0.5, x, y - s * 0.45, seed, 0.3);
-        c.moveTo(x, y); c.quadraticCurveTo(x - s * 0.32, y, x - s * 0.3, y - s * 0.3);
-        c.moveTo(x, y - s * 0.1); c.quadraticCurveTo(x + s * 0.3, y - s * 0.1, x + s * 0.28, y - s * 0.35);
+        c.moveTo(x, y + s * 0.5); c.lineTo(x, y - s * 0.45);
+        for (const sd of [-1, 1]) { c.moveTo(x, y); c.quadraticCurveTo(x + sd * s * 0.3, y, x + sd * s * 0.29, y - s * 0.3 + sd * wave); }
         c.strokeStyle = '#2f8a3a'; c.lineWidth = lw * 2.6; c.stroke(); break;
       }
       case 'tree': {
@@ -501,14 +505,14 @@
           const px = x + Math.cos(a) * rr * 1.2, py = y + Math.sin(a) * rr * 0.75;
           k ? c.lineTo(px, py) : c.moveTo(px, py);
         }
-        c.closePath(); c.fillStyle = T.paper; c.fill(); c.stroke();
+        c.closePath(); c.fillStyle = '#ffffff'; c.fill(); c.stroke(); // a white egg, day or night
         const yy = y - s * 0.04 - hop;
         const sq = 1 + 0.08 * Math.sin(now / 210 + seed);
         for (const sd of [-1, 1]) { c.beginPath(); c.arc(x + sd * s * 0.14, yy - s * 0.15, s * 0.065, 0, TAU); c.fillStyle = '#ffc21a'; c.fill(); c.stroke(); }
         c.beginPath(); c.ellipse(x, yy, s * 0.19 * sq, s * 0.19 / sq, 0, 0, TAU); c.fillStyle = '#ffc21a'; c.fill(); c.stroke();
         const awake = (now / 1000 + seed) % 4 < 2.6;
         if (awake) {
-          c.beginPath(); c.arc(x - s * 0.07, yy - s * 0.05, s * 0.028, 0, TAU); c.moveTo(x + s * 0.098, yy - s * 0.05); c.arc(x + s * 0.07, yy - s * 0.05, s * 0.028, 0, TAU); pupilDot();
+          c.beginPath(); c.arc(x - s * 0.07, yy - s * 0.05, s * 0.028, 0, TAU); c.moveTo(x + s * 0.098, yy - s * 0.05); c.arc(x + s * 0.07, yy - s * 0.05, s * 0.028, 0, TAU); c.fillStyle = DARK; c.fill();
         } else {
           c.beginPath(); c.arc(x - s * 0.07, yy - s * 0.06, s * 0.035, 0, Math.PI); c.moveTo(x + s * 0.105, yy - s * 0.06); c.arc(x + s * 0.07, yy - s * 0.06, s * 0.035, 0, Math.PI); c.stroke();
         }
@@ -654,7 +658,6 @@
     if (!OMEN_DUR[k] || performance.now() < intro.ui) return;
     omen = { k, seed, born: performance.now(), dur: OMEN_DUR[k] };
     whisper(typeof OMEN_WORDS[k] === 'function' ? OMEN_WORDS[k](seed) : OMEN_WORDS[k], 5200, true, null, true);
-    tone.omen(k);
     if (k === 'heartstar') { for (const s of everyone()) s.hearts = 6000; setMood('hearts', 6000); }
     if (k === 'thirdeye') setMood('third', OMEN_DUR[k]);
     if (k === 'sneeze') setMood('o', 2000);
@@ -809,9 +812,10 @@
     if (f.antenna > 0.02) {
       for (const sd of [-1, 1]) {
         const [px, py] = loc(sd < 0 ? 'antL' : 'antR');
-        const tx = sd * 330 + px, ty = -1000 * f.antenna + Math.sin(now / 350 + sd) * 40 + py;
+        // they grow out of the head and draw back in, like a snail's eyes
+        const tx = sd * (140 + 190 * f.antenna) + px * f.antenna, ty = -560 - 440 * f.antenna + Math.sin(now / 350 + sd) * 40 * f.antenna + py * f.antenna;
         antTips.push([tx, ty, 60 * f.antenna, sd < 0 ? 'antL' : 'antR']);
-        c.beginPath(); c.moveTo(sd * 140, -560); c.quadraticCurveTo(sd * 120, -850 * f.antenna, tx, ty);
+        c.beginPath(); c.moveTo(sd * 140, -560); c.quadraticCurveTo(sd * 125, -560 - 290 * f.antenna, tx, ty);
         c.lineWidth = 34; c.strokeStyle = DARK; c.stroke();
         c.beginPath(); c.arc(tx, ty, 60 * f.antenna, 0, TAU); c.fillStyle = '#ff5fae'; c.fill(); c.lineWidth = 22; c.stroke();
       }
@@ -821,6 +825,45 @@
       c.beginPath(); c.ellipse(0, -1010 + Math.sin(now / 700) * 20, 300 * f.angel, 70 * f.angel, 0, 0, TAU);
       c.lineWidth = 26; c.strokeStyle = DARK; c.stroke();
     }
+
+    // the mouth: a round smile, opening wide when it grins or sings
+    const [mpx, mpy] = loc('mouth');
+    const my = lerp(f.my + f.melt * 70, -360, f.scramble) + mpy, w = f.mw * (1 + Math.min(0.6, Math.abs(mpx) / 600));
+    const open = Math.max(f.mo, pf.sing * 0.9);
+    c.save();
+    c.translate(mpx, 0);
+    if (f.scramble > 0.5) { c.translate(0, my); c.scale(1, -1); c.translate(0, -my); }
+    if (f.lips > 0.5) {
+      lipsPath(0, my + w * 0.3, w * 1.15); c.fillStyle = '#e8336b'; c.fill(); c.lineWidth = 26; c.strokeStyle = DARK; c.stroke();
+      c.beginPath(); c.moveTo(-w * 1.15, my + w * 0.3); c.quadraticCurveTo(0, my + w * 0.42, w * 1.15, my + w * 0.3); c.stroke();
+    } else if (f.oh > 0.5 && pf.sing < 0.3) {
+      c.beginPath(); c.ellipse(0, my + w * 0.35, w * 0.55, w * 0.75 * f.oh, 0, 0, TAU); c.fillStyle = DARK; c.fill();
+    } else if (open > 0.08) {
+      const depth = w * f.mc * (0.95 + 0.4 * open);
+      c.beginPath(); c.moveTo(-w, my); c.ellipse(0, my, w, depth, 0, 0, Math.PI); c.closePath();
+      c.fillStyle = DARK; c.fill(); c.lineWidth = 60; c.strokeStyle = DARK; c.stroke();
+      c.save(); c.clip();
+      if (f.teeth > 0.3) {
+        c.fillStyle = '#fff'; c.fillRect(-w, my - 10, w * 2, w * 0.28 * f.teeth);
+      }
+      if (f.tongue > 0.3) { c.beginPath(); c.ellipse(0, my + depth, w * 0.55, w * 0.45 * f.tongue, 0, 0, TAU); c.fillStyle = '#ff6f9c'; c.fill(); }
+      c.restore();
+    } else {
+      c.beginPath();
+      if (f.melt > 0.05) {
+        for (let i = 0; i <= 24; i++) {
+          const t = i / 24, a = t * Math.PI;
+          const x = Math.cos(a) * w, y = my + Math.sin(a) * w * f.mc + f.melt * Math.sin(t * 12 + now / 300) * 18;
+          i ? c.lineTo(x, y) : c.moveTo(x, y);
+        }
+      } else if (f.pixel > 0.5) {
+        c.fillStyle = DARK;
+        for (let i = 0; i <= 8; i++) { const a = (i / 8) * Math.PI; c.rect(Math.cos(a) * w - 42, my + Math.sin(a) * w * f.mc - 42, 84, 84); }
+        c.fill();
+      } else c.ellipse(0, my, w, w * f.mc, 0, 0, Math.PI);
+      if (f.pixel <= 0.5 || f.melt > 0.05) { c.lineWidth = 95; c.strokeStyle = DARK; c.stroke(); }
+    }
+    c.restore();
 
     const eyeYs = lerp(f.ey, 330, f.scramble);
     const eyes = [];
@@ -890,55 +933,17 @@
       eye(x, y, r, worldClosed, pointer.seen ? pf.lx : lx, pointer.seen ? pf.ly : ly, 500);
     }
 
-    // the mouth: a round smile, opening wide when it grins or sings
-    const [mpx, mpy] = loc('mouth');
-    const my = lerp(f.my + f.melt * 70, -360, f.scramble) + mpy, w = f.mw * (1 + Math.min(0.6, Math.abs(mpx) / 600));
-    const open = Math.max(f.mo, pf.sing * 0.9);
-    c.save();
-    c.translate(mpx, 0);
-    if (f.scramble > 0.5) { c.translate(0, my); c.scale(1, -1); c.translate(0, -my); }
-    if (f.lips > 0.5) {
-      lipsPath(0, my + w * 0.3, w * 1.15); c.fillStyle = '#e8336b'; c.fill(); c.lineWidth = 26; c.strokeStyle = DARK; c.stroke();
-      c.beginPath(); c.moveTo(-w * 1.15, my + w * 0.3); c.quadraticCurveTo(0, my + w * 0.42, w * 1.15, my + w * 0.3); c.stroke();
-    } else if (f.oh > 0.5 && pf.sing < 0.3) {
-      c.beginPath(); c.ellipse(0, my + w * 0.35, w * 0.55, w * 0.75 * f.oh, 0, 0, TAU); c.fillStyle = DARK; c.fill();
-    } else if (open > 0.08) {
-      const depth = w * f.mc * (0.95 + 0.4 * open);
-      c.beginPath(); c.moveTo(-w, my); c.ellipse(0, my, w, depth, 0, 0, Math.PI); c.closePath();
-      c.fillStyle = DARK; c.fill(); c.lineWidth = 60; c.strokeStyle = DARK; c.stroke();
-      c.save(); c.clip();
-      if (f.teeth > 0.3) {
-        c.fillStyle = '#fff'; c.fillRect(-w, my - 10, w * 2, w * 0.28 * f.teeth);
-      }
-      if (f.tongue > 0.3) { c.beginPath(); c.ellipse(0, my + depth, w * 0.55, w * 0.45 * f.tongue, 0, 0, TAU); c.fillStyle = '#ff6f9c'; c.fill(); }
-      c.restore();
-    } else {
-      c.beginPath();
-      if (f.melt > 0.05) {
-        for (let i = 0; i <= 24; i++) {
-          const t = i / 24, a = t * Math.PI;
-          const x = Math.cos(a) * w, y = my + Math.sin(a) * w * f.mc + f.melt * Math.sin(t * 12 + now / 300) * 18;
-          i ? c.lineTo(x, y) : c.moveTo(x, y);
-        }
-      } else if (f.pixel > 0.5) {
-        c.fillStyle = DARK;
-        for (let i = 0; i <= 8; i++) { const a = (i / 8) * Math.PI; c.rect(Math.cos(a) * w - 42, my + Math.sin(a) * w * f.mc - 42, 84, 84); }
-        c.fill();
-      } else c.ellipse(0, my, w, w * f.mc, 0, 0, Math.PI);
-      if (f.pixel <= 0.5 || f.melt > 0.05) { c.lineWidth = 95; c.strokeStyle = DARK; c.stroke(); }
-    }
-    c.restore();
-
-    // the red nose, which honks
+    // the red nose, which honks (blue, when the world itself is red or pink)
+    const noseCol = reddish(ocean()) ? '#00b4ff' : '#ed1c24';
     const honk = 1 + 0.9 * Math.max(0, (pf.honk - now) / 600);
     const [npx, npy] = loc('nose');
     const nr = f.nose * honk;
-    taffy(0, f.ny + f.melt * 50, npx, f.ny + f.melt * 50 + npy, nr * 1.4, '#ed1c24');
+    taffy(0, f.ny + f.melt * 50, npx, f.ny + f.melt * 50 + npy, nr * 1.4, noseCol);
     const ny = f.ny + f.melt * 50 + npy;
     c.save(); c.translate(npx, 0);
-    if (f.pixel > 0.5) { c.fillStyle = '#ed1c24'; c.fillRect(-nr, ny - nr, nr * 2, nr * 2); }
-    else if (f.heartnose > 0.5) { heartPath(0, ny, nr * 1.15); c.fillStyle = '#ed1c24'; c.fill(); }
-    else { wobbleCircle(0, ny, nr, 600, 1 / L, 0); c.fillStyle = '#ed1c24'; c.fill(); }
+    if (f.pixel > 0.5) { c.fillStyle = noseCol; c.fillRect(-nr, ny - nr, nr * 2, nr * 2); }
+    else if (f.heartnose > 0.5) { heartPath(0, ny, nr * 1.15); c.fillStyle = noseCol; c.fill(); }
+    else { wobbleCircle(0, ny, nr, 600, 1 / L, 0); c.fillStyle = noseCol; c.fill(); }
     if (f.stache > 0.05) {
       c.globalAlpha = A * f.stache;
       c.beginPath();
@@ -1061,15 +1066,16 @@
     const on = clamp((now - intro.wake) / 250, 0, 1); // no halo while the world sleeps
     if (on <= 0) return;
     const flash = INTRO ? clamp(1 - (now - intro.wake) / 1600, 0, 1) ** 2 : 0; // it flashes on as the world wakes
+    const many = Math.min(12, Math.max(0, crowd() - 1)); // more scorsbys, a thicker and wavier halo
     c.lineCap = 'round';
     for (let i = 0; i < n; i++) {
       const a = (i / n) * TAU + now / 40000;
       const len = R * (0.07 + 0.09 * hash(i * 3.3 + boil * 0.2) + (storm + love) * 0.35 * hash(i + boil)) * breathe * on * (1 + 1.8 * flash);
       const r1 = R * 1.12;
       c.beginPath();
-      wobbleLine(CX + Math.cos(a) * r1, CY + Math.sin(a) * r1, CX + Math.cos(a) * (r1 + len), CY + Math.sin(a) * (r1 + len), i * 7, 0.6);
+      wobbleLine(CX + Math.cos(a) * r1, CY + Math.sin(a) * r1, CX + Math.cos(a) * (r1 + len), CY + Math.sin(a) * (r1 + len), i * 7 + (many ? boil : 0), 0.6 + many * 0.35);
       c.strokeStyle = `hsla(${(hue + i * 12) % 360},85%,58%,${Math.min(1, 0.6 + (storm + love + flash) * 0.4)})`;
-      c.lineWidth = 1.8 + flash * 1.6; c.stroke();
+      c.lineWidth = 1.8 + many * 0.4 + flash * 1.6; c.stroke();
     }
   }
 
@@ -1095,7 +1101,11 @@
     for (const side of [-1, 1]) {
       const wob = wig * Math.sin(now / 70 + side) * 0.08;
       const lift = 1 + wig * 0.08;
-      const bx = CX + side * 515 * L * lift, by = CY - 515 * L * lift + wob * 100 * L;
+      let bx = CX + side * 515 * L * lift, by = CY - 515 * L * lift + wob * 100 * L;
+      if (pf.cur.spin > 0.01) { // when the face spins, the ears go round with it
+        const a = pf.cur.spin * (now / 700), dx = bx - CX, dy = by - CY;
+        bx = CX + dx * Math.cos(a) - dy * Math.sin(a); by = CY + dx * Math.sin(a) + dy * Math.cos(a);
+      }
       const q = pull[side < 0 ? 'earL' : 'earR'];
       const ex = bx + q.x, ey = by + q.y;
       const er = 300 * L * (1 + wig * 0.06);
@@ -1716,6 +1726,42 @@
     whisper(w.text, waiting.length > 2 ? Math.min(w.ms, 3000) : w.ms, true, w.link); // a long line moves a little faster
     if (waiting.length) waitTimer = setTimeout(nextWhisper, whisperUntil - performance.now() + 80);
   }
+  // where a whisper's lines break: two (or more) sentences get a line each if each fits on one line;
+  // otherwise the browser balances the lines. measured once, with the cursor on the end.
+  function planLines(host, chars) {
+    const spaces = [];
+    chars.forEach((ch, j) => { if (ch === ' ') spaces.push(j); });
+    const probe = document.createElement('span'); probe.style.visibility = 'hidden';
+    host.appendChild(probe);
+    const build = (forced) => {
+      probe.textContent = '';
+      const words = [];
+      let start = 0;
+      for (const sp of [...spaces, chars.length]) {
+        const w = document.createElement('span'); w.textContent = chars.slice(start, sp).join('') + (sp === chars.length ? '▌' : '');
+        if (sp === chars.length) w.style.whiteSpace = 'nowrap';
+        probe.append(w); words.push([w, start - 1]);
+        if (sp < chars.length) probe.append(sp === forced ? document.createElement('br') : document.createTextNode(' '));
+        start = sp + 1;
+      }
+      const out = new Set(); let top = null, lines = 0;
+      for (const [w, before] of words) {
+        if (top === null || w.offsetTop > top + 2) { if (top !== null) out.add(before); top = w.offsetTop; lines++; }
+      }
+      return [out, lines];
+    };
+    let [breaks, lines] = build(-1);
+    if (lines > 1) {
+      const ends = spaces.filter((j) => /[.!?)]/.test(chars[j - 1] || '') && j < chars.length - 1)
+        .sort((a, b) => Math.abs(a - chars.length / 2) - Math.abs(b - chars.length / 2));
+      for (const e of ends) {
+        const [b2, l2] = build(e);
+        if (l2 === 2) { breaks = b2; breaks.add(e); break; }
+      }
+    }
+    probe.remove();
+    return breaks;
+  }
   function whisper(text, ms = 4200, urgent = true, link = null, queue = false) {
     const now = performance.now();
     if (queue && (now < whisperUntil || waiting.length)) {
@@ -1732,14 +1778,21 @@
       whisperEl.classList.toggle('quote', !!link);
       let host = whisperEl;
       if (link) { host = document.createElement('a'); host.href = link.u; host.target = '_blank'; host.rel = 'noopener'; whisperEl.appendChild(host); }
-      const line = document.createElement('span'); host.appendChild(line);
-      const cursor = document.createElement('span'); cursor.className = 'cursor'; cursor.textContent = '▌'; host.appendChild(cursor);
       const full = link ? `“${text}”` : text;
       const chars = [...full];
+      const breaks = planLines(host, chars); // the line breaks are decided before typing, so nothing jumps around
+      const line = document.createElement('span'); line.style.whiteSpace = 'pre';
+      const head = document.createTextNode(''), tail = document.createElement('span'), tailText = document.createTextNode('');
+      tail.style.whiteSpace = 'nowrap'; // the cursor always rides with the last word
+      const cursor = document.createElement('span'); cursor.className = 'cursor'; cursor.textContent = '▌';
+      tail.append(tailText, cursor); line.append(head, tail); host.appendChild(line);
       let i = 0;
       whisperEl.classList.add('on');
       typer = setInterval(() => {
-        i += 1; line.textContent = chars.slice(0, i).join('');
+        i += 1;
+        const shown = chars.slice(0, i).map((ch, j) => (breaks.has(j) ? '\n' : ch)).join('');
+        const k = Math.max(shown.lastIndexOf(' '), shown.lastIndexOf('\n'));
+        head.data = shown.slice(0, k + 1); tailText.data = shown.slice(k + 1);
         if (i % 3 === 0) tone.tick();
         if (i < chars.length) return;
         clearInterval(typer);
@@ -1872,7 +1925,7 @@
   function planted(m) {
     const before = groves().found.length;
     addMark(m);
-    if (m.k === 'tree' && groves().found.length > before) { whisper('the trees grew together into a tree of smiles.', 4200, true, null, true); tone.chime(); }
+    if (m.k === 'tree' && groves().found.length > before) whisper('the trees grew together into a tree of smiles.', 4200, true, null, true);
   }
   setInterval(() => { const t = Date.now(); marks = marks.filter((m) => t - m.t < 6 * 3600 * 1000); }, 60000);
 
@@ -1934,7 +1987,6 @@
         if (s) s.blink = 1;
         const who = s === me ? 'you' : s ? nameOf(s) : 'someone';
         whisper(`${who}: “${String(m.text || '').slice(0, 80)}”`, 5200 + String(m.text || '').length * 45, true, null, true);
-        tone.chime();
         break;
       }
       case 'said': {
@@ -1943,6 +1995,7 @@
         else whisper({
           wait: 'one message at a time. try again in a little while.',
           empty: 'that message was empty. try some words.',
+          link: 'links can\'t travel here, only words.',
           resting: 'the hearth couldn\'t check that one just now. try again soon.',
         }[m.why] || 'that message got lost on the way.', 3600);
         break;
@@ -2215,6 +2268,46 @@
   }
   document.getElementById('act-all').addEventListener('click', () => { tone.wake(); loveEveryone(); });
 
+  // the i-love-you-all button: a rectangle whose edge is a ring of little cloud bumps, always rolling around it
+  const loveBtn = document.getElementById('act-all'), cloudCv = loveBtn.querySelector('.cloud'), cg = cloudCv?.getContext('2d');
+  const SHADOW = 6, BUMP = 7;
+  function drawCloudButton(now) {
+    if (!cg || !loveBtn.offsetWidth) return;
+    const bw = loveBtn.offsetWidth, bh = loveBtn.offsetHeight, W = bw + SHADOW + 2, H = bh + SHADOW + 2;
+    const dpr = Math.min(devicePixelRatio || 1, 2);
+    if (cloudCv.width !== Math.round(W * dpr) || cloudCv.height !== Math.round(H * dpr)) {
+      cloudCv.width = Math.round(W * dpr); cloudCv.height = Math.round(H * dpr);
+      cloudCv.style.width = `${W}px`; cloudCv.style.height = `${H}px`;
+    }
+    cg.setTransform(dpr, 0, 0, dpr, 0, 0); cg.clearRect(0, 0, W, H);
+    // bump centers march around the inside edge of the button
+    const x0 = BUMP + 1, y0 = BUMP + 1, w = bw - 2 * BUMP - 2, h = bh - 2 * BUMP - 2, P = 2 * (w + h);
+    const n = Math.max(8, Math.round(P / (BUMP * 1.55))), step = P / n, phase = (now / 45) % step;
+    const at = (t) => {
+      t = ((t % P) + P) % P;
+      if (t < w) return [x0 + t, y0];
+      if (t < w + h) return [x0 + w, y0 + (t - w)];
+      if (t < 2 * w + h) return [x0 + w - (t - w - h), y0 + h];
+      return [x0, y0 + h - (t - 2 * w - h)];
+    };
+    const shape = (dx, dy) => {
+      cg.beginPath(); cg.rect(x0 + dx, y0 + dy, w, h);
+      for (let k = 0; k < n; k++) { const [px, py] = at(k * step + phase); cg.moveTo(px + dx + BUMP, py + dy); cg.arc(px + dx, py + dy, BUMP, 0, TAU); }
+    };
+    const css = getComputedStyle(document.body);
+    const ink = css.getPropertyValue('--ui').trim() || '#05060a';
+    const hover = loveBtn.matches(':hover'), pressed = loveBtn.matches(':active');
+    if (!pressed) { shape(SHADOW - 1, SHADOW); cg.fillStyle = ink; cg.fill('nonzero'); }
+    shape(0, 0); cg.lineWidth = 4; cg.strokeStyle = ink; cg.stroke();
+    let fill = T === THEMES.night ? '#05060a' : (css.getPropertyValue('--paper').trim() || '#fff');
+    if (hover) {
+      const g = cg.createLinearGradient(0, 0, bw, 0), off = (now / 1400) % 1;
+      RAINBOW.concat(RAINBOW[0]).forEach((col, i) => g.addColorStop(((i / RAINBOW.length) + off) % 1, col));
+      fill = g;
+    }
+    shape(0, 0); cg.fillStyle = fill; cg.fill('nonzero');
+  }
+
   addEventListener('keydown', (e) => {
     lastActive = performance.now();
     if (e.key === 'Escape') { markMode = null; document.body.classList.remove('marking'); closeWindows(); return; }
@@ -2313,6 +2406,7 @@
     const text = sayIn.value.replace(/\s+/g, ' ').trim().slice(0, 80);
     if (!text) return;
     if (!net.live) { whisper('the hearth is resting, so nobody can hear messages right now.', 3600); return; }
+    if (/https?:|www\.|\w\.(com|net|org|io|gg|co|us|uk|xyz|ly|me|tv|app|dev|info|biz|ru|cn|link|site|online|shop)\b|@\w/i.test(text)) { whisper('links can\'t travel here, only words.', 3200); return; }
     send({ t: 'say', text });
     sayBtn.disabled = true;
     clearTimeout(sayWait);
@@ -2555,6 +2649,9 @@
       mic.f = mic.f && jump < 0.6 ? Math.exp(Math.log(mic.f) + (Math.log(f) - Math.log(mic.f)) * (jump > 0.08 ? 0.7 : 0.35)) : f;
       mic.amp += (amp - mic.amp) * 0.5;
       mic.lastHeard = now;
+    } else if (mic.f && rms > 0.006) {
+      // still sounding: a long held note carries on at the last pitch
+      mic.lastHeard = now; mic.amp += (Math.max(amp, 0.06) - mic.amp) * 0.3;
     } else if (now - mic.lastHeard > 200) {
       // a breath or a consonant doesn't end the note; a real pause does
       mic.f = 0; mic.amp = 0;
@@ -2635,6 +2732,7 @@
       if (!intro.shown && now >= intro.ui) { intro.shown = true; document.body.classList.remove('intro'); }
       listen(now);
       render(now, dt);
+      drawCloudButton(now);
       if (tipHold) {
         if (now < tipHold.until && tipHold.s.sz > 0 && !pointer.down) showTip(tipHold.s);
         else { tipHold = null; showTip(null); }

@@ -146,7 +146,11 @@ const today = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Denver
 // names are short, lowercase, letters and numbers, and kind
 function cleanName(raw) {
   const n = String(raw ?? '').normalize('NFKC').replace(/[^\p{L}\p{N} '-]/gu, '').replace(/\s+/g, ' ').trim().slice(0, 16).toLowerCase();
-  return UNKIND.test(n.replace(/[^a-z]/g, '')) ? '' : n;
+  if (!n) return '';
+  const toks = n.split(' ');
+  const bad = listBoinks(toks);
+  if (!bad.some(Boolean) && UNKIND.test(lettersOf(n))) return 'boink'; // hidden inside, all run together
+  return toks.map((t, i) => (bad[i] ? 'boink' : t)).join(' ').replace(/(boink )+boink/g, 'boink').slice(0, 16);
 }
 
 function fuzz(lat, lon) {
@@ -363,6 +367,8 @@ export class Hearth extends DurableObject {
       case 'say': {
         const raw = tidySay(m.text);
         if (!/[\p{L}\p{N}\p{Extended_Pictographic}]/u.test(raw)) return this.send(ws, { t: 'said', ok: false, why: 'empty' });
+        PHONE.lastIndex = 0;
+        if (raw.split(' ').some((w) => ELSEWHERE.test(w)) || PHONE.test(raw)) return this.send(ws, { t: 'said', ok: false, why: 'link' });
         const text = await boinked(this.env, raw);
         if (!text) return this.send(ws, { t: 'said', ok: false, why: 'resting' });
         this.send(ws, { t: 'said', ok: true, boinked: text !== raw });
