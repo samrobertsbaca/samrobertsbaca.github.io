@@ -1586,7 +1586,7 @@
     }
     return { found, used };
   }
-  const markSize = () => clamp((small ? 11 : 9) * zoom.v, small ? 15 : 13, 44);
+  const markSize = () => clamp((small ? 7.5 : 6) * zoom.v, small ? 15 : 13, 28); // the same at the usual view; up close they grow slower than the scorsbys
   function renderMarks(now) {
     const show = awake(now); // plants are always visible, even zoomed all the way out (once the world is awake)
     for (const m of marks) m.sx = -1e4;
@@ -1660,8 +1660,8 @@
     }).filter((s) => s.sz > 0.05).sort((a, b) => a.sz - b.sz);
 
     for (const s of list) { s.ox *= 0.985; s.oy *= 0.985; }
-    // faces grow a little as you first come closer, then ease back down, so a close-up has room for a whole neighbourhood
-    const zf = (1 + 0.5 * smooth(1, 2.56, zoom.v)) * (1 - 0.4 * smooth(2.56, 16.8, zoom.v));
+    // faces grow by half as you first come closer, then stay that size however close you come
+    const zf = 1 + 0.5 * smooth(1, 2.56, zoom.v);
     // and wherever scorsbys are crowded together on screen, they shrink a little so everyone fits (yours stays easy to find)
     for (const a of list) {
       let n = 0;
