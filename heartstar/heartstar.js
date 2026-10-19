@@ -413,6 +413,153 @@
         c.fillStyle = T.paper; c.fill(); c.stroke();
         break;
       }
+      case 'eggman': {
+        // eggman, running and waving, from the notebook
+        const run = now / 170 + seed, bob = Math.abs(Math.sin(run)) * s * 0.05;
+        const yy = y - bob;
+        const tube = (pts, w) => {
+          c.beginPath(); pts.forEach(([px, py], i) => (i ? c.lineTo(px, py) : c.moveTo(px, py)));
+          c.lineWidth = w + lw * 2; c.strokeStyle = charInk(0.95); c.stroke();
+          c.lineWidth = w; c.strokeStyle = T.paper; c.stroke();
+          c.lineWidth = lw; c.strokeStyle = charInk(0.95);
+        };
+        // legs, with their flowery trousers and big shoes
+        for (const sd of [-1, 1]) {
+          const a = Math.sin(run) * 0.7 * sd;
+          const hx = x + sd * s * 0.05, hy = yy + s * 0.1, fx = hx + Math.sin(a) * s * 0.3, fy = hy + Math.cos(a) * s * 0.3;
+          tube([[hx, hy], [fx, fy]], s * 0.08);
+          c.beginPath(); c.arc(hx + (fx - hx) * 0.5, hy + (fy - hy) * 0.5, s * 0.018, 0, TAU); c.fillStyle = charInk(); c.fill();
+          c.beginPath(); c.ellipse(fx + s * 0.04, fy + s * 0.02, s * 0.075, s * 0.04, 0, 0, TAU); c.fillStyle = charInk(); c.fill();
+        }
+        // arms: one waving hello, one swinging along
+        const wave = Math.sin(now / 160 + seed) * 0.35;
+        tube([[x + s * 0.15, yy - s * 0.08], [x + s * 0.27, yy - s * 0.2], [x + s * 0.3 + Math.sin(wave) * s * 0.08, yy - s * 0.38]], s * 0.07);
+        tube([[x - s * 0.15, yy - s * 0.04], [x - s * 0.3, yy + Math.sin(run) * s * 0.06]], s * 0.07);
+        for (const [hx, hy] of [[x + s * 0.3 + Math.sin(wave) * s * 0.08, yy - s * 0.42], [x - s * 0.34, yy + Math.sin(run) * s * 0.06]]) {
+          wobbleCircle(hx, hy, s * 0.06, seed + hx, 0.4); c.fillStyle = T.paper; c.fill(); c.stroke();
+        }
+        // hair
+        c.beginPath();
+        for (let k = 0; k < 4; k++) { const hx = x - s * 0.08 + k * s * 0.055; c.moveTo(hx, yy - s * 0.33); c.quadraticCurveTo(hx + s * 0.02, yy - s * 0.42, hx + s * 0.04 * (k - 1.5), yy - s * 0.48); }
+        c.stroke();
+        // the egg head
+        c.beginPath(); c.ellipse(x, yy - s * 0.1, s * 0.2, s * 0.24, 0, 0, TAU); c.fillStyle = T.paper; c.fill(); c.stroke();
+        for (const sd of [-1, 1]) {
+          c.beginPath(); c.ellipse(x + sd * s * 0.075, yy - s * 0.17, s * 0.06, s * 0.055, 0, 0, TAU); c.fillStyle = T.paper; c.fill(); c.stroke();
+          c.beginPath(); c.arc(x + sd * s * 0.075 + s * 0.02, yy - s * 0.165, s * 0.03, 0, TAU); c.fillStyle = charInk(); c.fill();
+        }
+        c.beginPath(); c.arc(x + s * 0.01, yy - s * 0.08, s * 0.035, 0, TAU); c.fillStyle = T.paper; c.fill(); c.stroke();
+        c.beginPath(); c.moveTo(x - s * 0.12, yy - s * 0.02); c.quadraticCurveTo(x, yy + s * 0.16, x + s * 0.12, yy - s * 0.02); c.closePath();
+        c.fillStyle = charInk(); c.fill();
+        c.fillStyle = T.paper; c.fillRect(x - s * 0.005, yy - s * 0.005, s * 0.035, s * 0.04); // the one tooth
+        break;
+      }
+      case 'lemonpig': {
+        // the lemon pig: carrot ears, blueberry eyes, a coin for a mouth, toothpick legs
+        const step = now / 200 + seed, yy = y - Math.abs(Math.sin(step)) * s * 0.03;
+        c.lineWidth = lw * 1.1;
+        for (let k = 0; k < 4; k++) {
+          const lx = x + (k < 2 ? -1 : 1) * s * (0.1 + (k % 2) * 0.1), sw = Math.sin(step + k * 1.6) * s * 0.05;
+          c.beginPath(); c.moveTo(lx, yy + s * 0.15); c.lineTo(lx + sw + (k % 2 ? 1 : -1) * s * 0.04, yy + s * 0.42);
+          c.strokeStyle = '#e8c48f'; c.lineWidth = lw * 1.6; c.stroke();
+        }
+        c.lineWidth = lw; c.strokeStyle = charInk(0.95);
+        for (const sd of [-1, 1]) {
+          c.save(); c.translate(x + sd * s * 0.12, yy - s * 0.2); c.rotate(sd * (0.35 + Math.sin(now / 300 + seed + sd) * 0.08));
+          c.beginPath(); c.roundRect ? c.roundRect(-s * 0.045, -s * 0.22, s * 0.09, s * 0.24, s * 0.045) : c.rect(-s * 0.045, -s * 0.22, s * 0.09, s * 0.24);
+          c.fillStyle = '#ff8a2a'; c.fill(); c.stroke(); c.restore();
+        }
+        c.beginPath(); c.ellipse(x, yy, s * 0.3, s * 0.24, 0, 0, TAU); c.fillStyle = '#ffd84a'; c.fill(); c.stroke();
+        c.beginPath(); c.ellipse(x + s * 0.31, yy - s * 0.02, s * 0.04, s * 0.03, 0, 0, TAU); c.fillStyle = '#ffd84a'; c.fill(); c.stroke();
+        for (const sd of [-1, 1]) {
+          c.beginPath(); c.arc(x - s * 0.06 + sd * s * 0.1, yy - s * 0.07, s * 0.065, 0, TAU); c.fillStyle = '#2b3a8f'; c.fill(); c.stroke();
+          c.beginPath(); c.arc(x - s * 0.07 + sd * s * 0.1, yy - s * 0.09, s * 0.015, 0, TAU); c.fillStyle = '#0e1440'; c.fill();
+        }
+        c.beginPath(); c.arc(x - s * 0.17, yy + s * 0.01, s * 0.022, 0, TAU); c.fillStyle = '#7a4a2a'; c.fill();
+        c.beginPath(); c.ellipse(x - s * 0.13, yy + s * 0.1, s * 0.09, s * 0.04, -0.15, 0, Math.PI); c.fillStyle = '#c9ccd2'; c.fill(); c.stroke();
+        break;
+      }
+      case 'fluffy': {
+        // fluffy, a cloud bunny full of hearts, dreamt up by the little green butterfly below
+        const blue = T === THEMES.night ? charInk(0.95) : '#1a6fe0', green = T === THEMES.night ? charInk(0.95) : '#25d02a';
+        const fy = y - s * 0.12 + Math.sin(now / 900 + seed) * s * 0.03;
+        c.strokeStyle = blue;
+        // the cloud: outline every puff, then paint them all in so only the outside edge shows
+        const puffs = () => {
+          c.beginPath();
+          for (let k = 0; k < 11; k++) {
+            const a = (k / 11) * TAU, px = x + Math.cos(a) * s * 0.3, py = fy + Math.sin(a) * s * 0.2;
+            c.moveTo(px + s * 0.09, py); c.arc(px, py, s * 0.09, 0, TAU);
+          }
+          c.moveTo(x + s * 0.3, fy); c.ellipse(x, fy, s * 0.3, s * 0.2, 0, 0, TAU);
+        };
+        puffs(); c.lineWidth = lw * 2; c.stroke(); c.lineWidth = lw;
+        puffs(); c.fillStyle = T.paper; c.fill('nonzero');
+        // ears, eyes, nose, smile
+        c.beginPath();
+        c.moveTo(x - s * 0.2, fy + s * 0.0); c.quadraticCurveTo(x - s * 0.24, fy - s * 0.22, x - s * 0.13, fy - s * 0.2);
+        c.moveTo(x - s * 0.08, fy - s * 0.02); c.quadraticCurveTo(x - s * 0.06, fy - s * 0.2, x + s * 0.03, fy - s * 0.17);
+        c.stroke();
+        for (const ex of [-0.2, -0.1]) {
+          c.beginPath(); c.ellipse(x + ex * s, fy + s * 0.04, s * 0.045, s * 0.055, 0, 0, TAU); c.fillStyle = T.paper; c.fill(); c.stroke();
+          c.beginPath(); c.arc(x + ex * s + s * 0.008, fy + s * 0.05, s * 0.024, 0, TAU); c.fillStyle = blue; c.fill();
+        }
+        c.beginPath(); c.arc(x - s * 0.14, fy + s * 0.11, s * 0.02, 0, TAU); c.fillStyle = blue; c.fill();
+        c.beginPath(); c.arc(x - s * 0.12, fy + s * 0.12, s * 0.045, 0.3, Math.PI - 0.6); c.stroke();
+        heartPath(x + s * 0.06, fy + s * 0.04, s * 0.06); c.fillStyle = blue; c.fill();
+        for (let k = 0; k < 6; k++) { heartPath(x + (hash(seed + k) - 0.2) * s * 0.4, fy + (hash(seed + k * 5) - 0.5) * s * 0.28, s * 0.02); c.fill(); }
+        // the thought bubbles and the dreamer
+        c.beginPath(); c.arc(x + s * 0.03, fy + s * 0.29, s * 0.025, 0, TAU); c.moveTo(x + s * 0.055, fy + s * 0.36); c.arc(x + s * 0.04, fy + s * 0.36, s * 0.016, 0, TAU); c.stroke();
+        const by = y + s * 0.38, flap = 0.55 + 0.45 * Math.abs(Math.sin(now / 180 + seed));
+        c.strokeStyle = green; c.fillStyle = T.paper;
+        for (const sd of [-1, 1]) { c.beginPath(); c.ellipse(x + sd * s * 0.09 * flap, by, s * 0.09 * flap, s * 0.07, sd * 0.4, 0, TAU); c.fill(); c.stroke(); }
+        c.beginPath(); c.ellipse(x, by, s * 0.025, s * 0.07, 0, 0, TAU); c.fill(); c.stroke();
+        c.beginPath(); c.moveTo(x - s * 0.01, by - s * 0.06); c.lineTo(x - s * 0.04, by - s * 0.13); c.moveTo(x + s * 0.01, by - s * 0.06); c.lineTo(x + s * 0.04, by - s * 0.13); c.stroke();
+        for (const sd of [-1, 1]) { c.beginPath(); c.arc(x + sd * s * 0.04, by - s * 0.14, s * 0.015, 0, TAU); c.fill(); c.stroke(); }
+        break;
+      }
+      case 'smiletree': {
+        // the tree of smiling faces
+        c.beginPath(); c.moveTo(x - s * 0.3, y + s * 0.48); c.lineTo(x + s * 0.3, y + s * 0.48);
+        c.moveTo(x - s * 0.04, y + s * 0.48); c.quadraticCurveTo(x - s * 0.03, y + s * 0.28, x - s * 0.12, y + s * 0.2);
+        c.moveTo(x + s * 0.04, y + s * 0.48); c.quadraticCurveTo(x + s * 0.03, y + s * 0.28, x + s * 0.12, y + s * 0.2); c.stroke();
+        const faces = [[-0.24, 0.05, 0.13], [0.0, 0.08, 0.12], [0.22, 0.06, 0.11], [-0.14, -0.14, 0.11], [0.1, -0.13, 0.12], [-0.3, -0.12, 0.07],
+          [0.3, -0.1, 0.08], [-0.03, -0.3, 0.09], [0.2, -0.29, 0.07], [-0.21, -0.3, 0.07], [-0.1, 0.22, 0.08], [0.12, 0.22, 0.08]];
+        faces.forEach(([fx, fy, fr], k) => {
+          const px = x + fx * s, py = y + fy * s + Math.sin(now / 700 + k + seed) * s * 0.01, r = fr * s;
+          wobbleCircle(px, py, r, seed + k, 0.4); c.fillStyle = T.paper; c.fill(); c.stroke();
+          const blink = (now / 1000 + k * 0.7 + seed) % 5 < 0.15;
+          c.fillStyle = charInk();
+          if (blink) { c.beginPath(); c.moveTo(px - r * 0.45, py - r * 0.2); c.lineTo(px - r * 0.15, py - r * 0.2); c.moveTo(px + r * 0.15, py - r * 0.2); c.lineTo(px + r * 0.45, py - r * 0.2); c.stroke(); }
+          else for (const sd of [-1, 1]) { c.beginPath(); c.arc(px + sd * r * 0.3, py - r * 0.2, r * 0.09, 0, TAU); c.fill(); }
+          c.beginPath(); c.arc(px, py + r * 0.05, r * 0.07, 0, TAU); c.fill();
+          c.beginPath(); c.arc(px, py + r * 0.05, r * 0.45, 0.5, Math.PI - 0.5); c.stroke();
+        });
+        break;
+      }
+      case 'saxvase': {
+        // a saxophone with flowers growing out of its bell
+        const sway = Math.sin(now / 800 + seed) * 0.08;
+        // the curl at the top, and the long neck down to the bend
+        c.beginPath();
+        for (let k = 0; k <= 40; k++) { const a = k / 40 * TAU * 2.2, r = s * 0.075 * (1 - k / 46); const px = x + s * 0.17 + Math.cos(a) * r, py = y - s * 0.36 + Math.sin(a) * r; k ? c.lineTo(px, py) : c.moveTo(px, py); }
+        c.stroke();
+        c.beginPath(); c.moveTo(x + s * 0.24, y - s * 0.34); c.quadraticCurveTo(x + s * 0.24, y + s * 0.38, x + s * 0.02, y + s * 0.43);
+        c.quadraticCurveTo(x - s * 0.18, y + s * 0.44, x - s * 0.2, y + s * 0.02);
+        c.lineTo(x - s * 0.02, y + s * 0.02); c.quadraticCurveTo(x - s * 0.01, y + s * 0.3, x + s * 0.06, y + s * 0.3);
+        c.quadraticCurveTo(x + s * 0.15, y + s * 0.28, x + s * 0.16, y - s * 0.3); c.closePath();
+        c.fillStyle = T.paper; c.fill(); c.stroke();
+        for (let k = 0; k < 4; k++) { c.beginPath(); c.arc(x + s * 0.2 - k * s * 0.005, y - s * 0.18 + k * s * 0.11, s * 0.022, 0, TAU); c.fillStyle = T.paper; c.fill(); c.stroke(); c.beginPath(); c.arc(x + s * 0.2 - k * s * 0.005, y - s * 0.18 + k * s * 0.11, s * 0.008, 0, TAU); c.fillStyle = charInk(); c.fill(); }
+        // the flowers
+        for (let k = 0; k < 4; k++) {
+          const bx = x - s * 0.17 + k * s * 0.04, tx = x - s * 0.12 + (k - 1.5) * s * 0.075 + sway * s * (1 + k * 0.3), ty = y - s * (0.18 + hash(seed + k) * 0.18);
+          c.beginPath(); c.moveTo(bx, y + s * 0.02); c.lineTo(tx, ty); c.stroke();
+          for (let q = 0; q < 6; q++) { const a = q / 6 * TAU; c.beginPath(); c.arc(tx + Math.cos(a) * s * 0.03, ty + Math.sin(a) * s * 0.03, s * 0.022, 0, TAU); c.fillStyle = T.paper; c.fill(); c.stroke(); }
+          c.beginPath(); c.arc(tx, ty, s * 0.016, 0, TAU); c.fillStyle = charInk(); c.fill();
+        }
+        c.beginPath(); c.ellipse(x - s * 0.11, y + s * 0.02, s * 0.095, s * 0.025, 0, 0, TAU); c.fillStyle = T.paper; c.fill(); c.stroke();
+        break;
+      }
       case 'yolksby': {
         // yolksby. how well can you cook a fried egg? it wobbles, hops and blinks.
         const hop = Math.abs(Math.sin(now / 420 + seed)) * s * 0.14;
@@ -1327,12 +1474,14 @@
   }
 
   // ---------- the sky
-  const SKY_KINDS = ['angel', 'angel', 'lips', 'spring', 'bell', 'umbrella', 'globe', 'sun', 'head3', 'heart', 'eye', 'yolksby', 'yolksby', 'blocksby', 'manyeye', 'bug'];
+  const SKY_KINDS = ['angel', 'angel', 'lips', 'spring', 'bell', 'umbrella', 'globe', 'sun', 'head3', 'heart', 'eye', 'yolksby', 'yolksby', 'blocksby', 'manyeye', 'bug',
+    'eggman', 'lemonpig', 'fluffy', 'smiletree', 'saxvase'];
+  const BIG_KINDS = new Set(['eggman', 'fluffy', 'smiletree', 'saxvase']); // the busier drawings get a little more room
   function spawnSky(anywhere) {
     const fromLeft = Math.random() < 0.5;
     const kind = pick(SKY_KINDS);
     sky.push({
-      kind, s: rand(20, small ? 32 : 40), seed: rand(0, 1000),
+      kind, s: rand(20, small ? 32 : 40) * (BIG_KINDS.has(kind) ? 1.45 : 1), seed: rand(0, 1000),
       x: anywhere ? rand(0, VW) : fromLeft ? -50 : VW + 50, y: kind === 'umbrella' && !anywhere ? -40 : rand(VH * 0.1, VH * 0.85),
       vx: (fromLeft ? 1 : -1) * rand(0.008, 0.025), bob: rand(0, TAU), born: performance.now(), ring: 0,
     });
