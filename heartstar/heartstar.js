@@ -679,7 +679,7 @@
 
   // the world's face can be pulled like taffy, like the face on the mario 64 title screen.
   // offsets are in screen pixels; when you let go, each part springs back.
-  const PARTS = ['eyeL', 'eyeR', 'nose', 'mouth', 'earL', 'earR', 'antL', 'antR', 'eye3', 'm0', 'm1', 'm2', 'm3', 'm4', 'm5'];
+  const PARTS = ['eyeL', 'eyeR', 'nose', 'mouth', 'earL', 'earR', 'antL', 'antR', 'eye3', 'm0', 'm1', 'm2', 'm3', 'm4', 'm5', 'f0', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6'];
   const pull = Object.fromEntries(PARTS.map((k) => [k, { x: 0, y: 0, vx: 0, vy: 0, held: false }]));
   function updatePulls() {
     for (const k of PARTS) {
@@ -1060,7 +1060,9 @@
       ['#ff5fae', '#ffd23f', '#7fc8ff', '#ffffff', '#ff9a3c', '#c3a6ff', '#ff5fae'].forEach((col, i) => { // flowers
         const a = -Math.PI / 2 + (i / 6 - 0.5) * 1.15, bx = Math.cos(a) * 625, by = Math.sin(a) * 625;
         const h = (150 + hash(i * 7.1) * 170) * g, sway = Math.sin(now / 900 + i * 1.3) * 0.18;
-        const tx = bx + Math.cos(a + sway) * h, ty = by + Math.sin(a + sway) * h;
+        const [fpx, fpy] = loc('f' + i); // flowers can be dragged, and spring back
+        const tx = bx + Math.cos(a + sway) * h + fpx, ty = by + Math.sin(a + sway) * h + fpy;
+        if (g > 0.5) extra.push([tx, ty, 30 * g * 1.7, 'f' + i]);
         c.beginPath(); c.moveTo(bx, by); c.quadraticCurveTo(bx + Math.cos(a) * h * 0.5, by + Math.sin(a) * h * 0.5, tx, ty); c.lineWidth = 12; c.strokeStyle = '#2f8a3a'; c.stroke();
         const pr = 30 * g;
         const petal = (q) => { const pa = (q / 6) * TAU + now / 2000; c.beginPath(); c.arc(tx + Math.cos(pa) * pr, ty + Math.sin(pa) * pr, pr * 0.75, 0, TAU); c.fillStyle = col; c.fill(); c.lineWidth = 8; c.strokeStyle = DARK; c.stroke(); };
