@@ -117,16 +117,33 @@
   // the whisper sits just under the header, however tall the header grows (fonts, wrapping)
   const topBar = document.getElementById('top');
   const underTop = () => {
-    // on a wide screen the whisper sits between the title and the corner; it only drops below the whole header if they'd overlap
-    const vw = innerWidth, half = Math.min(600, vw - 32) / 2;
+    // the whisper sits up between the title and the corner, narrowing to fit the gap if it has to.
+    // only when even a narrow whisper won't fit (phones) does it drop below the whole header.
+    const vw = innerWidth, root = document.documentElement.style;
     const pres = document.getElementById('presence')?.getBoundingClientRect();
     const left = topBar.firstElementChild?.getBoundingClientRect();
-    const clear = pres && left && vw / 2 + half + 12 < pres.left && vw / 2 - half - 12 > left.right;
-    const y = clear ? Math.max(76, left.bottom - 20) : topBar.getBoundingClientRect().bottom + 10;
-    document.documentElement.style.setProperty('--under-top', `${Math.round(y)}px`);
+    const room = pres && left ? 2 * Math.min(vw / 2 - left.right, pres.left - vw / 2) - 24 : 0;
+    if (room >= 320) {
+      root.setProperty('--whisper-w', `${Math.round(Math.min(600, room))}px`);
+      root.setProperty('--under-top', `${Math.round(Math.max(76, left.bottom - 20))}px`);
+    } else {
+      root.removeProperty('--whisper-w');
+      root.setProperty('--under-top', `${Math.round(topBar.getBoundingClientRect().bottom + 10)}px`);
+    }
+    fitPlanet();
   };
   if (topBar) { underTop(); if (window.ResizeObserver) new ResizeObserver(underTop).observe(topBar); }
 
+  // the planet is as big as the screen allows, but its ears stay clear of the whisper's first lines
+  function fitPlanet() {
+    if (!VW || !VH) return;
+    baseR = Math.min(VW * (small ? 0.3 : 0.24), VH * 0.25);
+    const wh = document.getElementById('whisper');
+    const top = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--under-top')) || 76;
+    const fs = wh ? parseFloat(getComputedStyle(wh).fontSize) || 20 : 20;
+    const room = (CY - (top + fs * 1.3 * 2.4 + 8)) / 1.5; // ears reach about one and a half radii above the middle
+    if (room > 60) baseR = Math.min(baseR, room);
+  }
   function resize() {
     VW = innerWidth || document.documentElement.clientWidth;
     VH = innerHeight || document.documentElement.clientHeight;
@@ -135,8 +152,8 @@
     cv.width = scratch.width = VW * DPR; cv.height = scratch.height = VH * DPR;
     c.setTransform(DPR, 0, 0, DPR, 0, 0); sx2.setTransform(DPR, 0, 0, DPR, 0, 0);
     small = VW < 600;
-    baseR = Math.min(VW * (small ? 0.3 : 0.24), VH * 0.25);
     CX = VW / 2; CY = VH * (small ? 0.5 : 0.53);
+    fitPlanet();
     MW = Math.ceil(VW / 6); MH = Math.ceil(VH / 6);
     mask.width = MW; mask.height = MH; maskImg = mx2.createImageData(MW, MH);
     makeHatch();

@@ -96,7 +96,7 @@ h1 { font-family: var(--head); font-weight: 400; font-size: 30px; line-height: 1
 /* little messages float above the world */
 #whisper {
   position: fixed; left: 50%; top: var(--under-top, 76px); transform: translateX(-50%);
-  width: min(600px, calc(100vw - 32px)); text-align: center;
+  width: var(--whisper-w, min(600px, calc(100vw - 32px))); text-align: center;
   font-family: var(--head); font-size: 22px; line-height: 1.3;
   color: var(--ink); opacity: 0; transition: opacity 1.1s ease; pointer-events: none; z-index: 2;
 }
