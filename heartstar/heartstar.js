@@ -1594,8 +1594,8 @@
   function tick() {
     const d = new Date();
     const date = d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }).toLowerCase();
-    const time = d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit', second: '2-digit' }).toLowerCase();
-    document.getElementById('clock').textContent = `${date} · ${time}`;
+    const time = d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit' }).toLowerCase();
+    document.getElementById('clock').textContent = `${date} · ${time} · now here`;
   }
   setInterval(tick, 1000); tick();
 

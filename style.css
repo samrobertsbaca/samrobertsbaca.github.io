@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif&display=swap');
+
 /* ===== Fonts ===== */
 @font-face {
   font-family: 'HeaderFont2';
@@ -20,6 +22,8 @@
 }
 
 /* ===== Body ===== */
+/* plain white underneath; pages with a moving background draw it on top of this */
+html { background: #fff; }
 body {
   font-family: 'BodyFont', sans-serif;
   margin: 0;
@@ -422,3 +426,48 @@ footer a:hover { color: /*#007bff*/#fff; }
   text-align: center;
   margin: 1.5em 0;
 }
+
+
+/* ===== the world navbar (built by loadNavbar in functional_scripts.js) ===== */
+@font-face {
+  font-family: 'Scheme';
+  src: local('Scheme'), local('Scheme Regular'), url('fonts/Scheme.woff2') format('woff2'), url('fonts/Scheme.otf') format('opentype'), url('fonts/Scheme.ttf') format('truetype');
+  font-display: swap;
+}
+nav.world-nav {
+  box-sizing: border-box;
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;
+  padding: 18px 20px;
+  background: #fff; color: #1d1a5e;
+  font-family: 'BodyFont', ui-monospace, monospace;
+}
+nav.world-nav.scrolled { box-shadow: 0 1px 0 rgba(29, 26, 94, 0.12); }
+.wn-title {
+  font-family: 'Scheme', 'Instrument Serif', Georgia, serif; font-size: 30px; line-height: 1;
+  color: #1d1a5e; text-decoration: none; letter-spacing: .01em;
+}
+.wn-title:hover { color: #00b4ff; }
+.wn-clock { margin: 8px 0 0; font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: rgba(29, 26, 94, 0.6); font-variant-numeric: tabular-nums; }
+.wn-right { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+.wn-links { display: flex; gap: 12px; }
+.wn-links a { color: #1d1a5e; text-decoration: none; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; border-bottom: 1px solid transparent; }
+.wn-links a:hover, .wn-links a[aria-current="page"] { border-bottom-color: #1d1a5e; color: #1d1a5e; }
+.wn-discord {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 10px; letter-spacing: .08em; text-transform: uppercase; text-decoration: none;
+  color: #05060a; background: #fff; border: 1px solid #05060a; box-shadow: 3px 3px 0 #05060a;
+  padding: 6px 10px; transition: background .15s, color .15s, transform .08s, box-shadow .08s;
+}
+.wn-discord svg { width: 15px; height: 15px; }
+.wn-discord:hover { background: #5865f2; color: #fff; }
+.wn-discord:active { transform: translate(3px, 3px); box-shadow: none; }
+@media (max-width: 600px) {
+  nav.world-nav { padding: 14px 16px; }
+  .wn-title { font-size: 24px; }
+  .wn-links { gap: 10px; }
+  .wn-discord span { display: none; }
+  .wn-discord { padding: 6px 8px; }
+}
+
+/* peace: who the notes are from */
+.notes-from { text-align: center; margin: 0 0 -0.5rem; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: rgba(29, 26, 94, 0.6); }

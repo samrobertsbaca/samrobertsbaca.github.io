@@ -21,23 +21,38 @@ const isScrollable = () => {
   return document.documentElement.scrollHeight > window.innerHeight;
 };
 
-// Load navbar from external file
-function loadNavbar(targetSelector = 'nav') {
-  fetch('/navbar.html')
-    .then(response => response.text())
-    .then(html => {
-      document.querySelector(targetSelector).innerHTML = html;
+// the navbar, drawn to match the world of scorsby on the home page
+const NAV_LINKS = [['peace', '/blog.html'], ['love', '/works.html'], ['joy', '/about.html'], ['shop', 'https://shop.scorsby.us']];
+const DISCORD_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/></svg>';
 
-      // navbar text on home page
-      if (window.location.pathname.includes('home.html')) {
-        document.querySelector('.as-seen-on-tv').style.color = '#00b4ff';
-      } else {
-        {
-          document.querySelector('.as-seen-on-tv').innerHTML = "";
-        }
-      }
-    })
-    .catch(err => console.error('Failed to load navbar:', err));
+// "sun, oct 18 · 08:50:36 pm · now here" (the same clock as on the home page)
+function scorsbyClock(d = new Date()) {
+  const date = d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }).toLowerCase();
+  const time = d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit' }).toLowerCase();
+  return `${date} · ${time} · now here`;
+}
+
+function loadNavbar(targetSelector = 'nav') {
+  const nav = document.querySelector(targetSelector);
+  if (!nav) return;
+  const here = location.pathname.replace(/\.html$/, '');
+  const links = NAV_LINKS.map(([name, href]) => {
+    const external = href.startsWith('http');
+    const current = !external && (here === href.replace(/\.html$/, '') || (name === 'peace' && here.startsWith('/blog/')));
+    return `<a href="${href}"${external ? ' target="_blank" rel="noopener"' : ''}${current ? ' aria-current="page"' : ''}>${name}</a>`;
+  }).join('');
+  nav.classList.add('world-nav');
+  nav.innerHTML = `
+    <div class="wn-left">
+      <a class="wn-title" href="/home.html">world of scorsby</a>
+      <p class="wn-clock">${scorsbyClock()}</p>
+    </div>
+    <div class="wn-right">
+      <div class="wn-links">${links}</div>
+      <a class="wn-discord" href="https://discord.gg/RBQ3dbYsaZ" target="_blank" rel="noopener">${DISCORD_SVG}<span>join the dream district</span></a>
+    </div>`;
+  const clock = nav.querySelector('.wn-clock');
+  setInterval(() => { clock.textContent = scorsbyClock(); }, 1000);
 }
 
 // Set up the scroll listener
@@ -48,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const footer = document.querySelector('footer');
   // One-time check
-  if (document.documentElement.scrollHeight > window.innerHeight) {
+  if (footer && document.documentElement.scrollHeight > window.innerHeight) {
     // Page is scrollable
     //footer.style.backgroundColor = '#00b4ff';
     footer.style.position = 'relative';
@@ -170,6 +185,8 @@ async function loadScorsbyJournal(filePath,div_tag) {
 
   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
   if (isMobile) return;
+  // peace, love and joy (and every post on peace) are plain white
+  if (/^\/(blog|works|about)(\.html)?$|^\/blog\//.test(location.pathname)) return;
 
   const P5_CDN = "https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js";
 

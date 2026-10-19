@@ -106,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const footer = document.querySelector('footer');
   // One-time check
-  if (document.documentElement.scrollHeight > window.innerHeight) {
+  if (footer && document.documentElement.scrollHeight > window.innerHeight) {
     // Page is scrollable
     //footer.style.backgroundColor = '#00b4ff';
     footer.style.position = 'relative';
