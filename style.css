@@ -438,10 +438,10 @@ nav.world-nav {
   box-sizing: border-box;
   display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;
   padding: 18px 20px;
-  background: #fff; color: #1d1a5e;
+  background: #00b4ff; color: #1d1a5e;
   font-family: 'BodyFont', ui-monospace, monospace;
 }
-nav.world-nav.scrolled { box-shadow: 0 1px 0 rgba(29, 26, 94, 0.12); }
+nav.world-nav.scrolled { box-shadow: 0 2px 0 rgba(29, 26, 94, 0.25); }
 .wn-title {
   display: inline-flex; align-items: center; gap: 10px;
   font-family: 'Scheme', 'Instrument Serif', Georgia, serif; font-size: 30px; line-height: 1;
@@ -449,12 +449,13 @@ nav.world-nav.scrolled { box-shadow: 0 1px 0 rgba(29, 26, 94, 0.12); }
 }
 .wn-face { width: 40px; height: 40px; object-fit: contain; transition: transform .2s; }
 .wn-title:hover .wn-face { transform: rotate(-8deg) scale(1.06); }
-.wn-title:hover { color: #00b4ff; }
-.wn-clock { margin: 8px 0 0; font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: rgba(29, 26, 94, 0.6); font-variant-numeric: tabular-nums; }
+.wn-title:hover { color: #fff; }
+.wn-clock { margin: 8px 0 0; font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: rgba(29, 26, 94, 0.75); font-variant-numeric: tabular-nums; }
 .wn-right { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
 .wn-links { display: flex; gap: 12px; }
 .wn-links a { color: #1d1a5e; text-decoration: none; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; border-bottom: 1px solid transparent; }
 .wn-links a:hover, .wn-links a[aria-current="page"] { border-bottom-color: #1d1a5e; color: #1d1a5e; }
+.wn-links a:hover { color: #fff; border-bottom-color: #fff; }
 .wn-discord {
   display: inline-flex; align-items: center; gap: 7px;
   font-size: 10px; letter-spacing: .08em; text-transform: uppercase; text-decoration: none;
