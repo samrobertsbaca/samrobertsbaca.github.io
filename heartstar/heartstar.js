@@ -18,6 +18,12 @@
     ['blue', '#00b4ff'], ['pink', '#ff5fae'], ['green', '#62d64a'], ['orange', '#ff9a3c'], ['purple', '#9b6bff'],
     ['yellow', '#ffd23f'], ['red', '#ff4a4a'], ['ghost', '#f4efe6'], ['rainbow', null],
   ];
+  // the colors a unison omen can turn everyone
+  const UNISON = [['red', '#ff4a4a'], ['pink', '#ff5fae'], ['orange', '#ff9a3c'], ['yellow', '#ffd23f'], ['green', '#62d64a'], ['blue', '#00b4ff'],
+    ['purple', '#9b6bff'], ['gold', '#f2b705'], ['turquoise', '#21d4c6'], ['lavender', '#c3a6ff'], ['mint', '#8ff0b5'], ['coral', '#ff7f6b'],
+    ['magenta', '#e83ad8'], ['lime', '#b6f03a'], ['peach', '#ffb38a'], ['sky blue', '#7fd2ff'], ['indigo', '#5b4cff'], ['bubblegum', '#ff9ad5'],
+    ['tangerine', '#ff7a1a'], ['ghost', '#f4efe6']];
+  const unisonColor = (seed) => UNISON[Math.floor(seed) % UNISON.length];
   const colorOf = (i, now, seed = 0) => typeof i === 'string' ? i : COLORS[i]?.[1] || `hsl(${(now / 12 + seed * 57) % 360},90%,62%)`;
   // red on red disappears, so a reddish scorsby wears a blue nose
   function reddish(col) {
@@ -420,14 +426,15 @@
       }
       case 'smiletree': {
         // the tree of smiling faces: what a grove of planted trees grows into
-        c.beginPath(); c.moveTo(x - s * 0.3, y + s * 0.48); c.lineTo(x + s * 0.3, y + s * 0.48);
-        c.moveTo(x - s * 0.04, y + s * 0.48); c.quadraticCurveTo(x - s * 0.03, y + s * 0.28, x - s * 0.12, y + s * 0.2);
-        c.moveTo(x + s * 0.04, y + s * 0.48); c.quadraticCurveTo(x + s * 0.03, y + s * 0.28, x + s * 0.12, y + s * 0.2); c.stroke();
+        c.beginPath(); c.moveTo(x - s * 0.3, y + s * 0.48); c.lineTo(x + s * 0.3, y + s * 0.48); c.stroke();
+        c.beginPath(); c.moveTo(x - s * 0.04, y + s * 0.48); c.quadraticCurveTo(x - s * 0.03, y + s * 0.28, x - s * 0.12, y + s * 0.2);
+        c.lineTo(x + s * 0.12, y + s * 0.2); c.quadraticCurveTo(x + s * 0.03, y + s * 0.28, x + s * 0.04, y + s * 0.48); c.closePath();
+        c.fillStyle = '#9a6531'; c.fill(); c.stroke();
         const faces = [[-0.24, 0.05, 0.13], [0.0, 0.08, 0.12], [0.22, 0.06, 0.11], [-0.14, -0.14, 0.11], [0.1, -0.13, 0.12], [-0.3, -0.12, 0.07],
           [0.3, -0.1, 0.08], [-0.03, -0.3, 0.09], [0.2, -0.29, 0.07], [-0.21, -0.3, 0.07], [-0.1, 0.22, 0.08], [0.12, 0.22, 0.08]];
         faces.forEach(([fx, fy, fr], k) => {
           const px = x + fx * s, py = y + fy * s + Math.sin(now / 700 + k + seed) * s * 0.01, r = fr * s;
-          wobbleCircle(px, py, r, seed + k, 0.4); c.fillStyle = T.paper; c.fill(); c.stroke();
+          wobbleCircle(px, py, r, seed + k, 0.4); c.fillStyle = '#7fd36b'; c.fill(); c.stroke();
           const blink = (now / 1000 + k * 0.7 + seed) % 5 < 0.15;
           c.fillStyle = charInk();
           if (blink) { c.beginPath(); c.moveTo(px - r * 0.45, py - r * 0.2); c.lineTo(px - r * 0.15, py - r * 0.2); c.moveTo(px + r * 0.15, py - r * 0.2); c.lineTo(px + r * 0.45, py - r * 0.2); c.stroke(); }
@@ -560,7 +567,7 @@
   let marks = [], trails = [], tally = null;
   let loveWash = 0;
   let goldFlash = 0;
-  let stormNow = 0, lastStormWave = 0, lastStormRing = 0;     // tap sunsby and everything flashes gold      // the paper blushes with color for a moment
+  let stormNow = 0;     // tap sunsby and everything flashes gold      // the paper blushes with color for a moment
   let myColor = 0; // everyone arrives as classic blue
   let myName = cleanName(store.get('scorsby-name') || '');
   let markMode = null;
@@ -589,7 +596,7 @@
     sneeze: 'achoo. bless you, world.',
     hearts: 'it is raining. it is love.',
     colorstorm: 'colorstorm!',
-    unison: (seed) => { const c = COLORS[(seed % 8) | 0][0]; return `for a moment, everyone is ${c === 'ghost' ? 'a ghost' : c}.`; },
+    unison: (seed) => { const c = unisonColor(seed)[0]; return `for a moment, everyone is ${c === 'ghost' ? 'a ghost' : c}.`; },
     ears: 'the world is listening very hard.',
     heartstar: 'the heartstar rose. everyone, everywhere: loved.',
     thirdeye: 'the world opened its third eye. it sees you, kindly.',
@@ -922,11 +929,6 @@
     const hue = (now / 70) % 360;
     const storm = Math.max(env(omenP('colorstorm', now)), env(omenP('thirdeye', now)) * 0.7);
     stormNow = env(omenP('colorstorm', now));
-    if (stormNow > 0.3) {
-      // the storm keeps throwing rainbows across the world and out into the universe
-      if (now - lastStormWave > 850) { lastStormWave = now; waves.push({ v: norm([rand(-1, 1), rand(-1, 1), rand(-1, 1)]), born: now, radius: 0, seen: new Set() }); }
-      if (now - lastStormRing > 1400) { lastStormRing = now; bursts.push({ k: 'rings', born: now, dur: 2600 }); }
-    }
     updatePlanetFace(now, dt);
     updatePulls();
     blendWorld(now, storm);
@@ -1008,11 +1010,11 @@
   // the world is the color of everyone living on it, blended. all classic blue, and it is classic blue.
   let worldCol = '#00b4ff';
   function blendWorld(now, storm) {
-    const unison = omenP('unison', now) >= 0 ? (omen.seed % 8) | 0 : -1;
+    const unison = omenP('unison', now) >= 0 ? unisonColor(omen.seed)[1] : null;
     let r = 0, g = 0, b = 0, n = 0;
     for (const s of everyone()) {
       if (s.leaving) continue;
-      const ci = storm > 0.2 ? 8 : unison >= 0 ? unison : s.c;
+      const ci = storm > 0.2 ? 8 : unison || s.c;
       const w = ci === 8 ? 0.3 : 1;
       const [cr, cg, cb] = rgbOf(colorOf(ci, now, s.seed));
       r += cr * w; g += cg * w; b += cb * w; n += w;
@@ -1255,7 +1257,7 @@
       c.lineWidth = 1.3; c.stroke();
     }
 
-    const unison = omenP('unison', now) >= 0 ? (omen.seed % 8) | 0 : -1;
+    const unison = omenP('unison', now) >= 0 ? unisonColor(omen.seed)[1] : null;
     for (const s of list) {
       s.nextBlink -= dt;
       if (s.nextBlink < 0) { s.blink = 1; s.nextBlink = rand(2000, 7000); }
@@ -1295,7 +1297,7 @@
         wobbleCircle(s.sx, s.sy, s.size * (0.62 + p * 0.5), 3, 0.7);
         c.strokeStyle = `rgba(255,255,255,${0.9 * (1 - p)})`; c.lineWidth = 1.6; c.stroke();
       }
-      const ci = storm > 0.2 ? 8 : unison >= 0 ? unison : s.c;
+      const ci = storm > 0.2 ? 8 : unison || s.c;
       const col = colorOf(ci, now, s.seed);
       drawFace(s.sx, s.sy - s.size * 0.06, s.size, { lid, look: [s.lookX, s.lookY], hearts: s.hearts > 0, sing: s.sing, color: col, nose: ci !== 8 && reddish(col) ? '#00b4ff' : undefined });
       c.restore();
