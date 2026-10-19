@@ -997,17 +997,17 @@
     }
     c.restore();
 
-    // bubblegum: a pink bubble swells out of the mouth until it pops, then again
-    if (f.bubble > 0.02) {
-      const ph = (((now - (pf.moodAt || now)) % 4200) / 4200);
+    // bubblegum: one pink bubble swells out of the mouth, pops, he blinks twice, and that's the end
+    if (f.bubble > 0.02 && pf.mood === 'bubble') {
+      const t = now - (pf.moodAt || now), ph = t / 4200;
+      if (t > 4200 + 1500) { setMood('smile'); } // a moment to take it in, then back to himself
       const bx = mpx, by0 = my + w * 0.35;
       if (ph < 0.9) {
         const r = (40 + 430 * ph ** 1.6) * f.bubble, by = by0 + r * 0.45;
         c.beginPath(); c.arc(bx, by, r, 0, TAU); c.fillStyle = 'rgba(255,120,190,0.88)'; c.fill(); c.lineWidth = 14; c.strokeStyle = DARK; c.stroke();
         c.beginPath(); c.arc(bx - r * 0.35, by - r * 0.38, r * 0.22, Math.PI * 1.1, Math.PI * 1.6); c.lineWidth = Math.max(8, r * 0.07); c.strokeStyle = '#fff'; c.stroke();
-      } else {
-        const cycle = Math.floor((now - (pf.moodAt || now)) / 4200);
-        if (pf.popped !== cycle) { pf.popped = cycle; tone.pop(); pf.blink = 1; setTimeout(() => { pf.blink = 1; }, 380); } // snap! blink, blink
+      } else if (ph < 1) {
+        if (pf.popped !== pf.moodAt) { pf.popped = pf.moodAt; tone.pop(); pf.blink = 1; setTimeout(() => { pf.blink = 1; }, 380); } // snap! blink, blink
         const k = (ph - 0.9) / 0.1, R0 = (40 + 430 * 0.9 ** 1.6) * f.bubble, cy0 = by0 + R0 * 0.45; // the bubble at its biggest
         c.globalAlpha = A * (1 - k * k);
         for (let i = 0; i < 14; i++) { // pink lines bursting outward
@@ -1035,7 +1035,11 @@
         const tx = bx + Math.cos(a + sway) * h, ty = by + Math.sin(a + sway) * h;
         c.beginPath(); c.moveTo(bx, by); c.quadraticCurveTo(bx + Math.cos(a) * h * 0.5, by + Math.sin(a) * h * 0.5, tx, ty); c.lineWidth = 12; c.strokeStyle = '#2f8a3a'; c.stroke();
         const pr = 30 * g;
-        for (let q = 0; q < 6; q++) { const pa = (q / 6) * TAU + now / 2000; c.beginPath(); c.arc(tx + Math.cos(pa) * pr, ty + Math.sin(pa) * pr, pr * 0.75, 0, TAU); c.fillStyle = col; c.fill(); c.lineWidth = 8; c.strokeStyle = DARK; c.stroke(); }
+        const petal = (q) => { const pa = (q / 6) * TAU + now / 2000; c.beginPath(); c.arc(tx + Math.cos(pa) * pr, ty + Math.sin(pa) * pr, pr * 0.75, 0, TAU); c.fillStyle = col; c.fill(); c.lineWidth = 8; c.strokeStyle = DARK; c.stroke(); };
+        for (let q = 0; q < 6; q++) petal(q);
+        // so no petal sits on top of all the others, the first one tucks over the last one too
+        const a0 = now / 2000, a5 = (5 / 6) * TAU + now / 2000;
+        c.save(); c.beginPath(); c.moveTo(tx, ty); c.arc(tx, ty, pr * 3, a5, a0 + TAU); c.closePath(); c.clip(); petal(0); c.restore();
         c.beginPath(); c.arc(tx, ty, pr * 0.6, 0, TAU); c.fillStyle = '#ffd23f'; c.fill(); c.stroke();
       });
     }
