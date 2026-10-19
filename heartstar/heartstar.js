@@ -716,7 +716,7 @@
     goofy: { wall: 1, hug: 1, er: 300, pr: 125, ex: 330, mw: 300, mc: 0.95, my: 260 }, // pupils as big as the nose, a grin hugging the face // a huge U grin, eyes bulging and looking out to the sides
     clock: { clock: 1, er: 120, pr: 60, ex: 330, ey: -210, mw: 110, my: 400, ny: 0, nose: 80 },
   };
-  const pf = { cur: { ...FACE_BASE }, target: { ...FACE_BASE }, mood: 'smile', next: 7000, honk: 0, wink: 0, winkSide: -1, blink: 0, nextBlink: 3000, lx: 0, ly: 0, hit: null, hold: 0, sing: 0, singing: false, rings: [] };
+  const pf = { cur: { ...FACE_BASE }, target: { ...FACE_BASE }, mood: 'smile', next: 7000, honk: 0, wink: 0, winkSide: -1, blink: 0, nextBlink: 3000, lx: 0, ly: 0, hit: null, hold: 0, sing: 0, singing: false, rings: [], spinA: 0 };
   function setMood(m, hold = 0) {
     if (!MOODS[m] || (!intro.woke && m !== 'sleepy')) return; // nothing stirs the world before it wakes
     if (pf.mood !== m) pf.moodAt = performance.now();
@@ -815,7 +815,7 @@
     if (f.jitter > 0.02) { cx += (Math.random() - 0.5) * R * 0.04 * f.jitter; cy += (Math.random() - 0.5) * R * 0.04 * f.jitter; }
     const blinkClosed = pf.blink > 0.2 && pf.blink < 0.8;
     const worldClosed = planetBlink > 0.15 && planetBlink < 0.85;
-    const rot = f.tilt * Math.sin(now / 1300) * 0.22 + f.flip * Math.PI + pf.spinA;
+    const rot = f.tilt * Math.sin(now / 1300) * 0.22 + f.flip * Math.PI + (pf.spinA || 0);
     const sq = f.squish * Math.sin(now / 260);
     const cosR = Math.cos(rot), sinR = Math.sin(rot);
     // a pull in screen pixels, turned into the face's own units
