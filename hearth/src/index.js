@@ -13,6 +13,10 @@
 // kept for up to three hours (just its words and the sender's chosen name), so a
 // quiet world can hear it again. nothing else about the sender is kept.
 //
+// letters: people who ask for updates leave a name and an email, which are kept
+// (with the time they asked) in a small database until they ask to be taken off.
+// a quiet check that they're a person (cloudflare turnstile) comes first.
+//
 // no ip addresses are kept. your location is rounded to about 100 km and
 // jittered before anyone else sees it. your voice never arrives here:
 // only its pitch and loudness.
@@ -185,9 +189,52 @@ function allowed(origin, env, self) {
   return (env.ALLOWED_ORIGINS || '').split(',').map((s) => s.trim()).includes(origin);
 }
 
+// ------------------------------------------------------------------ letters (the mailing list)
+const EMAIL_RE = /^[^\s@<>()",;:]{1,64}@[^\s@<>()",;:]+\.[a-z]{2,}$/i;
+const recentAsks = new Map(); // ip -> times asked lately. held only in memory, for a few minutes, never written down.
+function tooOften(ip, now = Date.now()) {
+  const times = (recentAsks.get(ip) || []).filter((t) => now - t < 10 * 60 * 1000);
+  times.push(now); recentAsks.set(ip, times);
+  if (recentAsks.size > 5000) recentAsks.clear();
+  return times.length > 5; // five tries in ten minutes is plenty for a person
+}
+async function subscribe(request, env) {
+  const origin = request.headers.get('Origin');
+  const cors = {
+    'access-control-allow-origin': origin || '*', 'access-control-allow-methods': 'POST, OPTIONS',
+    'access-control-allow-headers': 'content-type', vary: 'Origin', 'content-type': 'application/json',
+  };
+  const reply = (status, body) => new Response(JSON.stringify(body), { status, headers: cors });
+  if (!allowed(origin, env, new URL(request.url).origin)) return reply(403, { ok: false, why: "not from here." });
+  if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors });
+  if (request.method !== 'POST') return reply(405, { ok: false, why: "post only." });
+  if (!env.LETTERS) return reply(503, { ok: false, why: "the mailbox isn't open yet." });
+  const ip = request.headers.get('cf-connecting-ip') || '';
+  if (tooOften(ip)) return reply(429, { ok: false, why: "that's a lot of tries. come back in a few minutes." });
+  let m;
+  try { m = await request.json(); } catch { return reply(400, { ok: false, why: "that didn't arrive right." }); }
+  const name = String(m.name || '').trim().replace(/\s+/g, ' ').slice(0, 60);
+  const email = String(m.email || '').trim().toLowerCase();
+  // a field people never see, and a form filled faster than a person could: both mean a robot. it's told all is well.
+  if (m.website || !(Number(m.ms) >= 2500)) return reply(200, { ok: true });
+  if (!name) return reply(400, { ok: false, why: "what should we call you?" });
+  if (email.length > 254 || !EMAIL_RE.test(email)) return reply(400, { ok: false, why: "that email doesn't look quite right." });
+  if (env.TURNSTILE_SECRET) {
+    const form = new FormData();
+    form.append('secret', env.TURNSTILE_SECRET); form.append('response', String(m.token || '')); form.append('remoteip', ip);
+    const check = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', { method: 'POST', body: form }).then((r) => r.json()).catch(() => null);
+    if (!check || !check.success) return reply(400, { ok: false, why: "we couldn't tell you're a person. try once more?" });
+  }
+  await env.LETTERS.prepare('CREATE TABLE IF NOT EXISTS letters (email TEXT PRIMARY KEY, name TEXT NOT NULL, asked TEXT NOT NULL)').run();
+  await env.LETTERS.prepare('INSERT INTO letters (email, name, asked) VALUES (?1, ?2, ?3) ON CONFLICT(email) DO UPDATE SET name = excluded.name')
+    .bind(email, name, new Date().toISOString()).run();
+  return reply(200, { ok: true });
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    if (url.pathname === '/subscribe') return subscribe(request, env);
     if (url.pathname !== '/hearth') {
       if (env.ASSETS) return env.ASSETS.fetch(request); // the whole site, when this worker serves it
       return new Response('the world of scorsby is breathing.\n', { headers: { 'content-type': 'text/plain; charset=utf-8' } });
