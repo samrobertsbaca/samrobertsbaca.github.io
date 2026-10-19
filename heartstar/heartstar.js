@@ -171,23 +171,25 @@
     LX[i] = Math.cos(la) * Math.cos(lo); LY[i] = Math.cos(la) * Math.sin(lo); LZ[i] = Math.sin(la);
   }
   const SPACING = Math.sqrt((4 * Math.PI) / 26000);
-  // the finer land, for zooming in: four times the dots from a more detailed map, fetched only when someone zooms close
-  const SPACING_FINE = Math.sqrt((4 * Math.PI) / 104000);
-  const fineLand = { state: 'none', n: 0, x: null, y: null, z: null };
-  function loadFineLand() {
-    if (fineLand.state !== 'none') return;
-    fineLand.state = 'loading';
-    const sc = document.createElement('script'); sc.src = 'heartstar/land_fine.js?v=1';
-    sc.onload = () => {
-      const F = window.LAND_FINE || [], n = F.length / 2;
-      fineLand.x = new Float32Array(n); fineLand.y = new Float32Array(n); fineLand.z = new Float32Array(n);
-      for (let i = 0; i < n; i++) {
-        const la = F[i * 2] * D2R, lo = F[i * 2 + 1] * D2R;
-        fineLand.x[i] = Math.cos(la) * Math.cos(lo); fineLand.y[i] = Math.cos(la) * Math.sin(lo); fineLand.z[i] = Math.sin(la);
-      }
-      fineLand.n = n; fineLand.state = 'ready'; window.LAND_FINE = null;
-    };
-    sc.onerror = () => { fineLand.state = 'failed'; };
+  // land comes in three levels of detail: the regular dots (loaded with the page), finer ones that fade in
+  // as you come closer, and the finest for the closest zoom. each dot has a height level (0 lowland .. 5 mountains).
+  const tierOf = (pts, hts, total) => {
+    const n = pts.length / 2, t = { n, x: new Float32Array(n), y: new Float32Array(n), z: new Float32Array(n), h: new Uint8Array(n), spacing: Math.sqrt((4 * Math.PI) / total), state: 'ready' };
+    for (let i = 0; i < n; i++) {
+      const la = pts[i * 2] * D2R, lo = pts[i * 2 + 1] * D2R;
+      t.x[i] = Math.cos(la) * Math.cos(lo); t.y[i] = Math.cos(la) * Math.sin(lo); t.z[i] = Math.sin(la);
+      t.h[i] = hts ? +hts[i] || 0 : 0;
+    }
+    return t;
+  };
+  const landTiers = [tierOf(LAND, window.LAND_H, 26000), { state: 'none', file: 'land_fine.js?v=2', name: 'LAND_FINE', total: 104000 }, { state: 'none', file: 'land_ultra.js?v=1', name: 'LAND_ULTRA', total: 416000 }];
+  function loadLandTier(i) {
+    const t = landTiers[i];
+    if (t.state !== 'none') return;
+    t.state = 'loading';
+    const sc = document.createElement('script'); sc.src = `heartstar/${t.file}`;
+    sc.onload = () => { landTiers[i] = tierOf(window[t.name] || [], window[t.name + '_H'], t.total); window[t.name] = window[t.name + '_H'] = null; };
+    sc.onerror = () => { t.state = 'failed'; };
     document.head.appendChild(sc);
   }
   const vec = (lat, lon) => {
@@ -1315,32 +1317,79 @@
     }
   }
 
+  // land dots are stamped from a ready-made dot, redrawn only when the size changes
+  const landBuf = document.createElement('canvas'), landBufC = landBuf.getContext('2d');
+  const landPts = [0, 1, 2, 3, 4, 5].map(() => new Float32Array(3 * 4096)), landCount = new Int32Array(6);
+  const landDots = new Map();
+  function landDot(px) {
+    const size = Math.max(2, Math.ceil(px * 2));
+    let d = landDots.get(size);
+    if (!d) {
+      if (landDots.size > 40) landDots.clear();
+      d = document.createElement('canvas'); d.width = d.height = size + 2;
+      const g = d.getContext('2d'); g.fillStyle = 'rgb(0,40,120)';
+      g.beginPath(); g.arc(d.width / 2, d.height / 2, size / 2, 0, TAU); g.fill();
+      landDots.set(size, d);
+    }
+    return d;
+  }
+
   function renderPlanet(now, dt) {
     // the bold outline first, then the blue head inside it
     wobbleCircle(CX, CY, R + 70 * L, 7, 1.6, 0); c.fillStyle = DARK; c.fill();
     c.beginPath(); c.arc(CX, CY, R, 0, TAU); c.fillStyle = ocean(); c.fill();
 
     // land, in deeper blue. love for everyone rolls over it as a rainbow.
-    // the dots on the near side of the world, as one path
-    const landPath = (LXs, LYs, LZs, n, rad) => {
-      const path = new Path2D(), x0 = -rad * 2, x1 = VW + rad * 2, y0 = -rad * 2, y1 = VH + rad * 2;
-      for (let i = 0; i < n; i++) {
-        const x = LXs[i], y = LYs[i], z = LZs[i];
+    // the dots on the near side of the world, shaded deeper the higher the land. small dots are one path per height level;
+    // big ones are stamped solid onto a layer from a ready-made dot (big circles are slow to fill), then laid down see-through.
+    const LEVEL_A = [0.6, 0.78, 0.96, 1.15, 1.35, 1.6];
+    const drawLand = (t, weight, landA) => {
+      const rad = Math.max(0.8, R * t.spacing * 0.74), dot = landDot(rad * DPR), pad = dot.width / (dot.width - 2); // the dot picture has a pixel of room around it
+      const x0 = -rad * 2, x1 = VW + rad * 2, y0 = -rad * 2, y1 = VH + rad * 2;
+      const W = c.canvas.width, H = c.canvas.height;
+      if (landBuf.width !== W || landBuf.height !== H) { landBuf.width = W; landBuf.height = H; }
+      for (let k = 0; k < 6; k++) landCount[k] = 0;
+      for (let i = 0; i < t.n; i++) {
+        const x = t.x[i], y = t.y[i], z = t.z[i];
         const cc = x * cl0 + y * sl0;
         const sz = sp0 * z + cp0 * cc;
         if (sz <= 0) continue;
         const px = CX + (y * cl0 - x * sl0) * R, py = CY - (cp0 * z - sp0 * cc) * R;
         if (px < x0 || px > x1 || py < y0 || py > y1) continue;
-        const r = rad * (0.55 + 0.45 * sz);
-        path.moveTo(px + r, py); path.arc(px, py, r, 0, TAU);
+        const h = t.h[i], j = landCount[h]++;
+        if (j >= landPts[h].length / 3) { const g = new Float32Array(landPts[h].length * 2); g.set(landPts[h]); landPts[h] = g; }
+        landPts[h][j * 3] = px; landPts[h][j * 3 + 1] = py; landPts[h][j * 3 + 2] = rad * (0.55 + 0.45 * sz);
       }
-      return path;
+      landBufC.setTransform(DPR, 0, 0, DPR, 0, 0);
+      for (let k = 0; k < 6; k++) {
+        const n = landCount[k], P = landPts[k];
+        if (!n) continue;
+        if (rad * DPR < 12) {
+          // small dots, and many of them: one path is quicker
+          const path = new Path2D();
+          for (let j = 0; j < n; j++) {
+            const px = P[j * 3], py = P[j * 3 + 1], r = P[j * 3 + 2];
+            if (rad < 1.6) path.rect(px - r, py - r, r * 2, r * 2);
+            else { path.moveTo(px + r, py); path.arc(px, py, r, 0, TAU); }
+          }
+          c.fillStyle = `rgba(0,40,120,${Math.min(0.9, landA * LEVEL_A[k]) * weight})`; c.fill(path);
+          continue;
+        }
+        landBufC.clearRect(0, 0, VW, VH);
+        for (let j = 0; j < n; j++) { const r = P[j * 3 + 2] * pad; landBufC.drawImage(dot, P[j * 3] - r, P[j * 3 + 1] - r, r * 2, r * 2); }
+        c.save(); c.setTransform(1, 0, 0, 1, 0, 0);
+        c.globalAlpha = Math.min(0.9, landA * LEVEL_A[k]) * weight;
+        c.drawImage(landBuf, 0, 0);
+        c.restore();
+      }
     };
-    if (zoom.target > 1.6) loadFineLand();
-    const fine = fineLand.state === 'ready' ? smooth(1.8, 2.8, zoom.v) : 0; // the finer land fades in as you come closer
+    if (zoom.target > 1.4) loadLandTier(1);
+    if (zoom.target > 2.5) loadLandTier(2);
+    const f1 = landTiers[1].state === 'ready' ? smooth(1.8, 2.8, zoom.v) : 0; // finer land fades in as you come closer
+    const f2 = landTiers[1].state === 'ready' && landTiers[2].state === 'ready' ? smooth(4.5, 6.5, zoom.v) : 0; // and the finest, closer still
     const landA = 0.42 - 0.22 * smooth(1.5, 2.8, zoom.v);
-    if (fine < 1) { c.fillStyle = `rgba(0,40,120,${landA * (1 - fine)})`; c.fill(landPath(LX, LY, LZ, NL, Math.max(1, R * SPACING * 0.74))); }
-    if (fine > 0) { c.fillStyle = `rgba(0,40,120,${landA * fine})`; c.fill(landPath(fineLand.x, fineLand.y, fineLand.z, fineLand.n, Math.max(1, R * SPACING_FINE * 0.74))); }
+    const weights = [1 - f1, f1 * (1 - f2), f2];
+    weights.forEach((wgt, i) => { if (wgt > 0.004 && landTiers[i].state === 'ready') drawLand(landTiers[i], wgt, landA); });
 
 
     // night, in ballpoint hatching
@@ -2989,7 +3038,7 @@
         setMood('grin', 1800); pf.blink = 1; lastActive = now;
         tone.chime();
       }
-      if (!intro.shown && now >= intro.ui) { intro.shown = true; document.body.classList.remove('intro'); }
+      if (!intro.shown && now >= intro.ui) { intro.shown = true; document.body.classList.remove('intro'); setTimeout(() => loadLandTier(1), 2500); }
       if (quality === 2 || (frameN++ & 1)) listen(now); // on slower devices, listen every other frame
       render(now, dt);
       drawCloudButton(now);
