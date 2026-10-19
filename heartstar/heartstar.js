@@ -997,7 +997,7 @@
     const noseCol = reddish(ocean()) ? '#00b4ff' : '#ed1c24';
     const honk = 1 + 0.9 * Math.max(0, (pf.honk - now) / 600);
     const [npx, npy] = loc('nose');
-    const nr = f.nose * honk;
+    const nr = f.nose * honk * (1 + 0.16 * Math.sin(now / 190) * f.wall); // in the goofy face, the nose bobs bigger and smaller
     taffy(0, f.ny + f.melt * 50, npx, f.ny + f.melt * 50 + npy, nr * 1.4, noseCol);
     const ny = f.ny + f.melt * 50 + npy;
     c.save(); c.translate(npx, 0);
