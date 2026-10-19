@@ -2586,8 +2586,14 @@
     zoom.target = clamp(zoom.target * f, 0.75, 11.2);
     if (f > 1) { const ll = unproject(e.clientX, e.clientY); if (ll) zoom.aim = ll; }
   }, { passive: false });
-  document.getElementById('zoom-in').addEventListener('click', () => { zoom.target = clamp(zoom.target * 2.56, 0.75, 11.2); }); // two steps at a time
-  document.getElementById('zoom-out').addEventListener('click', () => { zoom.target = clamp(zoom.target / 2.56, 0.75, 11.2); });
+  // the buttons step between fixed stops, so stepping back out always lands on the usual view (1), with the whole face showing
+  const ZOOM_STOPS = [0.75, 1, 2.56, 6.55, 11.2];
+  const zoomStep = (dir) => {
+    const z = zoom.target;
+    zoom.target = dir > 0 ? ZOOM_STOPS.find((v) => v > z * 1.02) ?? 11.2 : [...ZOOM_STOPS].reverse().find((v) => v < z / 1.02) ?? 0.75;
+  };
+  document.getElementById('zoom-in').addEventListener('click', () => zoomStep(1));
+  document.getElementById('zoom-out').addEventListener('click', () => zoomStep(-1));
 
   let lastMove = 0;
   function sendMove(force) {
@@ -2659,8 +2665,8 @@
     if (e.key === 'Escape') { markMode = null; document.body.classList.remove('marking'); closeWindows(); return; }
     if (['BUTTON', 'INPUT'].includes(e.target.tagName)) return;
     if (e.key === ' ' && me) { me.blink = 1; send({ t: 'blink' }); tone.blink(); e.preventDefault(); }
-    if (e.key === '+' || e.key === '=') zoom.target = clamp(zoom.target * 1.4, 0.75, 11.2);
-    if (e.key === '-') zoom.target = clamp(zoom.target / 1.4, 0.75, 11.2);
+    if (e.key === '+' || e.key === '=') zoomStep(1);
+    if (e.key === '-') zoomStep(-1);
   });
 
   // ------------------------------------------------------------------ windows: you.exe, plant.exe, sing.exe
