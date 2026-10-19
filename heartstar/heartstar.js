@@ -706,7 +706,7 @@
     squish: { squish: 1 }, sleepy: { lidL: 0, lidR: 0, mw: 150 }, cyclops: { ex: 0, er: 330, pr: 150, ey: -40 },
     cross: { cross: 1 }, shy: { blush: 1, lidL: 0, lidR: 0 }, teeth: { mo: 1, mw: 210, teeth: 1 }, scramble: { scramble: 1 },
     stalks: { stalks: 1, er: 200, ex: 300 }, orbit: { orbit: 1, er: 200 }, flip: { flip: 1 }, drip: { drip: 1, mc: 0.6 },
-    stache: { stache: 1 }, tall: { tall: 1 }, /*spin: { spin: 1 },*/ third: { third: 1 },
+    stache: { stache: 1 }, tall: { tall: 1 }, spin: { spin: 1 }, whirl: {}, third: { third: 1 },
     pixel: { pixel: 1 }, googly: { googly: 1 }, heartnose: { heartnose: 1 }, gold: { gold: 1, mo: 0.6 }, antenna: { antenna: 1 }, angel: { angel: 1, lidL: 0, lidR: 0 },
     // a few that are simply unhinged
     swirl: { swirl: 1, mo: 0.35, mw: 150 }, bugeye: { er: 370, pr: 38, jitter: 1, oh: 1, mw: 120 }, worm: { worm: 1, mo: 0.75, mw: 180 },
@@ -726,8 +726,8 @@
   function nextMood() {
     // the world's mood follows the crowd
     const n = crowd();
-    const strange = ['odd', 'melt', 'many', 'nose', 'tiny', 'wide', 'squish', 'cyclops', 'cross', 'scramble', 'stalks', 'orbit', 'flip', 'drip', 'stache', 'tall', /*'spin',*/ 'kiss', 'o', 'wink', 'pixel', 'googly', 'heartnose', 'antenna', 'angel', 'gold',
-      'swirl', 'bugeye', 'worm', 'bubble', 'garden', 'clock', 'meltdown', 'swap', 'goofy'];
+    const strange = ['odd', 'melt', 'many', 'nose', 'tiny', 'wide', 'squish', 'cyclops', 'cross', 'scramble', 'stalks', 'orbit', 'flip', 'drip', 'stache', 'tall', 'spin', 'whirl', 'kiss', 'o', 'wink', 'pixel', 'googly', 'heartnose', 'antenna', 'angel', 'gold',
+      'swirl', 'bugeye', 'bubble', 'garden', 'clock', 'meltdown', 'swap', 'goofy'];
     const joyful = ['grin', 'tongue', 'hearts', 'teeth', 'grin', 'hearts'];
     const quiet = ['shy', 'tiny', 'wink', 'smile'];
     const pool = [...strange];
@@ -737,14 +737,19 @@
     return pick(pool);
   }
   function updatePlanetFace(now, dt) {
-    // the spin winds up while it spins, then eases round to the nearest upright (no sudden snap)
-    pf.spinA = (pf.spinA || 0) + (dt / 700) * pf.cur.spin;
-    if (pf.mood === 'spin') pf.spinHome = null;
-    else if (pf.spinA) {
-      // the finale: a super fast whirl, three more turns, settling upright (face and ears together)
-      if (pf.spinHome == null) pf.spinHome = (Math.ceil(pf.spinA / TAU) + 3) * TAU;
-      pf.spinA += (pf.spinHome - pf.spinA) * 0.07;
-      if (Math.abs(pf.spinHome - pf.spinA) < 0.002) { pf.spinA = 0; pf.spinHome = null; }
+    // spin: a slow turn while the mood lasts, easing back to upright after.
+    // whirl: one super fast whirl (four turns), then it's over.
+    if (pf.mood === 'whirl') {
+      const t = (now - (pf.moodAt || now)) / 1500;
+      if (t >= 1) { pf.spinA = 0; setMood('smile'); }
+      else pf.spinA = TAU * 4 * (t < 0.5 ? 2 * t * t : 1 - 2 * (1 - t) * (1 - t));
+    } else {
+      if (pf.cur.spin > 0.02) pf.spinA = (pf.spinA || 0) + (dt / 700) * pf.cur.spin;
+      if (pf.mood !== 'spin' && pf.spinA) {
+        const home = Math.round(pf.spinA / TAU) * TAU;
+        pf.spinA += (home - pf.spinA) * 0.06;
+        if (Math.abs(home - pf.spinA) < 0.002) pf.spinA = 0;
+      }
     }
     const idle = now - lastActive > 45000;
     if (idle && pf.mood !== 'sleepy' && now > pf.hold) setMood('sleepy');
@@ -1991,7 +1996,7 @@
       if (tally.best?.n) {
         const sep = document.createElement('span'); sep.className = 'sep'; sep.textContent = ' · '; el.appendChild(sep);
         const rec = document.createElement('span'); rec.className = tally.best.day === tally.day ? 'rec record' : 'rec';
-        [...`record ♥ ${tally.best.n.toLocaleString()} ${tally.best.day === tally.day ? '(today!)' : 'on ' + fmtDay(tally.best.day)}`].forEach((ch, i) => {
+        [...`hi-score ♥ ${tally.best.n.toLocaleString()} ${tally.best.day === tally.day ? '(today!)' : 'on ' + fmtDay(tally.best.day)}`].forEach((ch, i) => {
           const l = document.createElement('span'); l.textContent = ch; l.style.setProperty('--i', i); rec.appendChild(l);
         });
         el.appendChild(rec);
@@ -2002,7 +2007,7 @@
     if (!t) return;
     const day = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Denver' }).format(new Date());
     tally = { ...t, day };
-    if (t.record) { whisper(`a new record for love! ♥ ${t.today.toLocaleString()} today.`, 5000, true, null, true); bursts.push({ k: 'rings', born: performance.now(), dur: 2800 }); }
+    if (t.record) { whisper(`a new hi-score for love! ♥ ${t.today.toLocaleString()} today.`, 5000, true, null, true); bursts.push({ k: 'rings', born: performance.now(), dur: 2800 }); }
     updatePresence();
   }
 
@@ -2801,13 +2806,15 @@
       mic.f = mic.f && jump < 0.5 ? Math.exp(Math.log(mic.f) * 0.45 + Math.log(f) * 0.55) : f;
       mic.amp += (amp - mic.amp) * 0.5;
       mic.heard = now;
-    } else if (mic.f && now - mic.heard < 260) {
-      mic.amp *= 0.97; // a breath or a soft consonant: the note carries on
+    } else if (mic.f && (rms > 0.004 || now - mic.heard < 260)) {
+      // a held note stays held while there's any sound at all, even if its pitch is briefly unclear;
+      // a breath or a soft consonant (a quarter second of quiet) doesn't end it either
+      if (rms > 0.004) mic.heard = now;
+      mic.amp += (Math.max(amp, 0.08) - mic.amp) * 0.2;
     } else { mic.f = 0; mic.amp = 0; }
 
     if (mic.f) {
       me.singTarget = mic.amp; me.freq = mic.f;
-      voices.sing('me', mic.f, mic.amp * 0.35, me.sx, 0.03); // your own voice follows you every frame
       if (now - mic.lastSend > 100) { // everyone else hears you ten times a second
         mic.lastSend = now;
         send({ t: 'sing', f: Math.round(mic.f * 10) / 10, a: Math.round(mic.amp * 100) / 100 });
@@ -2815,7 +2822,7 @@
       mic.wasSinging = true;
     } else {
       me.singTarget = 0;
-      if (mic.wasSinging) { mic.wasSinging = false; send({ t: 'hush' }); voices.hush('me'); }
+      if (mic.wasSinging) { mic.wasSinging = false; send({ t: 'hush' }); }
     }
   }
 
