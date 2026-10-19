@@ -66,7 +66,7 @@ h1 { font-family: var(--head); font-weight: 400; font-size: 30px; line-height: 1
 @keyframes rainbowtext { 0%, 100% { color: #ff4a6e; } 16% { color: #ff9a3c; } 33% { color: #e0b000; } 50% { color: #3cb83c; } 66% { color: #00a0e6; } 83% { color: #6b7bff; } }
 @keyframes hop { 0%, 100% { transform: none; } 50% { transform: translateY(-2px); } }
 #here::before { content: '● '; color: #2bd96b; }
-#ways { display: flex; justify-content: flex-end; gap: 12px; margin-top: 2px; }
+#ways { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px 12px; margin-top: 2px; }
 #ways a, #discord { pointer-events: auto; }
 #ways a { color: var(--ink); text-decoration: none; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; border-bottom: 1px solid transparent; }
 #ways a:hover { border-bottom-color: var(--ink); }
@@ -202,7 +202,10 @@ h1 { font-family: var(--head); font-weight: 400; font-size: 30px; line-height: 1
 @media (max-width: 600px) {
   #top { padding: 14px 16px; }
   h1 { font-size: 24px; }
-  #presence { max-width: 50vw; }
+  #top { gap: 14px; }
+  #presence { flex: 0 1 auto; max-width: 54vw; }
+  #today .rec { white-space: nowrap; }
+  #top > div:first-child { min-width: 0; }
   #whisper { font-size: 17px; }
   #today .sep { display: none; }
   #today .rec { display: block; }
@@ -212,7 +215,7 @@ h1 { font-family: var(--head); font-weight: 400; font-size: 30px; line-height: 1
   #act-all { width: 100%; }
   .win { bottom: 132px; }
   #zoom { right: 12px; top: auto; bottom: 128px; transform: none; flex-direction: row; }
-  #ways { gap: 10px; }
+  #ways { gap: 6px 10px; }
   #discord span { display: none; }
   #discord { padding: 6px 8px; }
 }

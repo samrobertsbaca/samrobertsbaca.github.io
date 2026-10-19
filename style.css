@@ -451,8 +451,8 @@ nav.world-nav.scrolled { box-shadow: 0 2px 0 rgba(29, 26, 94, 0.25); }
 .wn-title:hover .wn-face { transform: rotate(-8deg) scale(1.06); }
 .wn-title:hover { color: #fff; }
 .wn-clock { margin: 8px 0 0; font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: rgba(29, 26, 94, 0.75); font-variant-numeric: tabular-nums; }
-.wn-right { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
-.wn-links { display: flex; gap: 12px; }
+.wn-right { min-width: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
+.wn-links { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px 12px; }
 .wn-links a { color: #1d1a5e; text-decoration: none; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; border-bottom: 1px solid transparent; }
 .wn-links a:hover, .wn-links a[aria-current="page"] { border-bottom-color: #1d1a5e; color: #1d1a5e; }
 .wn-links a:hover { color: #fff; border-bottom-color: #fff; }
@@ -469,7 +469,7 @@ nav.world-nav.scrolled { box-shadow: 0 2px 0 rgba(29, 26, 94, 0.25); }
   nav.world-nav { padding: 14px 16px; }
   .wn-title span { display: none; }
   .wn-face { width: 44px; height: 44px; }
-  .wn-links { gap: 10px; }
+  .wn-links { gap: 6px 10px; }
   .wn-discord span { display: none; }
   .wn-discord { padding: 6px 8px; }
 }

@@ -2283,29 +2283,29 @@
   // yin pitch finding. only two numbers ever leave: pitch and loudness.
   let yd = null;
   function pitch(buf, rate) {
-    const W = 1024;
+    const W = 1024, o = buf.length - W; // the newest W samples, compared with the moments just before them
     let rms = 0;
-    for (let i = 0; i < W; i++) rms += buf[i] * buf[i];
+    for (let i = o; i < buf.length; i++) rms += buf[i] * buf[i];
     rms = Math.sqrt(rms / W);
     if (rms < 0.008) return [0, rms];
-    const minT = Math.floor(rate / 1100), maxT = Math.min(Math.ceil(rate / 70), buf.length - W - 1);
+    const minT = Math.floor(rate / 1100), maxT = Math.min(Math.ceil(rate / 70), o - 1);
     if (!yd || yd.length !== maxT + 2) yd = new Float32Array(maxT + 2);
     // the difference at each lag, normalised by its running mean
     let sum = 0; yd[0] = 1;
     for (let t = 1; t <= maxT + 1; t++) {
       let d = 0;
-      for (let i = 0; i < W; i++) { const x = buf[i] - buf[i + t]; d += x * x; }
+      for (let i = o; i < buf.length; i++) { const x = buf[i] - buf[i - t]; d += x * x; }
       sum += d; yd[t] = sum ? d * t / sum : 1;
     }
     // the first dip under the threshold, walked down to its floor
     let tau = -1;
     for (let t = minT; t <= maxT; t++) {
-      if (yd[t] < 0.18) { while (t + 1 <= maxT && yd[t + 1] < yd[t]) t++; tau = t; break; }
+      if (yd[t] < 0.25) { while (t + 1 <= maxT && yd[t + 1] < yd[t]) t++; tau = t; break; }
     }
     if (tau < 0) { // nothing clean: take the deepest dip if it's still fairly periodic
       let best = minT;
       for (let t = minT; t <= maxT; t++) if (yd[t] < yd[best]) best = t;
-      if (yd[best] < 0.35) tau = best; else return [0, rms];
+      if (yd[best] < 0.6) tau = best; else return [0, rms];
     }
     const x1 = yd[tau - 1], x2 = yd[tau], x3 = yd[tau + 1], den = x1 + x3 - 2 * x2;
     const f = rate / (den > 0 ? tau + (x1 - x3) / (2 * den) : tau);
@@ -2331,17 +2331,17 @@
       mic.f = mic.f && jump < 0.6 ? Math.exp(Math.log(mic.f) + (Math.log(f) - Math.log(mic.f)) * (jump > 0.08 ? 0.7 : 0.35)) : f;
       mic.amp += (amp - mic.amp) * 0.5;
       mic.lastHeard = now;
-    } else if (now - mic.lastHeard > 260) {
+    } else if (now - mic.lastHeard > 200) {
       // a breath or a consonant doesn't end the note; a real pause does
       mic.f = 0; mic.amp = 0;
-    } else mic.amp *= 0.9;
+    } else mic.amp *= 0.97;
 
     if (mic.f) {
       me.singTarget = mic.amp; me.freq = mic.f;
+      voices.sing('me', mic.f, mic.amp * 0.35, me.sx, 0.02);
       if (now - mic.lastSend > 50) {
         mic.lastSend = now;
         send({ t: 'sing', f: Math.round(mic.f * 10) / 10, a: Math.round(mic.amp * 100) / 100 });
-        voices.sing('me', mic.f, mic.amp * 0.35, me.sx, 0.025);
       }
       mic.wasSinging = true;
     } else {
