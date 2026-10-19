@@ -1035,7 +1035,7 @@
         c.beginPath(); c.arc(bx, by, r, 0, TAU); c.fillStyle = 'rgba(255,120,190,0.88)'; c.fill(); c.lineWidth = 14; c.strokeStyle = DARK; c.stroke();
         c.beginPath(); c.arc(bx - r * 0.35, by - r * 0.38, r * 0.22, Math.PI * 1.1, Math.PI * 1.6); c.lineWidth = Math.max(8, r * 0.07); c.strokeStyle = '#fff'; c.stroke();
       } else if (ph < 1) {
-        if (pf.popped !== pf.moodAt) { pf.popped = pf.moodAt; tone.pop(); pf.blink = 1; setTimeout(() => { pf.blink = 1; }, 380); } // snap! blink, blink
+        if (pf.popped !== pf.moodAt) { pf.popped = pf.moodAt; tone.bubblePop(); pf.blink = 1; setTimeout(() => { pf.blink = 1; }, 380); } // snap! blink, blink
         const k = (ph - 0.9) / 0.1, R0 = (40 + 300 * 0.9 ** 1.6) * f.bubble, cy0 = by0 + R0 * 0.45; // the bubble at its biggest, the burst centered where it was
         c.globalAlpha = A * (1 - k * k);
         for (let i = 0; i < 14; i++) { // pink lines bursting outward
@@ -2628,6 +2628,21 @@
     tick() { this.note(1760, 0.03, 0.006, 'square'); },
     poke() { [0, 2, 4].forEach((k, i) => this.note(PENTA[k + 4], 0.9, 0.03, 'triangle', i * 0.07)); },
     pop() { this.note(pick(PENTA) * 2, 0.35, 0.04, 'square'); this.note(pick(PENTA) * 3, 0.3, 0.02, 'sine', 0.05); },
+    // a bubblegum pop: a sharp snap of noise and a quick little "plip" that drops in pitch
+    bubblePop() {
+      if (!soundOn || !ac) return;
+      const t = ac.currentTime, n = Math.floor(ac.sampleRate * 0.05);
+      const buf = ac.createBuffer(1, n, ac.sampleRate), d = buf.getChannelData(0);
+      for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.exp(-i / (n * 0.12));
+      const snap = ac.createBufferSource(); snap.buffer = buf;
+      const hp = ac.createBiquadFilter(); hp.type = 'bandpass'; hp.frequency.value = 2400; hp.Q.value = 0.8;
+      const sg = ac.createGain(); sg.gain.value = 0.5;
+      snap.connect(hp); hp.connect(sg); sg.connect(master); snap.start(t);
+      const o = ac.createOscillator(), g = ac.createGain();
+      o.type = 'sine'; o.frequency.setValueAtTime(1100, t); o.frequency.exponentialRampToValueAtTime(220, t + 0.05);
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.22, t + 0.004); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.08);
+      o.connect(g); g.connect(master); o.start(t); o.stop(t + 0.1);
+    },
     boing(stretch = 1) {
       if (!soundOn || !ac) return;
       const t = ac.currentTime, o = ac.createOscillator(), g = ac.createGain();
