@@ -2636,11 +2636,11 @@
       for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.exp(-i / (n * 0.12));
       const snap = ac.createBufferSource(); snap.buffer = buf;
       const hp = ac.createBiquadFilter(); hp.type = 'bandpass'; hp.frequency.value = 2400; hp.Q.value = 0.8;
-      const sg = ac.createGain(); sg.gain.value = 0.5;
+      const sg = ac.createGain(); sg.gain.value = 0.16;
       snap.connect(hp); hp.connect(sg); sg.connect(master); snap.start(t);
       const o = ac.createOscillator(), g = ac.createGain();
       o.type = 'sine'; o.frequency.setValueAtTime(1100, t); o.frequency.exponentialRampToValueAtTime(220, t + 0.05);
-      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.22, t + 0.004); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.08);
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.07, t + 0.004); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.08);
       o.connect(g); g.connect(master); o.start(t); o.stop(t + 0.1);
     },
     boing(stretch = 1) {
