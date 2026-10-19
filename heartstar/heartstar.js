@@ -1303,21 +1303,34 @@
   let worldGlows = null, worldRain = 0, handCount = 0;
   const ocean = () => pf.cur.gold < 0.01 ? worldCol : mixColor(worldCol, '#ffc93c', pf.cur.gold);
   // each scorsby's colour, glowing on the world around them
-  function renderGlows() {
+  const glowBuf = document.createElement('canvas'), glowC = glowBuf.getContext('2d');
+  function renderGlows(now) {
     if (!worldGlows || !worldGlows.length) return;
-    const gold = pf.cur.gold, a0 = 0.55 + 0.4 * worldRain, rad = R * (0.5 + 0.35 * worldRain);
+    const gold = pf.cur.gold, rad = R * (0.5 + 0.35 * worldRain);
     // the ones facing us first; past a hundred or so the rest add nothing you could see
     const list = worldGlows.map(([s, col]) => [project(s.v[0], s.v[1], s.v[2]), col]).filter(([p]) => p[2] > -0.15).sort((a, b) => b[0][2] - a[0][2]).slice(0, 120);
-    // laid on as light (screen), over sea and land alike: colours only ever brighten what's under them, so nothing turns brown
-    c.save(); c.beginPath(); c.arc(CX, CY, R, 0, TAU); c.clip(); c.globalCompositeOperation = 'screen';
+    if (glowBuf.width !== cv.width || glowBuf.height !== cv.height) { glowBuf.width = cv.width; glowBuf.height = cv.height; }
+    glowC.setTransform(DPR, 0, 0, DPR, 0, 0); glowC.globalCompositeOperation = 'source-over'; glowC.globalAlpha = 1;
+    glowC.clearRect(0, 0, VW, VH);
+    // every glow on a layer of its own. where two meet, each colour channel keeps the brighter of the two (red and green
+    // meeting make yellow, blue and red make pink): they never add up to white and never mix down to brown.
+    glowC.globalCompositeOperation = 'lighten';
     for (const [[x, y, z], col0] of list) {
       const col = gold < 0.01 ? col0 : mixColor(col0, '#ffc93c', gold), [r, g, b] = rgbOf(col);
-      const a = a0 * clamp((z + 0.15) / 0.45, 0, 1), rr = rad * (0.6 + 0.4 * Math.max(0, z)); // flatter and fainter toward the edge
-      const gr = c.createRadialGradient(x, y, 0, x, y, rr);
-      gr.addColorStop(0, `rgba(${r},${g},${b},${a})`); gr.addColorStop(0.45, `rgba(${r},${g},${b},${a * 0.6})`); gr.addColorStop(1, `rgba(${r},${g},${b},0)`);
-      c.fillStyle = gr; c.fillRect(x - rr, y - rr, rr * 2, rr * 2);
+      const a = clamp((z + 0.15) / 0.45, 0, 1), rr = rad * (0.6 + 0.4 * Math.max(0, z)); // flatter and fainter toward the edge
+      const gr = glowC.createRadialGradient(x, y, 0, x, y, rr);
+      gr.addColorStop(0, `rgba(${r},${g},${b},${a})`); gr.addColorStop(0.45, `rgba(${r},${g},${b},${a * 0.65})`); gr.addColorStop(1, `rgba(${r},${g},${b},0)`);
+      glowC.fillStyle = gr; glowC.fillRect(x - rr, y - rr, rr * 2, rr * 2);
     }
-    c.restore();
+    // a rainbow drifts through the glows (only where they are), stronger as the crowd grows
+    const ang = now / 7000, dx = Math.cos(ang) * R, dy = Math.sin(ang) * R;
+    const rb = glowC.createLinearGradient(CX - dx, CY - dy, CX + dx, CY + dy);
+    RAINBOW.concat(RAINBOW).forEach((col, i, arr) => rb.addColorStop(i / (arr.length - 1), col));
+    glowC.globalCompositeOperation = 'source-atop'; glowC.globalAlpha = 0.3 + 0.45 * worldRain;
+    glowC.fillStyle = rb; glowC.fillRect(CX - R, CY - R, R * 2, R * 2);
+    // then the whole layer is laid on the world, see-through, under the land
+    c.save(); c.beginPath(); c.arc(CX, CY, R, 0, TAU); c.clip(); c.setTransform(1, 0, 0, 1, 0, 0);
+    c.globalAlpha = 0.45 + 0.35 * worldRain; c.drawImage(glowBuf, 0, 0); c.restore();
   }
   function renderEars(now) {
     const wig = Math.max(env(omenP('ears', now)), clamp((earPerk - now) / 1200, 0, 1));
@@ -1429,6 +1442,7 @@
     // the bold outline first, then the blue head inside it
     wobbleCircle(CX, CY, R + 70 * L, 7, 1.6, 0); c.fillStyle = DARK; c.fill();
     c.beginPath(); c.arc(CX, CY, R, 0, TAU); c.fillStyle = ocean(); c.fill();
+    renderGlows(now);
 
     // land, in deeper blue. love for everyone rolls over it as a rainbow.
     // the dots on the near side of the world. at the usual distance they're all one blue, as they always were;
@@ -1493,7 +1507,6 @@
     const f3 = f2 && landTiers[3].state === 'ready' ? smooth(11, 15, zoom.v) : 0; // and finer again, at the very closest
     const weights = [1 - f1, f1 * (1 - f2), f2 * (1 - f3), f3];
     weights.forEach((wgt, i) => { if (wgt > 0.004 && landTiers[i].state === 'ready') drawLand(landTiers[i], landA * wgt); });
-    renderGlows();
 
     // night, in ballpoint hatching
     const ecl = env(omenP('eclipse', now));
@@ -1661,7 +1674,7 @@
         const a = list[i], b = list[j];
         let dx = (b.sx + b.ox) - (a.sx + a.ox), dy = (b.sy + b.oy) - (a.sy + a.oy);
         let d = Math.hypot(dx, dy);
-        const min = (a.mine || b.mine ? 34 : 26) * (small ? 0.9 : 1) * zf * (a.ck + b.ck) / 2;
+        const min = (a.mine || b.mine ? 44 : 34) * (small ? 0.9 : 1) * zf * (a.ck + b.ck) / 2;
         if (d >= min) continue;
         if (d < 0.01) { const t = rand(0, TAU); dx = Math.cos(t); dy = Math.sin(t); d = 1; }
         const push = (min - d) * 0.25, ux = dx / d, uy = dy / d;
@@ -1723,7 +1736,7 @@
       if (grow <= 0) continue;
       const fade = s.leaving ? Math.max(0, 1 - (now - s.leaving) / 900) : 1;
       const edge = Math.min(1, s.sz / 0.25);
-      s.size = (s.mine ? (small ? 32 : 36) : (small ? 22 : 24)) * zf * s.ck * (0.55 + 0.45 * edge) * (0.3 + 0.7 * grow) * (1 + s.sing * 0.25);
+      s.size = (s.mine ? (small ? 42 : 46) : (small ? 30 : 32)) * zf * s.ck * (0.55 + 0.45 * edge) * (0.3 + 0.7 * grow) * (1 + s.sing * 0.25);
 
       c.save();
       c.globalAlpha = edge * fade;
