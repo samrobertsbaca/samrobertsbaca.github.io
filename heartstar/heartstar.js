@@ -35,7 +35,7 @@
   // ------------------------------------------------------------------ paper and ink
   const THEMES = {
     day: { paper: '#ffffff', ink: [29, 26, 94], wash: 'multiply', washA: 0.22, ocean: '#00b4ff', hatchA: 0.42 },
-    night: { paper: '#4a3f8c', ink: [240, 232, 214], wash: 'screen', washA: 0.16, ocean: '#0aa6ec', hatchA: 0.3 },
+    night: { paper: '#3e3478', ink: [240, 232, 214], wash: 'screen', washA: 0.16, ocean: '#0aa6ec', hatchA: 0.3 },
   };
   let T = THEMES.day;
   const DARK = '#05060a'; // the bold outline of the scorsby logo
@@ -186,7 +186,7 @@
       const L2 = s * len, W2 = s * 0.17;
       c.save(); c.translate(x + dx * L2 * 0.5, y + dy * L2 * 0.5); c.rotate(Math.atan2(dy, dx));
       c.beginPath(); c.ellipse(0, 0, L2 * 0.5, W2, 0, 0, TAU); c.restore();
-      c.fillStyle = '#fff'; c.fill(); c.stroke();
+      c.fillStyle = T.paper; c.fill(); c.stroke();
     }
   }
 
@@ -201,7 +201,7 @@
         const flap = Math.sin(now / 170 + seed) * 0.3;
         wing(x - s * 0.24, y + s * 0.02, s * 0.62, -1, flap);
         wing(x + s * 0.24, y + s * 0.02, s * 0.62, 1, flap);
-        wobbleCircle(x, y, s * 0.3, seed, 0.6, 0.15); c.fillStyle = '#fff'; c.fill(); c.stroke();
+        wobbleCircle(x, y, s * 0.3, seed, 0.6, 0.15); c.fillStyle = T.paper; c.fill(); c.stroke();
         const lx = clamp((CX - x) / 400, -1, 1), ly = clamp((CY - y) / 400, -1, 1);
         c.beginPath(); c.arc(x + lx * s * 0.1, y + ly * s * 0.1, s * 0.13, 0, TAU); c.fillStyle = DARK; c.fill();
         const hy = y - s * 0.5 + Math.sin(now / 700 + seed) * s * 0.04;
@@ -254,7 +254,7 @@
         const cy = y - s * 0.3, r = s * 0.48;
         c.beginPath(); c.moveTo(x - r, cy); c.arc(x, cy, r, Math.PI, 0);
         for (let k = 0; k < 4; k++) { const x0 = x + r - k * r / 2; c.quadraticCurveTo(x0 - r / 4, cy - r * 0.16, x0 - r / 2, cy); }
-        c.fillStyle = '#fff'; c.fill(); c.stroke();
+        c.fillStyle = T.paper; c.fill(); c.stroke();
         c.beginPath();
         for (let k = 1; k < 4; k++) { c.moveTo(x, cy - r); c.lineTo(x - r + k * r / 2, cy); }
         c.moveTo(x, cy - r); c.lineTo(x, cy - r - s * 0.06);
@@ -262,7 +262,7 @@
         c.stroke();
         const fx = x + s * 0.24, fy = y + s * 0.18;
         c.beginPath(); c.arc(fx - s * 0.06, fy - s * 0.1, s * 0.035, 0, TAU); c.moveTo(fx + s * 0.095, fy - s * 0.1); c.arc(fx + s * 0.06, fy - s * 0.1, s * 0.035, 0, TAU);
-        c.moveTo(fx + s * 0.08, fy - s * 0.02); c.arc(fx, fy - s * 0.02, s * 0.08, 0, TAU); c.fillStyle = '#fff'; c.fill(); c.stroke();
+        c.moveTo(fx + s * 0.08, fy - s * 0.02); c.arc(fx, fy - s * 0.02, s * 0.08, 0, TAU); c.fillStyle = T.paper; c.fill(); c.stroke();
         c.beginPath(); c.arc(fx, fy - s * 0.02, s * 0.025, 0, TAU); c.fillStyle = ink(); c.fill();
         c.beginPath(); c.rect(fx - s * 0.06, fy + s * 0.06, s * 0.12, s * 0.2); c.moveTo(fx - s * 0.03, fy + s * 0.26); c.lineTo(fx - s * 0.03, fy + s * 0.4); c.moveTo(fx + s * 0.03, fy + s * 0.26); c.lineTo(fx + s * 0.03, fy + s * 0.4);
         c.moveTo(fx - s * 0.06, fy + s * 0.1); c.lineTo(x + s * 0.02, y + s * 0.12);
@@ -280,7 +280,7 @@
       case 'globe': {
         c.beginPath(); wobbleLine(x, y + s * 0.4, x + Math.sin(seed) * s * 0.2, y + s * 1.1, seed, 0.6); c.stroke();
         c.beginPath(); c.arc(x + Math.sin(seed) * s * 0.2, y + s * 1.18, s * 0.08, 0, TAU); c.stroke();
-        wobbleCircle(x, y, s * 0.4, seed); c.fillStyle = '#fff'; c.fill(); c.stroke();
+        wobbleCircle(x, y, s * 0.4, seed); c.fillStyle = T.paper; c.fill(); c.stroke();
         c.save(); c.clip();
         wobbleCircle(x - s * 0.12 + Math.sin(now / 2000 + seed) * s * 0.3, y + s * 0.05, s * 0.18, seed + 4, 1.5);
         c.fillStyle = ink(); c.fill(); c.restore();
@@ -294,7 +294,7 @@
       }
       case 'head':
       case 'head3': {
-        wobbleCircle(x - s * 0.28, y - s * 0.3, s * 0.15, seed + 1, 0.5); c.fillStyle = '#fff'; c.fill(); c.stroke();
+        wobbleCircle(x - s * 0.28, y - s * 0.3, s * 0.15, seed + 1, 0.5); c.fillStyle = T.paper; c.fill(); c.stroke();
         wobbleCircle(x + s * 0.28, y - s * 0.3, s * 0.15, seed + 2, 0.5); c.fill(); c.stroke();
         wobbleCircle(x, y, s * 0.4, seed, 0.7); c.fill(); c.stroke();
         const eyes = kind === 'head3' ? [[-0.15, 0.02], [0.15, 0.02], [0, -0.2]] : [[-0.14, -0.04], [0.14, -0.04]];
@@ -308,7 +308,7 @@
       }
       case 'eye': {
         c.beginPath(); c.moveTo(x - s * 0.5, y); c.quadraticCurveTo(x, y - s * 0.45, x + s * 0.5, y); c.quadraticCurveTo(x, y + s * 0.45, x - s * 0.5, y);
-        c.fillStyle = '#fff'; c.fill(); c.stroke();
+        c.fillStyle = T.paper; c.fill(); c.stroke();
         c.beginPath(); c.arc(x + Math.sin(now / 1500 + seed) * s * 0.12, y, s * 0.13, 0, TAU); c.fillStyle = DARK; c.fill();
         break;
       }
@@ -325,7 +325,7 @@
         break;
       }
       case 'house': {
-        c.beginPath(); c.rect(x - s * 0.28, y - s * 0.05, s * 0.56, s * 0.45); c.fillStyle = '#fff'; c.fill();
+        c.beginPath(); c.rect(x - s * 0.28, y - s * 0.05, s * 0.56, s * 0.45); c.fillStyle = T.paper; c.fill();
         c.moveTo(x - s * 0.36, y - s * 0.02); c.lineTo(x, y - s * 0.4); c.lineTo(x + s * 0.36, y - s * 0.02);
         c.stroke();
         c.beginPath(); c.rect(x - s * 0.06, y + s * 0.18, s * 0.12, s * 0.22); c.stroke();
@@ -339,9 +339,9 @@
       }
       case 'pyramid': {
         // the scorsby pyramid, ears and all
-        for (const sd of [-1, 1]) { c.beginPath(); c.arc(x + sd * s * 0.17, y - s * 0.4, s * 0.1, 0, TAU); c.fillStyle = '#fff'; c.fill(); c.stroke(); }
+        for (const sd of [-1, 1]) { c.beginPath(); c.arc(x + sd * s * 0.17, y - s * 0.4, s * 0.1, 0, TAU); c.fillStyle = T.paper; c.fill(); c.stroke(); }
         const tri = () => { c.beginPath(); c.moveTo(x, y - s * 0.46); c.lineTo(x + s * 0.5, y + s * 0.38); c.lineTo(x - s * 0.5, y + s * 0.38); c.closePath(); };
-        tri(); c.fillStyle = '#fff'; c.fill();
+        tri(); c.fillStyle = T.paper; c.fill();
         c.save(); c.clip(); c.fillStyle = ink(0.95);
         for (let k = 0; k < 4; k++) {
           const yy = y - s * 0.2 + k * s * 0.16;
@@ -352,7 +352,7 @@
         c.restore();
         tri(); c.stroke();
         c.beginPath(); c.moveTo(x - s * 0.06, y + s * 0.38); c.lineTo(x - s * 0.06, y + s * 0.27); c.arc(x, y + s * 0.27, s * 0.06, Math.PI, 0); c.lineTo(x + s * 0.06, y + s * 0.38);
-        c.fillStyle = '#fff'; c.fill(); c.stroke();
+        c.fillStyle = T.paper; c.fill(); c.stroke();
         break;
       }
       case 'yolksby': {
@@ -365,7 +365,7 @@
           const px = x + Math.cos(a) * rr * 1.2, py = y + Math.sin(a) * rr * 0.75;
           k ? c.lineTo(px, py) : c.moveTo(px, py);
         }
-        c.closePath(); c.fillStyle = '#fff'; c.fill(); c.stroke();
+        c.closePath(); c.fillStyle = T.paper; c.fill(); c.stroke();
         const yy = y - s * 0.04 - hop;
         const sq = 1 + 0.08 * Math.sin(now / 210 + seed);
         for (const sd of [-1, 1]) { c.beginPath(); c.arc(x + sd * s * 0.14, yy - s * 0.15, s * 0.065, 0, TAU); c.fillStyle = '#ffc21a'; c.fill(); c.stroke(); }
@@ -386,7 +386,7 @@
         c.beginPath(); c.rect(x - s * 0.42, y - s * 0.46, b * 1.6, b * 1.6); c.rect(x + s * 0.42 - b * 1.6, y - s * 0.46, b * 1.6, b * 1.6); c.fill(); c.stroke();
         c.beginPath(); c.rect(x - s * 0.36, y - s * 0.3, s * 0.72, s * 0.62); c.fill(); c.stroke();
         for (const sd of [-1, 1]) {
-          c.beginPath(); c.rect(x + sd * s * 0.15 - b * 0.7, y - s * 0.16, b * 1.4, b * 1.4); c.fillStyle = '#fff'; c.fill(); c.stroke();
+          c.beginPath(); c.rect(x + sd * s * 0.15 - b * 0.7, y - s * 0.16, b * 1.4, b * 1.4); c.fillStyle = T.paper; c.fill(); c.stroke();
           c.fillStyle = DARK; c.fillRect(x + sd * s * 0.15 - b * 0.3 + Math.sin(now / 900 + seed) * b * 0.25, y - s * 0.16 + b * 0.4, b * 0.6, b * 0.6);
         }
         c.fillStyle = '#ed1c24'; c.fillRect(x - b * 0.4, y + s * 0.02, b * 0.8, b * 0.8);
@@ -417,7 +417,7 @@
         c.bezierCurveTo(x + s * 0.42, y - s * 0.38, x + s * 0.5, y + s * 0.1, x, y + s * 0.42);
         c.fillStyle = '#d9cff5'; c.fill(); c.stroke();
         for (const sd of [-1, 1]) {
-          c.beginPath(); c.arc(x + sd * s * 0.17, y - s * 0.05, s * 0.06, 0, TAU); c.fillStyle = '#fff'; c.fill(); c.stroke();
+          c.beginPath(); c.arc(x + sd * s * 0.17, y - s * 0.05, s * 0.06, 0, TAU); c.fillStyle = T.paper; c.fill(); c.stroke();
           c.beginPath(); c.arc(x + sd * s * 0.17, y - s * 0.05, s * 0.028, 0, TAU); c.fillStyle = DARK; c.fill();
         }
         c.beginPath(); c.arc(x, y + s * 0.08, s * 0.025, 0, TAU); c.fillStyle = DARK; c.fill();
@@ -425,9 +425,9 @@
         break;
       }
       case 'mushroom': {
-        c.beginPath(); c.rect(x - s * 0.07, y - s * 0.05, s * 0.14, s * 0.4); c.fillStyle = '#fff'; c.fill(); c.stroke();
+        c.beginPath(); c.rect(x - s * 0.07, y - s * 0.05, s * 0.14, s * 0.4); c.fillStyle = T.paper; c.fill(); c.stroke();
         c.beginPath(); c.arc(x, y, s * 0.3, Math.PI, 0); c.closePath(); c.fillStyle = '#ff4a4a'; c.fill(); c.stroke();
-        c.beginPath(); c.arc(x - s * 0.12, y - s * 0.14, s * 0.04, 0, TAU); c.arc(x + s * 0.1, y - s * 0.18, s * 0.05, 0, TAU); c.fillStyle = '#fff'; c.fill();
+        c.beginPath(); c.arc(x - s * 0.12, y - s * 0.14, s * 0.04, 0, TAU); c.arc(x + s * 0.1, y - s * 0.18, s * 0.05, 0, TAU); c.fillStyle = T.paper; c.fill();
         break;
       }
     }
@@ -719,8 +719,10 @@
       if (f.drip > 0.05 && !closed) {
         for (let k = 0; k < 6; k++) {
           const ph = (now / 1100 + k / 6 + (sd > 0 ? 0.08 : 0)) % 1;
-          const dx = x + sd * (r * 0.45 + ph * 360), dy = y + r * 0.7 + ph * 240 + ph * ph * 420;
-          const ang = Math.atan2(240 + 840 * ph, sd * 360); // the way it is falling
+          // each drop leaves at its own angle: some spray far out, some fall almost straight down
+          const out = 120 + 420 * hash(k * 7.3 + sd), up = 140 + 260 * hash(k * 3.1 - sd);
+          const dx = x + sd * (r * 0.45 + ph * out), dy = y + r * 0.7 + ph * up + ph * ph * 420;
+          const ang = Math.atan2(up + 840 * ph, sd * out); // the way it is falling
           const sz = 1.9 - ph * 0.7;
           c.globalAlpha = A * f.drip * (1 - ph * ph);
           c.save(); c.translate(dx, dy); c.rotate(ang - Math.PI / 2); c.scale(sz, sz);
@@ -869,15 +871,15 @@
     }
 
     renderSky(now, dt);
-    renderSun(now);
-    renderRisingHeart(now);
-    renderBursts(now, dt, false);
     if (goldFlash > now) {
       // tap sunsby: the sky behind the world flashes gold (the world itself turns gold for a moment)
       const k = (goldFlash - now) / 2200;
       c.save(); c.globalCompositeOperation = 'multiply'; c.globalAlpha = 0.55 * Math.sin(k * Math.PI) ** 0.6;
       c.fillStyle = '#ffc93c'; c.fillRect(0, 0, VW, VH); c.restore();
     }
+    renderSun(now);
+    renderRisingHeart(now);
+    renderBursts(now, dt, false);
 
     const sp = omenP('sneeze', now);
     c.save();

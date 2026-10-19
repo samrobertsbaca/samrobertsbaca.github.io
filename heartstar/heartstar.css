@@ -28,12 +28,12 @@
   --mono: 'Plex', ui-monospace, Menlo, Consolas, monospace;
 }
 body[data-theme="night"] {
-  --paper: #4a3f8c;
+  --paper: #3e3478;
   --ink: #f0e8d6;
   --dim: rgba(240, 232, 214, 0.62);
   --faint: rgba(240, 232, 214, 0.35);
   --ui: #f0e8d6;
-  --ui-fg: #4a3f8c;
+  --ui-fg: #3e3478;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
