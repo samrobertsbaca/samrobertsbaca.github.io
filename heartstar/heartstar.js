@@ -1003,17 +1003,17 @@
       if (t > 4200 + 1500) { setMood('smile'); } // a moment to take it in, then back to himself
       const bx = mpx, by0 = my + w * 0.35;
       if (ph < 0.9) {
-        const r = (40 + 430 * ph ** 1.6) * f.bubble, by = by0 + r * 0.45;
+        const r = (40 + 300 * ph ** 1.6) * f.bubble, by = by0 + r * 0.45;
         c.beginPath(); c.arc(bx, by, r, 0, TAU); c.fillStyle = 'rgba(255,120,190,0.88)'; c.fill(); c.lineWidth = 14; c.strokeStyle = DARK; c.stroke();
         c.beginPath(); c.arc(bx - r * 0.35, by - r * 0.38, r * 0.22, Math.PI * 1.1, Math.PI * 1.6); c.lineWidth = Math.max(8, r * 0.07); c.strokeStyle = '#fff'; c.stroke();
       } else if (ph < 1) {
         if (pf.popped !== pf.moodAt) { pf.popped = pf.moodAt; tone.pop(); pf.blink = 1; setTimeout(() => { pf.blink = 1; }, 380); } // snap! blink, blink
-        const k = (ph - 0.9) / 0.1, R0 = (40 + 430 * 0.9 ** 1.6) * f.bubble, cy0 = by0 + R0 * 0.45; // the bubble at its biggest
+        const k = (ph - 0.9) / 0.1, R0 = (40 + 300 * 0.9 ** 1.6) * f.bubble, cy0 = by0 + R0 * 0.45; // the bubble at its biggest
         c.globalAlpha = A * (1 - k * k);
         for (let i = 0; i < 14; i++) { // pink lines bursting outward
-          const a = (i / 14) * TAU, r2 = R0 * (0.55 + 0.45 * Math.sqrt(k)), r1 = r2 * (0.35 + 0.5 * k); // never past where the bubble was
+          const a = (i / 14) * TAU, r2 = R0 * (0.4 + 0.3 * Math.sqrt(k)), r1 = r2 * (0.4 + 0.4 * k); // never past where the bubble was
           c.beginPath(); c.moveTo(bx + Math.cos(a) * r1, cy0 + Math.sin(a) * r1); c.lineTo(bx + Math.cos(a) * r2, cy0 + Math.sin(a) * r2);
-          c.lineWidth = 22; c.strokeStyle = '#ff78be'; c.lineCap = 'round'; c.stroke();
+          c.lineWidth = 16; c.strokeStyle = '#ff78be'; c.lineCap = 'round'; c.stroke();
         }
         c.globalAlpha = A;
       }
