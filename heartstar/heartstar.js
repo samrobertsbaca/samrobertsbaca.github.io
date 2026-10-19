@@ -1808,8 +1808,11 @@
   function showTip(s, x, y, text) {
     if (!s && !text) { tip.hidden = true; return; }
     tip.hidden = false;
-    tip.style.left = `${s ? s.sx : x}px`; tip.style.top = `${s ? s.sy - s.size * 0.4 : y - 14}px`;
     tip.textContent = text || (s.mine ? `you · ${nameOf(s)} · drag to wander · hold to love everyone` : `${nameOf(s)} · ${localTime(s.tz)} there`);
+    // stay on screen: slide in from the edges (and wrap, if it's long)
+    const half = tip.offsetWidth / 2, ax = s ? s.sx : x;
+    tip.style.left = `${clamp(ax, half + 10, Math.max(half + 10, VW - half - 10))}px`;
+    tip.style.top = `${Math.max(tip.offsetHeight + 26, s ? s.sy - s.size * 0.4 : y - 14)}px`;
   }
 
   let tipHold = null; // a tapped scorsby's tip, held for a moment on touch screens
@@ -2422,6 +2425,6 @@
   const n = parseInt(params.get('dream'), 10);
   if (n > 0) dream(Math.min(n, 40));
   if (params.get('omen')) setTimeout(() => startOmen(params.get('omen')), 1500);
-  if (params.has('debug')) window.heartstar = { bursts, pf, pull, hitPart, sunAt, view, moon, peers, get me() { return me; }, faceToward, startOmen, setMood, zoom, loveBurst, MOODS, waves, sky };
+  if (params.has('debug')) window.heartstar = { get visible() { return visible; }, hit, tap, bursts, pf, pull, hitPart, sunAt, view, moon, peers, get me() { return me; }, faceToward, startOmen, setMood, zoom, loveBurst, MOODS, waves, sky };
   requestAnimationFrame(frame);
 })();
