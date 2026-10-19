@@ -697,7 +697,7 @@
     lidL: 1, lidR: 1, asym: 0, third: 0, many: 0, tongue: 0, teeth: 0, lips: 0, melt: 0, heart: 0, tilt: 0,
     squish: 0, cross: 0, blush: 0, scramble: 0, stalks: 0, orbit: 0, flip: 0, drip: 0, stache: 0, tall: 0, spin: 0,
     pixel: 0, googly: 0, heartnose: 0, gold: 0, antenna: 0, angel: 0,
-    swirl: 0, jitter: 0, worm: 0, brows: 0, browIn: 0, joy: 0, bubble: 0, garden: 0, clock: 0,
+    swirl: 0, jitter: 0, worm: 0, bubble: 0, garden: 0, clock: 0,
   };
   const MOODS = {
     smile: {}, grin: { mo: 1, mw: 190 }, o: { oh: 1, mw: 150 }, wink: { lidL: 0 }, tongue: { mo: 0.6, tongue: 1 },
@@ -705,13 +705,13 @@
     nose: { nose: 260 }, tiny: { er: 120, pr: 60, mw: 90, nose: 70, ex: 200 }, wide: { ex: 340, er: 190, pr: 90, mw: 230 },
     squish: { squish: 1 }, sleepy: { lidL: 0, lidR: 0, mw: 150 }, cyclops: { ex: 0, er: 330, pr: 150, ey: -40 },
     cross: { cross: 1 }, shy: { blush: 1, lidL: 0, lidR: 0 }, teeth: { mo: 1, mw: 210, teeth: 1 }, scramble: { scramble: 1 },
-    stalks: { stalks: 1, er: 200, ex: 300 }, orbit: { orbit: 1, er: 200 }, flip: { flip: 1 }, drip: { drip: 1, mc: 0.6, joy: 1, mo: 0.55, brows: 1, browIn: 0.6 },
+    stalks: { stalks: 1, er: 200, ex: 300 }, orbit: { orbit: 1, er: 200 }, flip: { flip: 1 }, drip: { drip: 1, mc: 0.6 },
     stache: { stache: 1 }, tall: { tall: 1 }, spin: { spin: 1 }, third: { third: 1 },
     pixel: { pixel: 1 }, googly: { googly: 1 }, heartnose: { heartnose: 1 }, gold: { gold: 1, mo: 0.6 }, antenna: { antenna: 1 }, angel: { angel: 1, lidL: 0, lidR: 0 },
     // a few that are simply unhinged
     swirl: { swirl: 1, mo: 0.35, mw: 150 }, bugeye: { er: 370, pr: 38, jitter: 1, oh: 1, mw: 120 }, worm: { worm: 1, mo: 0.75, mw: 180 },
     // and some unexpected ones
-    bubble: { bubble: 1, mw: 110 }, garden: { garden: 1, mo: 0.4 },
+    bubble: { bubble: 1, oh: 1, mw: 70 }, garden: { garden: 1, mo: 0.4 },
     clock: { clock: 1, er: 120, pr: 60, ex: 330, ey: -210, mw: 110, my: 400, ny: 0, nose: 80 },
   };
   const pf = { cur: { ...FACE_BASE }, target: { ...FACE_BASE }, mood: 'smile', next: 7000, honk: 0, wink: 0, winkSide: -1, blink: 0, nextBlink: 3000, lx: 0, ly: 0, hit: null, hold: 0, sing: 0, singing: false, rings: [] };
@@ -796,15 +796,6 @@
         c.beginPath();
         for (let i = 0; i <= 60; i++) { const t = i / 60, a = t * Math.PI * 6 + (now / 260) * (seed % 2 ? 1 : -1); const rr = r * 0.88 * t; i ? c.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr) : c.moveTo(x, y); }
         c.lineWidth = r * 0.13; c.strokeStyle = DARK; c.stroke();
-        return;
-      }
-      if (f.joy > 0.5 && !closed) {
-        // laughing so hard the eyes squeeze shut: ∩ shapes, with little crinkles at the corners
-        c.beginPath(); c.arc(x, y + r * 0.42, r * 0.66, Math.PI * 1.06, Math.PI * 1.94); c.lineWidth = r * 0.38; c.strokeStyle = DARK; c.lineCap = 'round'; c.stroke();
-        const sd = x < 0 ? -1 : 1;
-        c.beginPath();
-        for (const k of [-1, 0, 1]) { c.moveTo(x + sd * r * 0.82, y + r * (0.18 + k * 0.2)); c.lineTo(x + sd * r * 1.08, y + r * (0.18 + k * 0.32)); }
-        c.lineWidth = r * 0.12; c.stroke();
         return;
       }
       if (f.heart > 0.5) { heartPath(x, y + r * 0.05, r * 0.92); c.fillStyle = '#ff3d6e'; c.fill(); return; }
@@ -893,7 +884,7 @@
     const eyeYs = lerp(f.ey, 330, f.scramble);
     const eyes = [];
     for (const sd of [-1, 1]) {
-      const r = f.er * (1 + sd * f.asym);
+      const r = f.er * (1 + sd * f.asym) * (1 + 0.28 * clamp(((pf.surprise || 0) - now) / 900, 0, 1));
       let x = sd * f.ex, y = eyeYs + sd * f.asym * 60 + f.melt * (120 + 40 * Math.sin(now / 600 + sd)) - f.stalks * 300;
       if (f.orbit > 0.02) {
         const a = now / 800 + (sd > 0 ? 0 : Math.PI);
@@ -921,7 +912,7 @@
       if (f.googly > 0.02) { lx = lerp(lx, Math.sin(now / 95 + sd * 2.1) * 0.9, f.googly); ly = lerp(ly, 0.6 + Math.cos(now / 140 + sd) * 0.35, f.googly); }
       eye(x, y, r, closed, lx, ly, 300 + sd);
       eyes.push([x, y, r, sd]);
-      if (f.drip > 0.05 && (!closed || f.joy > 0.5)) {
+      if (f.drip > 0.05 && !closed) {
         for (let k = 0; k < 6; k++) {
           const ph = (now / 1100 + k / 6 + (sd > 0 ? 0.08 : 0)) % 1;
           // each drop leaves at its own angle: some spray far out, some fall almost straight down
@@ -937,17 +928,6 @@
         }
         c.globalAlpha = A;
       }
-    }
-    // eyebrows: worried, joyful, or one raised in suspicion
-    if (f.brows > 0.02) {
-      c.globalAlpha = A * f.brows;
-      for (const [x, y, r, sd] of eyes) {
-        const by = y - r * 1.32 - f.joy * 40;
-        const xi = x - sd * r * 0.75, xo = x + sd * r * 0.85;
-        c.beginPath(); c.moveTo(xi, by - f.browIn * 80); c.quadraticCurveTo(x, by - 70, xo, by + f.browIn * 30);
-        c.lineWidth = 58; c.strokeStyle = DARK; c.lineCap = 'round'; c.stroke();
-      }
-      c.globalAlpha = A;
     }
     const extra = [];
     const pulled = (k, x0, y0, r) => {
@@ -996,30 +976,20 @@
     // bubblegum: a pink bubble swells out of the mouth until it pops, then again
     if (f.bubble > 0.02) {
       const ph = (((now - (pf.moodAt || now)) % 4200) / 4200);
-      const bx = mpx, by0 = my + 30;
+      const bx = mpx, by0 = my + w * 0.35;
       if (ph < 0.9) {
         const r = (40 + 430 * ph ** 1.6) * f.bubble, by = by0 + r * 0.45;
         c.beginPath(); c.arc(bx, by, r, 0, TAU); c.fillStyle = 'rgba(255,120,190,0.88)'; c.fill(); c.lineWidth = 14; c.strokeStyle = DARK; c.stroke();
         c.beginPath(); c.arc(bx - r * 0.35, by - r * 0.38, r * 0.22, Math.PI * 1.1, Math.PI * 1.6); c.lineWidth = Math.max(8, r * 0.07); c.strokeStyle = '#fff'; c.stroke();
       } else {
         const cycle = Math.floor((now - (pf.moodAt || now)) / 4200);
-        if (pf.popped !== cycle) { pf.popped = cycle; tone.pop(); pf.honk = now + 300; pf.blink = 1; } // snap!
+        if (pf.popped !== cycle) { pf.popped = cycle; tone.pop(); pf.surprise = now + 900; } // snap! and a little startled
         const k = (ph - 0.9) / 0.1, R0 = 470, cy0 = by0 + R0 * 0.45;
-        // the flash and the ring of the snap
-        c.globalAlpha = A * (1 - k);
-        c.beginPath(); c.arc(bx, cy0, R0 * (1 + k * 0.5), 0, TAU); c.lineWidth = 30 * (1 - k); c.strokeStyle = '#fff'; c.stroke();
-        for (let i = 0; i < 12; i++) { // little burst lines
-          const a = (i / 12) * TAU, r1 = R0 * (0.9 + k * 0.6), r2 = r1 + 120 * (1 - k);
-          c.beginPath(); c.moveTo(bx + Math.cos(a) * r1, cy0 + Math.sin(a) * r1); c.lineTo(bx + Math.cos(a) * r2, cy0 + Math.sin(a) * r2); c.lineWidth = 16; c.strokeStyle = DARK; c.stroke();
-        }
-        // the gum, splatted across the face, slowly fading
-        c.globalAlpha = A * Math.min(1, (1 - k) * 2);
-        for (let i = 0; i < 10; i++) {
-          const a = hash(i * 3.7) * TAU, d = 120 + hash(i * 1.3) * 330 * Math.min(1, k * 4), sz = 70 + hash(i * 5.1) * 70;
-          const x = bx + Math.cos(a) * d, y = cy0 - 120 + Math.sin(a) * d * 0.8;
-          c.beginPath();
-          for (let q = 0; q <= 10; q++) { const qa = (q / 10) * TAU, qr = sz * (0.65 + 0.35 * hash(i * 10 + q)); q ? c.lineTo(x + Math.cos(qa) * qr, y + Math.sin(qa) * qr) : c.moveTo(x + Math.cos(qa) * qr, y + Math.sin(qa) * qr); }
-          c.closePath(); c.fillStyle = '#ff78be'; c.fill(); c.lineWidth = 10; c.strokeStyle = DARK; c.stroke();
+        c.globalAlpha = A * (1 - k * k);
+        for (let i = 0; i < 14; i++) { // pink lines bursting outward
+          const a = (i / 14) * TAU, r1 = R0 * (0.75 + k * 0.7), r2 = r1 + 150 * (1 - k * 0.6);
+          c.beginPath(); c.moveTo(bx + Math.cos(a) * r1, cy0 + Math.sin(a) * r1); c.lineTo(bx + Math.cos(a) * r2, cy0 + Math.sin(a) * r2);
+          c.lineWidth = 22; c.strokeStyle = '#ff78be'; c.lineCap = 'round'; c.stroke();
         }
         c.globalAlpha = A;
       }
