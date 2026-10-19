@@ -1233,7 +1233,7 @@
       // desktop: a see-through plant under the crosshair shows where it will land
       const ds = markSize();
       c.save(); c.globalAlpha = 0.45;
-      doodle(markMode === 'head' ? 'scorsby' : markMode, pointer.x, pointer.y - ds * 0.3, ds, 7, now, 1.2 + zoom.v * 0.12);
+      doodle(markMode === 'head' ? 'scorsby' : markMode, pointer.x, pointer.y - ds * 0.3, ds, 7, now, 1.32);
       c.restore();
     }
     renderHearts(now);
@@ -1601,7 +1601,7 @@
       if (pz < 0.15) continue;
       const fade = clamp((life - (t - m.t)) / 600000, 0.25, 1);
       c.globalAlpha = show * fade * Math.min(1, pz * 3);
-      doodle(m.k === 'head' ? 'scorsby' : m.k, px, py - ds * 0.3, ds, m.seed, now, 1.2 + zoom.v * 0.12);
+      doodle(m.k === 'head' ? 'scorsby' : m.k, px, py - ds * 0.3, ds, m.seed, now, 1.32);
       m.sx = px; m.sy = py - ds * 0.3; m.ss = ds;
     }
     for (const g of found) {
@@ -1609,7 +1609,7 @@
       if (pz < 0.15) continue;
       const gs = ds * (1.6 + Math.min(1, (g.members.length - GROVE_TREES) * 0.1));
       c.globalAlpha = show * clamp((life - (t - g.t)) / 600000, 0.25, 1) * Math.min(1, pz * 3);
-      doodle('smiletree', px, py - gs * 0.45, gs, g.members[0].seed, now, 1.2 + zoom.v * 0.12);
+      doodle('smiletree', px, py - gs * 0.45, gs, g.members[0].seed, now, 1.32);
       g.members.forEach((m) => { m.sx = px; m.sy = py - gs * 0.45; m.ss = gs; });
     }
     c.restore();
