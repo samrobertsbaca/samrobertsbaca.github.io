@@ -319,12 +319,21 @@
         break;
       }
       case 'sun': {
+        // a little sunbean: a round sunny face with short wiggly rays, long and short in turn
+        const spin = now / 4000 + seed;
         c.beginPath();
-        for (let k = 0; k < 14; k++) {
-          const a = (k / 14) * TAU + seed, r1 = s * 0.18, r2 = s * (0.42 + hash(seed + k) * 0.2);
-          wobbleLine(x + Math.cos(a) * r1, y + Math.sin(a) * r1, x + Math.cos(a) * r2, y + Math.sin(a) * r2, seed + k, 0.5);
+        for (let k = 0; k < 10; k++) {
+          const a = (k / 10) * TAU + spin, r1 = s * 0.27, r2 = s * (k % 2 ? 0.36 : 0.44);
+          const mx = (r1 + r2) / 2, bend = s * 0.03 * (k % 2 ? 1 : -1);
+          c.moveTo(x + Math.cos(a) * r1, y + Math.sin(a) * r1);
+          c.quadraticCurveTo(x + Math.cos(a) * mx - Math.sin(a) * bend, y + Math.sin(a) * mx + Math.cos(a) * bend, x + Math.cos(a) * r2, y + Math.sin(a) * r2);
         }
-        c.strokeStyle = '#ff9a28'; c.stroke(); break;
+        c.strokeStyle = '#ff9a28'; c.lineWidth = lw * 1.4; c.stroke(); c.lineWidth = lw;
+        wobbleCircle(x, y, s * 0.22, seed, 0.5); c.fillStyle = '#ffd23f'; c.fill(); c.strokeStyle = charInk(0.95); c.stroke();
+        c.fillStyle = charInk();
+        for (const sd of [-1, 1]) { c.beginPath(); c.arc(x + sd * s * 0.07, y - s * 0.04, s * 0.025, 0, TAU); c.fill(); }
+        c.beginPath(); c.arc(x, y + s * 0.02, s * 0.09, 0.4, Math.PI - 0.4); c.stroke();
+        break;
       }
       case 'globe': {
         c.beginPath(); wobbleLine(x, y + s * 0.4, x + Math.sin(seed) * s * 0.2, y + s * 1.1, seed, 0.6); c.stroke();
@@ -570,7 +579,7 @@
   let stormNow = 0;     // tap sunsby and everything flashes gold      // the paper blushes with color for a moment
   let myColor = 0; // everyone arrives as classic blue
   let myName = cleanName(store.get('scorsby-name') || '');
-  let markMode = null;
+  let markMode = null, lastPlanted = '';
 
   function cleanName(n) {
     return String(n || '').normalize('NFKC').replace(/[^\p{L}\p{N} '-]/gu, '').replace(/\s+/g, ' ').trim().slice(0, 16).toLowerCase();
@@ -980,6 +989,15 @@
     if (pf.cur.angel > 0.02) renderWorldWings(now);
     renderEars(now);
     renderPlanet(now, dt);
+    // little markers people planted sit on top of the world's face, like the scorsbys do
+    renderMarks(now);
+    if (markMode && pointer.seen && !pointer.down && unproject(pointer.x, pointer.y)) {
+      // desktop: a see-through plant under the crosshair shows where it will land
+      const ds = markSize();
+      c.save(); c.globalAlpha = 0.45;
+      doodle(markMode === 'head' ? 'scorsby' : markMode, pointer.x, pointer.y - ds * 0.3, ds, 7, now, 1.2 + zoom.v * 0.12);
+      c.restore();
+    }
     renderHearts(now);
     renderFaces(now, dt, storm);
     renderMoon(now, true);
@@ -1066,8 +1084,6 @@
     }
     c.fillStyle = `rgba(0,40,120,${0.42 - 0.22 * smooth(1.5, 2.8, zoom.v)})`; c.fill(land);
 
-    // little markers people planted, only up close
-    renderMarks(now);
 
     // night, in ballpoint hatching
     const ecl = env(omenP('eclipse', now));
@@ -1146,11 +1162,12 @@
     }
     return { found, used };
   }
+  const markSize = () => clamp((small ? 11 : 9) * zoom.v, small ? 15 : 13, 44);
   function renderMarks(now) {
-    const show = smooth(1.2, 1.7, zoom.v);
+    const show = 1; // plants are always visible, even zoomed all the way out
     for (const m of marks) m.sx = -1e4;
     if (show <= 0 || !marks.length) return;
-    const ds = clamp(7 * zoom.v, 12, 40);
+    const ds = markSize();
     const life = 6 * 3600 * 1000, t = Date.now();
     const { found, used } = groves();
     c.save();
@@ -1856,6 +1873,7 @@
         break;
       }
       case 'mark': planted(m); break;
+      case 'unmarked': whisper(`your ${lastPlanted || 'plant'} needs a moment to take root. try again in a few seconds.`, 3600); break;
       case 'omen': startOmen(m.k, m.seed); break;
       case 'say': {
         // a message for everyone (already boinked by the hearth)
@@ -1935,7 +1953,7 @@
   }
   const hitSky = (x, y) => sky.find((d) => Math.hypot(d.x - x, (d.cy ?? d.y) - y) < d.s * 0.7);
   const hitMoon = (x, y) => moon.r && Math.hypot(moon.x - x, moon.y - y) < moon.r * 1.2;
-  const hitMark = (x, y) => zoom.v > 1.2 && marks.find((m) => Math.hypot(m.sx - x, m.sy - y) < m.ss * 0.5);
+  const hitMark = (x, y) => marks.find((m) => Math.hypot(m.sx - x, m.sy - y) < m.ss * 0.5);
   function localTime(tz) {
     const d = new Date(Date.now() + (tz + new Date().getTimezoneOffset()) * 60000);
     return d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' }).toLowerCase();
@@ -2049,6 +2067,7 @@
       const m = { lat: ll[0], lon: ll[1], k: markMode, n: myName, at: Date.now() };
       if (net.live) send({ t: 'mark', lat: m.lat, lon: m.lon, k: m.k }); else planted(m);
       whisper(`you planted a ${markMode}. it will fade in six hours.`, 3200);
+      lastPlanted = m.k;
       markMode = null; document.body.classList.remove('marking');
       tone.chime();
       return;

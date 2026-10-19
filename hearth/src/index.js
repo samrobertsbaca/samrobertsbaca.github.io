@@ -26,7 +26,7 @@ const MAX_MARKS = 300;
 // tokens per second, burst
 const LIMITS = {
   move: [6, 12], all: [0.25, 1], blink: [2, 4], sing: [14, 20], hush: [2, 4],
-  color: [1, 4], poke: [3, 6], name: [1, 4], mark: [0.05, 2], say: [1 / 30, 2],
+  color: [1, 4], poke: [3, 6], name: [1, 4], mark: [0.2, 4], say: [1 / 30, 2],
 };
 
 // strange things that happen to everyone at once
@@ -296,7 +296,11 @@ export class Hearth extends DurableObject {
     try { m = JSON.parse(raw); } catch { return; }
     const me = ws.deserializeAttachment();
     if (!me || !LIMITS[m.t]) return;
-    if (!this.allow(me.id, m.t)) { if (m.t === 'say') this.send(ws, { t: 'said', ok: false, why: 'wait' }); return; }
+    if (!this.allow(me.id, m.t)) {
+      if (m.t === 'say') this.send(ws, { t: 'said', ok: false, why: 'wait' });
+      if (m.t === 'mark') this.send(ws, { t: 'unmarked' });
+      return;
+    }
 
     switch (m.t) {
       case 'move': {
