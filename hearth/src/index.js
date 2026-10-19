@@ -23,9 +23,9 @@ const DAY = 24 * 60 * 60 * 1000;
 const MARK_LIFE = 6 * 60 * 60 * 1000;
 const SAID_LIFE = 3 * 60 * 60 * 1000; // kind messages, kept for a quiet world to hear again
 const MAX_SAID = 10, MAX_ECHOES = 3, QUIET = 2;
-// singing adds love: one point for every 15 seconds sung, twice as fast while harmonizing with someone,
-// and no more than 40 points from any one visit
-const SING_MS = 15000, SING_CAP = 40;
+// singing adds love: one point for every 10 seconds sung, twice as fast while harmonizing with someone,
+// and no more than 50 points from any one visit
+const SING_MS = 10000, SING_CAP = 50;
 const INTERVALS = [1, 6 / 5, 5 / 4, 4 / 3, 3 / 2, 8 / 5, 5 / 3, 2]; // unison, thirds, fourth, fifth, sixths, octave
 function consonant(a, b) {
   let r = Math.max(a, b) / Math.min(a, b);
