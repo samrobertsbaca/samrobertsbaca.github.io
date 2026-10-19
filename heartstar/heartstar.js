@@ -697,7 +697,7 @@
     lidL: 1, lidR: 1, asym: 0, third: 0, many: 0, tongue: 0, teeth: 0, lips: 0, melt: 0, heart: 0, tilt: 0,
     squish: 0, cross: 0, blush: 0, scramble: 0, stalks: 0, orbit: 0, flip: 0, drip: 0, stache: 0, tall: 0, spin: 0,
     pixel: 0, googly: 0, heartnose: 0, gold: 0, antenna: 0, angel: 0,
-    swirl: 0, jitter: 0, worm: 0, bubble: 0, garden: 0, clock: 0, meltdown: 0,
+    swirl: 0, jitter: 0, worm: 0, bubble: 0, garden: 0, clock: 0, meltdown: 0, swap: 0,
   };
   const MOODS = {
     smile: {}, grin: { mo: 1, mw: 190 }, o: { oh: 1, mw: 150 }, wink: { lidL: 0 }, tongue: { mo: 0.6, tongue: 1 },
@@ -712,6 +712,7 @@
     swirl: { swirl: 1, mo: 0.35, mw: 150 }, bugeye: { er: 370, pr: 38, jitter: 1, oh: 1, mw: 120 }, worm: { worm: 1, mo: 0.75, mw: 180 },
     // and some unexpected ones
     bubble: { bubble: 1, oh: 1, mw: 70 }, garden: { garden: 1, mo: 0.4 }, meltdown: { meltdown: 1 },
+    swap: { swap: 1, er: 210, nose: 150 }, // two noses for eyes, and an eye for a nose
     clock: { clock: 1, er: 120, pr: 60, ex: 330, ey: -210, mw: 110, my: 400, ny: 0, nose: 80 },
   };
   const pf = { cur: { ...FACE_BASE }, target: { ...FACE_BASE }, mood: 'smile', next: 7000, honk: 0, wink: 0, winkSide: -1, blink: 0, nextBlink: 3000, lx: 0, ly: 0, hit: null, hold: 0, sing: 0, singing: false, rings: [] };
@@ -725,7 +726,7 @@
     // the world's mood follows the crowd
     const n = crowd();
     const strange = ['odd', 'melt', 'many', 'nose', 'tiny', 'wide', 'squish', 'cyclops', 'cross', 'scramble', 'stalks', 'orbit', 'flip', 'drip', 'stache', 'tall', 'spin', 'kiss', 'o', 'wink', 'pixel', 'googly', 'heartnose', 'antenna', 'angel', 'gold',
-      'swirl', 'bugeye', 'worm', 'bubble', 'garden', 'clock', 'meltdown'];
+      'swirl', 'bugeye', 'worm', 'bubble', 'garden', 'clock', 'meltdown', 'swap'];
     const joyful = ['grin', 'tongue', 'hearts', 'teeth', 'grin', 'hearts'];
     const quiet = ['shy', 'tiny', 'wink', 'smile'];
     const pool = [...strange];
@@ -825,6 +826,10 @@
     const pupils = []; // drawn after all the eye whites
     const eye = (x, y, r, closed, lx, ly, seed) => {
       if (r < 4) return;
+      if (f.swap > 0.5) {
+        wobbleCircle(x, y, r * 0.6, seed, 1 / L, 0); c.fillStyle = reddish(ocean()) ? '#00b4ff' : '#ed1c24'; c.fill();
+        return;
+      }
       if (f.swirl > 0.5 && !closed) {
         wobbleCircle(x, y, r, seed, 1 / L, 0); c.fillStyle = '#fff'; c.fill();
         c.beginPath();
@@ -994,6 +999,14 @@
     const ny = f.ny + f.melt * 50 + npy;
     c.save(); c.translate(npx, 0);
     if (f.pixel > 0.5) { c.fillStyle = noseCol; c.fillRect(-nr, ny - nr, nr * 2, nr * 2); }
+    else if (f.swap > 0.5) {
+      const er2 = nr * 1.5;
+      if (blinkClosed || worldClosed) { c.beginPath(); c.arc(0, ny - er2 * 0.155, er2 * 0.667, 0, Math.PI); c.lineWidth = er2 * 0.368; c.strokeStyle = DARK; c.stroke(); }
+      else {
+        wobbleCircle(0, ny, er2, 610, 1 / L, 0); c.fillStyle = '#fff'; c.fill();
+        c.beginPath(); c.arc(pf.lx * er2 * 0.35, ny + pf.ly * er2 * 0.35, er2 * 0.45, 0, TAU); c.fillStyle = DARK; c.fill();
+      }
+    }
     else if (f.heartnose > 0.5) { heartPath(0, ny, nr * 1.15); c.fillStyle = noseCol; c.fill(); }
     else { wobbleCircle(0, ny, nr, 600, 1 / L, 0); c.fillStyle = noseCol; c.fill(); }
     if (f.stache > 0.05) {
