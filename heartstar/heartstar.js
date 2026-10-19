@@ -710,7 +710,7 @@
     pixel: { pixel: 1 }, googly: { googly: 1 }, heartnose: { heartnose: 1 }, gold: { gold: 1, mo: 0.6 }, antenna: { antenna: 1 }, angel: { angel: 1, lidL: 0, lidR: 0 },
     // and a few that are simply unhinged
     swirl: { swirl: 1, mo: 0.35, mw: 150 }, bugeye: { er: 370, pr: 38, jitter: 1, oh: 1, mw: 120 }, worm: { worm: 1, mo: 0.75, mw: 180 },
-    meltdown: { meltdown: 1, melt: 1, oh: 1, mw: 140 }, abstract: { abstract: 1 },
+    meltdown: { meltdown: 1, oh: 1, mw: 140 }, abstract: { abstract: 1, mo: 0.3 },
   };
   const pf = { cur: { ...FACE_BASE }, target: { ...FACE_BASE }, mood: 'smile', next: 7000, honk: 0, wink: 0, winkSide: -1, blink: 0, nextBlink: 3000, lx: 0, ly: 0, hit: null, hold: 0, sing: 0, singing: false, rings: [] };
   function setMood(m, hold = 0) {
@@ -763,38 +763,21 @@
     } else if (pf.singing) { pf.singing = false; voices.hush('world'); }
   }
 
-  // the face gone abstract: shapes where the features were, drifting and turning
-  function drawAbstractFace(now, k) {
-    const t = now / 1000, drift = (i, a = 40) => [Math.sin(t * 0.7 + i * 1.9) * a, Math.cos(t * 0.6 + i * 1.3) * a];
-    c.globalAlpha *= Math.min(1, k * 1.5);
-    const line = (w) => { c.lineWidth = w; c.strokeStyle = DARK; c.stroke(); };
-    // a yellow sun of a cheek and a blue half-moon
-    let [dx, dy] = drift(0, 60); c.beginPath(); c.arc(-230 + dx, -260 + dy, 210, 0, TAU); c.fillStyle = '#ffd23f'; c.fill(); line(22);
-    [dx, dy] = drift(1, 50); c.beginPath(); c.arc(290 + dx, 360 + dy, 170, Math.PI, 0); c.closePath(); c.fillStyle = '#1a6fe0'; c.fill(); line(22);
-    // a long bar and a thin line across everything
-    c.beginPath(); c.moveTo(-560, 430); c.lineTo(520, -470); line(16);
-    [dx, dy] = drift(2, 30); c.save(); c.translate(120 + dx, -380 + dy); c.rotate(0.5 + Math.sin(t * 0.4) * 0.3); c.fillStyle = DARK; c.fillRect(-260, -26, 520, 52); c.restore();
-    // one eye a square, one a triangle, looking different ways
-    [dx, dy] = drift(3); c.save(); c.translate(-250 + dx, -40 + dy); c.rotate(0.25 + Math.sin(t * 0.5) * 0.25);
-    c.beginPath(); c.rect(-150, -150, 300, 300); c.fillStyle = '#fff'; c.fill(); line(24);
-    c.fillStyle = DARK; c.fillRect(-30 + Math.sin(t * 1.3) * 60, -60, 110, 110); c.restore();
-    [dx, dy] = drift(4); c.save(); c.translate(270 + dx, -150 + dy); c.rotate(-0.3 + Math.cos(t * 0.45) * 0.3);
-    c.beginPath(); c.moveTo(0, -190); c.lineTo(180, 140); c.lineTo(-180, 140); c.closePath(); c.fillStyle = '#fff'; c.fill(); line(24);
-    c.beginPath(); c.arc(Math.cos(t * 1.1) * 40, 40, 55, 0, TAU); c.fillStyle = DARK; c.fill(); c.restore();
-    // the nose, a red triangle, slowly turning
-    [dx, dy] = drift(5, 30); c.save(); c.translate(40 + dx, 150 + dy); c.rotate(t * 0.6);
-    c.beginPath(); c.moveTo(0, -110); c.lineTo(100, 70); c.lineTo(-100, 70); c.closePath(); c.fillStyle = '#ed1c24'; c.fill(); line(18); c.restore();
-    // and a zigzag for a mouth
-    [dx, dy] = drift(6, 30); c.beginPath();
-    for (let i = 0; i <= 8; i++) { const x = -300 + i * 70 + dx, y = 360 + (i % 2 ? -50 : 40) + Math.sin(t * 2 + i) * 14 + dy; i ? c.lineTo(x, y) : c.moveTo(x, y); }
-    line(44);
-    // a few loose dots
-    c.fillStyle = DARK;
-    for (let i = 0; i < 9; i++) { c.beginPath(); c.arc(-420 + (i % 3) * 60, 120 + Math.floor(i / 3) * 60, 16, 0, TAU); c.fill(); }
+  // fractal cracks: a line that splits in two, and those split, and so on, opening up as k grows
+  function crack(x, y, ang, len, depth, k, seed, out) {
+    if (depth > 6 || len < 18) return;
+    const grow = clamp(k * 7 - depth, 0, 1); // deeper branches appear later
+    if (grow <= 0) return;
+    const ex = x + Math.cos(ang) * len * grow, ey = y + Math.sin(ang) * len * grow;
+    out.push([x, y, ex, ey, depth]);
+    if (grow < 1) return;
+    const bend = (hash(seed) - 0.5) * 0.5;
+    crack(ex, ey, ang - 0.45 + bend, len * 0.68, depth + 1, k, seed * 1.7 + 1, out);
+    crack(ex, ey, ang + 0.45 + bend, len * 0.68, depth + 1, k, seed * 2.3 + 2, out);
   }
   function renderPlanetFace(now) {
     // the face fades as you come closer, and is gone by the second zoom
-    const A = 1 - smooth(1.02, 2.0, zoom.v);
+    let A = 1 - smooth(1.02, 2.0, zoom.v);
     if (A <= 0.01) { pf.hit = null; return; }
     const f = pf.cur;
     L = R / 645;
@@ -815,13 +798,11 @@
     c.globalAlpha = A;
     c.translate(cx, cy); c.rotate(rot); c.scale(L * (1 + sq * 0.16 - f.tall * 0.12), L * (1 - sq * 0.13 + f.tall * 0.28));
     c.lineCap = 'round'; c.lineJoin = 'round';
-    if (f.abstract > 0.5) { drawAbstractFace(now, (f.abstract - 0.5) * 2); c.restore(); pf.hit = null; return; }
 
-    // the face melting all the way off: everything slides down, leaving streaks, and drips away off the bottom
-    const meltK = f.meltdown > 0.01 ? (pf.mood === 'meltdown' ? clamp((now - (pf.moodAt || now)) / 5000, 0, 1) : 1) : 0;
-    const meltDrop = 860 * meltK * meltK * f.meltdown;
-    c.save();
-    if (meltDrop > 1) { c.beginPath(); c.arc(0, 0, 640, 0, TAU); c.clip(); }
+    // the face crumbles into sand: the features fade as their grains fall, and the grains pile up in the bottom of the face
+    const sandK = f.meltdown > 0.01 ? (pf.mood === 'meltdown' ? clamp((now - (pf.moodAt || now)) / 5000, 0, 1) : 1) * f.meltdown : 0;
+    const A0 = A;
+    if (sandK > 0.01) { A = A0 * (1 - smooth(0.05, 0.75, sandK)); c.globalAlpha = A; }
 
     const eye = (x, y, r, closed, lx, ly, seed) => {
       if (r < 4) return;
@@ -887,8 +868,7 @@
 
     // the mouth: a round smile, opening wide when it grins or sings
     const [mpx, mpy] = loc('mouth');
-    const my = lerp(f.my + f.melt * 70, -360, f.scramble) + mpy + meltDrop * 1.1, w = f.mw * (1 + Math.min(0.6, Math.abs(mpx) / 600));
-    if (meltDrop > 1) taffy(mpx, my - meltDrop * 1.1, mpx, my, w * 0.8, DARK);
+    const my = lerp(f.my + f.melt * 70, -360, f.scramble) + mpy, w = f.mw * (1 + Math.min(0.6, Math.abs(mpx) / 600));
     const open = Math.max(f.mo, pf.sing * 0.9);
     c.save();
     c.translate(mpx, 0);
@@ -954,7 +934,6 @@
       const closed = lid < 0.5 || blinkClosed || worldClosed || (pf.wink > now && sd === pf.winkSide);
       let lx = lerp(pf.lx, -sd * 0.9, f.cross), ly = lerp(pf.ly, 0.1, f.cross);
       if (f.googly > 0.02) { lx = lerp(lx, Math.sin(now / 95 + sd * 2.1) * 0.9, f.googly); ly = lerp(ly, 0.6 + Math.cos(now / 140 + sd) * 0.35, f.googly); }
-      if (meltDrop > 1) { const yd = meltDrop * (1 + 0.14 * sd); taffy(x, y, x, y + yd, r * 1.5, '#fff'); y += yd; }
       eye(x, y, r, closed, lx, ly, 300 + sd);
       eyes.push([x, y, r, sd]);
       if (f.drip > 0.05 && (!closed || f.joy > 0.5)) {
@@ -1011,8 +990,7 @@
     const [npx, npy] = loc('nose');
     const nr = f.nose * honk;
     taffy(0, f.ny + f.melt * 50, npx, f.ny + f.melt * 50 + npy, nr * 1.4, noseCol);
-    const ny = f.ny + f.melt * 50 + npy + meltDrop * 0.9;
-    if (meltDrop > 1) taffy(npx, ny - meltDrop * 0.9, npx, ny, nr * 1.5, noseCol);
+    const ny = f.ny + f.melt * 50 + npy;
     c.save(); c.translate(npx, 0);
     if (f.pixel > 0.5) { c.fillStyle = noseCol; c.fillRect(-nr, ny - nr, nr * 2, nr * 2); }
     else if (f.heartnose > 0.5) { heartPath(0, ny, nr * 1.15); c.fillStyle = noseCol; c.fill(); }
@@ -1030,14 +1008,73 @@
     }
     c.restore();
 
-    c.restore(); // end of the melting clip
-    if (meltDrop > 150) {
-      // what melted off drips from the bottom of the world
-      for (let k = 0; k < 10; k++) {
-        const ph = (now / 900 + k / 10) % 1, x = (hash(k * 5.1) - 0.5) * 700, y = 600 + ph * 900;
-        c.globalAlpha = A * (1 - ph) * clamp((meltDrop - 150) / 300, 0, 1);
-        c.beginPath(); c.moveTo(x, y - 50); c.quadraticCurveTo(x + 34, y + 10, x, y + 30); c.quadraticCurveTo(x - 34, y + 10, x, y - 50);
-        c.fillStyle = ['#fff', DARK, noseCol][k % 3]; c.fill(); c.lineWidth = 9; c.strokeStyle = DARK; c.stroke();
+    A = A0; c.globalAlpha = A;
+    if (sandK > 0.01) {
+      c.save(); c.beginPath(); c.arc(0, 0, 638, 0, TAU); c.clip();
+      const h = 300 * sandK, top = (x) => 640 - h * Math.max(0, 1 - (x / 600) ** 2);
+      // the heap
+      c.beginPath(); c.moveTo(-660, 700);
+      for (let x = -660; x <= 660; x += 30) c.lineTo(x, top(x) + Math.sin(x * 0.04 + 1) * 6 * sandK);
+      c.lineTo(660, 700); c.closePath();
+      c.fillStyle = '#f2ead6'; c.fill(); c.lineWidth = 14; c.strokeStyle = DARK; c.stroke();
+      c.save(); c.clip();
+      const cols = ['#fff', DARK, noseCol, '#e2c98f'];
+      for (let k = 0; k < 420; k++) {
+        const x = (hash(k * 1.3) - 0.5) * 1240, y = 650 - hash(k * 7.7) * (650 - top(x) + 10);
+        c.fillStyle = cols[k % 4]; c.fillRect(x, y, 13, 13);
+      }
+      c.restore();
+      // grains still falling from where the eyes, nose and mouth were
+      const srcs = [[-f.ex, f.ey, f.er, 0], [f.ex, f.ey, f.er, 0], [0, f.ny, f.nose, 1], [0, f.my + 40, f.mw, 2]];
+      for (let i = 0; i < 220; i++) {
+        const [sx, sy, sr, kind] = srcs[i % 4];
+        const a = hash(i * 3.1) * TAU, rr = sr * Math.sqrt(hash(i * 5.7));
+        const x0 = sx + Math.cos(a) * rr, y0 = sy + Math.sin(a) * rr * (kind === 2 ? 0.5 : 1);
+        const p = clamp((sandK - hash(i * 9.1) * 0.6) / 0.35, 0, 1);
+        if (p <= 0 || p >= 1) continue;
+        const x = x0 + Math.sin(i + now / 300) * 12 * p, y = y0 + (top(x0) - y0) * p * p;
+        c.fillStyle = kind === 1 ? noseCol : kind === 2 ? DARK : (hash(i * 2.2) < 0.3 ? DARK : '#fff');
+        c.fillRect(x - 7, y - 7, 14, 14);
+      }
+      c.restore();
+    }
+
+    // cracking open: fractal cracks spread from the middle and open up, the eyes sprout smaller eyes,
+    // and loose sketch lines unravel around the edge
+    if (f.abstract > 0.02) {
+      const k = (pf.mood === 'abstract' ? clamp((now - (pf.moodAt || now)) / 4000, 0, 1) : 1) * f.abstract;
+      const lines = [];
+      [[0, 60, -1.9, 330], [0, 60, -0.3, 300], [0, 60, 1.4, 320], [0, 60, 2.9, 300], [-f.ex, f.ey, -2.4, 220], [f.ex, f.ey, -0.7, 220]]
+        .forEach(([x, y, ang, len], j) => crack(x, y, ang, len, 0, k, j + 1.7, lines));
+      c.save(); c.beginPath(); c.arc(0, 0, 640, 0, TAU); c.clip();
+      for (const [x1, y1, x2, y2, d] of lines) { // the gap opening
+        c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2, y2);
+        c.lineWidth = (36 - d * 4) * k; c.strokeStyle = '#ffffff'; c.lineCap = 'round'; c.stroke();
+      }
+      for (const [x1, y1, x2, y2, d] of lines) { // and its dark edge
+        c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2, y2);
+        c.lineWidth = Math.max(4, 14 - d * 2); c.strokeStyle = DARK; c.stroke();
+      }
+      c.restore();
+      // eyes within eyes within eyes
+      const sprout = (x, y, r, depth) => {
+        if (depth > 2 || k * 3 < depth + 0.3) return;
+        const n = 6, rr = r * 0.36;
+        for (let i = 0; i < n; i++) {
+          const a = (i / n) * TAU + now / (1400 + depth * 400) * (depth % 2 ? -1 : 1);
+          const ex = x + Math.cos(a) * r * 1.35, ey = y + Math.sin(a) * r * 1.35;
+          c.beginPath(); c.arc(ex, ey, rr, 0, TAU); c.fillStyle = '#fff'; c.fill(); c.lineWidth = Math.max(4, rr * 0.18); c.strokeStyle = DARK; c.stroke();
+          c.beginPath(); c.arc(ex + pf.lx * rr * 0.3, ey + pf.ly * rr * 0.3, rr * 0.42, 0, TAU); c.fillStyle = DARK; c.fill();
+          sprout(ex, ey, rr, depth + 1);
+        }
+      };
+      for (const [x, y, r] of eyes) sprout(x, y, r * 0.75, 1);
+      // the sketch coming undone: loose arcs drifting off the outline
+      c.lineCap = 'round';
+      for (let i = 0; i < 14; i++) {
+        const a0 = hash(i * 4.4) * TAU, span = 0.3 + hash(i * 1.9) * 0.7, rr = 660 + (hash(i * 6.1) * 120 + 40) * k + Math.sin(now / 500 + i) * 20 * k;
+        c.beginPath(); c.arc(0, 0, rr, a0 + now / 6000, a0 + span + now / 6000);
+        c.lineWidth = 10 + hash(i) * 14; c.strokeStyle = DARK; c.globalAlpha = A * k * 0.8; c.stroke();
       }
       c.globalAlpha = A;
     }
