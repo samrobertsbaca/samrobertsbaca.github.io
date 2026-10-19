@@ -9,11 +9,11 @@ the front door of scorsby.us: a small planet with ears, where everyone here is a
 - **holding hands**: scorsbys close together reach out; where their hands meet is a heart in a mix of both their colors.
 - **the world sings along**: when two or more people sing, it opens its mouth and hums the note between them. your mic is analysed on your device; only pitch and loudness travel.
 - **plant.exe**: plant a cactus, blue flower, tree, house, mushroom, heart, scorsby pyramid, eye, lips or scorsby. everyone sees it when they zoom in, for six hours.
-- **love today / record**: the hearth counts love shared each day (albuquerque time) and remembers the best day.
-- **the sky**: angel eyes with white feathered wings and halos, cartoon gloves, lips, scorsbys on springs, a golden bell that rings out loud, an umbrella scorsby, and friends from the books: yolksby, blocksby, the many-eyed one, the dreamer bug. **sunsby** sits where the light comes from; **moonsby** orbits and sleeps (tap to wake it).
-- **omens** every minute or two, for everyone at once: moonsby hugging sunsby, a flock of glongingstons, a sneeze, raining hearts, a colorstorm, unison, ears, the heartstar rising, the hands that hold the world, the third eye, raining gold, wings.
+- **love today / record**: each love for everyone counts one point, plus one for every scorsby you're holding hands with. the hearth keeps the count each day (albuquerque time) and remembers the best day, shown in rainbow letters.
+- **the sky**: angel eyes with white feathered wings and halos, lips, scorsbys on springs, a golden bell that rings out loud, an umbrella scorsby, and friends from the books: yolksby, blocksby, the many-eyed one, the dreamer bug. **sunsby** sits where the light comes from; **moonsby** orbits and sleeps (tap to wake it).
+- **omens** every minute or two, for everyone at once: moonsby hugging sunsby, a flock of glongingstons, a sneeze, raining hearts, a colorstorm, unison, ears, the heartstar rising, the third eye, raining gold, wings.
 - **whispers** type themselves in above the world: what's happening, lines from the blog (click to read the post), sayings from the books, and the scorsby times.
-- **peace · love · joy** lead to the blog, the works and the about pages. **join the dream district** opens the discord.
+- **peace · love · joy · shop** lead to the blog, the works, the about page and shop.scorsby.us. **join the dream district** opens the discord.
 - **white paper**, with color blooming only when something happens. night on the world is ballpoint cross-hatching.
 
 the header uses **Scheme** if it's installed, or if you drop `Scheme.woff2` / `.otf` / `.ttf` into `fonts/`.

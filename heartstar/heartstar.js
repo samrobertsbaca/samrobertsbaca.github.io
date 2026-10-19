@@ -35,7 +35,7 @@
   // ------------------------------------------------------------------ paper and ink
   const THEMES = {
     day: { paper: '#ffffff', ink: [29, 26, 94], wash: 'multiply', washA: 0.22, ocean: '#00b4ff', hatchA: 0.42 },
-    night: { paper: '#121132', ink: [240, 232, 214], wash: 'screen', washA: 0.16, ocean: '#0aa6ec', hatchA: 0.3 },
+    night: { paper: '#4a3f8c', ink: [240, 232, 214], wash: 'screen', washA: 0.16, ocean: '#0aa6ec', hatchA: 0.3 },
   };
   let T = THEMES.day;
   const DARK = '#05060a'; // the bold outline of the scorsby logo
@@ -170,28 +170,6 @@
     c.bezierCurveTo(x - r * 1.5, y - r * 0.1, x - r * 0.7, y - r * 1.25, x, y - r * 0.45);
     c.bezierCurveTo(x + r * 0.7, y - r * 1.25, x + r * 1.5, y - r * 0.1, x, y + r * 0.9);
   }
-  // a cartoon glove: fingers, thumb and cuff outlined as one shape, three stitches on the back
-  function drawGlove(x, y, s, rot, mirror = 1, lw = 1.4) {
-    const shapes = [];
-    const cap = (bx, by, ang, len, w) => shapes.push(() => {
-      c.save(); c.translate(bx, by); c.rotate(ang); c.beginPath(); c.roundRect(-w / 2, -len, w, len + w * 0.4, w / 2); c.restore();
-    });
-    for (const [fx, len, a] of [[-0.21, 0.44, -0.16], [-0.07, 0.52, -0.05], [0.07, 0.5, 0.05], [0.2, 0.4, 0.15]]) cap(fx, -0.05, a, len, 0.15);
-    cap(-0.26, 0.12, -1.05, 0.34, 0.16);
-    shapes.push(() => { c.beginPath(); c.ellipse(0, 0.1, 0.32, 0.3, 0, 0, TAU); });
-    shapes.push(() => { c.beginPath(); c.roundRect(-0.27, 0.32, 0.54, 0.17, 0.06); });
-    c.save(); c.translate(x, y); c.rotate(rot); c.scale(mirror * s, s);
-    c.lineJoin = 'round'; c.lineCap = 'round';
-    c.lineWidth = (lw * 2.4) / s; c.strokeStyle = ink();
-    for (const sh of shapes) { sh(); c.stroke(); }
-    c.fillStyle = '#fff';
-    for (const sh of shapes) { sh(); c.fill(); }
-    c.lineWidth = lw / s;
-    c.beginPath(); c.moveTo(-0.27, 0.33); c.lineTo(0.27, 0.33);
-    for (const sx of [-0.1, 0, 0.1]) { c.moveTo(sx, 0.04); c.lineTo(sx * 1.25, -0.14); }
-    c.stroke();
-    c.restore();
-  }
   function lipsPath(x, y, w) {
     c.beginPath();
     c.moveTo(x - w, y);
@@ -229,10 +207,6 @@
         const hy = y - s * 0.5 + Math.sin(now / 700 + seed) * s * 0.04;
         c.beginPath(); c.ellipse(x, hy, s * 0.28, s * 0.075, 0, 0, TAU);
         c.strokeStyle = ink(0.95); c.lineWidth = lw * 1.1; c.stroke();
-        break;
-      }
-      case 'hands': {
-        drawGlove(x, y, s * 0.9, Math.sin(now / 320 + seed) * 0.3, hash(seed) < 0.5 ? 1 : -1, lw);
         break;
       }
       case 'lips': {
@@ -502,7 +476,8 @@
   const sky = [], pops = [], raining = [];
   let marks = [], trails = [], tally = null;
   let loveWash = 0;
-  let goldFlash = 0;     // tap sunsby and everything flashes gold      // the paper blushes with color for a moment
+  let goldFlash = 0;
+  let stormNow = 0, lastStormWave = 0, lastStormRing = 0;     // tap sunsby and everything flashes gold      // the paper blushes with color for a moment
   let myColor = 0; // everyone arrives as classic blue
   let myName = cleanName(store.get('scorsby-name') || '');
   let markMode = null;
@@ -524,7 +499,7 @@
 
   // ------------------------------------------------------------------ omens: strange things that happen to everyone
   let omen = null;
-  const OMEN_DUR = { eclipse: 11000, flock: 12000, sneeze: 3200, hearts: 10000, colorstorm: 9000, unison: 12000, ears: 6000, heartstar: 10000, hands: 9000, thirdeye: 11000, goldrain: 10000, wings: 9000 };
+  const OMEN_DUR = { eclipse: 11000, flock: 12000, sneeze: 3200, hearts: 10000, colorstorm: 9000, unison: 12000, ears: 6000, heartstar: 10000, thirdeye: 11000, goldrain: 10000, wings: 9000 };
   const OMEN_WORDS = {
     eclipse: 'moonsby is hugging sunsby. everyone gets a little night.',
     flock: 'the glongingstons are passing through.',
@@ -534,7 +509,6 @@
     unison: 'for a moment, everyone is the same color.',
     ears: 'the world is listening very hard.',
     heartstar: 'the heartstar rose. everyone, everywhere: loved.',
-    hands: 'the hands that hold the world say hello.',
     thirdeye: 'the world opened its third eye. it sees you, kindly.',
     goldrain: 'and suddenly, without any explanation at all, it started raining gold.',
     wings: 'the world remembered it has wings.',
@@ -547,6 +521,7 @@
     if (k === 'heartstar') { for (const s of everyone()) s.hearts = 6000; setMood('hearts', 6000); }
     if (k === 'thirdeye') setMood('third', OMEN_DUR[k]);
     if (k === 'sneeze') setMood('o', 2000);
+    if (k === 'colorstorm') setMood(pick(['grin', 'teeth', 'tongue']), OMEN_DUR[k]);
     if (k === 'eclipse') setMood('sleepy', 8000);
     if (k === 'wings') setMood('angel', OMEN_DUR[k]);
     if (k === 'goldrain') { setMood('gold', OMEN_DUR[k]); for (let i = 0; i < 90; i++) raining.push({ gold: true, x: rand(0, VW), y: rand(-VH, -20), vy: rand(0.12, 0.22), sw: rand(0, TAU), s: rand(5, 9), at: performance.now() + rand(0, 6500) }); }
@@ -564,7 +539,7 @@
 
   // the world's face can be pulled like taffy, like the face on the mario 64 title screen.
   // offsets are in screen pixels; when you let go, each part springs back.
-  const PARTS = ['eyeL', 'eyeR', 'nose', 'mouth', 'earL', 'earR', 'antL', 'antR'];
+  const PARTS = ['eyeL', 'eyeR', 'nose', 'mouth', 'earL', 'earR', 'antL', 'antR', 'eye3', 'm0', 'm1', 'm2', 'm3', 'm4', 'm5'];
   const pull = Object.fromEntries(PARTS.map((k) => [k, { x: 0, y: 0, vx: 0, vy: 0, held: false }]));
   function updatePulls() {
     for (const k of PARTS) {
@@ -742,24 +717,38 @@
       eye(x, y, r, closed, lx, ly, 300 + sd);
       eyes.push([x, y, r, sd]);
       if (f.drip > 0.05 && !closed) {
-        for (let k = 0; k < 3; k++) {
-          const ph = (now / 1300 + k / 3 + (sd > 0 ? 0.17 : 0)) % 1;
-          const dx = x + sd * r * 0.3, dy = y + r * 0.85 + ph * 420;
-          c.globalAlpha = A * f.drip * (1 - ph);
-          c.beginPath(); c.moveTo(dx, dy - 40); c.quadraticCurveTo(dx + 26, dy + 10, dx, dy + 24); c.quadraticCurveTo(dx - 26, dy + 10, dx, dy - 40);
-          c.fillStyle = '#9be3ff'; c.fill(); c.lineWidth = 8; c.strokeStyle = DARK; c.stroke();
+        for (let k = 0; k < 6; k++) {
+          const ph = (now / 1100 + k / 6 + (sd > 0 ? 0.08 : 0)) % 1;
+          const dx = x + sd * (r * 0.45 + ph * 360), dy = y + r * 0.7 + ph * 240 + ph * ph * 420;
+          const ang = Math.atan2(240 + 840 * ph, sd * 360); // the way it is falling
+          const sz = 1.9 - ph * 0.7;
+          c.globalAlpha = A * f.drip * (1 - ph * ph);
+          c.save(); c.translate(dx, dy); c.rotate(ang - Math.PI / 2); c.scale(sz, sz);
+          c.beginPath(); c.moveTo(0, -40); c.quadraticCurveTo(26, 10, 0, 24); c.quadraticCurveTo(-26, 10, 0, -40);
+          c.restore();
+          c.fillStyle = '#9be3ff'; c.fill(); c.lineWidth = 9; c.strokeStyle = DARK; c.stroke();
         }
         c.globalAlpha = A;
       }
     }
+    const extra = [];
+    const pulled = (k, x0, y0, r) => {
+      const [px, py] = loc(k);
+      if ((px || py) && f.heart <= 0.5 && f.pixel <= 0.5) taffy(x0, y0, x0 + px, y0 + py, r * 1.5, '#fff');
+      extra.push([x0 + px, y0 + py, r, k]);
+      return [x0 + px, y0 + py];
+    };
     if (f.many > 0.02) {
-      [[-470, -330, 95], [470, -350, 90], [-525, 150, 80], [525, 140, 85], [-230, -500, 70], [250, -505, 75]].forEach(([x, y, r], i) =>
-        eye(x, y, r * f.many, blinkClosed || worldClosed, pf.lx, pf.ly, 400 + i));
+      [[-470, -330, 95], [470, -350, 90], [-525, 150, 80], [525, 140, 85], [-230, -500, 70], [250, -505, 75]].forEach(([x0, y0, r0], i) => {
+        const r = r0 * f.many, [x, y] = pulled('m' + i, x0, y0, r);
+        eye(x, y, r, blinkClosed || worldClosed, pf.lx, pf.ly, 400 + i);
+      });
     }
     if (f.third > 0.02) {
       const big = omenP('thirdeye', performance.now()) >= 0 ? 1.4 : 1;
       const lx = Math.sin(now / 900) * 0.8, ly = Math.cos(now / 1300) * 0.4;
-      eye(0, -430 - (big - 1) * 40, 150 * f.third * big, worldClosed, pointer.seen ? pf.lx : lx, pointer.seen ? pf.ly : ly, 500);
+      const r = 150 * f.third * big, [x, y] = pulled('eye3', 0, -430 - (big - 1) * 40, r);
+      eye(x, y, r, worldClosed, pointer.seen ? pf.lx : lx, pointer.seen ? pf.ly : ly, 500);
     }
 
     // the mouth: a round smile, opening wide when it grins or sings
@@ -837,6 +826,7 @@
     pf.hit = {
       nose: [...toScreen(npx, ny), nr * L], eyes: eyes.map(([x, y, r, sd]) => [...toScreen(x, y), r * L, sd]),
       mouth: [...toScreen(mpx, my + w * 0.45), w * 0.9 * L], ants: antTips.map(([x, y, r, k]) => [...toScreen(x, y), Math.max(14, r * L * 1.6), k]),
+      extra: extra.map(([x, y, r, k]) => [...toScreen(x, y), Math.max(12, r * L), k]),
     };
   }
 
@@ -846,6 +836,12 @@
     R = baseR * zoom.v; L = R / 645;
     const hue = (now / 70) % 360;
     const storm = Math.max(env(omenP('colorstorm', now)), env(omenP('thirdeye', now)) * 0.7);
+    stormNow = env(omenP('colorstorm', now));
+    if (stormNow > 0.3) {
+      // the storm keeps throwing rainbows across the world and out into the universe
+      if (now - lastStormWave > 850) { lastStormWave = now; waves.push({ v: norm([rand(-1, 1), rand(-1, 1), rand(-1, 1)]), born: now, radius: 0, seen: new Set() }); }
+      if (now - lastStormRing > 1400) { lastStormRing = now; bursts.push({ k: 'rings', born: now, dur: 2600 }); }
+    }
     updatePlanetFace(now, dt);
     updatePulls();
     blendWorld(now, storm);
@@ -865,11 +861,23 @@
       }
       c.globalCompositeOperation = 'source-over';
     }
+    if (stormNow > 0.01 && c.createConicGradient) {
+      // a spinning rainbow sky
+      const g = c.createConicGradient(now / 500, CX, CY);
+      RAINBOW.concat(RAINBOW[0]).forEach((col, i) => g.addColorStop(i / RAINBOW.length, col));
+      c.save(); c.globalAlpha = 0.32 * stormNow; c.fillStyle = g; c.fillRect(0, 0, VW, VH); c.restore();
+    }
 
     renderSky(now, dt);
     renderSun(now);
     renderRisingHeart(now);
     renderBursts(now, dt, false);
+    if (goldFlash > now) {
+      // tap sunsby: the sky behind the world flashes gold (the world itself turns gold for a moment)
+      const k = (goldFlash - now) / 2200;
+      c.save(); c.globalCompositeOperation = 'multiply'; c.globalAlpha = 0.55 * Math.sin(k * Math.PI) ** 0.6;
+      c.fillStyle = '#ffc93c'; c.fillRect(0, 0, VW, VH); c.restore();
+    }
 
     const sp = omenP('sneeze', now);
     c.save();
@@ -889,19 +897,10 @@
     renderMoon(now, true);
     c.restore();
 
-    renderHands(now);
     renderFlock(now);
     renderRain(now, dt);
     renderBursts(now, dt, true);
     renderPops(now);
-    if (goldFlash > now) {
-      // a golden flash over everything, fading out
-      const k = (goldFlash - now) / 2200;
-      c.save(); c.globalCompositeOperation = 'multiply'; c.globalAlpha = 0.55 * Math.sin(k * Math.PI) ** 0.6;
-      c.fillStyle = '#ffc93c'; c.fillRect(0, 0, VW, VH); c.restore();
-      c.save(); c.globalCompositeOperation = 'screen'; c.globalAlpha = 0.25 * k;
-      c.fillStyle = '#fff3b0'; c.fillRect(0, 0, VW, VH); c.restore();
-    }
     if (omen && now - omen.born > omen.dur) omen = null;
   }
 
@@ -948,6 +947,12 @@
       const er = 300 * L * (1 + wig * 0.06);
       wobbleCircle(ex, ey, er + lw, side * 31, 1.4, 0); c.fillStyle = DARK; c.fill();
       wobbleCircle(ex, ey, er, side * 37, 1.4, 0); c.fillStyle = ocean(); c.fill();
+      const rb = Math.max(smooth(0, 1, (loveWash - now) / 1500), stormNow);
+      if (rb > 0.01 && c.createConicGradient) {
+        const g = c.createConicGradient(now / 300 * side, ex, ey);
+        RAINBOW.concat(RAINBOW[0]).forEach((col, i) => g.addColorStop(i / RAINBOW.length, col));
+        c.save(); c.clip(); c.globalAlpha = 0.85 * rb; c.fillStyle = g; c.fillRect(ex - er, ey - er, er * 2, er * 2); c.restore();
+      }
       pf.ears.push([ex, ey, er, side < 0 ? 'earL' : 'earR']);
     }
   }
@@ -1129,6 +1134,7 @@
       const near = list.filter((b) => b !== a).map((b) => [b, Math.hypot(b.sx - a.sx, b.sy - a.sy)]).filter(([, d]) => d < reach).sort((p, q) => p[1] - q[1]).slice(0, 2);
       for (const [b] of near) pairs.add(a.id < b.id ? `${a.id}|${b.id}` : `${b.id}|${a.id}`);
     }
+    if (me) me.hands = [...pairs].filter((k) => k.split('|').includes(me.id)).length;
     const byId = new Map(list.map((s) => [s.id, s]));
     for (const key of pairs) {
       const [a, b] = key.split('|').map((id) => byId.get(id));
@@ -1257,7 +1263,7 @@
   }
 
   // ---------- the sky
-  const SKY_KINDS = ['angel', 'angel', 'hands', 'lips', 'spring', 'bell', 'umbrella', 'globe', 'sun', 'head3', 'heart', 'eye', 'yolksby', 'yolksby', 'blocksby', 'manyeye', 'bug'];
+  const SKY_KINDS = ['angel', 'angel', 'lips', 'spring', 'bell', 'umbrella', 'globe', 'sun', 'head3', 'heart', 'eye', 'yolksby', 'yolksby', 'blocksby', 'manyeye', 'bug'];
   function spawnSky(anywhere) {
     const fromLeft = Math.random() < 0.5;
     const kind = pick(SKY_KINDS);
@@ -1315,13 +1321,16 @@
     for (const [a, b, cr] of o.spots || []) circ(a, b, cr, o.spot);
     if (o.phase != null) {
       // the part of moonsby in shadow, as the real moon is tonight (lit from the right while waxing)
-      const t = Math.cos(o.phase * TAU), hr = 645 * k;
+      // the shadow covers the whole of moonsby, ears and all
+      const t = Math.cos(o.phase * TAU), hr = 645 * k, big = 1060 * k;
       c.save(); c.translate(x, y); if (o.phase > 0.5) c.scale(-1, 1);
-      c.beginPath(); c.arc(0, 0, hr, 0, TAU); c.clip();
+      c.beginPath(); c.arc(0, 0, hr, 0, TAU);
+      for (const sd of [-1, 1]) { c.moveTo(sd * 515 * k + 300 * k, -515 * k); c.arc(sd * 515 * k, -515 * k, 300 * k, 0, TAU); }
+      c.clip();
       c.beginPath();
-      c.moveTo(0, -hr);
-      c.arc(0, 0, hr, -Math.PI / 2, Math.PI / 2, true);
-      c.ellipse(0, 0, hr * Math.abs(t), hr, 0, Math.PI / 2, -Math.PI / 2, t > 0);
+      c.moveTo(0, -big);
+      c.arc(0, 0, big, -Math.PI / 2, Math.PI / 2, true);
+      c.ellipse(0, 0, big * Math.abs(t), big, 0, Math.PI / 2, -Math.PI / 2, t > 0);
       c.fillStyle = 'rgba(40,40,90,0.42)'; c.fill();
       c.restore();
     }
@@ -1404,17 +1413,6 @@
         c.lineWidth = 1.2; c.strokeStyle = DARK; c.stroke();
       }
       c.globalAlpha = 1;
-    }
-  }
-
-  function renderHands(now) {
-    const p = omenP('hands', now);
-    if (p < 0) return;
-    const rise = smooth(0, 0.25, p) * (1 - smooth(0.8, 1, p));
-    const hug = smooth(0.45, 0.65, p) * (1 - smooth(0.7, 0.85, p));
-    for (const sd of [-1, 1]) {
-      const x = CX + sd * R * (1.55 - hug * 0.35), y = CY + R * 0.4 + (1 - rise) * VH * 0.7;
-      drawGlove(x, y, R * 0.8, sd * (-0.2 + Math.sin(now / 240 + sd) * 0.18 * (1 - hug)), sd, Math.max(1.6, R * 0.01));
     }
   }
 
@@ -1506,12 +1504,12 @@
   const SAYINGS = [
     'maybe u should sit under a tree :-)', 'you can never unscorb.', 'dare to combine.', 'in this dream, you are a revolutionary peacemaker.',
     'go for gold.', 'joy, joy, joy. ever-new joy!', 'smile! scorbies love you.', 'love always wins.', 'you are the one you seek.',
-    'scorsby never left. scorsby only played.', 'just scorbin.', 'r͡rombo dombo di di dai.', 'experience all from the center.', 'we beglong.',
+    'scorsby never left. scorsby only played.', 'just scorsbin.', 'r͡rombo dombo di di dai.', 'experience all from the center.', 'we beglong.',
   ];
   const NEWS = [
     '>>> THIS JUST IN: there is no new news today.', '>>> THIS JUST IN: everyone is loved. more at eleven.',
     '>>> THIS JUST IN: local planet smiles for no reason.', '>>> THE FUTURE IS NOW. embrace your lil freak :-)',
-    '>>> THIS JUST IN: a scrillion scorsbys, all scorbin.', '>>> BREAKING: sunsby and moonsby seen hugging.',
+    '>>> THIS JUST IN: a scrillion scorsbys, all scorsbin.', '>>> BREAKING: sunsby and moonsby seen hugging.',
   ];
   setInterval(() => {
     const now = performance.now();
@@ -1538,8 +1536,15 @@
       n <= 1 ? 'you are the only scorsby here' : `${n} scorsbys here`;
     const el = document.getElementById('today');
     if (tally) {
-      const best = tally.best?.n ? ` · record ♥ ${tally.best.n.toLocaleString()} ${tally.best.day === tally.day ? '(today!)' : 'on ' + fmtDay(tally.best.day)}` : '';
-      el.textContent = `love today ♥ ${tally.today.toLocaleString()}${best}`;
+      el.textContent = `love today ♥ ${tally.today.toLocaleString()}`;
+      if (tally.best?.n) {
+        el.append(' · ');
+        const rec = document.createElement('span'); rec.className = 'record';
+        [...`record ♥ ${tally.best.n.toLocaleString()} ${tally.best.day === tally.day ? '(today!)' : 'on ' + fmtDay(tally.best.day)}`].forEach((ch, i) => {
+          const l = document.createElement('span'); l.textContent = ch; l.style.setProperty('--i', i); rec.appendChild(l);
+        });
+        el.appendChild(rec);
+      }
     } else el.textContent = '';
   }
   function setTally(t) {
@@ -1708,6 +1713,7 @@
   function hitPart(x, y) {
     if (!pf.hit || 1 - smooth(1.02, 2.0, zoom.v) < 0.5) return null;
     for (const [ax, ay, ar, k] of pf.hit.ants) if (Math.hypot(x - ax, y - ay) < ar) return k;
+    for (const [ax, ay, ar, k] of pf.hit.extra) if (Math.hypot(x - ax, y - ay) < ar) return k;
     const [nx, ny, nr] = pf.hit.nose;
     if (Math.hypot(x - nx, y - ny) < nr * 1.3) return 'nose';
     for (const [ex, ey, er, sd] of pf.hit.eyes) if (Math.hypot(x - ex, y - ey) < er) return sd < 0 ? 'eyeL' : 'eyeR';
@@ -1767,9 +1773,7 @@
       if (mk) {
         const left = Math.max(1, Math.round((6 * 3600 * 1000 - (Date.now() - mk.t)) / 3600000));
         showTip(null, mk.sx, mk.sy - mk.ss * 0.4, `${mk.n ? mk.n + ' scorsby' : 'someone'}'s ${mk.k} · fades in ~${left}h`);
-      } else if (!s && hitMoon(e.clientX, e.clientY)) showTip(null, moon.x, moon.y - moon.r, `moonsby · ${phaseName(moonPhase())} · tap for night`);
-      else if (!s && sunAt.r && Math.hypot(e.clientX - sunAt.x, e.clientY - sunAt.y) < sunAt.r * 1.3) showTip(null, sunAt.x, sunAt.y - sunAt.r, 'sunsby · tap for day');
-      else showTip(s);
+      } else showTip(s);
       return;
     }
     pointer.moved += Math.abs(dx) + Math.abs(dy);
@@ -1915,7 +1919,7 @@
     waves.push({ v: me.v, born: now, radius: 0, seen: new Set() });
     me.hearts = 2400;
     loveBurst(v, me.sz > 0 ? [me.sx, me.sy] : null, now);
-    send({ t: 'all', v });
+    send({ t: 'all', v, h: me.hands || 0 }); // one point of love, and one more for every hand you are holding
     if (!net.live) trails.push({ a: [me.lat, me.lon], t: Date.now(), k: 'all' });
     whisper(peers.size ? 'you loved everyone. everyone felt it.' : 'you loved everyone, even the ones not here yet.');
     tone.swell();
@@ -1934,6 +1938,12 @@
   // ------------------------------------------------------------------ windows: you.exe, plant.exe, sing.exe
   const youWin = document.getElementById('you-win'), plantWin = document.getElementById('plant-win'), card = document.getElementById('sing-card');
   function closeWindows(except) { for (const w of [youWin, plantWin, card]) if (w !== except) w.hidden = true; }
+  document.addEventListener('pointerdown', (e) => {
+    for (const w of [youWin, plantWin, card]) {
+      if (w.hidden || w.contains(e.target) || e.target.closest('#act-you, #act-plant, #act-sing')) continue;
+      w.hidden = true;
+    }
+  }, true);
   document.querySelectorAll('.win .x').forEach((b) => b.addEventListener('click', () => { b.closest('.win').hidden = true; }));
 
   const colorBtn = document.getElementById('act-you');
@@ -2099,7 +2109,7 @@
     arrive() { this.note(392, 2.4, 0.03); },
     together() { [0, 2, 4, 7].forEach((k, i) => this.note(PENTA[k], 3, 0.04, 'sine', i * 0.05)); },
     omen(k) {
-      const seqs = { eclipse: [0, 1, 0], flock: [4, 5, 7, 8, 7], sneeze: [8, 0], hearts: [5, 7, 8, 7, 5], colorstorm: [0, 2, 4, 5, 7, 8], unison: [2, 2, 2], ears: [6, 6], heartstar: [0, 4, 7, 8], hands: [3, 5, 3], thirdeye: [0, 7, 0, 8], goldrain: [8, 7, 5, 4, 2, 0], wings: [0, 4, 7, 8] };
+      const seqs = { eclipse: [0, 1, 0], flock: [4, 5, 7, 8, 7], sneeze: [8, 0], hearts: [5, 7, 8, 7, 5], colorstorm: [0, 2, 4, 5, 7, 8], unison: [2, 2, 2], ears: [6, 6], heartstar: [0, 4, 7, 8], thirdeye: [0, 7, 0, 8], goldrain: [8, 7, 5, 4, 2, 0], wings: [0, 4, 7, 8] };
       (seqs[k] || [0]).forEach((n, i) => this.note(PENTA[n], 2.2, 0.035, 'sine', i * 0.16));
     },
     swell() {

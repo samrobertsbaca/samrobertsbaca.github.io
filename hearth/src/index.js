@@ -25,7 +25,7 @@ const LIMITS = {
 };
 
 // strange things that happen to everyone at once
-const OMENS = ['eclipse', 'flock', 'sneeze', 'hearts', 'colorstorm', 'unison', 'ears', 'heartstar', 'hands', 'thirdeye', 'goldrain', 'wings'];
+const OMENS = ['eclipse', 'flock', 'sneeze', 'hearts', 'colorstorm', 'unison', 'ears', 'heartstar', 'thirdeye', 'goldrain', 'wings'];
 const COLORS = 9; // see heartstar.js: blue pink green orange purple yellow red ghost rainbow. or any #rrggbb.
 const HEX = /^#?([0-9a-f]{6})$/i;
 const cleanColor = (v) => { const h = HEX.exec(String(v ?? '')); if (h) return '#' + h[1].toLowerCase(); const n = Math.round(Number(v)); return Number.isFinite(n) ? clamp(n, 0, COLORS - 1) : null; };
@@ -203,15 +203,16 @@ export class Hearth extends DurableObject {
       case 'all': {
         const v = clamp(Math.round(num(m.v) ? m.v : 0), 0, 3);
         const trail = { a: [me.lat, me.lon], t: Date.now(), k: 'all' };
-        const tally = await this.love(3);
+        // one point of love, plus one for every hand the sender is holding
+        const hands = clamp(Math.round(num(m.h) ? m.h : 0), 0, Math.max(0, this.ctx.getWebSockets().length - 1));
+        const tally = await this.love(1 + hands);
         this.broadcast({ t: 'all', from: me.id, a: trail.a, at: trail.t, v, tally });
         await this.remember('trails', trail, DAY, MAX_TRAILS);
         break;
       }
       case 'poke': {
         if (!num(m.lat) || !num(m.lon)) return;
-        const tally = await this.love(1);
-        this.broadcast({ t: 'poke', from: me.id, lat: round(clamp(m.lat, -90, 90), 1), lon: round(clamp(m.lon, -180, 180), 1), tally });
+        this.broadcast({ t: 'poke', from: me.id, lat: round(clamp(m.lat, -90, 90), 1), lon: round(clamp(m.lon, -180, 180), 1) });
         break;
       }
       case 'blink': {
