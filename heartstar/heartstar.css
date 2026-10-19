@@ -1,10 +1,7 @@
-/* scheme: used if it's installed on your machine, or dropped into /fonts */
+/* scheme: baked into the site, so it's the same everywhere */
 @font-face {
   font-family: 'Scheme';
-  src: local('Scheme'), local('Scheme Regular'),
-       url('../fonts/Scheme.woff2') format('woff2'),
-       url('../fonts/Scheme.otf') format('opentype'),
-       url('../fonts/Scheme.ttf') format('truetype');
+  src: url('../fonts/Scheme.otf') format('opentype');
   font-display: swap;
 }
 @font-face {
@@ -85,7 +82,7 @@ h1 { font-family: var(--head); font-weight: 400; font-size: 30px; line-height: 1
 
 /* little messages float above the world */
 #whisper {
-  position: fixed; left: 50%; top: 76px; transform: translateX(-50%);
+  position: fixed; left: 50%; top: var(--under-top, 76px); transform: translateX(-50%);
   width: min(600px, calc(100vw - 32px)); text-align: center;
   font-family: var(--head); font-size: 22px; line-height: 1.3;
   color: var(--ink); opacity: 0; transition: opacity 1.1s ease; pointer-events: none; z-index: 2;
@@ -128,7 +125,8 @@ h1 { font-family: var(--head); font-weight: 400; font-size: 30px; line-height: 1
 #acts button[aria-pressed="true"] { background: var(--ui); color: var(--ui-fg); }
 
 #act-all {
-  font-size: 15px !important; letter-spacing: .12em !important; padding: 13px 30px !important;
+  font-family: var(--head) !important; text-transform: none !important;
+  font-size: 24px !important; letter-spacing: .02em !important; padding: 9px 30px 11px !important;
   border-width: 2px !important; box-shadow: 5px 5px 0 var(--ui) !important;
   background: var(--paper);
   position: relative;
@@ -205,7 +203,7 @@ h1 { font-family: var(--head); font-weight: 400; font-size: 30px; line-height: 1
   #top { padding: 14px 16px; }
   h1 { font-size: 24px; }
   #presence { max-width: 50vw; }
-  #whisper { font-size: 17px; top: 66px; }
+  #whisper { font-size: 17px; }
   #acts { left: 12px; right: 12px; transform: none; bottom: 14px; }
   #acts .row { flex-wrap: wrap; justify-content: center; gap: 8px; }
   #acts .row button { padding: 7px 9px; font-size: 10px; }

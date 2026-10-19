@@ -78,6 +78,11 @@
     hatch = sx2.createPattern(t, 'repeat');
   }
 
+  // the whisper sits just under the header, however tall the header grows (fonts, wrapping)
+  const topBar = document.getElementById('top');
+  const underTop = () => document.documentElement.style.setProperty('--under-top', `${Math.round(topBar.getBoundingClientRect().bottom + 10)}px`);
+  if (topBar) { underTop(); if (window.ResizeObserver) new ResizeObserver(underTop).observe(topBar); }
+
   function resize() {
     VW = innerWidth || document.documentElement.clientWidth;
     VH = innerHeight || document.documentElement.clientHeight;
@@ -527,7 +532,7 @@
     sneeze: 'achoo. bless you, world.',
     hearts: 'it is raining. it is love.',
     colorstorm: 'colorstorm!',
-    unison: 'for a moment, everyone is the same color.',
+    unison: (seed) => { const c = COLORS[(seed % 8) | 0][0]; return `for a moment, everyone is ${c === 'ghost' ? 'a ghost' : c}.`; },
     ears: 'the world is listening very hard.',
     heartstar: 'the heartstar rose. everyone, everywhere: loved.',
     thirdeye: 'the world opened its third eye. it sees you, kindly.',
@@ -537,7 +542,7 @@
   function startOmen(k, seed = Math.random() * 1e6) {
     if (!OMEN_DUR[k]) return;
     omen = { k, seed, born: performance.now(), dur: OMEN_DUR[k] };
-    whisper(OMEN_WORDS[k], 5200);
+    whisper(typeof OMEN_WORDS[k] === 'function' ? OMEN_WORDS[k](seed) : OMEN_WORDS[k], 5200);
     tone.omen(k);
     if (k === 'heartstar') { for (const s of everyone()) s.hearts = 6000; setMood('hearts', 6000); }
     if (k === 'thirdeye') setMood('third', OMEN_DUR[k]);
@@ -1769,6 +1774,7 @@
     tip.textContent = text || (s.mine ? `you · ${nameOf(s)} · drag to wander · hold to love everyone` : `${nameOf(s)} · ${localTime(s.tz)} there`);
   }
 
+  let tipHold = null; // a tapped scorsby's tip, held for a moment on touch screens
   const touches = new Map();
   let pinch = null, holdTimer = 0, lastTap = 0;
   cv.addEventListener('pointerdown', (e) => {
@@ -1847,7 +1853,7 @@
     if (e.pointerType !== 'mouse') pointer.seen = false;
     if (pointer.onMe && pointer.moved >= 6) { sendMove(true); whisper(`you wandered to the ${side(me.v)} side.`, 2600, false); }
     if (!wasTap || e.type === 'pointercancel') return;
-    tap(e.clientX, e.clientY);
+    tap(e.clientX, e.clientY, e.pointerType);
   };
   cv.addEventListener('pointerup', endPointer);
   cv.addEventListener('pointercancel', endPointer);
@@ -1858,8 +1864,9 @@
     tone.poke();
   }
 
-  function tap(x, y) {
+  function tap(x, y, type = 'mouse') {
     const now = performance.now();
+    tipHold = null; if (type !== 'mouse') showTip(null);
     if (markMode) {
       const ll = unproject(x, y);
       if (!ll) return;
@@ -1872,6 +1879,7 @@
     }
     const s = hit(x, y);
     if (s) {
+      if (type !== 'mouse') tipHold = { s, until: now + 2800 };
       if (s.mine) { s.blink = 1; send({ t: 'blink' }); tone.blink(); }
       else { s.blink = 1; heartsAt(s.v, s.id); send({ t: 'poke', lat: s.lat, lon: s.lon }); }
       return;
@@ -2179,11 +2187,11 @@
       return v;
     }
     return {
-      sing(id, f, a, x) {
+      sing(id, f, a, x, glide = 0.05) {
         if (!ac && !soundOn) return;
         const v = voice(id), t = ac.currentTime;
-        v.o1.frequency.setTargetAtTime(f, t, 0.06);
-        v.o2.frequency.setTargetAtTime(f * 2, t, 0.06);
+        v.o1.frequency.setTargetAtTime(f, t, glide);
+        v.o2.frequency.setTargetAtTime(f * 2, t, glide);
         v.g.gain.setTargetAtTime(Math.min(0.12, a * 0.16), t, 0.08);
         if (v.pan.pan) v.pan.pan.setTargetAtTime(clamp((x - CX) / (R * 1.4), -0.9, 0.9), t, 0.2);
         clearTimeout(v.timer);
@@ -2201,7 +2209,7 @@
 
   // ------------------------------------------------------------------ singing
   const singBtn = document.getElementById('act-sing');
-  const mic = { stream: null, analyser: null, buf: null, on: false, lastSend: 0, wasSinging: false };
+  const mic = { stream: null, analyser: null, buf: null, on: false, lastSend: 0, wasSinging: false, f: 0, amp: 0, lastHeard: 0, recent: [] };
   singBtn.addEventListener('click', () => {
     if (mic.on) return stopSinging();
     closeWindows(card); card.hidden = !card.hidden;
@@ -2211,7 +2219,8 @@
     card.hidden = true;
     try {
       audio();
-      mic.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
+      // noise suppression hears a long held note as noise and fades it out, so it stays off
+      mic.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: false, autoGainControl: true } });
       const src = ac.createMediaStreamSource(mic.stream);
       mic.analyser = ac.createAnalyser(); mic.analyser.fftSize = 2048;
       mic.buf = new Float32Array(mic.analyser.fftSize);
@@ -2233,39 +2242,68 @@
     voices.hush('me');
   }
 
-  // autocorrelation pitch finding. only two numbers ever leave: pitch and loudness.
+  // yin pitch finding. only two numbers ever leave: pitch and loudness.
+  let yd = null;
   function pitch(buf, rate) {
+    const W = 1024;
     let rms = 0;
-    for (let i = 0; i < buf.length; i++) rms += buf[i] * buf[i];
-    rms = Math.sqrt(rms / buf.length);
-    if (rms < 0.012) return [0, rms];
-    let r1 = 0, r2 = buf.length - 1;
-    for (let i = 0; i < buf.length / 2; i++) if (Math.abs(buf[i]) < 0.2) { r1 = i; break; }
-    for (let i = 1; i < buf.length / 2; i++) if (Math.abs(buf[buf.length - i]) < 0.2) { r2 = buf.length - i; break; }
-    const b = buf.subarray(r1, r2), n = b.length;
-    const acf = new Float32Array(n);
-    for (let lag = 0; lag < n; lag++) { let s = 0; for (let i = 0; i < n - lag; i++) s += b[i] * b[i + lag]; acf[lag] = s; }
-    let d = 0; while (d < n - 1 && acf[d] > acf[d + 1]) d++;
-    let maxv = -1, maxp = -1;
-    for (let i = d; i < n; i++) if (acf[i] > maxv) { maxv = acf[i]; maxp = i; }
-    if (maxp <= 0 || maxp >= n - 1) return [0, rms];
-    const x1 = acf[maxp - 1], x2 = acf[maxp], x3 = acf[maxp + 1];
-    const a = (x1 + x3 - 2 * x2) / 2, bb = (x3 - x1) / 2;
-    const f = rate / (a ? maxp - bb / (2 * a) : maxp);
-    return f > 70 && f < 1300 ? [f, rms] : [0, rms];
+    for (let i = 0; i < W; i++) rms += buf[i] * buf[i];
+    rms = Math.sqrt(rms / W);
+    if (rms < 0.008) return [0, rms];
+    const minT = Math.floor(rate / 1100), maxT = Math.min(Math.ceil(rate / 70), buf.length - W - 1);
+    if (!yd || yd.length !== maxT + 2) yd = new Float32Array(maxT + 2);
+    // the difference at each lag, normalised by its running mean
+    let sum = 0; yd[0] = 1;
+    for (let t = 1; t <= maxT + 1; t++) {
+      let d = 0;
+      for (let i = 0; i < W; i++) { const x = buf[i] - buf[i + t]; d += x * x; }
+      sum += d; yd[t] = sum ? d * t / sum : 1;
+    }
+    // the first dip under the threshold, walked down to its floor
+    let tau = -1;
+    for (let t = minT; t <= maxT; t++) {
+      if (yd[t] < 0.18) { while (t + 1 <= maxT && yd[t + 1] < yd[t]) t++; tau = t; break; }
+    }
+    if (tau < 0) { // nothing clean: take the deepest dip if it's still fairly periodic
+      let best = minT;
+      for (let t = minT; t <= maxT; t++) if (yd[t] < yd[best]) best = t;
+      if (yd[best] < 0.35) tau = best; else return [0, rms];
+    }
+    const x1 = yd[tau - 1], x2 = yd[tau], x3 = yd[tau + 1], den = x1 + x3 - 2 * x2;
+    const f = rate / (den > 0 ? tau + (x1 - x3) / (2 * den) : tau);
+    return f > 70 && f < 1100 ? [f, rms] : [0, rms];
   }
 
   function listen(now) {
     if (!mic.on || !me) return;
     mic.analyser.getFloatTimeDomainData(mic.buf);
-    const [f, rms] = pitch(mic.buf, ac.sampleRate);
-    const amp = clamp((rms - 0.012) * 9, 0, 1);
-    if (f && amp > 0.02) {
-      me.singTarget = amp; me.freq = f;
-      if (now - mic.lastSend > 85) {
+    let [f, rms] = pitch(mic.buf, ac.sampleRate);
+    const amp = clamp((rms - 0.008) * 10, 0, 1);
+    if (f && amp > 0.015) {
+      // a lone octave jump in the middle of a held note is usually a mishearing
+      if (mic.f) {
+        const r = f / mic.f;
+        if (Math.abs(r - 2) < 0.06 || Math.abs(r - 0.5) < 0.03) {
+          mic.recent.push(f);
+          if (mic.recent.length < 3) f = mic.f; else mic.recent.length = 0;
+        } else mic.recent.length = 0;
+      }
+      // glide in log space: quick enough for slides, smooth enough for a held note
+      const jump = mic.f ? Math.abs(Math.log2(f / mic.f)) : 1;
+      mic.f = mic.f && jump < 0.6 ? Math.exp(Math.log(mic.f) + (Math.log(f) - Math.log(mic.f)) * (jump > 0.08 ? 0.7 : 0.35)) : f;
+      mic.amp += (amp - mic.amp) * 0.5;
+      mic.lastHeard = now;
+    } else if (now - mic.lastHeard > 260) {
+      // a breath or a consonant doesn't end the note; a real pause does
+      mic.f = 0; mic.amp = 0;
+    } else mic.amp *= 0.9;
+
+    if (mic.f) {
+      me.singTarget = mic.amp; me.freq = mic.f;
+      if (now - mic.lastSend > 50) {
         mic.lastSend = now;
-        send({ t: 'sing', f: Math.round(f * 10) / 10, a: Math.round(amp * 100) / 100 });
-        voices.sing('me', f, amp * 0.35, me.sx);
+        send({ t: 'sing', f: Math.round(mic.f * 10) / 10, a: Math.round(mic.amp * 100) / 100 });
+        voices.sing('me', mic.f, mic.amp * 0.35, me.sx, 0.025);
       }
       mic.wasSinging = true;
     } else {
@@ -2329,6 +2367,10 @@
       if (!pointer.down) { view.lon += view.vlon; setView(); }
       listen(now);
       render(now, dt);
+      if (tipHold) {
+        if (now < tipHold.until && tipHold.s.sz > 0 && !pointer.down) showTip(tipHold.s);
+        else { tipHold = null; showTip(null); }
+      }
     }
     requestAnimationFrame(frame);
   }

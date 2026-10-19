@@ -44,7 +44,7 @@ function loadNavbar(targetSelector = 'nav') {
   nav.classList.add('world-nav');
   nav.innerHTML = `
     <div class="wn-left">
-      <a class="wn-title" href="/home.html">world of scorsby</a>
+      <a class="wn-title" href="/home.html"><img class="wn-face" src="/scorsbyface.png" alt="scorsby"><span>world of scorsby</span></a>
       <p class="wn-clock">${scorsbyClock()}</p>
     </div>
     <div class="wn-right">

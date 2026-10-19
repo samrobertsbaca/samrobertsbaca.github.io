@@ -431,7 +431,7 @@ footer a:hover { color: /*#007bff*/#fff; }
 /* ===== the world navbar (built by loadNavbar in functional_scripts.js) ===== */
 @font-face {
   font-family: 'Scheme';
-  src: local('Scheme'), local('Scheme Regular'), url('fonts/Scheme.woff2') format('woff2'), url('fonts/Scheme.otf') format('opentype'), url('fonts/Scheme.ttf') format('truetype');
+  src: url('/fonts/Scheme.otf') format('opentype');
   font-display: swap;
 }
 nav.world-nav {
@@ -443,9 +443,12 @@ nav.world-nav {
 }
 nav.world-nav.scrolled { box-shadow: 0 1px 0 rgba(29, 26, 94, 0.12); }
 .wn-title {
+  display: inline-flex; align-items: center; gap: 10px;
   font-family: 'Scheme', 'Instrument Serif', Georgia, serif; font-size: 30px; line-height: 1;
   color: #1d1a5e; text-decoration: none; letter-spacing: .01em;
 }
+.wn-face { width: 40px; height: 40px; object-fit: contain; transition: transform .2s; }
+.wn-title:hover .wn-face { transform: rotate(-8deg) scale(1.06); }
 .wn-title:hover { color: #00b4ff; }
 .wn-clock { margin: 8px 0 0; font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: rgba(29, 26, 94, 0.6); font-variant-numeric: tabular-nums; }
 .wn-right { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
@@ -463,7 +466,8 @@ nav.world-nav.scrolled { box-shadow: 0 1px 0 rgba(29, 26, 94, 0.12); }
 .wn-discord:active { transform: translate(3px, 3px); box-shadow: none; }
 @media (max-width: 600px) {
   nav.world-nav { padding: 14px 16px; }
-  .wn-title { font-size: 24px; }
+  .wn-title span { display: none; }
+  .wn-face { width: 44px; height: 44px; }
   .wn-links { gap: 10px; }
   .wn-discord span { display: none; }
   .wn-discord { padding: 6px 8px; }
