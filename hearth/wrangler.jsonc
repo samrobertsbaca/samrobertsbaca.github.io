@@ -7,6 +7,8 @@
     "bindings": [{ "name": "HEARTH", "class_name": "Hearth" }]
   },
   "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Hearth"] }],
+  // a small language model checks that messages are kind before anyone sees them
+  "ai": { "binding": "AI" },
   // the worker also serves the whole site, so the world and its hearth can live at one address.
   // what is left out is listed in ../.assetsignore. /hearth matches no file, so it reaches the worker.
   "assets": { "directory": "..", "binding": "ASSETS" },

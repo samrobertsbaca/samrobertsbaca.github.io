@@ -30,7 +30,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
   <link rel="preload" href="/fonts/Scheme.otf" as="font" type="font/otf" crossorigin>
-  <link rel="stylesheet" href="heartstar/heartstar.css?v=13">
+  <link rel="stylesheet" href="heartstar/heartstar.css?v=14">
 </head>
 <body>
   <canvas id="sky" aria-label="the world of scorsby: a blue planet with ears and a face, turning slowly. every small face on it is someone here right now."></canvas>
@@ -75,6 +75,11 @@
       <span class="suffix">scorsby</span>
       <button type="submit">ok</button>
     </form>
+    <form id="say-form">
+      <label for="say-in">message</label>
+      <input id="say-in" maxlength="80" autocomplete="off" placeholder="say something to everyone">
+      <button type="submit">send</button>
+    </form>
   </section>
 
   <section id="plant-win" class="win" hidden>
@@ -95,6 +100,6 @@
 
   <script src="heartstar/land.js"></script>
   <script src="heartstar/quotes.js" defer></script>
-  <script src="heartstar/heartstar.js?v=15"></script>
+  <script src="heartstar/heartstar.js?v=16"></script>
 </body>
 </html>

@@ -175,6 +175,15 @@ h1 { font-family: var(--head); font-weight: 400; font-size: 30px; line-height: 1
 #name-form .suffix { color: var(--dim); text-transform: lowercase; }
 #name-form button { padding: 6px 10px; border: 1px solid var(--ui); box-shadow: 2px 2px 0 var(--ui); text-transform: uppercase; }
 #name-form button:active { transform: translate(2px, 2px); box-shadow: none; }
+#say-form { display: flex; align-items: center; gap: 6px; padding: 0 14px 14px; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
+#say-form input {
+  flex: 1; min-width: 0; font: inherit; font-size: 12px; text-transform: lowercase; letter-spacing: .02em;
+  padding: 6px 8px; border: 1px solid var(--ui); background: var(--paper); color: var(--ink); border-radius: 0; outline: none;
+}
+#say-form input:focus { box-shadow: 2px 2px 0 var(--ui); }
+#say-form button { padding: 6px 10px; border: 1px solid var(--ui); box-shadow: 2px 2px 0 var(--ui); text-transform: uppercase; }
+#say-form button:active { transform: translate(2px, 2px); box-shadow: none; }
+#say-form button:disabled { opacity: .5; }
 
 #plants { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; padding: 12px 14px 14px; }
 .plant { aspect-ratio: 1; border: 1px solid var(--ui); display: grid; place-items: center; background: var(--paper); }
@@ -225,4 +234,5 @@ body[data-theme="night"] #acts button:not(:hover):not([aria-pressed="true"]),
 body[data-theme="night"] #zoom button:not(:hover),
 body[data-theme="night"] #discord:not(:hover),
 body[data-theme="night"] #name-form button,
+body[data-theme="night"] #say-form button,
 body[data-theme="night"] #sing-card .row button:not(#sing-yes) { background: #05060a; }

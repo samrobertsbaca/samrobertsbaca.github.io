@@ -412,7 +412,7 @@
         c.beginPath(); c.rect(x - s * 0.42, y - s * 0.46, b * 1.6, b * 1.6); c.rect(x + s * 0.42 - b * 1.6, y - s * 0.46, b * 1.6, b * 1.6); c.fill(); c.stroke();
         c.beginPath(); c.rect(x - s * 0.36, y - s * 0.3, s * 0.72, s * 0.62); c.fill(); c.stroke();
         for (const sd of [-1, 1]) {
-          c.beginPath(); c.rect(x + sd * s * 0.15 - b * 0.7, y - s * 0.16, b * 1.4, b * 1.4); c.fillStyle = T.paper; c.fill(); c.stroke();
+          c.beginPath(); c.rect(x + sd * s * 0.15 - b * 0.7, y - s * 0.16, b * 1.4, b * 1.4); c.fillStyle = '#ffffff'; c.fill(); c.stroke();
           c.fillStyle = DARK; c.fillRect(x + sd * s * 0.15 - b * 0.3 + Math.sin(now / 900 + seed) * b * 0.25, y - s * 0.16 + b * 0.4, b * 0.6, b * 0.6);
         }
         c.fillStyle = '#ed1c24'; c.fillRect(x - b * 0.4, y + s * 0.02, b * 0.8, b * 0.8);
@@ -422,11 +422,12 @@
       }
       case 'manyeye': {
         // the purple many-eyed one, from the book of blue roses
-        wobbleCircle(x, y, s * 0.4, seed, 1.2, 0); c.fillStyle = T === THEMES.night ? DARK : '#8e6bff'; c.fill(); c.stroke();
+        const night = T === THEMES.night;
+        wobbleCircle(x, y, s * 0.4, seed, 1.2, 0); c.fillStyle = night ? T.paper : '#8e6bff'; c.fill(); c.stroke();
         for (let k = 0; k < 9; k++) {
           const a = hash(seed + k) * TAU, rr = s * 0.28 * Math.sqrt(hash(seed + k * 3));
           const ex = x + Math.cos(a) * rr, ey = y + Math.sin(a) * rr, er = s * (0.05 + 0.04 * hash(k + seed));
-          c.beginPath(); c.arc(ex, ey, er, 0, TAU); c.fillStyle = '#ffe14a'; c.fill(); c.lineWidth = lw * 0.7; c.stroke();
+          c.beginPath(); c.arc(ex, ey, er, 0, TAU); c.fillStyle = night ? T.paper : '#ffe14a'; c.fill(); c.lineWidth = lw * 0.7; c.stroke();
           c.beginPath(); c.arc(ex + Math.sin(now / 700 + k) * er * 0.3, ey, er * 0.45, 0, TAU); c.fillStyle = DARK; c.fill();
         }
         c.lineWidth = lw;
@@ -441,13 +442,13 @@
         c.beginPath(); c.moveTo(x, y + s * 0.42);
         c.bezierCurveTo(x - s * 0.5, y + s * 0.1, x - s * 0.42, y - s * 0.38, x, y - s * 0.36);
         c.bezierCurveTo(x + s * 0.42, y - s * 0.38, x + s * 0.5, y + s * 0.1, x, y + s * 0.42);
-        c.fillStyle = T === THEMES.night ? DARK : '#d9cff5'; c.fill(); c.stroke();
+        c.fillStyle = T === THEMES.night ? T.paper : '#d9cff5'; c.fill(); c.stroke();
         for (const sd of [-1, 1]) {
           c.beginPath(); c.arc(x + sd * s * 0.17, y - s * 0.05, s * 0.06, 0, TAU); c.fillStyle = T.paper; c.fill(); c.stroke();
           c.beginPath(); c.arc(x + sd * s * 0.17, y - s * 0.05, s * 0.028, 0, TAU); pupilDot();
         }
-        c.beginPath(); c.arc(x, y + s * 0.08, s * 0.025, 0, TAU); c.fillStyle = pupil(); c.fill();
-        c.beginPath(); c.arc(x, y + s * 0.12, s * 0.08, 0.3, Math.PI - 0.3); c.strokeStyle = pupil(); c.stroke();
+        c.beginPath(); c.arc(x, y + s * 0.08, s * 0.025, 0, TAU); c.fillStyle = charInk(); c.fill();
+        c.beginPath(); c.arc(x, y + s * 0.12, s * 0.08, 0.3, Math.PI - 0.3); c.strokeStyle = charInk(); c.stroke();
         break;
       }
       case 'mushroom': {
@@ -1741,6 +1742,25 @@
       }
       case 'mark': addMark(m); break;
       case 'omen': startOmen(m.k, m.seed); break;
+      case 'say': {
+        // a message for everyone (already boinked by the hearth)
+        const s = me && m.id === me.id ? me : peers.get(m.id);
+        if (s) s.blink = 1;
+        const who = s === me ? 'you' : s ? nameOf(s) : 'someone';
+        whisper(`${who}: “${String(m.text || '').slice(0, 80)}”`, 5200 + String(m.text || '').length * 45);
+        tone.chime();
+        break;
+      }
+      case 'said': {
+        clearTimeout(sayWait); sayBtn.disabled = false;
+        if (m.ok) { sayIn.value = ''; youWin.hidden = true; }
+        else whisper({
+          wait: 'one message at a time. try again in a little while.',
+          empty: 'that message was empty. try some words.',
+          resting: 'the hearth couldn\'t check that one just now. try again soon.',
+        }[m.why] || 'that message got lost on the way.', 3600);
+        break;
+      }
       case 'together':
         planetBlink = 1;
         for (const s of everyone()) s.blink = 1;
@@ -2018,6 +2038,8 @@
   });
 
   // ------------------------------------------------------------------ windows: you.exe, plant.exe, sing.exe
+  const sayIn = document.getElementById('say-in'), sayBtn = document.querySelector('#say-form button');
+  let sayWait = 0;
   const youWin = document.getElementById('you-win'), plantWin = document.getElementById('plant-win'), card = document.getElementById('sing-card');
   function closeWindows(except) { for (const w of [youWin, plantWin, card]) if (w !== except) w.hidden = true; }
   document.addEventListener('pointerdown', (e) => {
@@ -2097,6 +2119,18 @@
     tone.chime();
   });
   colorBtn.addEventListener('click', () => { closeWindows(youWin); youWin.hidden = !youWin.hidden; });
+
+  // a message, for everyone here. the hearth turns any unkind word into "boink".
+  document.getElementById('say-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const text = sayIn.value.replace(/\s+/g, ' ').trim().slice(0, 80);
+    if (!text) return;
+    if (!net.live) { whisper('the hearth is resting, so nobody can hear messages right now.', 3600); return; }
+    send({ t: 'say', text });
+    sayBtn.disabled = true;
+    clearTimeout(sayWait);
+    sayWait = setTimeout(() => { sayBtn.disabled = false; whisper('that message got lost on the way. try again?', 3000); }, 10000);
+  });
   paintSwatch();
 
   MARKS.forEach((k) => {
