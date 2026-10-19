@@ -465,13 +465,32 @@ nav.world-nav.scrolled { box-shadow: 0 2px 0 rgba(29, 26, 94, 0.25); }
 .wn-discord svg { width: 15px; height: 15px; }
 .wn-discord:hover { background: #5865f2; color: #fff; }
 .wn-discord:active { transform: translate(3px, 3px); box-shadow: none; }
+.wn-burger, .wn-clock-menu { display: none; }
 @media (max-width: 600px) {
-  nav.world-nav { padding: 14px 16px; }
-  .wn-title span { display: none; }
+  /* phones: scorsby on the left, a hamburger on the right, everything else folded inside */
+  nav.world-nav { padding: 12px 16px; align-items: center; position: sticky; }
+  .wn-title span, .wn-left .wn-clock { display: none; }
   .wn-face { width: 44px; height: 44px; }
-  .wn-links { gap: 6px 10px; }
-  .wn-discord span { display: none; }
-  .wn-discord { padding: 6px 8px; }
+  .wn-burger {
+    display: grid; align-content: center; gap: 5px; width: 40px; height: 40px; padding: 0 9px;
+    background: #fff; border: 1px solid #05060a; box-shadow: 3px 3px 0 #05060a; cursor: pointer;
+    transition: transform .08s, box-shadow .08s;
+  }
+  .wn-burger:active { transform: translate(3px, 3px); box-shadow: none; }
+  .wn-burger span { display: block; height: 2px; background: #05060a; transition: transform .2s, opacity .2s; }
+  nav.world-nav.open .wn-burger span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  nav.world-nav.open .wn-burger span:nth-child(2) { opacity: 0; }
+  nav.world-nav.open .wn-burger span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+  .wn-right {
+    display: none; position: absolute; top: 100%; left: 0; right: 0;
+    flex-direction: column; align-items: flex-start; gap: 16px;
+    padding: 6px 20px 22px; background: #00b4ff; box-shadow: 0 2px 0 rgba(29, 26, 94, 0.25);
+  }
+  nav.world-nav.open .wn-right { display: flex; }
+  .wn-links { flex-direction: column; align-items: flex-start; gap: 14px; }
+  .wn-links a { font-size: 15px; }
+  .wn-discord { font-size: 11px; padding: 8px 12px; }
+  .wn-clock-menu { display: block; margin: 0; }
 }
 
 /* peace: who the notes are from */

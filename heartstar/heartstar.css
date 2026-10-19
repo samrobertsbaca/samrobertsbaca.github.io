@@ -212,7 +212,7 @@ h1 { font-family: var(--head); font-weight: 400; font-size: 30px; line-height: 1
   #top { padding: 14px 16px; }
   h1 { font-size: 24px; }
   #top { gap: 14px; }
-  #presence { flex: 0 1 auto; max-width: 54vw; }
+  #presence { flex: 0 0 auto; max-width: none; }
   #today .rec { white-space: nowrap; }
   #top > div:first-child { min-width: 0; }
   #whisper { font-size: 17px; }
@@ -224,7 +224,10 @@ h1 { font-family: var(--head); font-weight: 400; font-size: 30px; line-height: 1
   #act-all { width: 100%; }
   .win { bottom: 132px; }
   #zoom { right: 12px; top: auto; bottom: 128px; transform: none; flex-direction: row; }
-  #ways { gap: 6px 10px; }
+  #ways-row { display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-top: 4px; }
+  #ways-row #discord { margin-top: 0; }
+  #ways { flex-wrap: nowrap; gap: 9px; margin-top: 0; }
+  #ways a { letter-spacing: .07em; }
   #discord span { display: none; }
   #discord { padding: 6px 8px; }
 }

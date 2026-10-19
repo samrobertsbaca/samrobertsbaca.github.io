@@ -47,12 +47,21 @@ function loadNavbar(targetSelector = 'nav') {
       <a class="wn-title" href="/home.html"><img class="wn-face" src="/scorsbyface.png" alt="scorsby"><span>world of scorsby</span></a>
       <p class="wn-clock">${scorsbyClock()}</p>
     </div>
-    <div class="wn-right">
+    <button class="wn-burger" type="button" aria-label="menu" aria-expanded="false" aria-controls="wn-menu"><span></span><span></span><span></span></button>
+    <div class="wn-right" id="wn-menu">
       <div class="wn-links">${links}</div>
       <a class="wn-discord" href="https://discord.gg/RBQ3dbYsaZ" target="_blank" rel="noopener">${DISCORD_SVG}<span>join the dream district</span></a>
+      <p class="wn-clock wn-clock-menu">${scorsbyClock()}</p>
     </div>`;
-  const clock = nav.querySelector('.wn-clock');
-  setInterval(() => { clock.textContent = scorsbyClock(); }, 1000);
+  const clocks = nav.querySelectorAll('.wn-clock');
+  setInterval(() => { const t = scorsbyClock(); clocks.forEach((c) => { c.textContent = t; }); }, 1000);
+
+  // on a phone the links fold away behind a hamburger
+  const burger = nav.querySelector('.wn-burger');
+  const setOpen = (open) => { nav.classList.toggle('open', open); burger.setAttribute('aria-expanded', String(open)); };
+  burger.addEventListener('click', () => setOpen(!nav.classList.contains('open')));
+  document.addEventListener('click', (e) => { if (!nav.contains(e.target)) setOpen(false); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setOpen(false); });
 }
 
 // Set up the scroll listener
