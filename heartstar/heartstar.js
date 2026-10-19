@@ -1008,10 +1008,10 @@
         c.beginPath(); c.arc(bx - r * 0.35, by - r * 0.38, r * 0.22, Math.PI * 1.1, Math.PI * 1.6); c.lineWidth = Math.max(8, r * 0.07); c.strokeStyle = '#fff'; c.stroke();
       } else if (ph < 1) {
         if (pf.popped !== pf.moodAt) { pf.popped = pf.moodAt; tone.pop(); pf.blink = 1; setTimeout(() => { pf.blink = 1; }, 380); } // snap! blink, blink
-        const k = (ph - 0.9) / 0.1, R0 = (40 + 300 * 0.9 ** 1.6) * f.bubble, cy0 = by0 + R0 * 0.45; // the bubble at its biggest
+        const k = (ph - 0.9) / 0.1, R0 = (40 + 300 * 0.9 ** 1.6) * f.bubble, cy0 = by0; // the bubble at its biggest, the burst centered on the mouth
         c.globalAlpha = A * (1 - k * k);
         for (let i = 0; i < 14; i++) { // pink lines bursting outward
-          const a = (i / 14) * TAU, r2 = R0 * (0.4 + 0.3 * Math.sqrt(k)), r1 = r2 * (0.4 + 0.4 * k); // never past where the bubble was
+          const a = (i / 14) * TAU, r2 = R0 * (0.5 + 0.35 * Math.sqrt(k)), r1 = r2 * (0.4 + 0.4 * k); // never past where the bubble was
           c.beginPath(); c.moveTo(bx + Math.cos(a) * r1, cy0 + Math.sin(a) * r1); c.lineTo(bx + Math.cos(a) * r2, cy0 + Math.sin(a) * r2);
           c.lineWidth = 16; c.strokeStyle = '#ff78be'; c.lineCap = 'round'; c.stroke();
         }
