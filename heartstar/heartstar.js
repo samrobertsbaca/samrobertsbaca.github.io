@@ -182,7 +182,7 @@
     }
     return t;
   };
-  const landTiers = [tierOf(LAND, window.LAND_H, 26012), { state: 'none', file: 'land_fine.bin?v=1', total: 104042 }, { state: 'none', file: 'land_ultra.bin?v=1', total: 416162 }];
+  const landTiers = [tierOf(LAND, window.LAND_H, 26012), { state: 'none', file: 'land_fine.bin?v=2', total: 104042 }, { state: 'none', file: 'land_ultra.bin?v=2', total: 416162 }, { state: 'none', file: 'land_mega.bin?v=1', total: 1664642 }];
   function loadLandTier(i) {
     const t = landTiers[i];
     if (t.state !== 'none') return;
@@ -1456,12 +1456,14 @@
     };
     if (zoom.target > 1.4) loadLandTier(1);
     if (zoom.target > 2.5) loadLandTier(2);
+    if (zoom.target > 7) loadLandTier(3);
     // a little spinner on the zoom button while a closer map is still on its way
-    zoomBtn.classList.toggle('loading', (zoom.target > 2 && landTiers[1].state === 'loading') || (zoom.target > 4.5 && landTiers[2].state === 'loading'));
+    zoomBtn.classList.toggle('loading', (zoom.target > 2 && landTiers[1].state === 'loading') || (zoom.target > 4.5 && landTiers[2].state === 'loading') || (zoom.target > 11 && landTiers[3].state === 'loading'));
     const f1 = landTiers[1].state === 'ready' ? smooth(1.8, 2.8, zoom.v) : 0; // finer land fades in as you come closer
     const f2 = landTiers[1].state === 'ready' && landTiers[2].state === 'ready' ? smooth(4.5, 6.5, zoom.v) : 0; // and the finest, closer still
     const landA = Math.min(0.9, (0.42 - 0.22 * smooth(1.5, 2.8, zoom.v)) * (1 + 1.3 * sh));
-    const weights = [1 - f1, f1 * (1 - f2), f2];
+    const f3 = f2 && landTiers[3].state === 'ready' ? smooth(11, 15, zoom.v) : 0; // and finer again, at the very closest
+    const weights = [1 - f1, f1 * (1 - f2), f2 * (1 - f3), f3];
     weights.forEach((wgt, i) => { if (wgt > 0.004 && landTiers[i].state === 'ready') drawLand(landTiers[i], landA * wgt); });
 
     // night, in ballpoint hatching
@@ -2442,7 +2444,7 @@
     if (touches.has(e.pointerId)) touches.set(e.pointerId, [e.clientX, e.clientY]);
     if (pinch && touches.size === 2) {
       const [a, b] = [...touches.values()];
-      zoom.target = clamp(pinch.z * Math.hypot(a[0] - b[0], a[1] - b[1]) / pinch.d, 0.75, 11.2);
+      zoom.target = clamp(pinch.z * Math.hypot(a[0] - b[0], a[1] - b[1]) / pinch.d, 0.75, 16.8);
       return;
     }
     const dx = e.clientX - pointer.x, dy = e.clientY - pointer.y;
@@ -2575,7 +2577,7 @@
 
   function zoomAt(x, y, factor) {
     const ll = unproject(x, y);
-    zoom.target = clamp(zoom.target * factor, 0.75, 11.2);
+    zoom.target = clamp(zoom.target * factor, 0.75, 16.8);
     if (ll && factor > 1) zoom.aim = ll;
   }
   cv.addEventListener('wheel', (e) => {
@@ -2583,14 +2585,14 @@
     // a pinch on a trackpad arrives as a wheel with ctrl held, in small steps; two-finger scrolls are small steps too. a mouse wheel clicks in big ones.
     const k = e.ctrlKey ? 0.012 : e.deltaMode === 0 && Math.abs(e.deltaY) < 50 ? 0.006 : 0.0016;
     const f = Math.exp(-(e.deltaMode === 1 ? e.deltaY * 33 : e.deltaY) * k);
-    zoom.target = clamp(zoom.target * f, 0.75, 11.2);
+    zoom.target = clamp(zoom.target * f, 0.75, 16.8);
     if (f > 1) { const ll = unproject(e.clientX, e.clientY); if (ll) zoom.aim = ll; }
   }, { passive: false });
   // the buttons step between fixed stops, so stepping back out always lands on the usual view (1), with the whole face showing
-  const ZOOM_STOPS = [0.75, 1, 2.56, 6.55, 11.2];
+  const ZOOM_STOPS = [0.75, 1, 2.56, 6.55, 16.8];
   const zoomStep = (dir) => {
     const z = zoom.target;
-    zoom.target = dir > 0 ? ZOOM_STOPS.find((v) => v > z * 1.02) ?? 11.2 : [...ZOOM_STOPS].reverse().find((v) => v < z / 1.02) ?? 0.75;
+    zoom.target = dir > 0 ? ZOOM_STOPS.find((v) => v > z * 1.02) ?? 16.8 : [...ZOOM_STOPS].reverse().find((v) => v < z / 1.02) ?? 0.75;
   };
   document.getElementById('zoom-in').addEventListener('click', () => zoomStep(1));
   document.getElementById('zoom-out').addEventListener('click', () => zoomStep(-1));

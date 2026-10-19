@@ -6,6 +6,7 @@
 //   node build_land.mjs <repo>/heartstar/land.js        51 110m LAND
 //   node build_land.mjs <repo>/heartstar/land_fine.bin  102  50m
 //   node build_land.mjs <repo>/heartstar/land_ultra.bin 204  10m
+//   node build_land.mjs <repo>/heartstar/land_mega.bin  408  10m
 // a .bin is quicker to load: every dot's latitude and longitude as 16-bit whole numbers (degrees x 180), then a byte per dot for its height
 import { readFileSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
@@ -50,9 +51,12 @@ const onLand = (lat, lon) => grid[Math.min(H - 1, Math.floor((90 - lat) / 180 * 
 
 // height from the elevation image: about 145 is sea level, about 230 the highest peaks
 const elev = PNG.sync.read(readFileSync(elevFile));
+const px = (x, y) => elev.data[(Math.min(elev.height - 1, Math.max(0, y)) * elev.width + ((x % elev.width) + elev.width) % elev.width) * 4];
 const gray = (lat, lon) => {
-  const x = Math.min(elev.width - 1, Math.floor((lon + 180) / 360 * elev.width)), y = Math.min(elev.height - 1, Math.floor((90 - lat) / 180 * elev.height));
-  return elev.data[(y * elev.width + x) * 4];
+  // blended between the four nearest pixels, so the finest dots don't show the image's squares
+  const fx = (lon + 180) / 360 * elev.width - 0.5, fy = (90 - lat) / 180 * elev.height - 0.5;
+  const x = Math.floor(fx), y = Math.floor(fy), a = fx - x, b = fy - y;
+  return (px(x, y) * (1 - a) + px(x + 1, y) * a) * (1 - b) + (px(x, y + 1) * (1 - a) + px(x + 1, y + 1) * a) * b;
 };
 const level = (lat, lon) => Math.min(5, Math.floor(Math.pow(Math.max(0, Math.min(1, (gray(lat, lon) - 145) / 85)), 0.6) * 6));
 
