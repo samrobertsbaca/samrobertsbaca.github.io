@@ -2696,7 +2696,7 @@
       return v;
     }
     return {
-      sing(id, f, a, x, glide = 0.05) {
+      sing(id, f, a, x, glide = 0.06) {
         if (!ac && !soundOn) return;
         const v = voice(id), t = ac.currentTime;
         v.o1.frequency.setTargetAtTime(f, t, glide);
@@ -2718,7 +2718,7 @@
 
   // ------------------------------------------------------------------ singing
   const singBtn = document.getElementById('act-sing');
-  const mic = { stream: null, analyser: null, buf: null, on: false, lastSend: 0, wasSinging: false, f: 0, amp: 0, lastHeard: 0, recent: [] };
+  const mic = { stream: null, analyser: null, buf: null, on: false, lastSend: 0, wasSinging: false };
   singBtn.addEventListener('click', () => {
     if (mic.on) return stopSinging();
     closeWindows(card); card.hidden = !card.hidden;
@@ -2728,8 +2728,7 @@
     card.hidden = true;
     try {
       audio();
-      // noise suppression hears a long held note as noise and fades it out, so it stays off
-      mic.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: false, autoGainControl: true } });
+      mic.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
       const src = ac.createMediaStreamSource(mic.stream);
       mic.analyser = ac.createAnalyser(); mic.analyser.fftSize = 2048;
       mic.buf = new Float32Array(mic.analyser.fftSize);
@@ -2751,71 +2750,39 @@
     voices.hush('me');
   }
 
-  // yin pitch finding. only two numbers ever leave: pitch and loudness.
-  let yd = null;
+  // autocorrelation pitch finding. only two numbers ever leave: pitch and loudness.
   function pitch(buf, rate) {
-    const W = 1024, o = buf.length - W; // the newest W samples, compared with the moments just before them
     let rms = 0;
-    for (let i = o; i < buf.length; i++) rms += buf[i] * buf[i];
-    rms = Math.sqrt(rms / W);
-    if (rms < 0.008) return [0, rms];
-    const minT = Math.floor(rate / 1100), maxT = Math.min(Math.ceil(rate / 70), o - 1);
-    if (!yd || yd.length !== maxT + 2) yd = new Float32Array(maxT + 2);
-    // the difference at each lag, normalised by its running mean
-    let sum = 0; yd[0] = 1;
-    for (let t = 1; t <= maxT + 1; t++) {
-      let d = 0;
-      for (let i = o; i < buf.length; i++) { const x = buf[i] - buf[i - t]; d += x * x; }
-      sum += d; yd[t] = sum ? d * t / sum : 1;
-    }
-    // the first dip under the threshold, walked down to its floor
-    let tau = -1;
-    for (let t = minT; t <= maxT; t++) {
-      if (yd[t] < 0.25) { while (t + 1 <= maxT && yd[t + 1] < yd[t]) t++; tau = t; break; }
-    }
-    if (tau < 0) { // nothing clean: take the deepest dip if it's still fairly periodic
-      let best = minT;
-      for (let t = minT; t <= maxT; t++) if (yd[t] < yd[best]) best = t;
-      if (yd[best] < 0.6) tau = best; else return [0, rms];
-    }
-    const x1 = yd[tau - 1], x2 = yd[tau], x3 = yd[tau + 1], den = x1 + x3 - 2 * x2;
-    const f = rate / (den > 0 ? tau + (x1 - x3) / (2 * den) : tau);
-    return f > 70 && f < 1100 ? [f, rms] : [0, rms];
+    for (let i = 0; i < buf.length; i++) rms += buf[i] * buf[i];
+    rms = Math.sqrt(rms / buf.length);
+    if (rms < 0.012) return [0, rms];
+    let r1 = 0, r2 = buf.length - 1;
+    for (let i = 0; i < buf.length / 2; i++) if (Math.abs(buf[i]) < 0.2) { r1 = i; break; }
+    for (let i = 1; i < buf.length / 2; i++) if (Math.abs(buf[buf.length - i]) < 0.2) { r2 = buf.length - i; break; }
+    const b = buf.subarray(r1, r2), n = b.length;
+    const acf = new Float32Array(n);
+    for (let lag = 0; lag < n; lag++) { let s = 0; for (let i = 0; i < n - lag; i++) s += b[i] * b[i + lag]; acf[lag] = s; }
+    let d = 0; while (d < n - 1 && acf[d] > acf[d + 1]) d++;
+    let maxv = -1, maxp = -1;
+    for (let i = d; i < n; i++) if (acf[i] > maxv) { maxv = acf[i]; maxp = i; }
+    if (maxp <= 0 || maxp >= n - 1) return [0, rms];
+    const x1 = acf[maxp - 1], x2 = acf[maxp], x3 = acf[maxp + 1];
+    const a = (x1 + x3 - 2 * x2) / 2, bb = (x3 - x1) / 2;
+    const f = rate / (a ? maxp - bb / (2 * a) : maxp);
+    return f > 70 && f < 1300 ? [f, rms] : [0, rms];
   }
 
   function listen(now) {
     if (!mic.on || !me) return;
     mic.analyser.getFloatTimeDomainData(mic.buf);
-    let [f, rms] = pitch(mic.buf, ac.sampleRate);
-    const amp = clamp((rms - 0.008) * 10, 0, 1);
-    if (f && amp > 0.015) {
-      // a lone octave jump in the middle of a held note is usually a mishearing
-      if (mic.f) {
-        const r = f / mic.f;
-        if (Math.abs(r - 2) < 0.06 || Math.abs(r - 0.5) < 0.03) {
-          mic.recent.push(f);
-          if (mic.recent.length < 3) f = mic.f; else mic.recent.length = 0;
-        } else mic.recent.length = 0;
-      }
-      // glide in log space: quick enough for slides, smooth enough for a held note
-      const jump = mic.f ? Math.abs(Math.log2(f / mic.f)) : 1;
-      mic.f = mic.f && jump < 0.6 ? Math.exp(Math.log(mic.f) + (Math.log(f) - Math.log(mic.f)) * (jump > 0.08 ? 0.7 : 0.35)) : f;
-      mic.amp += (amp - mic.amp) * 0.5;
-      mic.lastHeard = now;
-    } else if (mic.f && rms > 0.006) {
-      // still sounding: a long held note carries on at the last pitch
-      mic.lastHeard = now; mic.amp += (Math.max(amp, 0.06) - mic.amp) * 0.3;
-    } else if (now - mic.lastHeard > 200) {
-      // a breath or a consonant doesn't end the note; a real pause does
-      mic.f = 0; mic.amp = 0;
-    } else mic.amp *= 0.97;
-
-    if (mic.f) {
-      me.singTarget = mic.amp; me.freq = mic.f;
-      voices.sing('me', mic.f, mic.amp * 0.35, me.sx, 0.02);
-      if (now - mic.lastSend > 100) {
+    const [f, rms] = pitch(mic.buf, ac.sampleRate);
+    const amp = clamp((rms - 0.012) * 9, 0, 1);
+    if (f && amp > 0.02) {
+      me.singTarget = amp; me.freq = f;
+      if (now - mic.lastSend > 100) { // every 100ms, to keep the hearth's traffic down
         mic.lastSend = now;
-        send({ t: 'sing', f: Math.round(mic.f * 10) / 10, a: Math.round(mic.amp * 100) / 100 });
+        send({ t: 'sing', f: Math.round(f * 10) / 10, a: Math.round(amp * 100) / 100 });
+        voices.sing('me', f, amp * 0.35, me.sx);
       }
       mic.wasSinging = true;
     } else {
@@ -2910,6 +2877,6 @@
   if (n > 0) dream(Math.min(n, 40));
   if (params.get('omen')) setTimeout(() => startOmen(params.get('omen')), 1500);
   if (params.get('mood')) setTimeout(() => setMood(params.get('mood'), 30000), Math.max(1500, intro.ui - performance.now() + 500)); // ?mood=worm to see one face for 30s
-  if (params.has('debug')) window.heartstar = { get visible() { return visible; }, hit, tap, planted, bursts, pf, pull, hitPart, sunAt, view, moon, peers, get me() { return me; }, faceToward, startOmen, setMood, zoom, loveBurst, MOODS, waves, sky };
+  if (params.has('debug')) window.heartstar = { get visible() { return visible; }, get ac() { return ac; }, get master() { return master; }, get soundOn() { return soundOn; }, mic, pitch, hit, tap, planted, bursts, pf, pull, hitPart, sunAt, view, moon, peers, get me() { return me; }, faceToward, startOmen, setMood, zoom, loveBurst, MOODS, waves, sky };
   requestAnimationFrame(frame);
 })();
