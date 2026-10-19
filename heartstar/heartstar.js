@@ -697,7 +697,7 @@
     lidL: 1, lidR: 1, asym: 0, third: 0, many: 0, tongue: 0, teeth: 0, lips: 0, melt: 0, heart: 0, tilt: 0,
     squish: 0, cross: 0, blush: 0, scramble: 0, stalks: 0, orbit: 0, flip: 0, drip: 0, stache: 0, tall: 0, spin: 0,
     pixel: 0, googly: 0, heartnose: 0, gold: 0, antenna: 0, angel: 0,
-    swirl: 0, jitter: 0, worm: 0, mouths: 0, brows: 0, browIn: 0, browUp: 0, side: 0, chomp: 0, joy: 0,
+    swirl: 0, jitter: 0, worm: 0, brows: 0, browIn: 0, joy: 0, meltdown: 0, abstract: 0,
   };
   const MOODS = {
     smile: {}, grin: { mo: 1, mw: 190 }, o: { oh: 1, mw: 150 }, wink: { lidL: 0 }, tongue: { mo: 0.6, tongue: 1 },
@@ -708,15 +708,14 @@
     stalks: { stalks: 1, er: 200, ex: 300 }, orbit: { orbit: 1, er: 200 }, flip: { flip: 1 }, drip: { drip: 1, mc: 0.6, joy: 1, mo: 0.55, brows: 1, browIn: 0.6 },
     stache: { stache: 1 }, tall: { tall: 1 }, spin: { spin: 1 }, third: { third: 1 },
     pixel: { pixel: 1 }, googly: { googly: 1 }, heartnose: { heartnose: 1 }, gold: { gold: 1, mo: 0.6 }, antenna: { antenna: 1 }, angel: { angel: 1, lidL: 0, lidR: 0 },
-    // stranger still
-    swirl: { swirl: 1, mo: 0.35, mw: 150 }, suspicious: { brows: 1, browUp: 1, side: 1, mw: 120, asym: 0.1 },
-    scream: { brows: 1, browIn: 1, oh: 1, mw: 260, er: 200, pr: 45 }, chomp: { chomp: 1, teeth: 1, mo: 1, mw: 230 },
     // and a few that are simply unhinged
-    bugeye: { er: 370, pr: 38, jitter: 1, oh: 1, mw: 120 }, worm: { worm: 1, mo: 0.75, mw: 180 }, mouths: { mouths: 1, mo: 0.6 },
+    swirl: { swirl: 1, mo: 0.35, mw: 150 }, bugeye: { er: 370, pr: 38, jitter: 1, oh: 1, mw: 120 }, worm: { worm: 1, mo: 0.75, mw: 180 },
+    meltdown: { meltdown: 1, melt: 1, oh: 1, mw: 140 }, abstract: { abstract: 1 },
   };
   const pf = { cur: { ...FACE_BASE }, target: { ...FACE_BASE }, mood: 'smile', next: 7000, honk: 0, wink: 0, winkSide: -1, blink: 0, nextBlink: 3000, lx: 0, ly: 0, hit: null, hold: 0, sing: 0, singing: false, rings: [] };
   function setMood(m, hold = 0) {
     if (!MOODS[m] || (!intro.woke && m !== 'sleepy')) return; // nothing stirs the world before it wakes
+    if (pf.mood !== m) pf.moodAt = performance.now();
     pf.mood = m; pf.target = { ...FACE_BASE, ...MOODS[m] }; pf.hold = performance.now() + hold;
     if (hold) pf.next = hold + rand(1000, 3000);
   }
@@ -724,7 +723,7 @@
     // the world's mood follows the crowd
     const n = crowd();
     const strange = ['odd', 'melt', 'many', 'nose', 'tiny', 'wide', 'squish', 'cyclops', 'cross', 'scramble', 'stalks', 'orbit', 'flip', 'drip', 'stache', 'tall', 'spin', 'kiss', 'o', 'wink', 'pixel', 'googly', 'heartnose', 'antenna', 'angel', 'gold',
-      'swirl', 'suspicious', 'scream', 'chomp', 'bugeye', 'worm', 'mouths'];
+      'swirl', 'bugeye', 'worm', 'meltdown', 'abstract'];
     const joyful = ['grin', 'tongue', 'hearts', 'teeth', 'grin', 'hearts'];
     const quiet = ['shy', 'tiny', 'wink', 'smile'];
     const pool = [...strange];
@@ -764,6 +763,35 @@
     } else if (pf.singing) { pf.singing = false; voices.hush('world'); }
   }
 
+  // the face gone abstract: shapes where the features were, drifting and turning
+  function drawAbstractFace(now, k) {
+    const t = now / 1000, drift = (i, a = 40) => [Math.sin(t * 0.7 + i * 1.9) * a, Math.cos(t * 0.6 + i * 1.3) * a];
+    c.globalAlpha *= Math.min(1, k * 1.5);
+    const line = (w) => { c.lineWidth = w; c.strokeStyle = DARK; c.stroke(); };
+    // a yellow sun of a cheek and a blue half-moon
+    let [dx, dy] = drift(0, 60); c.beginPath(); c.arc(-230 + dx, -260 + dy, 210, 0, TAU); c.fillStyle = '#ffd23f'; c.fill(); line(22);
+    [dx, dy] = drift(1, 50); c.beginPath(); c.arc(290 + dx, 360 + dy, 170, Math.PI, 0); c.closePath(); c.fillStyle = '#1a6fe0'; c.fill(); line(22);
+    // a long bar and a thin line across everything
+    c.beginPath(); c.moveTo(-560, 430); c.lineTo(520, -470); line(16);
+    [dx, dy] = drift(2, 30); c.save(); c.translate(120 + dx, -380 + dy); c.rotate(0.5 + Math.sin(t * 0.4) * 0.3); c.fillStyle = DARK; c.fillRect(-260, -26, 520, 52); c.restore();
+    // one eye a square, one a triangle, looking different ways
+    [dx, dy] = drift(3); c.save(); c.translate(-250 + dx, -40 + dy); c.rotate(0.25 + Math.sin(t * 0.5) * 0.25);
+    c.beginPath(); c.rect(-150, -150, 300, 300); c.fillStyle = '#fff'; c.fill(); line(24);
+    c.fillStyle = DARK; c.fillRect(-30 + Math.sin(t * 1.3) * 60, -60, 110, 110); c.restore();
+    [dx, dy] = drift(4); c.save(); c.translate(270 + dx, -150 + dy); c.rotate(-0.3 + Math.cos(t * 0.45) * 0.3);
+    c.beginPath(); c.moveTo(0, -190); c.lineTo(180, 140); c.lineTo(-180, 140); c.closePath(); c.fillStyle = '#fff'; c.fill(); line(24);
+    c.beginPath(); c.arc(Math.cos(t * 1.1) * 40, 40, 55, 0, TAU); c.fillStyle = DARK; c.fill(); c.restore();
+    // the nose, a red triangle, slowly turning
+    [dx, dy] = drift(5, 30); c.save(); c.translate(40 + dx, 150 + dy); c.rotate(t * 0.6);
+    c.beginPath(); c.moveTo(0, -110); c.lineTo(100, 70); c.lineTo(-100, 70); c.closePath(); c.fillStyle = '#ed1c24'; c.fill(); line(18); c.restore();
+    // and a zigzag for a mouth
+    [dx, dy] = drift(6, 30); c.beginPath();
+    for (let i = 0; i <= 8; i++) { const x = -300 + i * 70 + dx, y = 360 + (i % 2 ? -50 : 40) + Math.sin(t * 2 + i) * 14 + dy; i ? c.lineTo(x, y) : c.moveTo(x, y); }
+    line(44);
+    // a few loose dots
+    c.fillStyle = DARK;
+    for (let i = 0; i < 9; i++) { c.beginPath(); c.arc(-420 + (i % 3) * 60, 120 + Math.floor(i / 3) * 60, 16, 0, TAU); c.fill(); }
+  }
   function renderPlanetFace(now) {
     // the face fades as you come closer, and is gone by the second zoom
     const A = 1 - smooth(1.02, 2.0, zoom.v);
@@ -787,6 +815,13 @@
     c.globalAlpha = A;
     c.translate(cx, cy); c.rotate(rot); c.scale(L * (1 + sq * 0.16 - f.tall * 0.12), L * (1 - sq * 0.13 + f.tall * 0.28));
     c.lineCap = 'round'; c.lineJoin = 'round';
+    if (f.abstract > 0.5) { drawAbstractFace(now, (f.abstract - 0.5) * 2); c.restore(); pf.hit = null; return; }
+
+    // the face melting all the way off: everything slides down, leaving streaks, and drips away off the bottom
+    const meltK = f.meltdown > 0.01 ? (pf.mood === 'meltdown' ? clamp((now - (pf.moodAt || now)) / 5000, 0, 1) : 1) : 0;
+    const meltDrop = 860 * meltK * meltK * f.meltdown;
+    c.save();
+    if (meltDrop > 1) { c.beginPath(); c.arc(0, 0, 640, 0, TAU); c.clip(); }
 
     const eye = (x, y, r, closed, lx, ly, seed) => {
       if (r < 4) return;
@@ -852,9 +887,9 @@
 
     // the mouth: a round smile, opening wide when it grins or sings
     const [mpx, mpy] = loc('mouth');
-    const my = lerp(f.my + f.melt * 70, -360, f.scramble) + mpy, w = f.mw * (1 + Math.min(0.6, Math.abs(mpx) / 600));
-    let open = Math.max(f.mo, pf.sing * 0.9);
-    if (f.chomp > 0.02) open = lerp(open, 0.15 + 0.85 * Math.abs(Math.sin(now / 130)), f.chomp);
+    const my = lerp(f.my + f.melt * 70, -360, f.scramble) + mpy + meltDrop * 1.1, w = f.mw * (1 + Math.min(0.6, Math.abs(mpx) / 600));
+    if (meltDrop > 1) taffy(mpx, my - meltDrop * 1.1, mpx, my, w * 0.8, DARK);
+    const open = Math.max(f.mo, pf.sing * 0.9);
     c.save();
     c.translate(mpx, 0);
     if (f.scramble > 0.5) { c.translate(0, my); c.scale(1, -1); c.translate(0, -my); }
@@ -870,7 +905,6 @@
       c.save(); c.clip();
       if (f.teeth > 0.3) {
         c.fillStyle = '#fff'; c.fillRect(-w, my - 10, w * 2, w * 0.28 * f.teeth);
-        if (f.chomp > 0.3) c.fillRect(-w, my + depth - w * 0.24 * f.chomp, w * 2, w * 0.3 * f.chomp);
       }
       if (f.tongue > 0.3) { c.beginPath(); c.ellipse(0, my + depth, w * 0.55, w * 0.45 * f.tongue, 0, 0, TAU); c.fillStyle = '#ff6f9c'; c.fill(); }
       c.restore();
@@ -920,7 +954,7 @@
       const closed = lid < 0.5 || blinkClosed || worldClosed || (pf.wink > now && sd === pf.winkSide);
       let lx = lerp(pf.lx, -sd * 0.9, f.cross), ly = lerp(pf.ly, 0.1, f.cross);
       if (f.googly > 0.02) { lx = lerp(lx, Math.sin(now / 95 + sd * 2.1) * 0.9, f.googly); ly = lerp(ly, 0.6 + Math.cos(now / 140 + sd) * 0.35, f.googly); }
-      if (f.side > 0.02) { lx = lerp(lx, 0.95, f.side); ly = lerp(ly, -0.05, f.side); }
+      if (meltDrop > 1) { const yd = meltDrop * (1 + 0.14 * sd); taffy(x, y, x, y + yd, r * 1.5, '#fff'); y += yd; }
       eye(x, y, r, closed, lx, ly, 300 + sd);
       eyes.push([x, y, r, sd]);
       if (f.drip > 0.05 && (!closed || f.joy > 0.5)) {
@@ -944,7 +978,7 @@
     if (f.brows > 0.02) {
       c.globalAlpha = A * f.brows;
       for (const [x, y, r, sd] of eyes) {
-        const by = y - r * 1.32 - f.browUp * (sd > 0 ? 110 : -20) - f.joy * 40;
+        const by = y - r * 1.32 - f.joy * 40;
         const xi = x - sd * r * 0.75, xo = x + sd * r * 0.85;
         c.beginPath(); c.moveTo(xi, by - f.browIn * 80); c.quadraticCurveTo(x, by - 70, xo, by + f.browIn * 30);
         c.lineWidth = 58; c.strokeStyle = DARK; c.lineCap = 'round'; c.stroke();
@@ -977,7 +1011,8 @@
     const [npx, npy] = loc('nose');
     const nr = f.nose * honk;
     taffy(0, f.ny + f.melt * 50, npx, f.ny + f.melt * 50 + npy, nr * 1.4, noseCol);
-    const ny = f.ny + f.melt * 50 + npy;
+    const ny = f.ny + f.melt * 50 + npy + meltDrop * 0.9;
+    if (meltDrop > 1) taffy(npx, ny - meltDrop * 0.9, npx, ny, nr * 1.5, noseCol);
     c.save(); c.translate(npx, 0);
     if (f.pixel > 0.5) { c.fillStyle = noseCol; c.fillRect(-nr, ny - nr, nr * 2, nr * 2); }
     else if (f.heartnose > 0.5) { heartPath(0, ny, nr * 1.15); c.fillStyle = noseCol; c.fill(); }
@@ -994,6 +1029,18 @@
       c.globalAlpha = A;
     }
     c.restore();
+
+    c.restore(); // end of the melting clip
+    if (meltDrop > 150) {
+      // what melted off drips from the bottom of the world
+      for (let k = 0; k < 10; k++) {
+        const ph = (now / 900 + k / 10) % 1, x = (hash(k * 5.1) - 0.5) * 700, y = 600 + ph * 900;
+        c.globalAlpha = A * (1 - ph) * clamp((meltDrop - 150) / 300, 0, 1);
+        c.beginPath(); c.moveTo(x, y - 50); c.quadraticCurveTo(x + 34, y + 10, x, y + 30); c.quadraticCurveTo(x - 34, y + 10, x, y - 50);
+        c.fillStyle = ['#fff', DARK, noseCol][k % 3]; c.fill(); c.lineWidth = 9; c.strokeStyle = DARK; c.stroke();
+      }
+      c.globalAlpha = A;
+    }
 
     // a worm wriggles out of the mouth and looks around
     if (f.worm > 0.02) {
@@ -1014,18 +1061,6 @@
       }
       c.restore();
     }
-    // little mouths all over the face, all talking at once
-    if (f.mouths > 0.02) {
-      c.globalAlpha = A * f.mouths;
-      [[-470, 330, 1], [470, 300, 0.9], [-280, -470, 0.8], [290, -480, 0.85], [0, 560, 0.75], [-560, -60, 0.7], [560, -80, 0.7]].forEach(([x, y, k], i) => {
-        const mw2 = 125 * k, op = 0.45 + 0.75 * Math.abs(Math.sin(now / 105 + i * 1.7));
-        c.beginPath(); c.moveTo(x - mw2, y); c.ellipse(x, y, mw2, mw2 * 0.85 * op, 0, 0, Math.PI); c.closePath();
-        c.fillStyle = DARK; c.fill(); c.lineWidth = 26; c.strokeStyle = DARK; c.stroke();
-        c.save(); c.clip(); c.fillStyle = '#fff'; c.fillRect(x - mw2, y - 6, mw2 * 2, mw2 * 0.22); c.restore();
-      });
-      c.globalAlpha = A;
-    }
-
     // when it sings, little rings leave its mouth
     for (let i = pf.rings.length - 1; i >= 0; i--) {
       const k = (now - pf.rings[i].born) / 1600;
