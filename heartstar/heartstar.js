@@ -735,6 +735,9 @@
     return pick(pool);
   }
   function updatePlanetFace(now, dt) {
+    // the spin winds up while it spins, then eases round to the nearest upright (no sudden snap)
+    pf.spinA = (pf.spinA || 0) + (dt / 700) * pf.cur.spin;
+    if (pf.mood !== 'spin') { const home = Math.round(pf.spinA / TAU) * TAU; pf.spinA += (home - pf.spinA) * 0.06; if (Math.abs(home - pf.spinA) < 0.002) pf.spinA = 0; }
     const idle = now - lastActive > 45000;
     if (idle && pf.mood !== 'sleepy' && now > pf.hold) setMood('sleepy');
     else if (!idle && pf.mood === 'sleepy' && now > pf.hold) setMood('smile');
@@ -799,7 +802,7 @@
     if (f.jitter > 0.02) { cx += (Math.random() - 0.5) * R * 0.04 * f.jitter; cy += (Math.random() - 0.5) * R * 0.04 * f.jitter; }
     const blinkClosed = pf.blink > 0.2 && pf.blink < 0.8;
     const worldClosed = planetBlink > 0.15 && planetBlink < 0.85;
-    const rot = f.tilt * Math.sin(now / 1300) * 0.22 + f.flip * Math.PI + f.spin * (now / 700);
+    const rot = f.tilt * Math.sin(now / 1300) * 0.22 + f.flip * Math.PI + pf.spinA;
     const sq = f.squish * Math.sin(now / 260);
     const cosR = Math.cos(rot), sinR = Math.sin(rot);
     // a pull in screen pixels, turned into the face's own units
@@ -813,6 +816,7 @@
     c.translate(cx, cy); c.rotate(rot); c.scale(L * (1 + sq * 0.16 - f.tall * 0.12), L * (1 - sq * 0.13 + f.tall * 0.28));
     c.lineCap = 'round'; c.lineJoin = 'round';
 
+    const pupils = []; // drawn after all the eye whites
     const eye = (x, y, r, closed, lx, ly, seed) => {
       if (r < 4) return;
       if (f.swirl > 0.5 && !closed) {
@@ -837,7 +841,7 @@
       wobbleCircle(x, y, r, seed, 1 / L, 0); c.fillStyle = '#fff'; c.fill();
       const pr = r * (f.pr / f.er);
       const reach = (r - pr) * 0.7;
-      c.beginPath(); c.arc(x + lx * reach, y + ly * reach, pr, 0, TAU); c.fillStyle = DARK; c.fill();
+      pupils.push(() => { c.beginPath(); c.arc(x + lx * reach, y + ly * reach, pr, 0, TAU); c.fillStyle = DARK; c.fill(); });
     };
 
     // blush
@@ -972,6 +976,8 @@
       const r = 150 * f.third * big, [x, y] = pulled('eye3', 0, -430 - (big - 1) * 40, r);
       eye(x, y, r, worldClosed, pointer.seen ? pf.lx : lx, pointer.seen ? pf.ly : ly, 500);
     }
+
+    for (const draw of pupils) draw();
 
     // the red nose, which honks (blue, when the world itself is red or pink)
     const noseCol = reddish(ocean()) ? '#00b4ff' : '#ed1c24';
@@ -1221,8 +1227,8 @@
       const wob = wig * Math.sin(now / 70 + side) * 0.08;
       const lift = 1 + wig * 0.08;
       let bx = CX + side * 515 * L * lift, by = CY - 515 * L * lift + wob * 100 * L;
-      if (pf.cur.spin > 0.01) { // when the face spins, the ears go round with it
-        const a = pf.cur.spin * (now / 700), dx = bx - CX, dy = by - CY;
+      if (pf.spinA) { // when the face spins, the ears go round with it
+        const a = pf.spinA, dx = bx - CX, dy = by - CY;
         bx = CX + dx * Math.cos(a) - dy * Math.sin(a); by = CY + dx * Math.sin(a) + dy * Math.cos(a);
       }
       const q = pull[side < 0 ? 'earL' : 'earR'];
