@@ -37,9 +37,9 @@ then serve the repo root (e.g. `python -m http.server 8642`) and open `http://12
 
 ### deploy the hearth (and preview the whole site on cloudflare)
 
-1. in cloudflare: workers & pages → create → import a repository → this repo
+1. from `hearth/`: `npx wrangler login` once, then `npx wrangler deploy` (or connect this repo in the cloudflare dashboard: workers & pages → create → import a repository)
 2. worker name `scorsby-hearth`, **root directory** `hearth`, deploy command `npx wrangler deploy`
-3. the worker serves the whole site and the hearth at `https://scorsby-hearth.<your-subdomain>.workers.dev` (what it leaves out is in `.assetsignore`)
+3. the worker serves the whole site and the hearth at `https://scorsby-hearth.samrobertsbaca.workers.dev` (what it leaves out is in `.assetsignore`)
 4. for github pages / scorsby.us, put the worker's address in `index.html`: `<meta name="hearth" content="wss://scorsby-hearth.<your-subdomain>.workers.dev/hearth">`
 
 running the hearth locally on windows: give it a short state path, e.g. `npx wrangler dev --persist-to C:/Users/<you>/AppData/Local/hearthdev` (long paths break its storage).
