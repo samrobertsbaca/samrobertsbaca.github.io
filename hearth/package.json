@@ -1,0 +1,12 @@
+{
+  "name": "scorsby-hearth",
+  "private": true,
+  "description": "the hearth of heartstar prime. holds who is here, passes love between them, forgets.",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.40.0"
+  }
+}

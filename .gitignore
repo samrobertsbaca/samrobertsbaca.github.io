@@ -1,3 +1,6 @@
 # /exp/storygen/archive/
 /media/comix2025/fullsize
 /media/comix2025/compressed
+hearth/node_modules/
+hearth/.wrangler/
+hearth/.dev.vars
