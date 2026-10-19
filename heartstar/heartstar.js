@@ -2733,7 +2733,7 @@
 
   // ------------------------------------------------------------------ singing
   const singBtn = document.getElementById('act-sing');
-  const mic = { stream: null, analyser: null, buf: null, on: false, lastSend: 0, wasSinging: false };
+  const mic = { stream: null, analyser: null, buf: null, on: false, lastSend: 0, wasSinging: false, f: 0, amp: 0, heard: 0 };
   singBtn.addEventListener('click', () => {
     if (mic.on) return stopSinging();
     closeWindows(card); card.hidden = !card.hidden;
@@ -2743,7 +2743,8 @@
     card.hidden = true;
     try {
       audio();
-      mic.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
+      // the noise filter treats a long held note as noise and fades it out, so it stays off
+      mic.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: false, autoGainControl: true } });
       const src = ac.createMediaStreamSource(mic.stream);
       mic.analyser = ac.createAnalyser(); mic.analyser.fftSize = 2048;
       mic.buf = new Float32Array(mic.analyser.fftSize);
@@ -2770,7 +2771,7 @@
     let rms = 0;
     for (let i = 0; i < buf.length; i++) rms += buf[i] * buf[i];
     rms = Math.sqrt(rms / buf.length);
-    if (rms < 0.012) return [0, rms];
+    if (rms < 0.006) return [0, rms];
     let r1 = 0, r2 = buf.length - 1;
     for (let i = 0; i < buf.length / 2; i++) if (Math.abs(buf[i]) < 0.2) { r1 = i; break; }
     for (let i = 1; i < buf.length / 2; i++) if (Math.abs(buf[buf.length - i]) < 0.2) { r2 = buf.length - i; break; }
@@ -2791,18 +2792,28 @@
     if (!mic.on || !me) return;
     mic.analyser.getFloatTimeDomainData(mic.buf);
     const [f, rms] = pitch(mic.buf, ac.sampleRate);
-    const amp = clamp((rms - 0.012) * 9, 0, 1);
+    const amp = clamp((rms - 0.006) * 11, 0, 1);
     if (f && amp > 0.02) {
-      me.singTarget = amp; me.freq = f;
-      if (now - mic.lastSend > 100) { // every 100ms, to keep the hearth's traffic down
+      // follow the voice in log space: big leaps land at once, small wobbles are smoothed
+      const jump = mic.f ? Math.abs(Math.log2(f / mic.f)) : 1;
+      mic.f = mic.f && jump < 0.5 ? Math.exp(Math.log(mic.f) * 0.45 + Math.log(f) * 0.55) : f;
+      mic.amp += (amp - mic.amp) * 0.5;
+      mic.heard = now;
+    } else if (mic.f && now - mic.heard < 260) {
+      mic.amp *= 0.97; // a breath or a soft consonant: the note carries on
+    } else { mic.f = 0; mic.amp = 0; }
+
+    if (mic.f) {
+      me.singTarget = mic.amp; me.freq = mic.f;
+      voices.sing('me', mic.f, mic.amp * 0.35, me.sx, 0.03); // your own voice follows you every frame
+      if (now - mic.lastSend > 100) { // everyone else hears you ten times a second
         mic.lastSend = now;
-        send({ t: 'sing', f: Math.round(f * 10) / 10, a: Math.round(amp * 100) / 100 });
-        voices.sing('me', f, amp * 0.35, me.sx);
+        send({ t: 'sing', f: Math.round(mic.f * 10) / 10, a: Math.round(mic.amp * 100) / 100 });
       }
       mic.wasSinging = true;
     } else {
       me.singTarget = 0;
-      if (mic.wasSinging) { mic.wasSinging = false; send({ t: 'hush' }); }
+      if (mic.wasSinging) { mic.wasSinging = false; send({ t: 'hush' }); voices.hush('me'); }
     }
   }
 
