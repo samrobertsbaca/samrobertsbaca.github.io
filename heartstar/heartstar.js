@@ -713,7 +713,7 @@
     // and some unexpected ones
     bubble: { bubble: 1, oh: 1, mw: 70 }, garden: { garden: 1, mo: 0.4 }, meltdown: { meltdown: 1 },
     swap: { swap: 1, er: 210, nose: 150 }, // two noses for eyes, and an eye for a nose
-    goofy: { wall: 1, er: 300, pr: 175, mw: 300, mc: 0.95, my: 260 }, // a huge U grin, eyes bulging and looking out to the sides
+    goofy: { wall: 1, er: 300, pr: 125, ex: 330, mw: 300, mc: 0.95, my: 260 }, // pupils as big as the nose // a huge U grin, eyes bulging and looking out to the sides
     clock: { clock: 1, er: 120, pr: 60, ex: 330, ey: -210, mw: 110, my: 400, ny: 0, nose: 80 },
   };
   const pf = { cur: { ...FACE_BASE }, target: { ...FACE_BASE }, mood: 'smile', next: 7000, honk: 0, wink: 0, winkSide: -1, blink: 0, nextBlink: 3000, lx: 0, ly: 0, hit: null, hold: 0, sing: 0, singing: false, rings: [] };
