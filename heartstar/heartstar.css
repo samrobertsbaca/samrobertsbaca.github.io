@@ -216,3 +216,10 @@ h1 { font-family: var(--head); font-weight: 400; font-size: 30px; line-height: 1
   #discord span { display: none; }
   #discord { padding: 6px 8px; }
 }
+
+/* at night the buttons are filled black */
+body[data-theme="night"] #acts button:not(:hover):not([aria-pressed="true"]),
+body[data-theme="night"] #zoom button:not(:hover),
+body[data-theme="night"] #discord:not(:hover),
+body[data-theme="night"] #name-form button,
+body[data-theme="night"] #sing-card .row button:not(#sing-yes) { background: #05060a; }

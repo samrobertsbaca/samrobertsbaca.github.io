@@ -40,6 +40,9 @@
   let T = THEMES.day;
   const DARK = '#05060a'; // the bold outline of the scorsby logo
   const ink = (a = 1) => `rgba(${T.ink[0]},${T.ink[1]},${T.ink[2]},${a})`;
+  // the little characters in the sky: ink by day, black by night (with light pupils so their eyes still show)
+  const charInk = (a = 1) => T === THEMES.night ? `rgba(5,6,10,${a})` : ink(a);
+  const pupil = () => T === THEMES.night ? ink(1) : DARK;
   function setTheme(want = params.get('theme') || store.get('scorsby-theme') || 'day') {
     if (!THEMES[want]) want = 'day';
     T = THEMES[want]; document.body.dataset.theme = want; makeHatch();
@@ -137,8 +140,18 @@
     const hours = now.getUTCHours() + now.getUTCMinutes() / 60 + now.getUTCSeconds() / 3600;
     return vec(decl, -15 * (hours - 12));
   }
-  let SUN = sun();
-  setInterval(() => { SUN = sun(); }, 30000);
+  // where the moon is overhead right now (a low-precision lunar position, good to a degree or so)
+  function moonVec(t = Date.now()) {
+    const d = t / 86400000 - 10957.5;
+    const M = (134.963 + 13.064993 * d) * D2R, F = (93.272 + 13.229350 * d) * D2R;
+    const lam = (218.316 + 13.176396 * d + 6.289 * Math.sin(M)) * D2R, bet = 5.128 * Math.sin(F) * D2R, eps = 23.4397 * D2R;
+    const ra = Math.atan2(Math.sin(lam) * Math.cos(eps) - Math.tan(bet) * Math.sin(eps), Math.cos(lam));
+    const dec = Math.asin(Math.sin(bet) * Math.cos(eps) + Math.cos(bet) * Math.sin(eps) * Math.sin(lam));
+    const gmst = 280.16 + 360.9856235 * d;
+    return vec(dec / D2R, ((((ra / D2R - gmst) % 360) + 540) % 360) - 180);
+  }
+  let SUN = sun(), MOON = moonVec();
+  setInterval(() => { SUN = sun(); MOON = moonVec(); }, 30000);
   const light = (v) => dot(v, SUN);
 
   // ------------------------------------------------------------------ hand-drawn lines
@@ -179,22 +192,25 @@
   }
   // a wing: white feathers fanned out and layered, back to front
   function wing(x, y, s, side, flap) {
-    const feathers = [[-1.05, 0.95], [-0.72, 0.86], [-0.4, 0.74], [-0.08, 0.6]];
-    for (const [a0, len] of feathers) {
-      const a = a0 - flap;
-      const dx = Math.cos(a) * side, dy = Math.sin(a);
+    // outline every feather thickly first, then fill them all, so only the outside edge shows
+    const feathers = [[-1.05, 0.95], [-0.72, 0.86], [-0.4, 0.74], [-0.08, 0.6]].map(([a0, len]) => () => {
+      const a = a0 - flap, dx = Math.cos(a) * side, dy = Math.sin(a);
       const L2 = s * len, W2 = s * 0.17;
       c.save(); c.translate(x + dx * L2 * 0.5, y + dy * L2 * 0.5); c.rotate(Math.atan2(dy, dx));
       c.beginPath(); c.ellipse(0, 0, L2 * 0.5, W2, 0, 0, TAU); c.restore();
-      c.fillStyle = T.paper; c.fill(); c.stroke();
-    }
+    });
+    const lw = c.lineWidth;
+    c.lineWidth = lw * 2;
+    for (const f of feathers) { f(); c.stroke(); }
+    c.lineWidth = lw; c.fillStyle = T.paper;
+    for (const f of feathers) { f(); c.fill(); }
   }
 
   // a cabinet of small drawings, in ink
   function doodle(kind, x, y, s, seed, now, lw = 1.3, extra = 0) {
     c.save();
     c.lineWidth = lw; c.lineCap = 'round'; c.lineJoin = 'round';
-    c.strokeStyle = ink(0.95); c.fillStyle = ink(0.95);
+    c.strokeStyle = charInk(0.95); c.fillStyle = charInk(0.95);
     switch (kind) {
       case 'angel': {
         // a winged eye with a halo. be not afraid.
@@ -203,10 +219,10 @@
         wing(x + s * 0.24, y + s * 0.02, s * 0.62, 1, flap);
         wobbleCircle(x, y, s * 0.3, seed, 0.6, 0.15); c.fillStyle = T.paper; c.fill(); c.stroke();
         const lx = clamp((CX - x) / 400, -1, 1), ly = clamp((CY - y) / 400, -1, 1);
-        c.beginPath(); c.arc(x + lx * s * 0.1, y + ly * s * 0.1, s * 0.13, 0, TAU); c.fillStyle = DARK; c.fill();
+        c.beginPath(); c.arc(x + lx * s * 0.1, y + ly * s * 0.1, s * 0.13, 0, TAU); c.fillStyle = pupil(); c.fill();
         const hy = y - s * 0.5 + Math.sin(now / 700 + seed) * s * 0.04;
         c.beginPath(); c.ellipse(x, hy, s * 0.28, s * 0.075, 0, 0, TAU);
-        c.strokeStyle = ink(0.95); c.lineWidth = lw * 1.1; c.stroke();
+        c.strokeStyle = charInk(0.95); c.lineWidth = lw * 1.1; c.stroke();
         break;
       }
       case 'lips': {
@@ -246,7 +262,7 @@
         c.closePath();
         c.fillStyle = '#ffd23f'; c.fill(); c.stroke();
         const cl = ring < 2600 ? Math.sin(ring / 90 - 1.2) * Math.exp(-ring / 900) * s * 0.14 : 0;
-        c.beginPath(); c.arc(x + cl, y + s * 0.42, s * 0.07, 0, TAU); c.fillStyle = ink(); c.fill();
+        c.beginPath(); c.arc(x + cl, y + s * 0.42, s * 0.07, 0, TAU); c.fillStyle = charInk(); c.fill();
         break;
       }
       case 'umbrella': {
@@ -263,7 +279,7 @@
         const fx = x + s * 0.24, fy = y + s * 0.18;
         c.beginPath(); c.arc(fx - s * 0.06, fy - s * 0.1, s * 0.035, 0, TAU); c.moveTo(fx + s * 0.095, fy - s * 0.1); c.arc(fx + s * 0.06, fy - s * 0.1, s * 0.035, 0, TAU);
         c.moveTo(fx + s * 0.08, fy - s * 0.02); c.arc(fx, fy - s * 0.02, s * 0.08, 0, TAU); c.fillStyle = T.paper; c.fill(); c.stroke();
-        c.beginPath(); c.arc(fx, fy - s * 0.02, s * 0.025, 0, TAU); c.fillStyle = ink(); c.fill();
+        c.beginPath(); c.arc(fx, fy - s * 0.02, s * 0.025, 0, TAU); c.fillStyle = charInk(); c.fill();
         c.beginPath(); c.rect(fx - s * 0.06, fy + s * 0.06, s * 0.12, s * 0.2); c.moveTo(fx - s * 0.03, fy + s * 0.26); c.lineTo(fx - s * 0.03, fy + s * 0.4); c.moveTo(fx + s * 0.03, fy + s * 0.26); c.lineTo(fx + s * 0.03, fy + s * 0.4);
         c.moveTo(fx - s * 0.06, fy + s * 0.1); c.lineTo(x + s * 0.02, y + s * 0.12);
         c.stroke();
@@ -283,7 +299,7 @@
         wobbleCircle(x, y, s * 0.4, seed); c.fillStyle = T.paper; c.fill(); c.stroke();
         c.save(); c.clip();
         wobbleCircle(x - s * 0.12 + Math.sin(now / 2000 + seed) * s * 0.3, y + s * 0.05, s * 0.18, seed + 4, 1.5);
-        c.fillStyle = ink(); c.fill(); c.restore();
+        c.fillStyle = charInk(); c.fill(); c.restore();
         break;
       }
       case 'heart': heartPath(x, y, s * 0.32); c.fillStyle = '#ff5fae'; c.fill(); c.stroke(); break;
@@ -300,16 +316,16 @@
         const eyes = kind === 'head3' ? [[-0.15, 0.02], [0.15, 0.02], [0, -0.2]] : [[-0.14, -0.04], [0.14, -0.04]];
         for (const [ex, ey] of eyes) {
           c.beginPath(); c.arc(x + ex * s, y + ey * s, s * 0.085, 0, TAU); c.stroke();
-          c.beginPath(); c.arc(x + ex * s + s * 0.015, y + ey * s, s * 0.035, 0, TAU); c.fillStyle = ink(); c.fill();
+          c.beginPath(); c.arc(x + ex * s + s * 0.015, y + ey * s, s * 0.035, 0, TAU); c.fillStyle = charInk(); c.fill();
         }
-        c.beginPath(); c.arc(x, y + s * 0.1, s * 0.04, 0, TAU); c.fillStyle = ink(); c.fill();
+        c.beginPath(); c.arc(x, y + s * 0.1, s * 0.04, 0, TAU); c.fillStyle = charInk(); c.fill();
         c.beginPath(); c.arc(x, y + s * 0.1, s * 0.16, 0.35, Math.PI - 0.35); c.stroke();
         break;
       }
       case 'eye': {
         c.beginPath(); c.moveTo(x - s * 0.5, y); c.quadraticCurveTo(x, y - s * 0.45, x + s * 0.5, y); c.quadraticCurveTo(x, y + s * 0.45, x - s * 0.5, y);
         c.fillStyle = T.paper; c.fill(); c.stroke();
-        c.beginPath(); c.arc(x + Math.sin(now / 1500 + seed) * s * 0.12, y, s * 0.13, 0, TAU); c.fillStyle = DARK; c.fill();
+        c.beginPath(); c.arc(x + Math.sin(now / 1500 + seed) * s * 0.12, y, s * 0.13, 0, TAU); c.fillStyle = pupil(); c.fill();
         break;
       }
       case 'cactus': {
@@ -342,7 +358,7 @@
         for (const sd of [-1, 1]) { c.beginPath(); c.arc(x + sd * s * 0.17, y - s * 0.4, s * 0.1, 0, TAU); c.fillStyle = T.paper; c.fill(); c.stroke(); }
         const tri = () => { c.beginPath(); c.moveTo(x, y - s * 0.46); c.lineTo(x + s * 0.5, y + s * 0.38); c.lineTo(x - s * 0.5, y + s * 0.38); c.closePath(); };
         tri(); c.fillStyle = T.paper; c.fill();
-        c.save(); c.clip(); c.fillStyle = ink(0.95);
+        c.save(); c.clip(); c.fillStyle = charInk(0.95);
         for (let k = 0; k < 4; k++) {
           const yy = y - s * 0.2 + k * s * 0.16;
           c.beginPath(); c.moveTo(x - s * 0.6, yy);
@@ -372,7 +388,7 @@
         c.beginPath(); c.ellipse(x, yy, s * 0.19 * sq, s * 0.19 / sq, 0, 0, TAU); c.fillStyle = '#ffc21a'; c.fill(); c.stroke();
         const awake = (now / 1000 + seed) % 4 < 2.6;
         if (awake) {
-          c.beginPath(); c.arc(x - s * 0.07, yy - s * 0.05, s * 0.028, 0, TAU); c.arc(x + s * 0.07, yy - s * 0.05, s * 0.028, 0, TAU); c.fillStyle = DARK; c.fill();
+          c.beginPath(); c.arc(x - s * 0.07, yy - s * 0.05, s * 0.028, 0, TAU); c.arc(x + s * 0.07, yy - s * 0.05, s * 0.028, 0, TAU); c.fillStyle = pupil(); c.fill();
         } else {
           c.beginPath(); c.arc(x - s * 0.07, yy - s * 0.06, s * 0.035, 0, Math.PI); c.moveTo(x + s * 0.105, yy - s * 0.06); c.arc(x + s * 0.07, yy - s * 0.06, s * 0.035, 0, Math.PI); c.stroke();
         }
@@ -396,7 +412,7 @@
       }
       case 'manyeye': {
         // the purple many-eyed one, from the book of blue roses
-        wobbleCircle(x, y, s * 0.4, seed, 1.2, 0); c.fillStyle = '#8e6bff'; c.fill(); c.stroke();
+        wobbleCircle(x, y, s * 0.4, seed, 1.2, 0); c.fillStyle = T === THEMES.night ? DARK : '#8e6bff'; c.fill(); c.stroke();
         for (let k = 0; k < 9; k++) {
           const a = hash(seed + k) * TAU, rr = s * 0.28 * Math.sqrt(hash(seed + k * 3));
           const ex = x + Math.cos(a) * rr, ey = y + Math.sin(a) * rr, er = s * (0.05 + 0.04 * hash(k + seed));
@@ -415,13 +431,13 @@
         c.beginPath(); c.moveTo(x, y + s * 0.42);
         c.bezierCurveTo(x - s * 0.5, y + s * 0.1, x - s * 0.42, y - s * 0.38, x, y - s * 0.36);
         c.bezierCurveTo(x + s * 0.42, y - s * 0.38, x + s * 0.5, y + s * 0.1, x, y + s * 0.42);
-        c.fillStyle = '#d9cff5'; c.fill(); c.stroke();
+        c.fillStyle = T === THEMES.night ? DARK : '#d9cff5'; c.fill(); c.stroke();
         for (const sd of [-1, 1]) {
           c.beginPath(); c.arc(x + sd * s * 0.17, y - s * 0.05, s * 0.06, 0, TAU); c.fillStyle = T.paper; c.fill(); c.stroke();
-          c.beginPath(); c.arc(x + sd * s * 0.17, y - s * 0.05, s * 0.028, 0, TAU); c.fillStyle = DARK; c.fill();
+          c.beginPath(); c.arc(x + sd * s * 0.17, y - s * 0.05, s * 0.028, 0, TAU); c.fillStyle = pupil(); c.fill();
         }
-        c.beginPath(); c.arc(x, y + s * 0.08, s * 0.025, 0, TAU); c.fillStyle = DARK; c.fill();
-        c.beginPath(); c.arc(x, y + s * 0.12, s * 0.08, 0.3, Math.PI - 0.3); c.stroke();
+        c.beginPath(); c.arc(x, y + s * 0.08, s * 0.025, 0, TAU); c.fillStyle = pupil(); c.fill();
+        c.beginPath(); c.arc(x, y + s * 0.12, s * 0.08, 0.3, Math.PI - 0.3); c.strokeStyle = pupil(); c.stroke();
         break;
       }
       case 'mushroom': {
@@ -1204,9 +1220,10 @@
     const [fx, fy] = from || [CX, CY];
     // always: once the rainbow has rolled around the world, it keeps going, out across the universe
     bursts.push({ k: 'rings', born: now + 1900, dur: 3400 });
+    // always: plus-sign sparkles all over
+    bursts.push({ k: 'sparkle', born: now, dur: 3000, parts: Array.from({ length: 60 }, () => ({ x: rand(0, VW), y: rand(0, VH), s: rand(4, 11), d: rand(0, 1400) })) });
     // and one extra, different each time
-    if (v === 0) bursts.push({ k: 'fountain', born: now, dur: 3200, parts: Array.from({ length: 70 }, (_, i) => ({ x: fx, y: fy, vx: rand(-0.35, 0.35), vy: rand(-0.75, -0.3), s: rand(5, 12), h: i * 13 })) });
-    if (v === 1) bursts.push({ k: 'sparkle', born: now, dur: 3000, parts: Array.from({ length: 60 }, () => ({ x: rand(0, VW), y: rand(0, VH), s: rand(4, 11), d: rand(0, 1400) })) });
+    if (v === 0 || v === 1) bursts.push({ k: 'fountain', born: now, dur: 3200, parts: Array.from({ length: 70 }, (_, i) => ({ x: fx, y: fy, vx: rand(-0.35, 0.35), vy: rand(-0.75, -0.3), s: rand(5, 12), h: i * 13 })) });
     if (v === 2) bursts.push({ k: 'confetti', born: now, dur: 4200, parts: Array.from({ length: 36 }, () => { const a = rand(0, TAU); return { x: CX + Math.cos(a) * R * 1.05, y: CY + Math.sin(a) * R * 1.05, vx: Math.cos(a) * rand(0.05, 0.16), vy: Math.sin(a) * rand(0.05, 0.16) - 0.05, s: rand(14, 26), c: (Math.random() * 8) | 0, r: rand(-1, 1) }; }) });
     if (v === 3) bursts.push({ k: 'angels', born: now, dur: 4500, parts: Array.from({ length: 12 }, (_, i) => { const a = (i / 12) * TAU + rand(-0.2, 0.2); return { x: CX + Math.cos(a) * R, y: CY + Math.sin(a) * R, vx: Math.cos(a) * rand(0.06, 0.12), vy: Math.sin(a) * rand(0.06, 0.12) - 0.03, s: rand(26, 40), seed: rand(0, 99) }; }) });
   }
@@ -1352,25 +1369,37 @@
     c.beginPath(); c.arc(mx, my, 172 * k, 0, Math.PI); c.lineWidth = 95 * k; c.strokeStyle = DARK; c.stroke();
   }
 
-  const sunAt = { dx: 1, dy: -0.4, x: 0, y: 0, ok: false };
-  function renderSun(now) {
-    // sunsby: off in the direction the light comes from, wide awake
-    const [vx, vy, vz] = viewOf(SUN);
+  // place sunsby or moonsby off in the direction of the real sun or moon, gliding as the world turns
+  function placeOrb(st, v, avoid) {
+    const [vx, vy] = viewOf(v);
     const l = Math.hypot(vx, vy);
-    // when the light points almost straight at you (or away), its direction on screen means little: lean on the old one
+    // when it points almost straight at you (or away), its direction on screen means little: lean on the old one
     if (l > 1e-3) {
       const w = 0.04 * smooth(0.05, 0.5, l);
-      sunAt.dx += (vx / l - sunAt.dx) * w; sunAt.dy += (-vy / l - sunAt.dy) * w;
-      const m = Math.hypot(sunAt.dx, sunAt.dy) || 1; sunAt.dx /= m; sunAt.dy /= m;
+      st.dx += (vx / l - st.dx) * w; st.dy += (-vy / l - st.dy) * w;
+      const m = Math.hypot(st.dx, st.dy) || 1; st.dx /= m; st.dy /= m;
     }
     const dist = R * 2.05;
-    let x = CX + sunAt.dx * dist, y = CY + sunAt.dy * dist;
-    // it may wander off the left and right edges, but stays between the header and the buttons
-    y = clamp(y, 120, VH - 200);
-    if (Math.hypot(x - CX, y - CY) < R * 1.6) x = CX + (sunAt.dx < 0 ? -1 : 1) * Math.sqrt(Math.max(0, (R * 1.6) ** 2 - (y - CY) ** 2));
-    if (!sunAt.ok) Object.assign(sunAt, { x, y, ok: true });
-    sunAt.x += (x - sunAt.x) * 0.08; sunAt.y += (y - sunAt.y) * 0.08;
-    x = sunAt.x; y = sunAt.y;
+    let a = Math.atan2(st.dy, st.dx), x, y;
+    for (let k = 0; k < 10; k++) {
+      x = CX + Math.cos(a) * dist; y = CY + Math.sin(a) * dist;
+      // it may wander off the left and right edges, but stays between the header and the buttons
+      y = clamp(y, 120, VH - 200);
+      if (Math.hypot(x - CX, y - CY) < R * 1.6) x = CX + (Math.cos(a) < 0 ? -1 : 1) * Math.sqrt(Math.max(0, (R * 1.6) ** 2 - (y - CY) ** 2));
+      // and the moon steps aside rather than sitting right on top of the sun
+      if (!avoid || Math.hypot(x - avoid[0], y - avoid[1]) > avoid[2]) break;
+      a += 0.3;
+    }
+    if (!st.ok) Object.assign(st, { x, y, ok: true });
+    st.x += (x - st.x) * 0.08; st.y += (y - st.y) * 0.08;
+    return [st.x, st.y];
+  }
+
+  const sunAt = { dx: 1, dy: -0.4, x: 0, y: 0, ok: false };
+  const moonAt = { dx: -1, dy: -0.4, x: 0, y: 0, ok: false };
+  function renderSun(now) {
+    // sunsby: off in the direction the light comes from, wide awake
+    let [x, y] = placeOrb(sunAt, SUN);
     const ecl = env(omenP('eclipse', now));
     const r = R * 0.17;
     c.save();
@@ -1388,17 +1417,17 @@
 
   function renderMoon(now, front) {
     // moonsby: pale and sleepy. in an eclipse it goes over and gives sunsby a hug.
-    const a = now / 21000;
+    // moonsby sits where the real moon is, relative to sunsby
     const ecl = env(omenP('eclipse', now));
-    let x = CX + Math.cos(a) * R * 1.85, y = CY + Math.sin(a) * R * 0.3 - R * 0.15;
-    const z = Math.sin(a);
-    const r = R * 0.15 * (1 + z * 0.12) * (1 + ecl * 0.15);
+    const r = R * 0.15 * (1 + ecl * 0.15);
+    let [x, y] = placeOrb(moonAt, MOON, moon.sunX != null ? [moon.sunX, moon.sunY, (moon.sunR + r) * 2.2] : null);
+    const z = 0;
     if (ecl > 0 && moon.sunX != null) {
       const side = moon.sunX > CX ? -1 : 1;
       const hx = moon.sunX + side * moon.sunR * 1.55, hy = moon.sunY + moon.sunR * 0.1;
       x += (hx - x) * ecl; y += (hy - y) * ecl;
     }
-    const isFront = z > 0 || ecl > 0.2;
+    const isFront = ecl > 0.2; // behind the world, unless it has gone over to hug sunsby
     if (isFront !== front) return;
     Object.assign(moon, { x, y, r, z });
     orbFace(x, y, r, {
@@ -1445,7 +1474,7 @@
       const y = VH * 0.24 + Math.sin(t * 9 + i) * 26 + (i % 3) * 30 - 30;
       const s = 26 + (i % 3) * 6;
       const flap = Math.sin(now / 110 + i) * 0.35;
-      c.save(); c.lineWidth = 1.2; c.strokeStyle = ink();
+      c.save(); c.lineWidth = 1.2; c.strokeStyle = charInk();
       wing(x - s * 0.3, y + s * 0.05, s * 0.6, -1, flap);
       wing(x + s * 0.3, y + s * 0.05, s * 0.6, 1, flap);
       c.restore();
@@ -1541,7 +1570,7 @@
       el.textContent = `love today ♥ ${tally.today.toLocaleString()}`;
       if (tally.best?.n) {
         el.append(' · ');
-        const rec = document.createElement('span'); rec.className = 'record';
+        const rec = document.createElement('span'); rec.className = tally.best.day === tally.day ? 'record' : '';
         [...`record ♥ ${tally.best.n.toLocaleString()} ${tally.best.day === tally.day ? '(today!)' : 'on ' + fmtDay(tally.best.day)}`].forEach((ch, i) => {
           const l = document.createElement('span'); l.textContent = ch; l.style.setProperty('--i', i); rec.appendChild(l);
         });
