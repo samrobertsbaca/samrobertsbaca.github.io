@@ -1,3 +1,3 @@
-### the dust-mote ballet
+### the glop-fall revelation
 
-ash, a smile-faded sprite, wished for 'sweet nothingness' amidst endless sorting. suddenly, scorsby, all elastic grins, shimmered in. "rrombo dombo di di dai!" he chimed, holding a glowing dust-mote. he touched her. the room melted. ash felt a 'fit' of profound joy, dancing free as sunlit air, a self-unfurling. scorsby simply beamed, dust a crown.
+scorsby, accused of up-rooting the chirp-stone, met three grump-ministers. 'guilty!' they swore by the whimsy-weaver, whom scorsby once fed a dewdrop. the weaver, remembering, sang: 'rrombo dombo di di dai!' it revealed each minister's past: rope-pulling, rope-snapping, tumbling into the glimmer-gloop. shames unravelled; they fell into the mirth-mire. scorsby just smiled.
