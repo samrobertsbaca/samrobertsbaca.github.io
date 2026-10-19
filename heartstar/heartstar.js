@@ -1294,17 +1294,21 @@
     if (cols.length < 2) { worldStops = null; return; }
     // two or more colours: the world swirls with all of them, each in its own slice, in rainbow order.
     // the more people and the more hands held, the more it leans into a full rainbow, and the livelier it turns.
-    worldRain = clamp((cols.length - 2) / 6 + (n - 2) / 30 + handCount * 0.08, 0, 1);
+    // it builds slowly: each doubling of the crowd adds about the same, and only around 500 people is it a full spinning rainbow
+    // (about a third of the way at 30). holding hands adds a little more on top.
+    worldRain = clamp(Math.pow(Math.log(Math.max(1, n / 2)) / Math.log(250), 1.5) * 0.9 + Math.min(1, handCount * 2 / n) * 0.1, 0, 1);
     const hue = (col) => { const [r, g, b] = rgbOf(col), mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn || 1; const h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; return (h * 60 + 360) % 360; };
     const slices = cols.flatMap(([col, k]) => Array(Math.min(k, 4)).fill(col)).sort((a, b) => hue(a) - hue(b));
-    worldStops = slices.map((col, i) => mixColor(col, RAINBOW[Math.floor(i / slices.length * RAINBOW.length)], worldRain * 0.75));
+    // a smaller crowd shows its colours softly, like pastel chalk; they only reach full strength as the crowd grows huge
+    const soft = (1 - worldRain) * 0.5;
+    worldStops = slices.map((col, i) => mixColor(mixColor(col, RAINBOW[Math.floor(i / slices.length * RAINBOW.length)], worldRain * 0.75), '#ffffff', soft));
   }
   let worldStops = null, worldRain = 0, handCount = 0;
   const ocean = () => pf.cur.gold < 0.01 ? worldCol : mixColor(worldCol, '#ffc93c', pf.cur.gold);
   // what the world (and its ears) are filled with: one colour, or everyone's colours turning slowly round
   const oceanFill = (x, y, spin = 1) => {
     if (!worldStops || !c.createConicGradient) return ocean();
-    const g = c.createConicGradient(performance.now() / (9000 - 6000 * worldRain) * spin, x, y);
+    const g = c.createConicGradient(performance.now() / (16000 - 13000 * worldRain) * spin, x, y);
     const gold = pf.cur.gold;
     worldStops.concat(worldStops[0]).forEach((col, i) => g.addColorStop(i / worldStops.length, gold < 0.01 ? col : mixColor(col, '#ffc93c', gold)));
     return g;
