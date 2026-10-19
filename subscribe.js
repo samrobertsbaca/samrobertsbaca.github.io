@@ -29,7 +29,10 @@
   #letters button[type=submit]:hover { background: #1d1a5e; color: #fff; }
   #letters button[type=submit]:active { transform: translate(3px, 3px); box-shadow: none; }
   #letters button[disabled] { opacity: .5; pointer-events: none; }
-  #letters .why { font-size: 12px; color: #d4145a; min-height: 1em; }
+  #letters .why { font-size: 12px; color: #d4145a; }
+  #letters .why:empty, #letters .check:empty { display: none; }
+  /* phones: sit near the top, so the keyboard never covers the bottom */
+  @media (max-width: 600px) { #letters { top: 12px; transform: translateX(-50%); } }
   #letters .small { font-size: 11px; opacity: .7; }
   #letters .done p.big { font-size: 16px; }`;
   const style = document.createElement('style'); style.textContent = css; document.head.appendChild(style);
@@ -48,7 +51,7 @@
       <div class="check"></div>
       <p class="why" aria-live="polite"></p>
       <button type="submit">subscribe</button>
-      <p class="small">only letters from scorsby. never shared. reply any time to be taken off.</p>
+      <p class="small">only letters from scorsby. never shared.<br>reply any time to be taken off.</p>
     </form>
     <div class="done" hidden><p class="big"></p><p class="small">you can close this window.</p></div>`;
   document.body.appendChild(win);
@@ -71,7 +74,8 @@
   function open() {
     win.hidden = false; openedAt = performance.now(); why.textContent = '';
     startCheck();
-    setTimeout(() => (done.hidden ? win.querySelector('#letters-name') : win.querySelector('.x')).focus(), 30);
+    // on a phone, focusing a field pops the keyboard up over the window, so only focus on a computer
+    if (!matchMedia('(pointer: coarse)').matches) setTimeout(() => (done.hidden ? win.querySelector('#letters-name') : win.querySelector('.x')).focus(), 30);
   }
   const close = () => { win.hidden = true; if (location.hash === '#subscribe') history.replaceState(null, '', location.pathname + location.search); };
 
