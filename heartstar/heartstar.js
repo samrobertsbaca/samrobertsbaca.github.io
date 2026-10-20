@@ -882,7 +882,7 @@
       }
       if (f.heart > 0.5) { // heart eyes: white eyes, black heart pupils
         wobbleCircle(x, y, r, seed, 1 / L, 0); c.fillStyle = '#fff'; c.fill();
-        pupils.push(() => { heartPath(x, y + r * 0.04, r * 0.62); c.fillStyle = DARK; c.fill(); });
+        pupils.push(() => { heartPath(x, y + r * 0.05, r * 0.74); c.fillStyle = DARK; c.fill(); });
         return;
       }
       if (f.pixel > 0.5) {
