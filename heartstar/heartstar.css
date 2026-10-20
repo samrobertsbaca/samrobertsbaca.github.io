@@ -157,7 +157,7 @@ h1 { font-family: var(--head); font-weight: 400; font-size: 30px; line-height: 1
 
 /* little windows */
 .win {
-  position: fixed; z-index: 4; left: 50%; bottom: 128px; transform: translateX(-50%);
+  position: fixed; z-index: 4; left: 50%; bottom: calc(var(--acts-h, 120px) + 8px); transform: translateX(-50%); /* 12px above the buttons, like the gap between them */
   background: var(--paper); border: 1px solid var(--ui); box-shadow: 4px 4px 0 var(--ui);
   width: min(380px, calc(100vw - 32px));
 }
@@ -270,7 +270,7 @@ body.ritual.ritual-sing.sound-on #acts .row button#act-sound { opacity: 0 !impor
   #act-sound { padding: 5px 8px !important; }
   #act-all { width: 100%; }
   /* windows sit just above the buttons (however tall they are), and scroll rather than ever covering them */
-  .win { bottom: calc(var(--acts-h, 130px) + 18px); max-height: calc(100dvh - var(--acts-h, 130px) - 40px); overflow-y: auto; }
+  .win { max-height: calc(100dvh - var(--acts-h, 130px) - 40px); overflow-y: auto; }
   #zoom { right: 12px; top: auto; bottom: 128px; transform: none; flex-direction: row; }
   /* when the buttons take two rows, the zoom buttons sit in the second row with them */
   #acts .row #zoom { position: static; transform: none; gap: 8px; }
