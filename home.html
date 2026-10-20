@@ -40,7 +40,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
   <link rel="preload" href="/fonts/Scheme.otf" as="font" type="font/otf" crossorigin>
-  <link rel="stylesheet" href="heartstar/heartstar.css?v=30">
+  <link rel="stylesheet" href="heartstar/heartstar.css?v=31">
 </head>
 <body class="intro">
   <canvas id="sky" aria-label="the world of scorsby: a blue planet with ears and a face, turning slowly. every small face on it is someone here right now."></canvas>
@@ -68,8 +68,8 @@
     <div class="row">
       <button id="act-you" title="your color and your name"><span class="sw"></span><span class="label">you</span></button>
       <button id="act-plant" title="plant something small on the world">plant</button>
+      <button id="act-today" title="a small kindness for today">today</button>
       <button id="act-sing" title="sing with everyone" aria-pressed="false">sing</button>
-      <button id="act-today" title="a small kindness for today, and breathing and humming together">today</button>
       <button id="act-sound" title="hear the others" aria-pressed="false">sound off</button>
     </div>
   </nav>
@@ -116,15 +116,13 @@
     <p class="small" id="kind-date"></p>
     <p id="kind-act"></p>
     <div class="row"><button id="kind-done">i did it ♥</button></div>
-    <p class="small together">together, every week</p>
-    <div class="gather"><button id="breathe-now">breathe</button><span id="breathe-when"></span></div>
-    <div class="gather"><button id="hum-now">hum</button><span id="hum-when"></span></div>
+    <p class="small together" id="rhythm"></p>
   </section>
 
   <script src="heartstar/kindness.js?v=1"></script>
   <script src="heartstar/land.js?v=4"></script>
   <script src="heartstar/quotes.js" defer></script>
-  <script src="heartstar/heartstar.js?v=81"></script>
+  <script src="heartstar/heartstar.js?v=83"></script>
   <script src="/subscribe.js?v=4" defer></script>
 </body>
 </html>

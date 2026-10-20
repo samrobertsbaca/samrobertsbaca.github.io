@@ -2865,30 +2865,18 @@
   const dayKey = () => new Date().toDateString();
   const todayBtn = document.getElementById('act-today');
   const kindDone = document.getElementById('kind-done');
-  // the weekly gatherings, at one moment for the whole world (shown in your own time)
-  const GATHER = { breathe: { day: 0, hour: 18 }, hum: { day: 3, hour: 18 } }; // sundays and wednesdays, 18:00 utc
-  function nextGathering(g, now = new Date()) {
-    const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), g.hour));
-    d.setUTCDate(d.getUTCDate() + ((g.day - d.getUTCDay() + 7) % 7));
-    if (now - d > 20 * 60000) d.setUTCDate(d.getUTCDate() + 7); // still "now" for twenty minutes after it starts
-    return d;
-  }
-  const gatheringNow = (g) => { const t = Date.now() - nextGathering(g); return t >= 0 && t < 20 * 60000; };
-  function whenText(g) {
-    if (gatheringNow(g)) return '<span class="now">happening now. come!</span>';
-    const d = nextGathering(g);
-    const day = d.toLocaleDateString(undefined, { weekday: 'long' }).toLowerCase();
-    const time = d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' }).toLowerCase();
-    return `every ${day} at ${time}, everyone together. or any time on your own.`;
-  }
+  // scorsby breathes on its own a few times a day, and sings every sunday at noon: by your own clock, so everyone
+  // in your part of the world breathes and sings at the same moment, and anyone arriving partway joins where it is
+  const BREATH_HOURS = [7, 10, 13, 16, 19, 22];
+  const SING_DAY = 0, SING_HOUR = 12; // sunday, noon
+  const hourText = (h) => new Date(2024, 0, 1, h).toLocaleTimeString(undefined, { hour: 'numeric' }).toLowerCase();
   function paintToday() {
     const k = kindToday(), d = new Date();
     document.getElementById('kind-date').textContent = `${d.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' }).toLowerCase()} · day ${k.i + 1} of kindness`;
     document.getElementById('kind-act').textContent = k.text;
     const done = store.get('kind-done') === dayKey();
     kindDone.disabled = done; kindDone.textContent = done ? 'done today ♥' : 'i did it ♥';
-    document.getElementById('breathe-when').innerHTML = whenText(GATHER.breathe);
-    document.getElementById('hum-when').innerHTML = whenText(GATHER.hum);
+    document.getElementById('rhythm').textContent = `scorsby breathes slowly at ${BREATH_HOURS.map(hourText).join(', ')}, and sings every sunday at ${hourText(SING_HOUR)}. come and join, wherever you are.`;
   }
   todayBtn.addEventListener('click', () => { closeWindows(todayWin); todayWin.hidden = !todayWin.hidden; if (!todayWin.hidden) paintToday(); });
   kindDone.addEventListener('click', () => {
@@ -2904,20 +2892,25 @@
     tone.chime();
     whisper('thank you. a flower grew where you are. ♥', 3800);
   });
-  // once a day, the world tells you today's kindness (after it wakes)
-  setTimeout(() => {
-    if (store.get('kind-seen') === dayKey()) return;
-    store.set('kind-seen', dayKey());
-    whisper(`today's small kindness: ${kindToday().text}`, 7000, false, null, true);
-  }, Math.max(0, intro.ui - performance.now()) + 9000);
-  // when a gathering is happening, everyone here is invited
-  setInterval(() => {
-    for (const [k, g] of Object.entries(GATHER)) {
-      if (!gatheringNow(g) || store.get('gather-' + k) === dayKey()) continue;
-      store.set('gather-' + k, dayKey());
-      whisper(k === 'breathe' ? 'everyone is breathing together right now. tap today → breathe.' : 'everyone is humming together right now. tap today → hum.', 6000, false, null, true);
+  // the clock: a minute before, a little heads-up; at the moment itself, scorsby begins
+  let breathSlot = 0, singSlot = 0, warned = 0;
+  function rhythm() {
+    if (!intro.woke) return;
+    const d = new Date(), t = Date.now();
+    const at = (h, m = 0) => new Date(d.getFullYear(), d.getMonth(), d.getDate(), h, m).getTime();
+    const breathLen = BREATH_CYCLE * BREATH_TIMES, singLen = HUM.reduce((x, s) => x + s[2], 0);
+    if (d.getDay() === SING_DAY) {
+      const s = at(SING_HOUR);
+      if (t >= s - 60000 && t < s && warned !== s) { warned = s; whisper('in a minute, scorsby will sing. set a loving intention, and hum along.', 6000, true); }
+      if (t >= s && t < s + singLen - 8000 && singSlot !== s && !hum.at) { singSlot = s; startHum(s); return; }
     }
-  }, 30000);
+    for (const h of BREATH_HOURS) {
+      const s = at(h);
+      if (t >= s - 60000 && t < s && warned !== s) { warned = s; whisper('in a minute, scorsby will breathe slowly. breathe along if you like.', 6000, true); }
+      if (t >= s && t < s + breathLen - 6000 && breathSlot !== s && !breath.at && !hum.at) { breathSlot = s; startBreath(s); }
+    }
+  }
+  setInterval(rhythm, 2000);
 
   // breathing: the world fills like a lung. in for four, hold for four, out for six, rest for two. five times.
   const BREATH = [['breathe in', 4000], ['hold', 4000], ['breathe out', 6000], ['rest', 2000]];
@@ -2934,36 +2927,34 @@
     return { phase, k, fill, cycle: Math.floor(t / BREATH_CYCLE) };
   }
   function breathFill(now) { const b = breathNow(now); return b && !b.done ? b.fill : 0; }
-  function startBreath() {
+  function startBreath(clockAt = Date.now()) {
     if (hum.at) endHum(true);
-    todayWin.hidden = true;
-    if (!soundOn) setSound(true);
-    breath.at = performance.now() + 3000; breath.phase = -1;
+    breath.at = performance.now() - (Date.now() - clockAt) + 3000; breath.phase = -1;
     calmMood = 'sleepy'; setMood('sleepy', BREATH_CYCLE * BREATH_TIMES + 3000);
-    whisper('let\'s breathe together. follow the world.', 2800);
+    whisper('scorsby is breathing slowly. hold someone you love in mind, and breathe along.', 3000);
   }
-  document.getElementById('breathe-now').addEventListener('click', startBreath);
 
   // humming: scorsby holds a note, and you find it with your voice. any octave counts.
   const HUM_ROOT = 196; // g, low enough to hum
-  const HUM = [[0, 'hum this note with scorsby. mmm…', 20000], [0, 'softer now. let it be easy.', 14000], [7, 'rise to a new note.', 18000],
-    [4, 'and one more, in between.', 18000], [0, 'come home to the first note.', 18000], [null, 'rest in the quiet, and listen.', 9000]];
-  const hum = { at: 0, step: -1, close: 0, c: 0, lastHeart: 0, opened: false };
-  async function startHum() {
+  const HUM = [[null, 'before we begin, set a loving intention. who is your song for?', 12000],
+    [0, 'hum this note with scorsby. mmm…', 20000], [0, 'softer now. let it be easy.', 14000], [7, 'rise to a new note.', 18000],
+    [4, 'and one more, in between.', 18000], [12, 'now the high note. reach up gently.', 18000], [0, 'come home to the first note.', 18000],
+    [null, 'rest in the quiet. let your song go to the one you hold in your heart.', 10000]];
+  const hum = { at: 0, step: -1, close: 0, c: 0, lastHeart: 0 };
+  function startHum(clockAt = Date.now()) {
     if (breath.at) { breath.at = 0; calmMood = null; voices.hush('guide'); }
-    todayWin.hidden = true;
-    if (!mic.on) { hum.opened = await openVoice(true); if (!hum.opened) return; }
-    hum.at = performance.now() + 2500; hum.step = -1; hum.close = 0;
+    hum.at = performance.now() - (Date.now() - clockAt) + 2500; hum.step = -1; hum.close = 0;
     calmMood = 'o'; setMood('o', HUM.reduce((a, s) => a + s[2], 0) + 2500);
-    whisper('let\'s hum together. scorsby will start.', 2500);
+    whisper(mic.on ? 'scorsby is singing. hum along.' : 'scorsby is singing. hum along (tap sing to let scorsby hear you).', 3500);
+    if (!soundOn) whisper('turn the sound on to hear scorsby sing.', 4000, false, null, true);
   }
   function endHum(quiet = false) {
     hum.at = 0; hum.step = -1; calmMood = null;
     voices.hush('guide');
-    if (hum.opened) { stopSinging(); hum.opened = false; }
     if (!quiet) { setMood('hearts', 2600); whisper('thank you for humming with scorsby. ♥', 4200); }
   }
-  document.getElementById('hum-now').addEventListener('click', startHum);
+  if (params.has('breathe')) setTimeout(() => startBreath(), 3000); // to try them any time
+  if (params.has('hum')) setTimeout(() => startHum(), 3000);
 
   // each frame: the guide's voice, the words, and how close your voice is
   function updateTogether(now) {
