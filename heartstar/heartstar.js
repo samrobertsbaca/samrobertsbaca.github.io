@@ -886,8 +886,12 @@
       const f = Math.exp(singers.reduce((a, s) => a + Math.log(s.freq), 0) / singers.length);
       voices.sing('world', f, Math.min(1, amp) * 0.8, CX);
       if (!pf.singing) { pf.singing = true; whisper('the world is singing along.', 3000, false); }
-      if (Math.random() < dt / 260) pf.rings.push({ born: now });
     } else if (pf.singing) { pf.singing = false; voices.hush('world'); }
+    // when a chorus is singing (three or more, anywhere on the world), little rings leave his mouth in a steady rhythm,
+    // however many are singing
+    let chorus = me && me.sing > 0.08 ? 1 : 0;
+    if (!(calmMood && !hum.at)) for (const s of peers.values()) if (s.singTarget > 0 && now - s.lastSing < 600 && ++chorus >= 3) break;
+    if (chorus >= 3 && now > (pf.nextRing || 0)) { pf.rings.push({ born: now }); pf.nextRing = now + 650; }
   }
 
   // meltdown: the face's own pixels run downward. it is drawn off-screen, then copied back in thin
@@ -1244,11 +1248,11 @@
       }
       c.restore();
     }
-    // when it sings, little rings leave its mouth
+    // when a chorus sings, little rings leave its mouth
     for (let i = pf.rings.length - 1; i >= 0; i--) {
       const k = (now - pf.rings[i].born) / 1600;
       if (k > 1) { pf.rings.splice(i, 1); continue; }
-      wobbleCircle(0, my + w * 0.5, w * (0.6 + k * 2.4), 700 + i, 4 / L, 0);
+      wobbleCircle(mpx, my + w * 0.3, w * (0.6 + k * 2.4), 700 + i, 4 / L, 0);
       c.lineWidth = 14; c.strokeStyle = `rgba(255,255,255,${0.8 * (1 - k)})`; c.stroke();
     }
     c.restore();
