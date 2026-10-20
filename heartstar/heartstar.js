@@ -480,6 +480,13 @@
         c.beginPath(); c.arc(x, y, s * 0.07, 0, TAU); c.fillStyle = '#ffd23f'; c.fill(); c.stroke();
         break;
       }
+      case 'rainbowflower': {
+        // left by someone who noticed something today: seven petals, one for each color of the rainbow
+        c.beginPath(); wobbleLine(x, y + s * 0.5, x, y, seed, 0.3); c.stroke();
+        for (let k = 0; k < 7; k++) { const a = (k / 7) * TAU + seed; c.beginPath(); c.arc(x + Math.cos(a) * s * 0.17, y + Math.sin(a) * s * 0.17, s * 0.1, 0, TAU); c.fillStyle = RAINBOW[k]; c.fill(); c.stroke(); }
+        c.beginPath(); c.arc(x, y, s * 0.075, 0, TAU); c.fillStyle = '#fff'; c.fill(); c.stroke();
+        break;
+      }
       case 'pyramid': {
         // the scorsby pyramid, ears and all
         for (const sd of [-1, 1]) { c.beginPath(); c.arc(x + sd * s * 0.17, y - s * 0.4, s * 0.1, 0, TAU); c.fillStyle = '#ffd23f'; c.fill(); c.stroke(); }
@@ -1779,6 +1786,13 @@
       const ci = storm > 0.2 ? 8 : unison || s.c;
       const col = colorOf(ci, now, s.seed);
       drawFace(s.sx, s.sy - s.size * 0.06, s.size, { lid, look: [s.lookX, s.lookY], hearts: s.hearts > 0, sing: s.sing, color: col, nose: ci !== 8 && reddish(col) ? '#00b4ff' : undefined });
+      if (s.mine && store.get('kind-done') === dayKey()) {
+        // you noticed something today: a rainbow flower grows from the top of your head, swaying a little
+        const fs = s.size * 0.5, sway = Math.sin(now / 900 + s.seed) * 0.08;
+        c.save(); c.translate(s.sx, s.sy - s.size * 0.4); c.rotate(sway);
+        doodle('rainbowflower', 0, -fs * 0.5, fs, s.seed, now, 1.32);
+        c.restore();
+      }
       c.restore();
     }
     visible = list;
@@ -2872,37 +2886,35 @@
     const list = window.AWARENESS || [];
     // counted on a leap-year calendar, so the 29th of february has its own and the 31st of december is always the last
     const i = Math.round((Date.UTC(2024, d.getMonth(), d.getDate()) - Date.UTC(2024, 0, 1)) / 86400000);
-    return { i, text: list[i % (list.length || 1)] || 'notice that you are here.' };
+    const e = list[i % (list.length || 1)] || 'notice that you are here.';
+    return Array.isArray(e) ? { i, text: e[0], src: e[1] } : { i, text: e, src: '' };
   }
   const dayKey = () => new Date().toDateString();
   const todayBtn = document.getElementById('act-today');
   const kindDone = document.getElementById('kind-done');
   // scorsby breathes on its own a few times a day, and sings every sunday at noon: by your own clock, so everyone
   // in your part of the world breathes and sings at the same moment, and anyone arriving partway joins where it is
-  const BREATH_HOURS = [7, 10, 13, 16, 19, 22];
+  const BREATH_HOURS = [3, 6, 9, 15, 18, 21];
   const SING_DAY = 0, SING_HOUR = 12; // sunday, noon
-  const hourText = (h) => new Date(2024, 0, 1, h).toLocaleTimeString(undefined, { hour: 'numeric' }).toLowerCase();
   function paintToday() {
     const k = kindToday(), d = new Date();
     document.getElementById('kind-date').textContent = `${d.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' }).toLowerCase()} · day ${k.i + 1} of awareness`;
     document.getElementById('kind-act').textContent = k.text;
+    const src = document.getElementById('kind-src'); src.textContent = k.src; src.hidden = !k.src;
     const done = store.get('kind-done') === dayKey();
     kindDone.disabled = done; kindDone.classList.toggle('done', done); kindDone.textContent = done ? 'noticed today ♥' : 'i noticed ♥';
-    document.getElementById('rhythm').textContent = `scorsby breathes slowly at ${BREATH_HOURS.map(hourText).join(', ')}, and sings every sunday at ${hourText(SING_HOUR)}. come and join, wherever you are.`;
+    document.getElementById('rhythm').textContent = 'planet scorsby breathes slowly at 3, 6, and 9 am and pm, and sings every sunday at noon. come and join, wherever you are.';
   }
   todayBtn.addEventListener('click', () => { closeWindows(todayWin); todayWin.hidden = !todayWin.hidden; if (!todayWin.hidden) paintToday(); });
   kindDone.addEventListener('click', () => {
     store.set('kind-done', dayKey());
     paintToday();
-    // a flower grows where you are, for everyone to see
     if (me) {
-      const m = { lat: me.lat, lon: me.lon, k: 'flower', n: myName, at: Date.now() };
-      if (net.live) send({ t: 'mark', lat: m.lat, lon: m.lon, k: m.k }); else planted(m);
       me.hearts = 2400;
       for (let i = 0; i < 3; i++) setTimeout(() => pointHearts.push({ s: me, born: performance.now(), together: true, seed: Math.random() * 10 }), i * 250);
     }
     tone.chime();
-    whisper('a flower grew where you are. ♥', 3800);
+    whisper('a rainbow flower is growing on your head. ♥', 3800);
   });
   // the clock: a minute before, a little heads-up; at the moment itself, scorsby begins
   let breathSlot = 0, singSlot = 0, warned = 0;
@@ -2913,12 +2925,12 @@
     const breathLen = BREATH_CYCLE * BREATH_TIMES, singLen = HUM.reduce((x, s) => x + s[2], 0);
     if (d.getDay() === SING_DAY) {
       const s = at(SING_HOUR);
-      if (t >= s - 60000 && t < s && warned !== s) { warned = s; whisper('in a minute, scorsby will sing. set a loving intention, and hum along.', 6000, true); }
+      if (t >= s - 60000 && t < s && warned !== s) { warned = s; whisper('in a minute, planet scorsby will sing. set a loving intention, and hum along.', 6000, true); }
       if (t >= s && t < s + singLen - 8000 && singSlot !== s && !hum.at) { singSlot = s; startHum(s); return; }
     }
     for (const h of BREATH_HOURS) {
       const s = at(h);
-      if (t >= s - 60000 && t < s && warned !== s) { warned = s; whisper('in a minute, scorsby will breathe slowly. breathe along if you like.', 6000, true); }
+      if (t >= s - 60000 && t < s && warned !== s) { warned = s; whisper('in a minute, planet scorsby will breathe slowly. breathe along if you like.', 6000, true); }
       if (t >= s && t < s + breathLen - 6000 && breathSlot !== s && !breath.at && !hum.at) { breathSlot = s; startBreath(s); }
     }
   }
