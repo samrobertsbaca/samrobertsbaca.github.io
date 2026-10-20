@@ -2863,7 +2863,20 @@
     const sw = colorBtn.querySelector('.sw');
     sw.style.background = typeof myColor === 'string' ? myColor : COLORS[myColor][1] || 'conic-gradient(#ff5fae,#ffd23f,#62d64a,#00b4ff,#9b6bff,#ff5fae)';
     colorBtn.querySelector('.label').textContent = myName ? `${myName} scorsby` : 'you';
+    placeZoom();
   }
+  // on a phone, if a long name pushes the buttons onto two rows, the zoom buttons join the second row
+  // (where they would otherwise float, the taller stack of buttons would cover them)
+  const zoomBox = document.getElementById('zoom'), zoomHome = zoomBox.parentElement, actsRow = document.querySelector('#acts .row');
+  function placeZoom() {
+    if (!zoomBox || !actsRow) return;
+    if (zoomBox.parentElement !== zoomHome) zoomHome.insertBefore(zoomBox, document.getElementById('you-win'));
+    const btns = [...actsRow.children];
+    const wrapped = innerWidth < 600 && btns.length > 1 && btns[btns.length - 1].offsetTop > btns[0].offsetTop + 4;
+    if (wrapped) actsRow.appendChild(zoomBox);
+  }
+  addEventListener('resize', placeZoom);
+  document.fonts?.ready.then(placeZoom); // (the buttons change width once the fonts arrive)
   COLORS.forEach(([name, hex], i) => {
     const b = document.createElement('button');
     b.type = 'button'; b.className = 'swatch'; b.title = name; b.setAttribute('aria-label', name);

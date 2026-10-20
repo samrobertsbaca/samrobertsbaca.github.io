@@ -271,6 +271,9 @@ body.ritual.ritual-sing.sound-on #acts .row button#act-sound { opacity: 0 !impor
   #act-all { width: 100%; }
   .win { bottom: 132px; }
   #zoom { right: 12px; top: auto; bottom: 128px; transform: none; flex-direction: row; }
+  /* when the buttons take two rows, the zoom buttons sit in the second row with them */
+  #acts .row #zoom { position: static; transform: none; gap: 8px; }
+  #acts .row #zoom button { width: 30px; height: 30px; padding: 0; font-size: 16px; }
   /* peace love joy on one line; subscribe, shop and the dream district on the next */
   #ways-row { display: grid; grid-template-columns: auto auto; justify-content: end; align-items: center; gap: 3px 9px; margin-top: 2px; }
   #ways { display: contents; }
