@@ -814,6 +814,7 @@
     if (!MOODS[m] || (!intro.woke && m !== 'sleepy')) return; // nothing stirs the world before it wakes
     if (calmMood && m !== calmMood) return;
     if (pf.mood !== m) pf.moodAt = performance.now();
+    if (m === 'whirl' && pf.mood !== 'whirl' && !pf.earWhirl) pf.whirlDir = 1;
     const lasts = { meltdown: 7800, bubble: 5800, whirl: 1600 }[m]; // these play all the way through
     if (lasts) hold = Math.max(hold, lasts);
     pf.mood = m; pf.target = { ...FACE_BASE, ...MOODS[m] }; pf.hold = performance.now() + hold;
@@ -848,7 +849,7 @@
     if (pf.mood === 'whirl') {
       const t = (now - (pf.moodAt || now)) / 1500;
       if (t >= 1) { pf.spinA = 0; setMood('smile'); }
-      else pf.spinA = TAU * 4 * (t < 0.5 ? 2 * t * t : 1 - 2 * (1 - t) * (1 - t));
+      else pf.spinA = (pf.whirlDir || 1) * TAU * 4 * (t < 0.5 ? 2 * t * t : 1 - 2 * (1 - t) * (1 - t));
     } else {
       if (pf.cur.spin > 0.02) pf.spinA = (pf.spinA || 0) + (dt / 700) * pf.cur.spin;
       if (pf.mood !== 'spin' && pf.spinA) {
@@ -1364,8 +1365,9 @@
     faded(() => { c.save(); c.globalAlpha = awake(now); renderMoon(now, false); c.restore(); });
     if (pf.cur.angel > 0.02) renderWorldWings(now);
     renderEars(now);
+    renderGarden(now, 'ears'); // (the ears' flowers are behind the face, like the ears)
     renderPlanet(now, dt);
-    renderGarden(now);
+    renderGarden(now, 'face');
     // little markers people planted sit on top of the world's face, like the scorsbys do
     renderMarks(now);
     if (markMode && pointer.seen && !pointer.down && unproject(pointer.x, pointer.y)) {
@@ -1610,13 +1612,13 @@
     const w = (sp.width / DPR) * (size / q);
     c.drawImage(sp, -w / 2, -w / 2, w, w);
   }
-  function renderGarden(now) {
+  function renderGarden(now, part) {
     const n = Math.min(gardenN, GARDEN_MAX), show = awake(now); // (hidden while the world sleeps, then fading in as it wakes)
     if (n <= 0 || show <= 0) return;
     c.save(); c.globalAlpha *= show;
-    try { drawGarden(now, n); } finally { c.restore(); }
+    try { drawGarden(now, n, part); } finally { c.restore(); }
   }
-  function drawGarden(now, n) {
+  function drawGarden(now, n, part) {
     const ears = pf.ears || [];
     const lw = 70 * L, fs = R * 0.22;
     // the edge, as one long loop: all the way round the face, then the outer side of each ear
@@ -1625,12 +1627,16 @@
     while (gardenU.length < n) gardenU.push(gardenU.length ? gardenU[gardenU.length - 1] : FACE / 2);
     gardenU.length = n;
     for (let i = 0; i < n; i++) {
-      const want = (FACE / 2 + i / n) % 1;
-      let d = want - gardenU[i]; d -= Math.round(d); // the short way round the loop
-      gardenU[i] = (gardenU[i] + d * 0.06 + 1) % 1;
+      if (part === 'ears') { // (each flower moves once a frame, with the ears' pass, which comes first)
+        const want = (FACE / 2 + i / n) % 1;
+        let d = want - gardenU[i]; d -= Math.round(d); // the short way round the loop
+        gardenU[i] = (gardenU[i] + d * 0.06 + 1) % 1;
+      }
       const u = gardenU[i];
+      const onFace = u < FACE || ears.length < 2;
+      if (onFace !== (part === 'face')) continue;
       let x, y, a;
-      if (u < FACE || ears.length < 2) {
+      if (onFace) {
         a = -Math.PI / 2 + (u / FACE - 0.5) * Math.PI * 2 + (pf.spinA || 0); // round the face, from the top
         const r = R + lw * 0.75;
         x = CX + Math.cos(a) * r; y = CY + Math.sin(a) * r;
@@ -2711,6 +2717,7 @@
     return best;
   }
   function hitPart(x, y) {
+    if (calmMood) return null; // (while the world breathes or sings, the face rests as it is)
     if (!pf.hit || 1 - smooth(faceFadeFrom, faceFadeFrom + 0.98, zoom.v) < 0.5) return null;
     for (const [ax, ay, ar, k] of pf.hit.ants) if (Math.hypot(x - ax, y - ay) < ar) return k;
     for (const [ax, ay, ar, k] of pf.hit.extra) if (Math.hypot(x - ax, y - ay) < ar) return k;
@@ -2758,7 +2765,10 @@
     const s = hit(e.clientX, e.clientY);
     pointer.onMe = s && s.mine;
     pointer.part = s ? null : hitPart(e.clientX, e.clientY);
-    if (pointer.part) { const q = pull[pointer.part]; q.held = true; pointer.px0 = e.clientX - q.x; pointer.py0 = e.clientY - q.y; }
+    if (pointer.part) {
+      const q = pull[pointer.part]; q.held = true; pointer.px0 = e.clientX - q.x; pointer.py0 = e.clientY - q.y;
+      pointer.round = 0; pointer.roundA = Math.atan2(e.clientY - CY, e.clientX - CX); // how far an ear is taken round the face
+    }
     if (pointer.onMe) holdTimer = setTimeout(() => { if (pointer.moved < 6) { pointer.held = true; loveEveryone(); } }, 650);
   });
   cv.addEventListener('pointermove', (e) => {
@@ -2789,9 +2799,15 @@
     if (pointer.part) {
       const q = pull[pointer.part];
       let x = e.clientX - pointer.px0, y = e.clientY - pointer.py0;
-      const d = Math.hypot(x, y), max = R * 1.4;
+      const ear = pointer.part === 'earL' || pointer.part === 'earR';
+      const d = Math.hypot(x, y), max = R * (ear ? 2.4 : 1.4); // (an ear can be taken all the way round)
       if (d > max) { x *= max / d; y *= max / d; }
       q.x = x; q.y = y; q.vx = q.vy = 0;
+      if (ear) {
+        const a = Math.atan2(e.clientY - CY, e.clientX - CX);
+        let da = a - pointer.roundA; da -= Math.round(da / TAU) * TAU;
+        pointer.round += da; pointer.roundA = a;
+      }
       return;
     }
     if (pointer.onMe && me) {
@@ -2817,7 +2833,9 @@
       const q = pull[pointer.part];
       q.held = false;
       if (Math.hypot(q.x, q.y) > R * 0.25) tone.boing(Math.hypot(q.x, q.y) / R);
-      pointer.part = null;
+      // an ear taken most of the way round the face, and let go: the whole face whirls round, the same way
+      if (Math.abs(pointer.round || 0) > Math.PI * 1.5) { pf.whirlDir = Math.sign(pointer.round); pf.earWhirl = true; setMood('whirl'); pf.earWhirl = false; }
+      pointer.part = null; pointer.round = 0;
     }
     pointer.down = false; pointer.dragging = false; cv.classList.remove('grabbing');
     view.idleAt = performance.now() + 5000;
@@ -2879,7 +2897,7 @@
       tone.chime();
       return;
     }
-    if (pf.hit) {
+    if (pf.hit && !calmMood) {
       const [nx, ny, nr] = pf.hit.nose;
       if (Math.hypot(x - nx, y - ny) < nr * 1.3) {
         pf.honk = now + 600; tone.honk();
