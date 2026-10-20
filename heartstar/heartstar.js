@@ -843,14 +843,20 @@
     else pool.push(...quiet, ...quiet);
     return pick(pool);
   }
+  // how far round a flung face has gone (0..1): speeding up evenly for the first bit, then slowing gently to a stop
+  const FLING_UP = 0.12;
+  function flung(t) {
+    const all = FLING_UP / 2 + (1 - FLING_UP) / 3;
+    return (t < FLING_UP ? (t * t) / (2 * FLING_UP) : FLING_UP / 2 + ((1 - FLING_UP) / 3) * (1 - ((1 - t) / (1 - FLING_UP)) ** 3)) / all;
+  }
   function updatePlanetFace(now, dt) {
     // spin: a slow turn while the mood lasts, easing back to upright after.
     // whirl: one super fast whirl (four turns), then it's over.
     if (pf.mood === 'whirl') {
-      // (flung by an ear, it starts at full speed, as fast as the ear snaps back, and slows to a stop)
+      // (flung by an ear, it gets up to speed quickly, in the first fifth of a second, as the ear snaps back, then slows to a stop)
       const t = (now - (pf.moodAt || now)) / (pf.whirlFlung ? 1800 : 1500);
       if (t >= 1) { pf.spinA = 0; setMood('smile'); }
-      else pf.spinA = (pf.whirlDir || 1) * TAU * (pf.whirlTurns || 4) * (pf.whirlFlung ? 1 - (1 - t) ** 3 : t < 0.5 ? 2 * t * t : 1 - 2 * (1 - t) * (1 - t));
+      else pf.spinA = (pf.whirlDir || 1) * TAU * (pf.whirlTurns || 4) * (pf.whirlFlung ? flung(t) : t < 0.5 ? 2 * t * t : 1 - 2 * (1 - t) * (1 - t));
     } else {
       if (pf.cur.spin > 0.02) pf.spinA = (pf.spinA || 0) + (dt / 700) * pf.cur.spin;
       if (pf.mood !== 'spin' && pf.spinA) {
