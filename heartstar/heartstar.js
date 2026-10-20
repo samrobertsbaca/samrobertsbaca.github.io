@@ -1075,17 +1075,7 @@
     taffy(0, f.ny + f.melt * 50, npx, f.ny + f.melt * 50 + npy, nr * 1.4, noseCol);
     const ny = f.ny + f.melt * 50 + npy;
     c.save(); c.translate(npx, 0);
-    if (f.pixel > 0.5) { c.fillStyle = noseCol; c.fillRect(-nr, ny - nr, nr * 2, nr * 2); }
-    else if (f.swap > 0.5) {
-      const er2 = nr * 1.5;
-      if (blinkClosed || worldClosed) { c.beginPath(); c.arc(0, ny - er2 * 0.155, er2 * 0.667, 0, Math.PI); c.lineWidth = er2 * 0.368; c.strokeStyle = DARK; c.stroke(); }
-      else {
-        wobbleCircle(0, ny, er2, 610, 1 / L, 0); c.fillStyle = '#fff'; c.fill();
-        c.beginPath(); c.arc(pf.lx * er2 * 0.35, ny + pf.ly * er2 * 0.35, er2 * 0.45, 0, TAU); c.fillStyle = DARK; c.fill();
-      }
-    }
-    else if (f.heartnose > 0.5) { heartPath(0, ny, nr * 1.15); c.fillStyle = noseCol; c.fill(); }
-    else { wobbleCircle(0, ny, nr, 600, 1 / L, 0); c.fillStyle = noseCol; c.fill(); }
+    // the mustache goes on first, so the nose sits in front of it
     if (f.stache > 0.05) {
       c.globalAlpha = A * f.stache;
       c.beginPath();
@@ -1097,6 +1087,17 @@
       c.lineWidth = 60; c.strokeStyle = DARK; c.stroke();
       c.globalAlpha = A;
     }
+    if (f.pixel > 0.5) { c.fillStyle = noseCol; c.fillRect(-nr, ny - nr, nr * 2, nr * 2); }
+    else if (f.swap > 0.5) {
+      const er2 = nr * 1.5;
+      if (blinkClosed || worldClosed) { c.beginPath(); c.arc(0, ny - er2 * 0.155, er2 * 0.667, 0, Math.PI); c.lineWidth = er2 * 0.368; c.strokeStyle = DARK; c.stroke(); }
+      else {
+        wobbleCircle(0, ny, er2, 610, 1 / L, 0); c.fillStyle = '#fff'; c.fill();
+        c.beginPath(); c.arc(pf.lx * er2 * 0.35, ny + pf.ly * er2 * 0.35, er2 * 0.45, 0, TAU); c.fillStyle = DARK; c.fill();
+      }
+    }
+    else if (f.heartnose > 0.5) { heartPath(0, ny, nr * 1.15); c.fillStyle = noseCol; c.fill(); }
+    else { wobbleCircle(0, ny, nr, 600, 1 / L, 0); c.fillStyle = noseCol; c.fill(); }
     c.restore();
 
     // bubblegum: one pink bubble swells out of the mouth, pops, he blinks twice, and that's the end
