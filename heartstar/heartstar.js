@@ -1274,7 +1274,7 @@
       doodle(markMode === 'head' ? 'scorsby' : markMode, pointer.x, pointer.y - ds * 0.3, ds, 7, now, 1.32);
       c.restore();
     }
-    if (!calmMood) renderHearts(now);
+    renderHearts(now);
     renderFaces(now, dt, storm);
     for (let i = pointHearts.length - 1; i >= 0; i--) {
       const ph = pointHearts[i], k = (now - ph.born) / 1400;
@@ -1341,19 +1341,22 @@
   // each scorsby's colour, glowing on the world around them
   const glowBuf = document.createElement('canvas'), glowC = glowBuf.getContext('2d');
   function renderGlows(now) {
-    if (!worldGlows || !worldGlows.length) return;
+    const glows = worldGlows ? [...worldGlows] : [];
+    for (const s of everyone()) if (s.sing > 0.08 && !s.leaving && !glows.some((g) => g[0] === s)) glows.push([s, colorOf(s.c, now, s.seed)]);
+    if (!glows.length) return;
     const gold = pf.cur.gold, rad = R * (0.5 + 0.35 * worldRain);
     // the ones facing us first; past a hundred or so the rest add nothing you could see
-    const list = worldGlows.map(([s, col]) => [project(s.v[0], s.v[1], s.v[2]), col]).filter(([p]) => p[2] > -0.15).sort((a, b) => b[0][2] - a[0][2]).slice(0, 120);
+    const list = glows.map(([s, col]) => [project(s.v[0], s.v[1], s.v[2]), col, s.sing || 0]).filter(([p]) => p[2] > -0.15).sort((a, b) => b[0][2] - a[0][2]).slice(0, 120);
     if (glowBuf.width !== cv.width || glowBuf.height !== cv.height) { glowBuf.width = cv.width; glowBuf.height = cv.height; }
     glowC.setTransform(DPR, 0, 0, DPR, 0, 0); glowC.globalCompositeOperation = 'source-over'; glowC.globalAlpha = 1;
     glowC.clearRect(0, 0, VW, VH);
     // every glow on a layer of its own. where two meet, each colour channel keeps the brighter of the two (red and green
     // meeting make yellow, blue and red make pink): they never add up to white and never mix down to brown.
     glowC.globalCompositeOperation = 'lighten';
-    for (const [[x, y, z], col0] of list) {
+    for (const [[x, y, z], col0, sing] of list) {
       const col = gold < 0.01 ? col0 : mixColor(col0, '#ffc93c', gold), [r, g, b] = rgbOf(col);
-      const a = clamp((z + 0.15) / 0.45, 0, 1), rr = rad * (0.6 + 0.4 * Math.max(0, z)); // flatter and fainter toward the edge
+      // flatter and fainter toward the edge; a singer's glow swells
+      const a = clamp((z + 0.15) / 0.45, 0, 1), rr = rad * (0.6 + 0.4 * Math.max(0, z)) * (1 + 0.9 * sing);
       const gr = glowC.createRadialGradient(x, y, 0, x, y, rr);
       gr.addColorStop(0, `rgba(${r},${g},${b},${a})`); gr.addColorStop(0.45, `rgba(${r},${g},${b},${a * 0.65})`); gr.addColorStop(1, `rgba(${r},${g},${b},0)`);
       glowC.fillStyle = gr; glowC.fillRect(x - rr, y - rr, rr * 2, rr * 2);
@@ -1694,6 +1697,7 @@
 
   // contagious hearts: a ring of hearts rolls out over the world; every scorsby it touches starts its own
   function renderHearts(now) {
+    if (calmMood) hearts.length = 0; // no hearts flying between people while the world breathes or sings
     for (let i = hearts.length - 1; i >= 0; i--) {
       const h = hearts[i];
       const r = ((now - h.born) / 1000) * (h.gen ? 0.45 : 0.55);
@@ -2493,7 +2497,7 @@
       case 'all': {
         trails.push({ a: m.a, t: m.at || Date.now(), k: 'all' });
         setTally(m.tally);
-        if (me && m.from === me.id) break;
+        if ((me && m.from === me.id) || calmMood) break; // (counted, but quiet, while scorsby breathes or sings)
         const v = vec(...m.a);
         waves.push({ v, born: now, radius: 0, seen: new Set() });
         const from = peers.get(m.from);
@@ -2504,7 +2508,7 @@
       }
       case 'sing': {
         const s = peers.get(m.id);
-        if (!s) break;
+        if (!s || (calmMood && !hum.at)) break; // while the world breathes, other voices wait
         if (!s.singTarget) whisper(`${nameOf(s)} is singing.`, 3200, false);
         s.singTarget = m.a; s.freq = m.f; s.lastSing = now;
         voices.sing(m.id, m.f, m.a, s.sx);
@@ -2747,7 +2751,7 @@
 
   let lastAll = -1e9;
   function loveEveryone() {
-    if (!me) return;
+    if (!me || calmMood) return;
     const now = performance.now();
     if (now - lastAll < 4000) return whisper('the last love is still spreading.', 2000);
     lastAll = now;
@@ -3165,7 +3169,7 @@
   const tone = {
     wake() { if (ac && ac.state === 'suspended') ac.resume(); },
     note(f, len = 1.6, vol = 0.06, type = 'sine', delay = 0) {
-      if (!soundOn || !ac) return;
+      if (!soundOn || !ac || calmMood) return;
       const t = ac.currentTime + delay;
       const o = ac.createOscillator(); o.type = type; o.frequency.value = f;
       const g = ac.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + 0.02);
@@ -3179,7 +3183,7 @@
     pop() { this.note(pick(PENTA) * 2, 0.35, 0.04, 'square'); this.note(pick(PENTA) * 3, 0.3, 0.02, 'sine', 0.05); },
     // a bubblegum pop: a sharp snap of noise and a quick little "plip" that drops in pitch
     bubblePop() {
-      if (!soundOn || !ac) return;
+      if (!soundOn || !ac || calmMood) return;
       const t = ac.currentTime, n = Math.floor(ac.sampleRate * 0.05);
       const buf = ac.createBuffer(1, n, ac.sampleRate), d = buf.getChannelData(0);
       for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.exp(-i / (n * 0.12));
@@ -3193,7 +3197,7 @@
       o.connect(g); g.connect(master); o.start(t); o.stop(t + 0.1);
     },
     boing(stretch = 1) {
-      if (!soundOn || !ac) return;
+      if (!soundOn || !ac || calmMood) return;
       const t = ac.currentTime, o = ac.createOscillator(), g = ac.createGain();
       o.type = 'triangle'; o.frequency.setValueAtTime(180 + 120 * Math.min(2, stretch), t); o.frequency.exponentialRampToValueAtTime(90, t + 0.5);
       const lfo = ac.createOscillator(), depth = ac.createGain(); lfo.frequency.value = 18; depth.gain.value = 30; lfo.connect(depth); depth.connect(o.frequency);
@@ -3201,7 +3205,7 @@
       o.connect(g); g.connect(master); o.start(t); lfo.start(t); o.stop(t + 0.65); lfo.stop(t + 0.65);
     },
     honk() {
-      if (!soundOn || !ac) return;
+      if (!soundOn || !ac || calmMood) return;
       const t = ac.currentTime;
       for (const [f, d] of [[392, 0], [330, 0.13]]) {
         const o = ac.createOscillator(); o.type = 'sawtooth'; o.frequency.setValueAtTime(f, t + d); o.frequency.exponentialRampToValueAtTime(f * 0.8, t + d + 0.12);
@@ -3227,7 +3231,7 @@
       (seqs[k] || [0]).forEach((n, i) => this.note(PENTA[n], 2.2, 0.035, 'sine', i * 0.16));
     },
     swell() {
-      if (!soundOn || !ac) return;
+      if (!soundOn || !ac || calmMood) return;
       const t = ac.currentTime;
       for (const f of [196, 261.6, 329.6, 392, 523.3, 659.3]) {
         const o = ac.createOscillator(); o.frequency.value = f; o.detune.value = rand(-6, 6);
@@ -3416,6 +3420,7 @@
         if (r < 0.3) s.blink = 1;
         else if (r < 0.45) heartsAt(s.v, id);
         else if (r < 0.5) {
+          if (calmMood) return setTimeout(life, rand(2500, 9000));
           waves.push({ v: s.v, born: performance.now(), radius: 0, seen: new Set() });
           loveBurst((Math.random() * 4) | 0, s.sz > 0 ? [s.sx, s.sy] : null, performance.now());
           whisper(`${nameOf(s)} loves you.`, 3600, true, null, true);
