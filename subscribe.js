@@ -80,6 +80,25 @@
   const close = () => { win.hidden = true; if (location.hash === '#subscribe') history.replaceState(null, '', location.pathname + location.search); };
 
   win.querySelector('.x').addEventListener('click', close);
+  // dragged by its title bar like the world's windows: anywhere on a computer, up and down on a phone, never off the page
+  {
+    const bar = win.querySelector('.bar');
+    bar.style.cursor = 'grab'; bar.style.touchAction = 'none';
+    bar.addEventListener('pointerdown', (e) => {
+      if (e.target.closest('button')) return;
+      e.preventDefault();
+      const r = win.getBoundingClientRect(), dx = e.clientX - r.left, dy = e.clientY - r.top, phone = innerWidth < 600;
+      const keep = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+      Object.assign(win.style, { left: `${r.left}px`, top: `${r.top}px`, transform: 'none' });
+      bar.setPointerCapture(e.pointerId); bar.style.cursor = 'grabbing';
+      const move = (ev) => {
+        if (!phone) win.style.left = `${keep(ev.clientX - dx, 0, innerWidth - win.offsetWidth - 4)}px`;
+        win.style.top = `${keep(ev.clientY - dy, 0, innerHeight - win.offsetHeight - 4)}px`;
+      };
+      const up = () => { bar.removeEventListener('pointermove', move); bar.removeEventListener('pointerup', up); bar.removeEventListener('pointercancel', up); bar.style.cursor = 'grab'; };
+      bar.addEventListener('pointermove', move); bar.addEventListener('pointerup', up); bar.addEventListener('pointercancel', up);
+    });
+  }
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !win.hidden) close(); });
   document.addEventListener('click', (e) => {
     const a = e.target.closest && e.target.closest('[data-subscribe], a[href="#subscribe"]');

@@ -489,7 +489,8 @@
       case 'rainbowflower': {
         // left by someone who noticed something today: seven petals, one for each color of the rainbow
         c.beginPath(); wobbleLine(x, y + s * 0.5, x, y, seed, 0.3); c.stroke();
-        const petal = (k, grow = 0) => { const a = (k / 7) * TAU + seed; c.beginPath(); c.arc(x + Math.cos(a) * s * 0.17, y + Math.sin(a) * s * 0.17, s * 0.1 + grow, 0, TAU); };
+        const spin = now / 2200; // the petals turn slowly, the way they overlap
+        const petal = (k, grow = 0) => { const a = (k / 7) * TAU + seed + spin; c.beginPath(); c.arc(x + Math.cos(a) * s * 0.17, y + Math.sin(a) * s * 0.17, s * 0.1 + grow, 0, TAU); };
         for (let k = 0; k < 7; k++) { petal(k); c.fillStyle = RAINBOW[k]; c.fill(); c.stroke(); }
         // the first petal goes back over the last one, so each petal overlaps the next all the way round
         // (the clip reaches past the last petal's outline, so none of it shows through)
@@ -750,7 +751,7 @@
     squish: { squish: 1 }, sleepy: { lidL: 0, lidR: 0, mw: 150 }, cyclops: { ex: 0, er: 330, pr: 150, ey: -40 },
     cross: { cross: 1 }, shy: { blush: 1, lidL: 0, lidR: 0 }, teeth: { mo: 1, mw: 210, teeth: 1 }, scramble: { scramble: 1 },
     stalks: { stalks: 1, er: 200, ex: 300 }, orbit: { orbit: 1, er: 200 }, flip: { flip: 1 }, drip: { drip: 1, mc: 0.6 },
-    stache: { stache: 1 }, tall: { tall: 1 }, spin: { spin: 1 }, whirl: {}, third: { third: 1 },
+    stache: { stache: 1, my: 390, mc: 0.6 }, tall: { tall: 1 }, spin: { spin: 1 }, whirl: {}, third: { third: 1 },
     pixel: { pixel: 1 }, googly: { googly: 1 }, heartnose: { heartnose: 1 }, gold: { gold: 1, mo: 0.6 }, antenna: { antenna: 1 }, angel: { angel: 1, lidL: 0, lidR: 0 },
     // a few that are simply unhinged
     swirl: { swirl: 1, mo: 0.35, mw: 150 }, bugeye: { er: 370, pr: 38, jitter: 1, oh: 1, mw: 120 }, worm: { worm: 1, mo: 0.75, mw: 180 },
@@ -2856,6 +2857,25 @@
     }
   }, true);
   document.querySelectorAll('.win .x').forEach((b) => b.addEventListener('click', () => { b.closest('.win').hidden = true; }));
+  // windows can be picked up by their title bar: anywhere on a computer, just up and down on a phone, and never off the page
+  window.dragWindow = function dragWindow(win, bar) {
+    bar.style.cursor = 'grab'; bar.style.touchAction = 'none';
+    bar.addEventListener('pointerdown', (e) => {
+      if (e.target.closest('button')) return; // the close button still closes
+      e.preventDefault();
+      const r = win.getBoundingClientRect(), dx = e.clientX - r.left, dy = e.clientY - r.top, phone = innerWidth < 600;
+      Object.assign(win.style, { left: `${r.left}px`, top: `${r.top}px`, bottom: 'auto', transform: 'none', margin: '0' });
+      bar.setPointerCapture(e.pointerId); bar.style.cursor = 'grabbing';
+      const move = (ev) => {
+        const w = win.offsetWidth, h = win.offsetHeight;
+        if (!phone) win.style.left = `${clamp(ev.clientX - dx, 0, innerWidth - w - 4)}px`;
+        win.style.top = `${clamp(ev.clientY - dy, 0, innerHeight - h - 4)}px`;
+      };
+      const up = () => { bar.removeEventListener('pointermove', move); bar.removeEventListener('pointerup', up); bar.removeEventListener('pointercancel', up); bar.style.cursor = 'grab'; };
+      bar.addEventListener('pointermove', move); bar.addEventListener('pointerup', up); bar.addEventListener('pointercancel', up);
+    });
+  };
+  document.querySelectorAll('.win').forEach((w) => { const bar = w.querySelector('.bar'); if (bar) window.dragWindow(w, bar); });
 
   const colorBtn = document.getElementById('act-you');
   const nameIn = document.getElementById('name-in');
@@ -3004,7 +3024,7 @@
     document.getElementById('kind-act').textContent = k.text;
     const src = document.getElementById('kind-src'); src.textContent = k.src.replace(/ (\([^)]*\))$/, '\n$1'); src.hidden = !k.src; // a closing (aside) gets its own line
     const done = store.get('kind-done') === dayKey();
-    kindDone.disabled = done; kindDone.classList.toggle('done', done); kindDone.textContent = done ? 'noticed today ♥' : 'i noticed ♥';
+    kindDone.disabled = done; kindDone.classList.toggle('done', done); kindDone.textContent = done ? 'i see you too ♥' : 'i see you ♥';
     document.getElementById('rhythm').textContent = 'planet scorsby breathes slowly every day at 3, 6, and 9 am/pm, and sings every sunday at noon. come and join, wherever you are.';
   }
   // a little rainbow flower on each side of the button, like the ones that grow on the world
@@ -3012,7 +3032,8 @@
     const at = (k, grow = 0) => { const a = (k / 7) * Math.PI * 2 - Math.PI / 2; return `cx="${(15 + Math.cos(a) * 6.2).toFixed(1)}" cy="${(13 + Math.sin(a) * 6.2).toFixed(1)}" r="${(3.8 + grow).toFixed(1)}"`; };
     const petals = RAINBOW.map((col, k) => `<circle ${at(k)} fill="${col}"/>`).join('');
     // the first petal goes back over the last one, so each petal overlaps the next all the way round
-    const svg = (id) => `<svg viewBox="0 0 30 38" fill="none" stroke="currentColor" stroke-width="1.3"><defs><clipPath id="${id}"><circle ${at(6, 1.4)}/></clipPath></defs><path d="M15 20 Q13 28 15 37"/><path d="M14.5 29 Q9 26 7 28 Q10 31 14.5 30"/>${petals}<circle ${at(0)} fill="${RAINBOW[0]}" clip-path="url(#${id})"/><circle cx="15" cy="13" r="2.8" fill="#fff"/></svg>`;
+    // (the petals turn slowly the way they overlap; the right-hand flower is a mirror image, so it turns the other way)
+    const svg = (id) => `<svg viewBox="0 0 30 38" fill="none" stroke="currentColor" stroke-width="1.3"><defs><clipPath id="${id}"><circle ${at(6, 1.4)}/></clipPath></defs><path d="M15 20 Q13 28 15 37"/><path d="M14.5 29 Q9 26 7 28 Q10 31 14.5 30"/><g class="petals">${petals}<circle ${at(0)} fill="${RAINBOW[0]}" clip-path="url(#${id})"/></g><circle cx="15" cy="13" r="2.8" fill="#fff"/></svg>`;
     document.querySelectorAll('#today-win .kflower').forEach((el, i) => { el.innerHTML = svg('kpetal' + i); });
   }
   todayBtn.addEventListener('click', () => { closeWindows(todayWin); todayWin.hidden = !todayWin.hidden; if (!todayWin.hidden) paintToday(); });

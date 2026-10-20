@@ -218,6 +218,8 @@ h1 { font-family: var(--head); font-weight: 400; font-size: 30px; line-height: 1
 #today-win .row { display: flex; justify-content: center; align-items: center; gap: 12px; padding: 14px 14px 4px; }
 #today-win .kflower svg { width: 30px; height: 38px; display: block; }
 #today-win .kflower:last-child svg { transform: scaleX(-1); }
+#today-win .kflower .petals { transform-box: view-box; transform-origin: 15px 13px; animation: petalspin 13.8s linear infinite; }
+@keyframes petalspin { to { transform: rotate(360deg); } }
 #today-win button:not(.x) {
   font-size: 11px; letter-spacing: .08em; text-transform: uppercase; padding: 7px 12px;
   border: 1px solid var(--ui); box-shadow: 3px 3px 0 var(--ui); color: var(--ui); background: var(--paper);
