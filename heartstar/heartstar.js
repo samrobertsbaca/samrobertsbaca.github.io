@@ -138,9 +138,10 @@
   if (topBar) { underTop(); if (window.ResizeObserver) new ResizeObserver(underTop).observe(topBar); }
 
   // the planet is as big as the screen allows, but its ears stay clear of the whisper's first lines
+  let faceFadeFrom = 1.02; // the zoom at which the world's face starts to fade, to let the land show through
   function fitPlanet() {
     if (!VW || !VH) return;
-    baseR = Math.min(VW * (small ? 0.36 : 0.24), VH * 0.25); // the room check below keeps it clear of the whisper
+    baseR = Math.min(VW * (small ? 0.38 : 0.24), VH * 0.25); // the room check below keeps it clear of the whisper
     const wh = document.getElementById('whisper');
     const top = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--under-top')) || 76;
     const fs = wh ? parseFloat(getComputedStyle(wh).fontSize) || 20 : 20;
@@ -149,6 +150,8 @@
     const lines = clamp(Math.ceil(100 / (ww / (fs * 0.47))), 2, 4) + 0.4;
     const room = (CY - (top + fs * 1.3 * lines + 8)) / 1.5; // ears reach about one and a half radii above the middle
     if (room > 60) baseR = Math.min(baseR, room);
+    // on a phone the face stays solid until the round head is wider than the header's text (the screen, less its margins)
+    faceFadeFrom = small ? Math.max(1.02, (VW - 32) / (2 * baseR)) : 1.02;
   }
   function resize() {
     VW = innerWidth || document.documentElement.clientWidth;
@@ -862,7 +865,7 @@
   }
   function drawPlanetFace(now) {
     // the face fades as you come closer, and is gone by the second zoom
-    const A = 1 - smooth(1.02, 2.0, zoom.v);
+    const A = 1 - smooth(faceFadeFrom, faceFadeFrom + 0.98, zoom.v);
     if (A <= 0.01) { pf.hit = null; return; }
     const f = pf.cur;
     L = R / 645;
@@ -2295,9 +2298,9 @@
   }
   // now and then, the world remembers something: a line from the blog, a saying, the news
   const SAYINGS = [
-    'maybe u should sit under a tree :-)', 'you can never unscorb.', 'dare to combine.', 'in this dream, you are a revolutionary peacemaker.',
+    'maybe u should sit under a tree :-)', 'once you scorb, you can never unscorb.', 'dare to combine.', 'in this dream, you are a revolutionary peacemaker.',
     'go for gold.', 'joy, joy, joy. ever-new joy!', 'smile! scorbies love you.', 'love always wins.', 'you are the one you seek.',
-    'scorsby never left. scorsby only played.', 'just scorsbin.', 'r͡rombo dombo di di dai.', 'experience all from the center.', 'we beglong.',
+    'scorsby never left. scorsby only played.', 'just scorsbin.', 'r͡rombo dombo di di dai.', 'experience all from the center.', 'we beglong.','i may be a child but i\'m not lost. i am found in you.',
   ];
   const NEWS = [
     '>>> THIS JUST IN: there is no new news today.', '>>> THIS JUST IN: everyone is loved. more at eleven.',
@@ -2555,7 +2558,7 @@
     return best;
   }
   function hitPart(x, y) {
-    if (!pf.hit || 1 - smooth(1.02, 2.0, zoom.v) < 0.5) return null;
+    if (!pf.hit || 1 - smooth(faceFadeFrom, faceFadeFrom + 0.98, zoom.v) < 0.5) return null;
     for (const [ax, ay, ar, k] of pf.hit.ants) if (Math.hypot(x - ax, y - ay) < ar) return k;
     for (const [ax, ay, ar, k] of pf.hit.extra) if (Math.hypot(x - ax, y - ay) < ar) return k;
     const [nx, ny, nr] = pf.hit.nose;
