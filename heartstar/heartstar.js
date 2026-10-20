@@ -820,11 +820,14 @@
     if (hold) pf.next = hold + rand(1000, 3000);
   }
   // planet scorsby mostly does his own thing. your own love and touch reach him right away; everyone else's moments
-  // can turn his mood at most once every 30 seconds (in a crowd, otherwise he'd never settle)
+  // reach him slowly, and more slowly the more people are here (30 seconds with a few, up to five minutes in a crowd).
+  // even then he only responds if he feels like it.
   let othersMoodAt = -1e9;
   function othersMood(now = performance.now()) {
-    if (now - othersMoodAt < 30000) return false;
-    othersMoodAt = now; return true;
+    const wait = Math.min(300000, 30000 * (1 + (crowd() - 1) / 15));
+    if (now - othersMoodAt < wait) return false;
+    othersMoodAt = now;
+    return Math.random() < 0.5;
   }
   function nextMood() {
     // the world's mood follows the crowd
