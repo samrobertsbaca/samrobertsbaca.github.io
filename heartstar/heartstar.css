@@ -234,15 +234,15 @@ h1 { font-family: var(--head); font-weight: 400; font-size: 30px; line-height: 1
 #today-win .together { padding-bottom: 14px; }
 
 /* while planet scorsby breathes or sings, everything else steps back */
-#act-all, #acts .row button, .win { transition: opacity 1.2s ease; }
-body.ritual #top, body.ritual #act-all, body.ritual #acts .row button, body.ritual #zoom, body.ritual .win, body.ritual #tip { opacity: 0 !important; pointer-events: none !important; }
+#act-all, #acts button, .win { transition: opacity 1.2s ease; }
+body.ritual #top, body.ritual #act-all, body.ritual #acts button, body.ritual #zoom, body.ritual .win, body.ritual #tip { opacity: 0 !important; pointer-events: none !important; }
 /* singing keeps just the sound button, on its own in the middle */
-body.ritual.ritual-sing #acts .row button:not(#act-sound), body.ritual.ritual-sing #act-all { display: none; }
+body.ritual.ritual-sing #acts button:not(#act-sound) { display: none; }
 body.ritual.ritual-sing #acts .row { justify-content: center; }
 body.ritual.ritual-sing #acts { align-items: center; }
-body.ritual.ritual-sing #acts .row button#act-sound { opacity: 1 !important; pointer-events: auto !important; }
+body.ritual.ritual-sing #acts button#act-sound { opacity: 1 !important; pointer-events: auto !important; }
 /* once the sound is on, that button fades away too, leaving just the song */
-body.ritual.ritual-sing.sound-on #acts .row button#act-sound { opacity: 0 !important; pointer-events: none !important; }
+body.ritual.ritual-sing.sound-on #acts button#act-sound { opacity: 0 !important; pointer-events: none !important; }
 
 #zoom { position: fixed; right: 18px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 10px; }
 #zoom button { width: 32px; height: 32px; padding: 0; font-size: 16px; }
@@ -265,8 +265,10 @@ body.ritual.ritual-sing.sound-on #acts .row button#act-sound { opacity: 0 !impor
   #today .rec { display: block; }
   /* love everyone spans exactly the row of buttons under it */
   #acts { left: 50%; right: auto; transform: translateX(-50%); bottom: 14px; width: max-content; max-width: calc(100vw - 24px); align-items: stretch; }
-  #acts .row { flex-wrap: wrap; justify-content: center; gap: 8px; }
-  #acts .row button { padding: 7px 9px; font-size: 10px; }
+  #acts .row { flex-wrap: nowrap; justify-content: center; gap: 8px; }
+  #acts .row button, #acts .over button { padding: 7px 9px; font-size: 10px; white-space: nowrap; }
+  #acts .over { display: flex; justify-content: flex-end; gap: 8px; }
+  #acts .over[hidden] { display: none; }
   #act-sound .lbl { display: none; }
   #act-sound .ico { display: block; width: 16px; height: 16px; }
   #act-sound { padding: 5px 8px !important; }
@@ -275,9 +277,6 @@ body.ritual.ritual-sing.sound-on #acts .row button#act-sound { opacity: 0 !impor
   .win { max-height: calc(100dvh - var(--acts-h, 130px) - 40px); overflow-y: auto; }
   /* phones pinch to zoom (or double-tap in, two-finger tap out), so no zoom buttons */
   #zoom { display: none !important; }
-  /* when the buttons take two rows, the zoom buttons sit in the second row with them */
-  #acts .row #zoom { position: static; transform: none; gap: 8px; }
-  #acts .row #zoom button { width: 30px; height: 30px; padding: 0; font-size: 16px; }
   /* peace love joy on one line; subscribe, shop and the dream district on the next */
   #ways-row { display: grid; grid-template-columns: auto auto; justify-content: end; align-items: center; gap: 3px 9px; margin-top: 2px; }
   #ways { display: contents; }

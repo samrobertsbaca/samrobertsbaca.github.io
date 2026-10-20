@@ -2890,15 +2890,18 @@
     colorBtn.querySelector('.label').textContent = myName ? `${myName} scorsby` : 'you';
     placeZoom();
   }
-  // on a phone, if a long name pushes the buttons onto two rows, the zoom buttons join the second row
-  // (where they would otherwise float, the taller stack of buttons would cover them)
-  const zoomBox = document.getElementById('zoom'), zoomHome = zoomBox.parentElement, actsRow = document.querySelector('#acts .row');
+  // on a phone the row of buttons stays one line: if a long name makes it too wide, buttons move up from its right-hand end
+  // (sound first, then sing, then today...) into a little row above the love button, on the right
+  const actsRow = document.querySelector('#acts .row'), overRow = document.createElement('div');
+  overRow.className = 'over'; document.getElementById('act-all').before(overRow);
+  const rowOrder = [...actsRow.children];
   function placeZoom() {
-    if (!zoomBox || !actsRow) return;
-    if (zoomBox.parentElement !== zoomHome) zoomHome.insertBefore(zoomBox, document.getElementById('you-win'));
-    const btns = [...actsRow.children];
-    const wrapped = innerWidth < 600 && btns.length > 1 && btns[btns.length - 1].offsetTop > btns[0].offsetTop + 4;
-    if (wrapped) actsRow.appendChild(zoomBox);
+    rowOrder.forEach((b) => actsRow.appendChild(b)); // everything back in the row, in order
+    if (innerWidth < 600) {
+      const fits = () => actsRow.scrollWidth <= actsRow.clientWidth + 1 && actsRow.lastElementChild.offsetTop <= actsRow.firstElementChild.offsetTop + 4;
+      while (actsRow.children.length > 2 && !fits()) overRow.prepend(actsRow.lastElementChild);
+    }
+    overRow.hidden = !overRow.children.length;
   }
   addEventListener('resize', placeZoom);
   // how tall the buttons at the bottom are (with their margin), so windows on a phone can center in the space above them
