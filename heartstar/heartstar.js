@@ -819,6 +819,13 @@
     pf.mood = m; pf.target = { ...FACE_BASE, ...MOODS[m] }; pf.hold = performance.now() + hold;
     if (hold) pf.next = hold + rand(1000, 3000);
   }
+  // planet scorsby mostly does his own thing. your own love and touch reach him right away; everyone else's moments
+  // can turn his mood at most once every 30 seconds (in a crowd, otherwise he'd never settle)
+  let othersMoodAt = -1e9;
+  function othersMood(now = performance.now()) {
+    if (now - othersMoodAt < 30000) return false;
+    othersMoodAt = now; return true;
+  }
   function nextMood() {
     // the world's mood follows the crowd
     const n = crowd();
@@ -867,7 +874,9 @@
     pf.lx += (tx - pf.lx) * 0.08; pf.ly += (ty - pf.ly) * 0.08;
 
     // the world sings along: when two or more scorsbys sing, it hums the note between them
-    const singers = [...everyone()].filter((s) => s.sing > 0.08 && s.freq);
+    // (only when you're singing too: he doesn't hum along with every voice in the world)
+    const withYou = me && me.sing > 0.08;
+    const singers = withYou ? [...everyone()].filter((s) => s.sing > 0.08 && s.freq) : [];
     const amp = singers.length ? singers.reduce((a, s) => a + s.sing, 0) / singers.length : 0;
     pf.sing += ((singers.length ? Math.min(1, amp * 1.3) : 0) - pf.sing) * 0.15;
     if (singers.length >= 2) {
@@ -1992,10 +2001,10 @@
     if (now - lastLoveWhisper > 9000) { lastLoveWhisper = now; whisper(`${name} loves you.`, 3600, false, null, true); }
   }
   // ---------- big love, in the sky
-  function loveBurst(v, from, now) {
+  function loveBurst(v, from, now, mine = false) {
     loveWash = now + 3500;
     earPerk = now + 1500;
-    setMood('hearts', 2600);
+    if (mine || othersMood(now)) setMood('hearts', 2600);
     const [fx, fy] = from || [CX, CY];
     // always: once the rainbow has rolled around the world, it keeps going, out across the universe
     capPush(bursts, { k: 'rings', born: now + 1900, dur: 3400 }, 4);
@@ -2561,7 +2570,8 @@
         const s = scorsby(m.p);
         peers.set(s.id, s);
         updatePresence();
-        earPerk = now + 1400; setMood('o', 1200); setTimeout(() => setMood('grin', 2500), 1200);
+        earPerk = now + 1400;
+        if (othersMood(now)) { setMood('o', 1200); setTimeout(() => setMood('grin', 2500), 1200); }
         whisper(`${nameOf(s)} arrived on the ${side(s.v)} side.`, 3800, false);
         tone.arrive();
         break;
@@ -2900,7 +2910,7 @@
     const v = (Math.random() * 4) | 0;
     capPush(waves, { v: me.v, born: now, radius: 0, seen: new Set() }, 3);
     me.hearts = 2400;
-    loveBurst(v, me.sz > 0 ? [me.sx, me.sy] : null, now);
+    loveBurst(v, me.sz > 0 ? [me.sx, me.sy] : null, now, true);
     send({ t: 'all', v, h: me.hands || 0 }); // one point of love, and one more for every hand you are holding
     if (!net.live) trails.push({ a: [me.lat, me.lon], t: Date.now(), k: 'all' });
     whisper(peers.size ? 'you loved everyone. everyone felt it.' : 'you loved everyone, even the ones not here yet.');
