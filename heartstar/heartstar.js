@@ -1976,8 +1976,8 @@
     visible = list.concat(farOnes);
   }
 
-  // someone else loved everyone. with a few people here, it's the full rainbow; in a crowd, love arriving close together
-  // merges into one gentle wave (no bursts), and the whispers come only now and then. every bit of it still counts.
+  // someone else loved everyone. with a few people here, every one is the full rainbow; in a crowd, love arriving close
+  // together merges into one moment every few seconds, and the whispers come only now and then. every bit of it still counts.
   let lastOthersLove = -1e9, lastLoveWhisper = -1e9;
   function othersLove(v, from, kind, now, name) {
     if (peers.size + 1 <= 12) {
@@ -1987,7 +1987,8 @@
       tone.swell();
       return;
     }
-    if (now - lastOthersLove > 2500) { lastOthersLove = now; capPush(waves, { v, born: now, radius: 0, seen: new Set() }, 3); tone.swell(); }
+    // (one merged moment every few seconds: the wave, and the burst with it: sparkles, rainbow rings, the bloom, rainbow ears)
+    if (now - lastOthersLove > 2500) { lastOthersLove = now; capPush(waves, { v, born: now, radius: 0, seen: new Set() }, 3); loveBurst(kind, from && from.sz > 0 ? [from.sx, from.sy] : null, now); tone.swell(); }
     if (now - lastLoveWhisper > 9000) { lastLoveWhisper = now; whisper(`${name} loves you.`, 3600, false, null, true); }
   }
   // ---------- big love, in the sky
