@@ -4,7 +4,7 @@ import { IMAGE_URLS, BLOG_SNIPPETS } from "./media.js";
 const canvas = document.getElementById("c");
 const ctx = canvas.getContext("2d", { alpha: false });
 
-const HOME_URL = "/home.html";
+const HOME_URL = "/";
 const LOGO_URL = "/images/scorsby_hearteyes_scale.png";
 const LOGO_SCALE = 0.7;
 const FIXED_BG_COLOR = "#00aeef";

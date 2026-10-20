@@ -1,0 +1,56 @@
+<!doctype html>
+<!--
+  the picture that shows when someone shares scorsby.us (1200 x 630).
+  it is the real planet, quiet and dreaming, with its name underneath.
+  to make it again: serve the site locally, open this page in a browser, and wait a few seconds.
+  with ?save=<url> it also sends the finished picture there (a png data url, posted as text).
+-->
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    @font-face { font-family: 'Scheme'; src: url('../fonts/Scheme.otf') format('opentype'); }
+    html, body { margin: 0; width: 1200px; height: 630px; overflow: hidden; background: #fff; }
+    iframe { position: absolute; left: 0; top: -112px; width: 1200px; height: 760px; border: 0; }
+    .name {
+      position: absolute; left: 0; right: 0; bottom: 34px; text-align: center; pointer-events: none;
+      font-family: 'Scheme', Georgia, serif; font-size: 64px; line-height: 1; color: #1d1a5e; letter-spacing: .01em;
+    }
+    .name small { display: block; margin-top: 10px; font-family: ui-monospace, monospace; font-size: 20px; letter-spacing: .12em; text-transform: uppercase; color: rgba(29, 26, 94, .7); }
+  </style>
+</head>
+<body>
+  <iframe id="w" src="/?nointro&theme=day&debug&hearth=ws://127.0.0.1:1/x"></iframe>
+  <div class="name">world of scorsby<small>peace love and joy for everyone everywhere</small></div>
+  <script>
+    // only the world and its sky: no buttons, words or corners
+    document.getElementById('w').addEventListener('load', (e) => {
+      const d = e.target.contentDocument, s = d.createElement('style');
+      s.textContent = '#top, #presence, #ways-row, #whisper, #tip, #acts, #zoom, .win, section { display: none !important; } #sky { animation: none !important; opacity: 1 !important; }';
+      d.head.appendChild(s);
+      // a step further out, so the whole world and its ears fit with room for its name
+      const z = e.target.contentWindow.heartstar?.zoom;
+      if (z) z.target = z.v = 0.75;
+      // just the world, sunsby and moonsby: no little scorsby, no doodads in the sky
+      const hs = e.target.contentWindow.heartstar;
+      setInterval(() => { if (!hs) return; hs.sky.length = 0; if (hs.me) hs.me.leaving = performance.now() - 5000; }, 50);
+    });
+    // a few seconds in, once everything has woken up: the finished picture, drawn from the world itself
+    const save = new URLSearchParams(location.search).get('save');
+    if (save) setTimeout(async () => {
+      await document.fonts.ready;
+      const out = document.createElement('canvas'); out.width = 1200; out.height = 630;
+      const g = out.getContext('2d');
+      g.fillStyle = '#fff'; g.fillRect(0, 0, 1200, 630);
+      const f = document.getElementById('w'), sky = f.contentDocument.getElementById('sky');
+      g.drawImage(sky, 0, f.offsetTop, 1200, 760);
+      g.textAlign = 'center'; g.fillStyle = '#1d1a5e';
+      g.font = "64px Scheme, Georgia, serif"; g.fillText('world of scorsby', 600, 562);
+      g.font = '20px ui-monospace, monospace'; g.letterSpacing = '2.4px'; g.fillStyle = 'rgba(29, 26, 94, .7)';
+      g.fillText('PEACE LOVE AND JOY FOR EVERYONE EVERYWHERE', 600, 596);
+      await fetch(save, { method: 'POST', body: out.toDataURL('image/png') });
+      document.title = 'saved';
+    }, 7000);
+  </script>
+</body>
+</html>

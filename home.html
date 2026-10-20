@@ -1,128 +1,25 @@
 <!DOCTYPE html>
-<!--
-  world of scorsby.
-
-  everyone here is a scorsby. so are you.
-  press ♥ love everyone (or hold your own face) to send love around the whole world.
-  touch the world, or another scorsby, to send out a ripple of hearts. it is contagious.
-  peace, love and joy (the blog, the works, the about) live in the top right corner.
-  the world has a face. it looks at you, it changes its mind, its nose honks.
-  scroll or pinch to come closer, and plant something small. it fades in six hours.
-  sing, and everyone hears you as a scorsby tone. your voice never leaves your device.
-
-  no cookies, no analytics. the hearth forgets you the moment you leave.
-  it only remembers how much love there was each day.
-
-  r͡rombo dombo di di dai,
-  r͡rom bobo dombo di di dombo.
--->
 <html lang="en">
 <head>
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-F0TBFJSGJ9"></script>
-  <script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-F0TBFJSGJ9');
-  </script>
-
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="description" content="world of scorsby. everyone here is a scorsby.">
-  <meta property="og:image" content="images/scorsby_hearteyes.png">
-  <!-- where the hearth lives: the cloudflare worker in hearth/ -->
-  <meta name="hearth" content="wss://scorsby-hearth.samrobertsbaca.workers.dev/hearth">
-  <link rel="icon" href="/favicon.webp" type="image/webp">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>world of scorsby</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-  <link rel="preload" href="/fonts/Scheme.otf" as="font" type="font/otf" crossorigin>
-  <link rel="stylesheet" href="heartstar/heartstar.css?v=50">
+  <link rel="canonical" href="https://scorsby.us/">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://scorsby.us/">
+  <meta property="og:title" content="world of scorsby">
+  <meta property="og:description" content="peace love and joy for everyone everywhere">
+  <meta property="og:image" content="https://scorsby.us/images/share.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://scorsby.us/images/share.png">
+  <link rel="icon" href="/favicon.webp" type="image/webp">
+  <!-- the world used to live here. it lives at the front door now (scorsby.us); this walks you there. -->
+  <meta http-equiv="refresh" content="0; url=/">
+  <script>location.replace('/' + location.search + location.hash);</script>
 </head>
-<body class="intro">
-  <canvas id="sky" aria-label="the world of scorsby: a blue planet with ears and a face, turning slowly. every small face on it is someone here right now."></canvas>
-
-  <header id="top">
-    <div>
-      <h1>world of scorsby</h1>
-      <p id="clock"></p>
-    </div>
-    <div id="presence">
-      <p id="here">listening for scorsbys…</p>
-      <p id="today"></p>
-      <div id="ways-row">
-      <nav id="ways"><span class="w1"><a href="/blog.html">peace</a><a href="/works.html">love</a><a href="/about.html">joy</a></span><span class="w2"><a href="#subscribe" data-subscribe>subscribe</a><a href="https://shop.scorsby.us" target="_blank" rel="noopener">shop</a></span></nav>
-      </div>
-    </div>
-  </header>
-
-  <p id="whisper" aria-live="polite"></p>
-  <div id="tip" hidden></div>
-
-  <nav id="acts">
-    <button id="act-all" title="send love to every scorsby in the world"><canvas class="cloud" aria-hidden="true"></canvas><span>♥ love every one ♥</span></button>
-    <div class="row">
-      <button id="act-you" title="your color and your name"><span class="sw"></span><span class="label">you</span></button>
-      <button id="act-plant" title="plant something small on the world">plant</button>
-      <button id="act-today" title="something to notice today">today</button>
-      <button id="act-sing" title="sing with everyone" aria-pressed="false">sing</button>
-      <button id="act-sound" title="hear the others" aria-pressed="false" aria-label="sound off"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9.5v5h3.5l5 4v-13l-5 4z" fill="currentColor"/><path d="M15.5 9.5l5 5M20.5 9.5l-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span class="lbl">sound off</span></button>
-    </div>
-  </nav>
-  <div id="zoom">
-    <button id="zoom-in" title="come closer">+</button>
-    <button id="zoom-out" title="step back">−</button>
-  </div>
-
-  <section id="you-win" class="win" hidden>
-    <div class="bar"><span>you.exe</span><button class="x" aria-label="close">×</button></div>
-    <div id="swatches"></div>
-    <label id="custom" class="swatch" title="any color you like"><input id="custom-color" type="color" value="#00b4ff" aria-label="any color you like"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.7 5.6l-2.3-2.3a1 1 0 0 0-1.4 0l-3.1 3.1-1.4-1.4-1.4 1.4 1.4 1.4-7.3 7.3a2 2 0 0 0-.5.9L4 19.5 5.5 21l3.5-.7a2 2 0 0 0 .9-.5l7.3-7.3 1.4 1.4 1.4-1.4-1.4-1.4 3.1-3.1a1 1 0 0 0 0-1.4zM8.6 18.4l-2 .4.4-2 7.1-7.1 1.6 1.6z"/></svg></label>
-    <form id="name-form">
-      <label for="name-in">name</label>
-      <input id="name-in" maxlength="16" autocomplete="off" spellcheck="false" placeholder="glonk">
-      <span class="suffix">scorsby</span>
-      <button type="submit">ok</button>
-    </form>
-    <form id="say-form">
-      <label for="say-in">message</label>
-      <input id="say-in" maxlength="80" autocomplete="off" placeholder="say something to everyone">
-      <button type="submit">send</button>
-    </form>
-  </section>
-
-  <section id="plant-win" class="win" hidden>
-    <div class="bar"><span>plant.exe</span><button class="x" aria-label="close">×</button></div>
-    <p class="small">choose something, then tap the world.<br>everyone can see it for six hours.</p>
-    <div id="plants"></div>
-  </section>
-
-  <section id="sing-card" class="win" hidden>
-    <div class="bar"><span>sing.exe</span><button class="x" aria-label="close">×</button></div>
-    <p>sing with everyone.</p>
-    <p class="small">your voice stays on your device. only its pitch and loudness travel, and everyone else hears it as a scorsby tone. sing with someone else and the world sings along.</p>
-    <div class="row">
-      <button id="sing-yes">open my voice</button>
-      <button id="sing-no">not now</button>
-    </div>
-  </section>
-
-  <section id="today-win" class="win" hidden>
-    <div class="bar"><span>today.exe</span><button class="x" aria-label="close">×</button></div>
-    <p class="small" id="kind-date"></p>
-    <p id="kind-act"></p>
-    <p class="small" id="kind-src" hidden></p>
-    <div class="row"><span class="kflower" aria-hidden="true"></span><button id="kind-done">i see you ♥</button><span class="kflower" aria-hidden="true"></span></div>
-    <p class="small together" id="rhythm"></p>
-  </section>
-
-  <script src="heartstar/awareness.js?v=3"></script>
-  <script src="heartstar/land.js?v=4"></script>
-  <script src="heartstar/quotes.js" defer></script>
-  <script src="heartstar/heartstar.js?v=151"></script>
-  <script src="/subscribe.js?v=5" defer></script>
+<body>
+  <a href="/">world of scorsby</a>
 </body>
 </html>
