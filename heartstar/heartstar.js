@@ -1355,6 +1355,7 @@
       c.restore();
     }
     renderHearts(now);
+    renderPlanetFace(now); // the world's face, in front of plants and hearts, behind the scorsbys
     renderFaces(now, dt, storm);
     for (let i = pointHearts.length - 1; i >= 0; i--) {
       const ph = pointHearts[i], k = (now - ph.born) / 1400;
@@ -1724,7 +1725,6 @@
     c.drawImage(scratch, 0, 0, VW, VH);
 
     renderLoveWaves();
-    renderPlanetFace(now);
     planetBlink = Math.max(0, planetBlink - dt / 900);
   }
 
@@ -1781,7 +1781,11 @@
     const show = awake(now); // plants are always visible, even zoomed all the way out (once the world is awake)
     for (const m of marks) m.sx = -1e4;
     if (show <= 0 || !marks.length) return;
-    const ds = markSize();
+    // when many plants are in view they become a meadow: smaller and softer, so they never crowd the world
+    let inView = 0;
+    for (const m of marks) if (project(...m.v)[2] > 0.15) inView++;
+    const meadow = clamp(70 / Math.max(1, inView), 0.5, 1);
+    const ds = markSize() * meadow;
     const life = 6 * 3600 * 1000, t = Date.now();
     const { found, used } = groves();
     c.save();
@@ -1790,7 +1794,7 @@
       const [px, py, pz] = project(...m.v);
       if (pz < 0.15) continue;
       const fade = clamp((life - (t - m.t)) / 600000, 0.25, 1);
-      c.globalAlpha = show * fade * Math.min(1, pz * 3);
+      c.globalAlpha = show * fade * Math.min(1, pz * 3) * (0.55 + 0.45 * meadow);
       doodleCached(m.k === 'head' ? 'scorsby' : m.k, px, py - ds * 0.3, ds, m.seed, now, 1.32);
       m.sx = px; m.sy = py - ds * 0.3; m.ss = ds;
     }
@@ -1845,12 +1849,18 @@
 
   function renderFaces(now, dt, storm) {
     stampFaces = peers.size > 40; stampPlants = marks.length > 60;
-    const list = [...everyone()].map((s) => {
+    let list = [...everyone()].map((s) => {
       const [x, y, z] = project(s.v[0], s.v[1], s.v[2], 1.015);
       s.sx = x; s.sy = y; s.sz = z;
       return s;
     }).filter((s) => s.sz > 0.05).sort((a, b) => a.sz - b.sz);
 
+    // in a crowd, the ones far from you on the world are little dots of their color, and only those near you are faces
+    // (zoomed in, everyone in view is close enough to be a face)
+    const crowd = list.length > 40 && zoom.v < 2.2 && me && !me.leaving;
+    for (const s of list) s.far = crowd && !s.mine && angle(s.v, me.v) > 0.5;
+    const farOnes = list.filter((s) => s.far);
+    list = list.filter((s) => !s.far);
     for (const s of list) { s.ox *= 0.985; s.oy *= 0.985; }
     // faces grow by half as you first come closer, then stay that size however close you come
     const zf = 1 + 0.5 * smooth(1, 2.56, zoom.v);
@@ -1952,9 +1962,33 @@
       drawFaceCached(s.sx, s.sy - s.size * 0.06, s.size, { lid, look: [s.lookX, s.lookY], hearts: s.hearts > 0, sing: s.sing, color: col, nose: ci !== 8 && reddish(col) ? '#00b4ff' : undefined });
       c.restore();
     }
-    visible = list;
+    // the far ones, as soft dots
+    for (const s of farOnes) {
+      if (now < arrivedAt(s)) continue;
+      const col = colorOf(storm > 0.2 ? 8 : s.c, now, s.seed);
+      c.globalAlpha = Math.min(1, s.sz / 0.25) * (s.leaving ? Math.max(0, 1 - (now - s.leaving) / 900) : 1) * 0.85;
+      c.beginPath(); c.arc(s.sx, s.sy, 3.6 * (small ? 1 : 1.1), 0, TAU); c.fillStyle = col; c.fill();
+      c.lineWidth = 1; c.strokeStyle = DARK; c.stroke();
+      s.size = 10;
+    }
+    c.globalAlpha = 1;
+    visible = list.concat(farOnes);
   }
 
+  // someone else loved everyone. with a few people here, it's the full rainbow; in a crowd, love arriving close together
+  // merges into one gentle wave (no bursts), and the whispers come only now and then. every bit of it still counts.
+  let lastOthersLove = -1e9, lastLoveWhisper = -1e9;
+  function othersLove(v, from, kind, now, name) {
+    if (peers.size + 1 <= 12) {
+      capPush(waves, { v, born: now, radius: 0, seen: new Set() }, 3);
+      loveBurst(kind, from && from.sz > 0 ? [from.sx, from.sy] : null, now);
+      whisper(`${name} loves you.`, 4200, true, null, true);
+      tone.swell();
+      return;
+    }
+    if (now - lastOthersLove > 2500) { lastOthersLove = now; capPush(waves, { v, born: now, radius: 0, seen: new Set() }, 3); tone.swell(); }
+    if (now - lastLoveWhisper > 9000) { lastLoveWhisper = now; whisper(`${name} loves you.`, 3600, false, null, true); }
+  }
   // ---------- big love, in the sky
   function loveBurst(v, from, now) {
     loveWash = now + 3500;
@@ -2604,12 +2638,8 @@
         trails.push({ a: m.a, t: m.at || Date.now(), k: 'all' });
         setTally(m.tally);
         if ((me && m.from === me.id) || calmMood) break; // (counted, but quiet, while scorsby breathes or sings)
-        const v = vec(...m.a);
-        capPush(waves, { v, born: now, radius: 0, seen: new Set() }, 3);
         const from = peers.get(m.from);
-        loveBurst(m.v ?? 0, from && from.sz > 0 ? [from.sx, from.sy] : null, now);
-        whisper(`${from ? nameOf(from) : 'someone'} loves you.`, 4200, true, null, true);
-        tone.swell();
+        othersLove(vec(...m.a), from, m.v ?? 0, now, from ? nameOf(from) : 'someone');
         break;
       }
       case 'sing': {
@@ -3611,10 +3641,7 @@
         else if (r < 0.45) heartsAt(s.v, id);
         else if (r < 0.5) {
           if (calmMood) return setTimeout(life, rand(2500, 9000));
-          capPush(waves, { v: s.v, born: performance.now(), radius: 0, seen: new Set() }, 3);
-          loveBurst((Math.random() * 4) | 0, s.sz > 0 ? [s.sx, s.sy] : null, performance.now());
-          whisper(`${nameOf(s)} loves you.`, 3600, true, null, true);
-          tone.swell();
+          othersLove(s.v, s, (Math.random() * 4) | 0, performance.now(), nameOf(s));
         } else if (r < 0.72) {
           const notes = Array.from({ length: 4 + ((Math.random() * 5) | 0) }, () => pick(scale));
           notes.forEach((f, k) => setTimeout(() => {
