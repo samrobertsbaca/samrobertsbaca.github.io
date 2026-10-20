@@ -814,7 +814,7 @@
     if (!MOODS[m] || (!intro.woke && m !== 'sleepy')) return; // nothing stirs the world before it wakes
     if (calmMood && m !== calmMood) return;
     if (pf.mood !== m) pf.moodAt = performance.now();
-    if (m === 'whirl' && pf.mood !== 'whirl' && !pf.earWhirl) { pf.whirlDir = 1; pf.whirlTurns = 4; }
+    if (m === 'whirl' && pf.mood !== 'whirl' && !pf.earWhirl) { pf.whirlDir = 1; pf.whirlTurns = 4; pf.whirlFlung = false; }
     const lasts = { meltdown: 7800, bubble: 5800, whirl: 1600 }[m]; // these play all the way through
     if (lasts) hold = Math.max(hold, lasts);
     pf.mood = m; pf.target = { ...FACE_BASE, ...MOODS[m] }; pf.hold = performance.now() + hold;
@@ -847,9 +847,10 @@
     // spin: a slow turn while the mood lasts, easing back to upright after.
     // whirl: one super fast whirl (four turns), then it's over.
     if (pf.mood === 'whirl') {
-      const t = (now - (pf.moodAt || now)) / 1500;
+      // (flung by an ear, it starts at full speed, as fast as the ear snaps back, and slows to a stop)
+      const t = (now - (pf.moodAt || now)) / (pf.whirlFlung ? 1800 : 1500);
       if (t >= 1) { pf.spinA = 0; setMood('smile'); }
-      else pf.spinA = (pf.whirlDir || 1) * TAU * (pf.whirlTurns || 4) * (t < 0.5 ? 2 * t * t : 1 - 2 * (1 - t) * (1 - t));
+      else pf.spinA = (pf.whirlDir || 1) * TAU * (pf.whirlTurns || 4) * (pf.whirlFlung ? 1 - (1 - t) ** 3 : t < 0.5 ? 2 * t * t : 1 - 2 * (1 - t) * (1 - t));
     } else {
       if (pf.cur.spin > 0.02) pf.spinA = (pf.spinA || 0) + (dt / 700) * pf.cur.spin;
       if (pf.mood !== 'spin' && pf.spinA) {
@@ -2826,14 +2827,14 @@
       q.held = false;
       if (Math.hypot(q.x, q.y) > R * 0.25) tone.boing(Math.hypot(q.x, q.y) / R);
       // like a slingshot: an ear pulled down its own side of the face (120 to 180 degrees round from the top) and let go
-      // springs back up and carries the whole face spinning the other way. the further down, the more turns.
+      // springs back up and carries the whole face spinning the other way: two turns, or three from further down.
       const ear = (pf.ears || []).find((x) => x[3] === pointer.part);
       if (ear) {
         const sd = pointer.part === 'earL' ? -1 : 1, dx = ear[0] - CX, dy = ear[1] - CY;
         const down = ((Math.atan2(sd * dx, -dy) * 180) / Math.PI + 360) % 360; // degrees round from the top, on the ear's side
         if (down >= 120 && down <= 200) {
-          pf.whirlDir = -sd; pf.whirlTurns = 2 + Math.round(2 * clamp((down - 120) / 60, 0, 1)); // (whole turns, so he lands upright)
-          pf.earWhirl = true; setMood('whirl'); pf.earWhirl = false;
+          pf.whirlDir = -sd; pf.whirlTurns = down >= 150 ? 3 : 2; // (whole turns, so he lands upright)
+          pf.earWhirl = true; setMood('whirl', 1900); pf.earWhirl = false; pf.whirlFlung = true;
         }
       }
       pointer.part = null;
