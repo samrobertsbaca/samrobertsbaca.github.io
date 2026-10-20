@@ -3466,8 +3466,7 @@
         if (Math.abs(zoom.target - zoom.v) < 0.01) zoom.aim = null;
       }
       if (!pointer.down && now > view.idleAt) view.auto = true;
-      if (calmMood) view.vlon *= 0.9; // the world holds still while it breathes and sings
-      else if (view.auto) view.vlon += (-0.004 * dt / Math.max(1, zoom.v) - view.vlon) * 0.02;
+      if (view.auto) view.vlon += (-0.004 * dt / Math.max(1, zoom.v) - view.vlon) * 0.02;
       else if (!pointer.down) view.vlon *= 0.94;
       if (!pointer.down) { view.lon += view.vlon; setView(); }
       if (!intro.woke && now >= intro.wake) {
