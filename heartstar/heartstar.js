@@ -483,7 +483,10 @@
       case 'rainbowflower': {
         // left by someone who noticed something today: seven petals, one for each color of the rainbow
         c.beginPath(); wobbleLine(x, y + s * 0.5, x, y, seed, 0.3); c.stroke();
-        for (let k = 0; k < 7; k++) { const a = (k / 7) * TAU + seed; c.beginPath(); c.arc(x + Math.cos(a) * s * 0.17, y + Math.sin(a) * s * 0.17, s * 0.1, 0, TAU); c.fillStyle = RAINBOW[k]; c.fill(); c.stroke(); }
+        const petal = (k) => { const a = (k / 7) * TAU + seed; c.beginPath(); c.arc(x + Math.cos(a) * s * 0.17, y + Math.sin(a) * s * 0.17, s * 0.1, 0, TAU); };
+        for (let k = 0; k < 7; k++) { petal(k); c.fillStyle = RAINBOW[k]; c.fill(); c.stroke(); }
+        // the first petal goes back over the last one, so each petal overlaps the next all the way round
+        c.save(); petal(6); c.clip(); petal(0); c.fillStyle = RAINBOW[0]; c.fill(); c.stroke(); c.restore();
         c.beginPath(); c.arc(x, y, s * 0.075, 0, TAU); c.fillStyle = '#fff'; c.fill(); c.stroke();
         break;
       }
@@ -2945,9 +2948,11 @@
   }
   // a little rainbow flower on each side of the button, like the ones that grow on the world
   {
-    const petals = RAINBOW.map((col, k) => { const a = (k / 7) * Math.PI * 2 - Math.PI / 2; return `<circle cx="${(15 + Math.cos(a) * 6.2).toFixed(1)}" cy="${(13 + Math.sin(a) * 6.2).toFixed(1)}" r="3.8" fill="${col}"/>`; }).join('');
-    const svg = `<svg viewBox="0 0 30 38" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M15 20 Q13 28 15 37"/><path d="M14.5 29 Q9 26 7 28 Q10 31 14.5 30"/>${petals}<circle cx="15" cy="13" r="2.8" fill="#fff"/></svg>`;
-    document.querySelectorAll('#today-win .kflower').forEach((el) => { el.innerHTML = svg; });
+    const at = (k) => { const a = (k / 7) * Math.PI * 2 - Math.PI / 2; return `cx="${(15 + Math.cos(a) * 6.2).toFixed(1)}" cy="${(13 + Math.sin(a) * 6.2).toFixed(1)}" r="3.8"`; };
+    const petals = RAINBOW.map((col, k) => `<circle ${at(k)} fill="${col}"/>`).join('');
+    // the first petal goes back over the last one, so each petal overlaps the next all the way round
+    const svg = (id) => `<svg viewBox="0 0 30 38" fill="none" stroke="currentColor" stroke-width="1.3"><defs><clipPath id="${id}"><circle ${at(6)}/></clipPath></defs><path d="M15 20 Q13 28 15 37"/><path d="M14.5 29 Q9 26 7 28 Q10 31 14.5 30"/>${petals}<circle ${at(0)} fill="${RAINBOW[0]}" clip-path="url(#${id})"/><circle cx="15" cy="13" r="2.8" fill="#fff"/></svg>`;
+    document.querySelectorAll('#today-win .kflower').forEach((el, i) => { el.innerHTML = svg('kpetal' + i); });
   }
   todayBtn.addEventListener('click', () => { closeWindows(todayWin); todayWin.hidden = !todayWin.hidden; if (!todayWin.hidden) paintToday(); });
   kindDone.addEventListener('click', () => {
