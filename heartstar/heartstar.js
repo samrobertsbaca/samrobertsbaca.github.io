@@ -1211,6 +1211,7 @@
     const hue = (now / 70) % 360;
     const storm = Math.max(env(omenP('colorstorm', now)), env(omenP('thirdeye', now)) * 0.7);
     stormNow = env(omenP('colorstorm', now));
+    const skyStorm = Math.max(stormNow, hum.magic * 0.9); // harmonious singing stirs a rainbow sky behind the world
     updatePlanetFace(now, dt);
     updatePulls();
     blendWorld(now, storm);
@@ -1218,7 +1219,7 @@
     // white paper. colors bloom only when something happens.
     c.globalCompositeOperation = 'source-over';
     c.fillStyle = T.paper; c.fillRect(0, 0, VW, VH);
-    const bloom = Math.max(storm, smooth(0, 1, (loveWash - now) / 1500), env(omenP('goldrain', now)) * 0.5, env(omenP('heartstar', now)) * 0.6);
+    const bloom = Math.max(storm, smooth(0, 1, (loveWash - now) / 1500), env(omenP('goldrain', now)) * 0.5, env(omenP('heartstar', now)) * 0.6, hum.magic * 0.7);
     if (bloom > 0.01) {
       c.globalCompositeOperation = T.wash;
       for (let k = 0; k < 4; k++) {
@@ -1230,11 +1231,11 @@
       }
       c.globalCompositeOperation = 'source-over';
     }
-    if (stormNow > 0.01 && c.createConicGradient) {
+    if (skyStorm > 0.01 && c.createConicGradient) {
       // a spinning rainbow sky
       const g = c.createConicGradient(now / 500, CX, CY);
       RAINBOW.concat(RAINBOW[0]).forEach((col, i) => g.addColorStop(i / RAINBOW.length, col));
-      c.save(); c.globalAlpha = 0.32 * stormNow; c.fillStyle = g; c.fillRect(0, 0, VW, VH); c.restore();
+      c.save(); c.globalAlpha = 0.32 * skyStorm; c.fillStyle = g; c.fillRect(0, 0, VW, VH); c.restore();
     }
 
     if (T === THEMES.night) renderStars(now, dt);
@@ -3039,7 +3040,7 @@
     [4, 'and one more, in between.', 18000, [0, 7, 4]], [12, 'now the high note. reach up gently.', 18000, [0, 7, 4, 12]], [0, 'come home to the first note.', 18000, [0]],
     [null, 'rest in the quiet. let your song go to the one you hold in your heart.', 18000, []]];
   const hushGuides = () => { for (let k = 0; k < 4; k++) voices.hush('guide' + k); voices.hush('guide'); };
-  const hum = { at: 0, step: -1, close: 0, c: 0, lastHeart: 0 };
+  const hum = { at: 0, step: -1, close: 0, c: 0, lastHeart: 0, magic: 0 };
   function startHum(clockAt = Date.now()) {
     if (breath.at) { breath.at = 0; calmMood = null; hushGuides(); }
     hum.at = performance.now() - (Date.now() - clockAt) + 2500; hum.step = -1; hum.close = 0;
@@ -3058,6 +3059,7 @@
 
   // each frame: the guide's voice, the words, and how close your voice is
   function updateTogether(now) {
+    if (!hum.at || hum.step < 1) hum.magic *= 0.985;
     document.body.classList.toggle('ritual', !!calmMood);
     document.body.classList.toggle('ritual-sing', !!hum.at);
     const b = breathNow(now);
@@ -3115,6 +3117,16 @@
         close = clamp(1 - Math.abs(hum.c) / 140, 0, 1);
       }
       hum.close += (close - hum.close) * 0.08;
+      let wsum = 0, csum = 0, voicesNow = 0;
+      for (const v of everyone()) {
+        const f = v.mine ? (mic.on && now - mic.heard < 300 ? mic.f : 0) : v.freq;
+        if (!f || v.sing < 0.1) continue;
+        let best = 600;
+        for (const t of chord) { const cents = 1200 * Math.log2(f / (HUM_ROOT * Math.pow(2, t / 12))); best = Math.min(best, Math.abs((((cents % 1200) + 1800) % 1200) - 600)); }
+        wsum += v.sing; csum += v.sing * clamp(1 - best / 80, 0, 1); voicesNow++;
+      }
+      const magic = wsum ? (csum / wsum) * Math.min(1, voicesNow / 5) : 0;
+      hum.magic += (magic - hum.magic) * 0.02;
       if (hum.close > 0.75 && me && now - hum.lastHeart > 1400) { hum.lastHeart = now; pointHearts.push({ s: me, born: now, together: true, seed: Math.random() * 10 }); }
     }
   }
