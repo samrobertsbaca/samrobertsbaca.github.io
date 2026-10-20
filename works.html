@@ -25,137 +25,121 @@
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content="https://scorsby.us/images/share.png">
-    <link rel="stylesheet" href="./style.css">
-    <link rel="icon" href="./favicon.webp" type="image/x-icon">
+  <link rel="stylesheet" href="./style.css">
+  <link rel="icon" href="./favicon.webp" type="image/webp">
+  <style>
+    .shelf { box-sizing: border-box; width: 100%; max-width: 980px; margin: 0 auto; padding: 34px 20px 70px; color: #1d1a5e; text-align: left; display: block; }
+    .shelf h2 { font-size: 13px; letter-spacing: .14em; text-transform: uppercase; font-weight: normal; margin: 44px 0 16px; display: flex; align-items: center; gap: 12px; }
+    .shelf h2:first-child { margin-top: 0; }
+    .shelf h2::after { content: ''; flex: 1; border-top: 1px dashed rgba(29, 26, 94, .3); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 22px 18px; }
+    /* five books: three on top, two below, centered under them */
+    .grid.books { grid-template-columns: repeat(6, 1fr); max-width: 760px; margin: 0 auto; gap: 26px 22px; }
+    .grid.books .item { grid-column: span 2; }
+    .grid.books .item:nth-child(4) { grid-column: 2 / 4; }
+    .grid.books .item:nth-child(5) { grid-column: 4 / 6; }
+    .grid.games { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 760px; margin: 0 auto; }
+    .games .cover { aspect-ratio: 16 / 9; }
+    .item { display: block; text-decoration: none; color: inherit; }
+    .cover {
+      display: block; width: 100%; aspect-ratio: 1; object-fit: cover; background: #e8f6ff;
+      border: 1px solid #05060a; box-shadow: 4px 4px 0 #05060a; transition: transform .12s, box-shadow .12s;
+    }
+    .books .cover { aspect-ratio: 4 / 5; }
+    .item:hover .cover { transform: translate(-2px, -2px) rotate(-1deg); box-shadow: 6px 6px 0 #05060a; }
+    .item:active .cover { transform: translate(4px, 4px); box-shadow: none; }
+    .meta { display: block; margin-top: 12px; font-size: 13px; line-height: 1.35; }
+    .meta b { display: block; font-weight: normal; color: #1d1a5e; }
+    .item:hover .meta b { text-decoration: underline; text-underline-offset: 3px; }
+    .meta span { display: block; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: rgba(29, 26, 94, .6); margin-top: 3px; }
+    .reading { columns: 2 260px; column-gap: 40px; font-size: 14px; line-height: 1.9; }
+    .reading a { color: #1d1a5e; }
+    .reading i { font-style: normal; color: rgba(29, 26, 94, .55); font-size: 12px; }
+    @media (max-width: 600px) {
+      .shelf { padding: 22px 16px 60px; }
+      .grid, .grid.books, .grid.games { grid-template-columns: repeat(2, 1fr); gap: 20px 14px; }
+      .grid.books .item, .grid.books .item:nth-child(4), .grid.books .item:nth-child(5) { grid-column: auto; }
+      .grid.books .item:nth-child(5) { grid-column: 1 / 3; justify-self: center; width: calc(50% - 7px); } /* the fifth, centered under the others */
+      .grid.games { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <nav></nav>
+  <script type="module" src="/module_scripts.js" defer></script>
+  <script src="./functional_scripts.js" defer></script>
+  <script>document.addEventListener('DOMContentLoaded', () => loadNavbar());</script>
 
-    <link rel="stylesheet" href="./style.css">
+  <main class="shelf">
+    <h2>books</h2>
+    <div class="grid books" id="books"></div>
 
-  </head>
-  <body>
+    <h2>games / apps</h2>
+    <div class="grid games" id="games"></div>
 
-    <nav></nav>
+    <h2>music</h2>
+    <div class="grid" id="music"></div>
 
-    <script type="module" src="/module_scripts.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="./blog/blogposts.js" defer></script>
-    <script src="./functional_scripts.js" defer></script>
+    <h2>links</h2>
+    <div class="reading">
+      <a href="https://www.biblegateway.com/passage/?search=1%20Corinthians%2013&version=NIV" target="_blank">1 corinthians 13</a> <i>text</i><br>
+      <a href="https://www.lotsawahouse.org/words-of-the-buddha/clarifying-light-prophecy" target="_blank">clarifying light prophecy</a> <i>text</i><br>
+      <a href="https://www.gutenberg.org/ebooks/7452" target="_blank">autobiography of a yogi</a> <i>text</i><br>
+      <a href="https://archive.org/details/interiorcastleor00tere/mode/2up" target="_blank">interior castle</a> <i>text</i><br>
+      <a href="https://www.llresearch.org/" target="_blank">love &amp; light research</a><br>
+      <a href="https://www.youtube.com/watch?v=9lcqDkvWG5o" target="_blank">laws of the universe</a> <i>film</i><br>
+      <a href="https://www.gutenberg.org/files/2388/2388-h/2388-h.htm" target="_blank">the song celestial</a> <i>text</i><br>
+      <a href="https://www.gutenberg.org/ebooks/71326" target="_blank">yoga-vasishtha maharamayana</a> <i>text</i>
+    </div>
+  </main>
 
-    <link rel="stylesheet" href="/js/site-pet/pet.css">
-    <script src="/js/site-pet/site-pet.js"></script>
+  <footer>ⓢ 2620 Scorsby Smileworks — All Smiles Unreserved</footer>
 
-    <script>
-      document.addEventListener('DOMContentLoaded', () => {
-        loadNavbar(); // now loadNavbar exists
-        //generateScorsbys();
-      });
-    </script>
-
-    <article>
-      <div class="twitter-text"><h3 style="text-align:center;">books</h3></div>
-
-      2026 <a href="/books/blueroses" target="_blank">scorsby's book of blue roses</a> (??? pages)</br>
-      2025 <a href="/books/gold.html" target="_blank">go for gold</a> (120 pages)</br>
-      2025 <a href="/books/comix2025.html" target="_blank">scorsbycomix vol. 1</a> (105 pages) </br>
-      2025 <a href="/books/littlebookofscorsby.html" target="_blank">the little book of scorsby</a> (21 pages)</br>
-      2025 <a href="/books/gentlefallingsnow.html" target="_blank">gentle falling snow</a> (17 pages)
-
-      <div class="twitter-text"><h3 style="text-align:center;">games / apps</h3></div>
-
-      2026 <a href="./exp/sacred-geometry/" target="_blank">sacred geometry meditation</a></br>
-      <!--2026 <a href="./exp/isochronic/" target="_blank">isochronic tone generator</a></br>!-->
-      2025 <a href="./media/bubbleboo.html" target="_blank">scorsby saves the bubbleboos</a> (web only)</br>
-
-      <div class="twitter-text"><h3 style="text-align:center;">selected music</h3></div>
-
-      2026 samuel john scorsby - <a href="https://scorsby.bandcamp.com/album/god-says-youre-a-champ" target="_blank">god says you're a champ</a> (3xLP)</br>
-      2025 john king cave - <a href="https://johnkingcave.bandcamp.com/album/two-songs" target="_blank">two songs</a></br>
-      2025 john king cave - <a href="https://scorsby.bandcamp.com/album/soul-country" target="_blank">soul country</a> (2xLP)</br>
-      2025 john king cave - <a href="https://scorsby.bandcamp.com/album/love-meditations" target="_blank">love meditations</a> (EP)</br>
-      2025 john king cave - <a href="https://scorsby.bandcamp.com/album/bless-me-valentine" target="_blank">bless me, valentine</a> (EP)</br>
-      2024 john king cave - <a href="https://scorsby.bandcamp.com/album/sweeping-beauties" target="_blank">sweeping beauties</a> (2xLP)</br>
-      2024 manuka piglet - <a href="https://manukapiglet.bandcamp.com/album/echoes-from-the-pigpen-the-lost-tapes-of-table-31" target="_blank">echoes from the pigpen</a> (COMP)</br>
-      2020 john king cave - <a href="https://johnkingcave.bandcamp.com/album/oh-my-love" target="_blank">oh my love</a> (LP)</br>
-      2020 sam rb - <a href="https://johnkingcave.bandcamp.com/album/everything-is-happening-all-the-time" target="_blank">everything is happening all the time</a> (COMP)</br>
-      2020 john king cave - <a href="https://scorsby.bandcamp.com/album/devil-rides-beside" target="_blank">devil rides beside</a> (LP)</br>
-      2020 john king cave - <a href="https://scorsby.bandcamp.com/album/sing-a-song" target="_blank">sing a song,</a> <a href="https://johnkingcave.bandcamp.com/track/labyrinth-of-faith" target="_blank">labyrinth of faith</a></br>
-      2017 wildflowers of the mojave - <a href="https://scorsby.bandcamp.com/album/your-sherpa-will-abandon-you-and-leave-you-for-dead" target="_blank">your sherpa will abandon you...</a> (2xLP)</br>
-      2016 wildflowers of the mojave - <a href="https://johnkingcave.bandcamp.com/album/lovehills-leeches" target="_blank">lovehills & leeches</a> (EP)</br>
-      2016 wildflowers of the mojave - <a href="https://johnkingcave.bandcamp.com/track/m-bius-light-i-thought-id-go-fishing" target="_blank">möbius Light</a></br>
-      2014 manuka piglet - <a href="https://manukapiglet.bandcamp.com/album/brain-damaged-toon-underworld" target="_blank">brain-damaged toon underworld</a> (LP)</br>
-      2014 manuka piglet - <a href="https://manukapiglet.bandcamp.com/album/saving-grace-beyond-the-kitchen" target="_blank">saving grace beyond the kitchen</a> (EP)</br>
-      2014 sam rb - <a href="https://sjroberts.bandcamp.com/album/avian-disaster" target="_blank">avian disaster</a> (LP)</br>
-      2014 manuka piglet - <a href="https://manukapiglet.bandcamp.com/album/dog-songs" target="_blank">dog songs</a> (EP)</br>
-      2012 sun stains - <a href="https://sjroberts.bandcamp.com/album/sun-stains" target="_blank">sun stains</a> (EP)</br>
-      2012 sun stains - <a href="https://sjroberts.bandcamp.com/album/untitled-2" target="_blank">untitled</a> (EP)</br>
-      2012 tunafishbumblebee - <a href="https://tunafishbumblebee.bandcamp.com/album/never-know-not-how" target="_blank">never know not how</a> (LP)</br>
-      2011 the lincoln bear band - <a href="https://lincolnbear.bandcamp.com/album/unfortunately" target="_blank">unfortunately</a> (LP)</br>
-      2010 preschool dropout - <a href="https://preschooldropout.bandcamp.com/album/another-october" target="_blank">another october</a> (LP)</br>
-
-
-      <!--<div class="twitter-text"><h3 style="text-align:center;">music</h3></div>
-
-      2025 john king cave - <a href="https://johnkingcave.bandcamp.com/album/two-songs" target="_blank">two songs</a></br>
-      2025 john king cave - <a href="https://johnkingcave.bandcamp.com/album/soul-country" target="_blank">soul country</a> (2xLP)</br>
-      2025 john king cave - <a href="https://johnkingcave.bandcamp.com/album/love-meditations" target="_blank">love meditations</a> (EP)</br>
-      2025 john king cave - <a href="https://johnkingcave.bandcamp.com/album/bless-me-valentine" target="_blank">bless me, valentine</a> (EP)</br>
-      2024 john king cave - <a href="https://johnkingcave.bandcamp.com/album/sweeping-beauties" target="_blank">sweeping beauties</a> (2xLP)</br>
-      2024 manuka piglet - <a href="https://manukapiglet.bandcamp.com/album/echoes-from-the-pigpen-the-lost-tapes-of-table-31" target="_blank">echoes from the pigpen</a> (COMP)</br>
-      2020 john king cave - <a href="https://johnkingcave.bandcamp.com/album/oh-my-love" target="_blank">oh my love</a> (LP)</br>
-      2020 sam rb - <a href="https://johnkingcave.bandcamp.com/album/everything-is-happening-all-the-time" target="_blank">everything is happening all the time</a> (COMP)</br>
-      2020 john king cave - <a href="https://johnkingcave.bandcamp.com/album/devil-rides-beside" target="_blank">devil rides beside</a> (LP)</br>
-      2020 john king cave - <a href="https://johnkingcave.bandcamp.com/album/emotion-tread-light" target="_blank">emotion / tread light</a> (EP)</br>
-      2017 wildflowers of the mojave - <a href="https://johnkingcave.bandcamp.com/album/your-sherpa-will-abandon-you-and-leave-you-for-dead" target="_blank">your sherpa will abandon you...</a> (2xLP)</br>
-      2016 wildflowers of the mojave - <a href="https://johnkingcave.bandcamp.com/album/lovehills-leeches" target="_blank">lovehills & leeches</a> (EP)</br>
-      2016 wildflowers of the mojave - <a href="https://johnkingcave.bandcamp.com/track/m-bius-light-i-thought-id-go-fishing" target="_blank">möbius Light</a></br>
-      2014 sam rb - <a href="https://sjroberts.bandcamp.com/album/goodbye-fantastic" target="_blank">goodbye, fantastic</a> (COMP)</br>
-      2014 manuka piglet - <a href="https://manukapiglet.bandcamp.com/album/brain-damaged-toon-underworld" target="_blank">brain-damaged toon underworld</a> (LP)</br>
-      2014 manuka piglet - <a href="https://manukapiglet.bandcamp.com/album/saving-grace-beyond-the-kitchen" target="_blank">saving grace beyond the kitchen</a> (EP)</br>
-      2014 sam rb - <a href="https://sjroberts.bandcamp.com/album/avian-disaster" target="_blank">avian disaster</a> (LP)</br>
-      2014 manuka piglet - <a href="https://manukapiglet.bandcamp.com/album/dog-songs" target="_blank">dog songs</a> (EP)</br>
-      2012 sun stains - <a href="https://sjroberts.bandcamp.com/album/sun-stains" target="_blank">sun stains</a> (EP)</br>
-      2012 sun stains - <a href="https://sjroberts.bandcamp.com/album/untitled-2" target="_blank">untitled</a> (EP)</br>
-      2012 tunafishbumblebee - <a href="https://tunafishbumblebee.bandcamp.com/album/never-know-not-how" target="_blank">never know not how</a> (LP)</br>
-      2011 the lincoln bear band - <a href="https://lincolnbear.bandcamp.com/album/unfortunately" target="_blank">unfortunately</a> (LP)</br>
-      2010 preschool dropout - <a href="https://preschooldropout.bandcamp.com/album/another-october" target="_blank">another october</a> (LP)</br>
-    -->
-
-      <div class="twitter-text"><h3 style="text-align:center;">links</h3></div>
-
-      <a href="https://www.biblegateway.com/passage/?search=1%20Corinthians%2013&version=NIV" target="_blank">1 corinthians 13</a> (text)<br>
-      <a href="https://www.lotsawahouse.org/words-of-the-buddha/clarifying-light-prophecy" target="_blank">clarifying light prophecy</a> (text)<br>
-      <a href="https://www.gutenberg.org/ebooks/7452" target="_blank">autobiography of a yogi</a> (text)<br>
-      <a href="https://archive.org/details/interiorcastleor00tere/mode/2up" target="_blank">interior castle</a> (text)<br>
-      <a href="https://www.llresearch.org/" target="_blank">love & light research</a><br>
-      <a href="https://www.youtube.com/watch?v=9lcqDkvWG5o" target="_blank">laws of the universe</a> (film)<br>
-      <a href="https://www.gutenberg.org/files/2388/2388-h/2388-h.htm" target="_blank">the song celestial</a> (text)<br>
-      <a href="https://www.gutenberg.org/ebooks/71326" target="_blank">yoga-vasishtha maharamayana</a> (text)<br>
-      <!--<h4>alias: john king cave</h4>
-      <h4>alias: wildflowers of the mojave</h4>
-      <h4>alias: manuka piglet</h4>
-      <h4>alias: other</h4>-->
-
-
-    </article>
-
-  <!-- Hamburger JS -->
-<script>
-function toggleMenu() {
-  const nav = document.getElementById('nav-links');
-  nav.classList.toggle('show');
-}
-
-/*window.addEventListener("load", () => {
-  const scorsby = createSitePet('example');
-});*/
-
-</script>
-
-<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
-<script src="js/scorsbypus/scorsbypus.js"></script>-->
-
-      <footer>
-        ⓢ 2620 Scorsby Smileworks — All Smiles Unreserved
-      </footer>
-
-  </body>
+  <script>
+    const bc = (id) => `https://f4.bcbits.com/img/a${id}_5.jpg`;
+    const BOOKS = [
+      ['scorsby’s book of blue roses', '2026 · ??? pages', '/books/blueroses', '/images/love/book-blueroses.webp'],
+      ['go for gold', '2025 · 120 pages', '/books/gold.html', '/images/love/book-gold.webp'],
+      ['scorsbycomix vol. 1', '2025 · 105 pages', '/books/comix2025.html', '/images/love/book-comix2025.webp'],
+      ['the little book of scorsby', '2025 · 21 pages', '/books/littlebookofscorsby.html', '/images/love/book-littlebook.webp'],
+      ['gentle falling snow', '2025 · 17 pages', '/books/gentlefallingsnow.html', '/images/love/book-snow.webp'],
+    ];
+    const GAMES = [
+      ['sacred geometry meditation', '2026', './exp/sacred-geometry/', '/images/love/game-sacred-geometry.webp'],
+      ['scorsby saves the bubbleboos', '2025 · web only', './media/bubbleboo.html', '/images/love/game-bubbleboos.webp'],
+    ];
+    const S = 'https://scorsby.bandcamp.com/';
+    const MUSIC = [
+      ['god says you’re a champ', 'samuel john scorsby', '2026 · 3xLP', S + 'album/god-says-youre-a-champ', '0831828732'],
+      ['two songs', 'john king cave', '2025', S + 'album/two-songs', '2858246788'],
+      ['soul country', 'john king cave', '2025 · 2xLP', S + 'album/soul-country', '1344013158'],
+      ['love meditations', 'john king cave', '2025 · EP', S + 'album/love-meditations', '0944250891'],
+      ['bless me, valentine', 'john king cave', '2025 · EP', S + 'album/bless-me-valentine', '0888348312'],
+      ['sweeping beauties', 'john king cave', '2024 · 2xLP', S + 'album/sweeping-beauties', '1655120837'],
+      ['echoes from the pigpen', 'manuka piglet', '2024 · comp', 'https://manukapiglet.bandcamp.com/album/echoes-from-the-pigpen-the-lost-tapes-of-table-31', '0788990850'],
+      ['oh my love', 'john king cave', '2020 · LP', S + 'album/oh-my-love', '0336794654'],
+      ['everything is happening all the time', 'sam rb', '2020 · comp', S + 'album/everything-is-happening-all-the-time', '2896046712'],
+      ['devil rides beside', 'john king cave', '2020 · LP', S + 'album/devil-rides-beside', '2024300454'],
+      ['sing a song', 'john king cave', '2020', S + 'album/sing-a-song', '0758234296'],
+      ['labyrinth of faith', 'john king cave', '2020', S + 'track/labyrinth-of-faith', '1366117097'],
+      ['your sherpa will abandon you…', 'wildflowers of the mojave', '2017 · 2xLP', S + 'album/your-sherpa-will-abandon-you-and-leave-you-for-dead', '0054016471'],
+      ['lovehills & leeches', 'wildflowers of the mojave', '2016 · EP', S + 'album/lovehills-leeches', '1456220533'],
+      ['möbius light', 'wildflowers of the mojave', '2016', S + 'track/m-bius-light-i-thought-id-go-fishing', '3952548277'],
+      ['brain-damaged toon underworld', 'manuka piglet', '2014 · LP', 'https://manukapiglet.bandcamp.com/album/brain-damaged-toon-underworld', '0974142668'],
+      ['saving grace beyond the kitchen', 'manuka piglet', '2014 · EP', 'https://manukapiglet.bandcamp.com/album/saving-grace-beyond-the-kitchen', '2199860942'],
+      ['avian disaster', 'sam rb', '2014 · LP', 'https://sjroberts.bandcamp.com/album/avian-disaster', '1994052205'],
+      ['dog songs', 'manuka piglet', '2014 · EP', 'https://manukapiglet.bandcamp.com/album/dog-songs', '2082676329'],
+      ['sun stains', 'sun stains', '2012 · EP', 'https://sjroberts.bandcamp.com/album/sun-stains', '1575787517'],
+      ['untitled', 'sun stains', '2012 · EP', 'https://sjroberts.bandcamp.com/album/untitled-2', '3924118897'],
+      ['never know not how', 'tunafishbumblebee', '2012 · LP', 'https://tunafishbumblebee.bandcamp.com/album/never-know-not-how', '2248261680'],
+      ['unfortunately', 'the lincoln bear band', '2011 · LP', 'https://lincolnbear.bandcamp.com/album/unfortunately', '2255406752'],
+      ['another october', 'preschool dropout', '2010 · LP', 'https://preschooldropout.bandcamp.com/album/another-october', '0247713694'],
+    ];
+    const card = (href, img, title, line) => `<a class="item" href="${href}" target="_blank" rel="noopener">${img}<span class="meta"><b>${title}</b>${line.map((l) => `<span>${l}</span>`).join('')}</span></a>`;
+    const pic = (src, alt) => `<img class="cover" src="${src}" alt="${alt}" loading="lazy">`;
+    document.getElementById('books').innerHTML = BOOKS.map(([t, l, h, src]) => card(h, pic(src, t), t, [l])).join('');
+    document.getElementById('games').innerHTML = GAMES.map(([t, l, h, src]) => card(h, pic(src, t), t, [l])).join('');
+    document.getElementById('music').innerHTML = MUSIC.map(([t, who, l, h, id]) => card(h, pic(bc(id), t), t, [who, l])).join('');
+  </script>
+</body>
 </html>
