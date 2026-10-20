@@ -270,7 +270,7 @@ body.ritual.ritual-sing.sound-on #acts .row button#act-sound { opacity: 0 !impor
   #act-sound { padding: 5px 8px !important; }
   #act-all { width: 100%; }
   /* windows sit just above the buttons (however tall they are), and scroll rather than ever covering them */
-  .win { bottom: calc(var(--acts-h, 130px) + 4px); max-height: calc(100dvh - var(--acts-h, 130px) - 24px); overflow-y: auto; }
+  .win { bottom: calc(var(--acts-h, 130px) + 18px); max-height: calc(100dvh - var(--acts-h, 130px) - 40px); overflow-y: auto; }
   #zoom { right: 12px; top: auto; bottom: 128px; transform: none; flex-direction: row; }
   /* when the buttons take two rows, the zoom buttons sit in the second row with them */
   #acts .row #zoom { position: static; transform: none; gap: 8px; }
