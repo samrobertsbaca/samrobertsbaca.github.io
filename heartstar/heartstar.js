@@ -2876,6 +2876,11 @@
     if (wrapped) actsRow.appendChild(zoomBox);
   }
   addEventListener('resize', placeZoom);
+  // how tall the buttons at the bottom are (with their margin), so windows on a phone can center in the space above them
+  const actsBox = document.getElementById('acts');
+  const measureActs = () => document.documentElement.style.setProperty('--acts-h', `${Math.round(innerHeight - actsBox.getBoundingClientRect().top + 8)}px`);
+  if (actsBox && window.ResizeObserver) new ResizeObserver(measureActs).observe(actsBox);
+  addEventListener('resize', measureActs);
   document.fonts?.ready.then(placeZoom); // (the buttons change width once the fonts arrive)
   COLORS.forEach(([name, hex], i) => {
     const b = document.createElement('button');
