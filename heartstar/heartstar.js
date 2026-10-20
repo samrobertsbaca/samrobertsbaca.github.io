@@ -3028,7 +3028,7 @@
   const SING_DAY = 0, SING_HOUR = 12; // sunday, noon
   function paintToday() {
     const k = kindToday(), d = new Date();
-    document.getElementById('kind-date').textContent = `${d.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' }).toLowerCase()} · day ${k.i + 1} of awareness`;
+    document.getElementById('kind-date').textContent = `${d.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' }).toLowerCase()} · day one of awareness` // (every day is day one);
     document.getElementById('kind-act').textContent = k.text;
     const src = document.getElementById('kind-src'); src.textContent = k.src.replace(/ (\([^)]*\))$/, '\n$1'); src.hidden = !k.src; // a closing (aside) gets its own line
     const done = store.get('kind-done') === dayKey();
