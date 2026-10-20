@@ -152,6 +152,7 @@ h1 { font-family: var(--head); font-weight: 400; font-size: 30px; line-height: 1
 #act-all:active { transform: translate(4px, 5px); }
 
 #act-you { display: inline-flex; align-items: center; gap: 7px; }
+#act-sound .ico { display: none; }
 #act-you .sw { width: 10px; height: 10px; border: 1px solid #05060a; display: inline-block; }
 
 /* little windows */
@@ -264,6 +265,9 @@ body.ritual.ritual-sing.sound-on #acts .row button#act-sound { opacity: 0 !impor
   #acts { left: 50%; right: auto; transform: translateX(-50%); bottom: 14px; width: max-content; max-width: calc(100vw - 24px); align-items: stretch; }
   #acts .row { flex-wrap: wrap; justify-content: center; gap: 8px; }
   #acts .row button { padding: 7px 9px; font-size: 10px; }
+  #act-sound .lbl { display: none; }
+  #act-sound .ico { display: block; width: 16px; height: 16px; }
+  #act-sound { padding: 5px 8px !important; }
   #act-all { width: 100%; }
   .win { bottom: 132px; }
   #zoom { right: 12px; top: auto; bottom: 128px; transform: none; flex-direction: row; }

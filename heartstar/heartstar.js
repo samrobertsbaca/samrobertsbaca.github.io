@@ -3207,7 +3207,10 @@
     master.gain.setTargetAtTime(on ? 1 : 0, ac.currentTime, 0.3);
     soundBtn.setAttribute('aria-pressed', on);
     document.body.classList.toggle('sound-on', on);
-    soundBtn.textContent = on ? 'sound on' : 'sound off';
+    // words on a computer; on a phone, just a little speaker (with waves when it's on), so the buttons fit on one row
+    soundBtn.querySelector('.lbl').textContent = on ? 'sound on' : 'sound off';
+    soundBtn.setAttribute('aria-label', on ? 'sound on' : 'sound off');
+    soundBtn.querySelector('.ico').innerHTML = on ? '<path d="M3 9.5v5h3.5l5 4v-13l-5 4z" fill="currentColor"/><path d="M15 9a4.2 4.2 0 0 1 0 6M17.6 6.5a8 8 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>' : '<path d="M3 9.5v5h3.5l5 4v-13l-5 4z" fill="currentColor"/><path d="M15.5 9.5l5 5M20.5 9.5l-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>';
   }
   soundBtn.addEventListener('click', () => {
     setSound(!soundOn);
