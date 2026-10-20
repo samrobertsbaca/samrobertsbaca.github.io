@@ -144,7 +144,10 @@
     const wh = document.getElementById('whisper');
     const top = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--under-top')) || 76;
     const fs = wh ? parseFloat(getComputedStyle(wh).fontSize) || 20 : 20;
-    const room = (CY - (top + fs * 1.3 * 2.4 + 8)) / 1.5; // ears reach about one and a half radii above the middle
+    // how many lines the longest usual whisper (the welcome, about 100 letters) takes at the whisper's width
+    const ww = (wh && wh.getBoundingClientRect().width) || Math.min(600, VW - 32);
+    const lines = clamp(Math.ceil(100 / (ww / (fs * 0.47))), 2, 4) + 0.4;
+    const room = (CY - (top + fs * 1.3 * lines + 8)) / 1.5; // ears reach about one and a half radii above the middle
     if (room > 60) baseR = Math.min(baseR, room);
   }
   function resize() {
@@ -2288,7 +2291,7 @@
         const shown = chars.slice(0, i).map((ch, j) => (breaks.has(j) ? '\n' : ch)).join('');
         const k = Math.max(shown.lastIndexOf(' '), shown.lastIndexOf('\n'));
         head.data = shown.slice(0, k + 1); tailText.data = shown.slice(k + 1);
-        if (i % 3 === 0) tone.tick();
+        if (i % 3 === 0 && i > 6) tone.tick(); // (the first few letters are typed quietly while the words fade in)
         if (i < chars.length) return;
         clearInterval(typer);
         if (link) { const t = document.createElement('span'); t.className = 'from'; t.textContent = `— ${link.t} →`; host.appendChild(t); }

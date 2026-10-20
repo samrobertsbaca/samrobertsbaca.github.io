@@ -102,7 +102,7 @@ h1 { font-family: var(--head); font-weight: 400; font-size: 30px; line-height: 1
   font-family: var(--head); font-size: 22px; line-height: 1.3; text-wrap: balance;
   color: var(--ink); opacity: 0; transition: opacity 1.1s ease; pointer-events: none; z-index: 2;
 }
-#whisper.on { opacity: 1; }
+#whisper.on { opacity: 1; transition-duration: .3s; }
 #whisper.quote.on { pointer-events: auto; }
 #whisper a { color: inherit; text-decoration: none; }
 #whisper a:hover { color: var(--pink); }
