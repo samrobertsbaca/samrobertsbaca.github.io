@@ -814,7 +814,7 @@
     if (!MOODS[m] || (!intro.woke && m !== 'sleepy')) return; // nothing stirs the world before it wakes
     if (calmMood && m !== calmMood) return;
     if (pf.mood !== m) pf.moodAt = performance.now();
-    if (m === 'whirl' && pf.mood !== 'whirl' && !pf.earWhirl) pf.whirlDir = 1;
+    if (m === 'whirl' && pf.mood !== 'whirl' && !pf.earWhirl) { pf.whirlDir = 1; pf.whirlTurns = 4; }
     const lasts = { meltdown: 7800, bubble: 5800, whirl: 1600 }[m]; // these play all the way through
     if (lasts) hold = Math.max(hold, lasts);
     pf.mood = m; pf.target = { ...FACE_BASE, ...MOODS[m] }; pf.hold = performance.now() + hold;
@@ -849,7 +849,7 @@
     if (pf.mood === 'whirl') {
       const t = (now - (pf.moodAt || now)) / 1500;
       if (t >= 1) { pf.spinA = 0; setMood('smile'); }
-      else pf.spinA = (pf.whirlDir || 1) * TAU * 4 * (t < 0.5 ? 2 * t * t : 1 - 2 * (1 - t) * (1 - t));
+      else pf.spinA = (pf.whirlDir || 1) * TAU * (pf.whirlTurns || 4) * (t < 0.5 ? 2 * t * t : 1 - 2 * (1 - t) * (1 - t));
     } else {
       if (pf.cur.spin > 0.02) pf.spinA = (pf.spinA || 0) + (dt / 700) * pf.cur.spin;
       if (pf.mood !== 'spin' && pf.spinA) {
@@ -2765,10 +2765,7 @@
     const s = hit(e.clientX, e.clientY);
     pointer.onMe = s && s.mine;
     pointer.part = s ? null : hitPart(e.clientX, e.clientY);
-    if (pointer.part) {
-      const q = pull[pointer.part]; q.held = true; pointer.px0 = e.clientX - q.x; pointer.py0 = e.clientY - q.y;
-      pointer.round = 0; pointer.roundA = Math.atan2(e.clientY - CY, e.clientX - CX); // how far an ear is taken round the face
-    }
+    if (pointer.part) { const q = pull[pointer.part]; q.held = true; pointer.px0 = e.clientX - q.x; pointer.py0 = e.clientY - q.y; }
     if (pointer.onMe) holdTimer = setTimeout(() => { if (pointer.moved < 6) { pointer.held = true; loveEveryone(); } }, 650);
   });
   cv.addEventListener('pointermove', (e) => {
@@ -2800,14 +2797,9 @@
       const q = pull[pointer.part];
       let x = e.clientX - pointer.px0, y = e.clientY - pointer.py0;
       const ear = pointer.part === 'earL' || pointer.part === 'earR';
-      const d = Math.hypot(x, y), max = R * (ear ? 2.4 : 1.4); // (an ear can be taken all the way round)
+      const d = Math.hypot(x, y), max = R * (ear ? 2.4 : 1.4); // (an ear can be pulled right down its side of the face)
       if (d > max) { x *= max / d; y *= max / d; }
       q.x = x; q.y = y; q.vx = q.vy = 0;
-      if (ear) {
-        const a = Math.atan2(e.clientY - CY, e.clientX - CX);
-        let da = a - pointer.roundA; da -= Math.round(da / TAU) * TAU;
-        pointer.round += da; pointer.roundA = a;
-      }
       return;
     }
     if (pointer.onMe && me) {
@@ -2833,9 +2825,18 @@
       const q = pull[pointer.part];
       q.held = false;
       if (Math.hypot(q.x, q.y) > R * 0.25) tone.boing(Math.hypot(q.x, q.y) / R);
-      // an ear taken most of the way round the face, and let go: the whole face whirls round, the same way
-      if (Math.abs(pointer.round || 0) > Math.PI * 1.5) { pf.whirlDir = Math.sign(pointer.round); pf.earWhirl = true; setMood('whirl'); pf.earWhirl = false; }
-      pointer.part = null; pointer.round = 0;
+      // like a slingshot: an ear pulled down its own side of the face (120 to 180 degrees round from the top) and let go
+      // springs back up and carries the whole face spinning the other way. the further down, the more turns.
+      const ear = (pf.ears || []).find((x) => x[3] === pointer.part);
+      if (ear) {
+        const sd = pointer.part === 'earL' ? -1 : 1, dx = ear[0] - CX, dy = ear[1] - CY;
+        const down = ((Math.atan2(sd * dx, -dy) * 180) / Math.PI + 360) % 360; // degrees round from the top, on the ear's side
+        if (down >= 120 && down <= 200) {
+          pf.whirlDir = -sd; pf.whirlTurns = 2 + Math.round(2 * clamp((down - 120) / 60, 0, 1)); // (whole turns, so he lands upright)
+          pf.earWhirl = true; setMood('whirl'); pf.earWhirl = false;
+        }
+      }
+      pointer.part = null;
     }
     pointer.down = false; pointer.dragging = false; cv.classList.remove('grabbing');
     view.idleAt = performance.now() + 5000;
