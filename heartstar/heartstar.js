@@ -1865,13 +1865,6 @@
       const ci = storm > 0.2 ? 8 : unison || s.c;
       const col = colorOf(ci, now, s.seed);
       drawFace(s.sx, s.sy - s.size * 0.06, s.size, { lid, look: [s.lookX, s.lookY], hearts: s.hearts > 0, sing: s.sing, color: col, nose: ci !== 8 && reddish(col) ? '#00b4ff' : undefined });
-      if (s.mine && store.get('kind-done') === dayKey()) {
-        // you noticed something today: a rainbow flower grows from the top of your head, swaying a little
-        const fs = s.size * 0.5, sway = Math.sin(now / 900 + s.seed) * 0.08;
-        c.save(); c.translate(s.sx, s.sy - s.size * 0.4); c.rotate(sway);
-        doodle('rainbowflower', 0, -fs * 0.5, fs, s.seed, now, 1.32);
-        c.restore();
-      }
       c.restore();
     }
     visible = list;
@@ -3027,7 +3020,7 @@
       for (let i = 0; i < 3; i++) setTimeout(() => pointHearts.push({ s: me, born: performance.now(), together: true, seed: Math.random() * 10 }), i * 250);
     }
     tone.chime();
-    whisper('a rainbow flower is growing on your head, and one more on the world\'s. ♥', 4200);
+    whisper('one more rainbow flower is growing on the world. ♥', 4200);
   });
   // the clock: a minute before, a little heads-up; at the moment itself, scorsby begins
   let breathSlot = 0, singSlot = 0, warned = 0;
