@@ -2594,7 +2594,7 @@
     try { cv.setPointerCapture(e.pointerId); } catch {}
     if (touches.size === 2) {
       const [a, b] = [...touches.values()];
-      pinch = { d: Math.hypot(a[0] - b[0], a[1] - b[1]), z: zoom.target };
+      pinch = { d: Math.hypot(a[0] - b[0], a[1] - b[1]), z: zoom.target, at: performance.now() };
       clearTimeout(holdTimer); pointer.down = false;
       return;
     }
@@ -2650,7 +2650,11 @@
   });
   const endPointer = (e) => {
     touches.delete(e.pointerId);
-    if (pinch) { if (touches.size < 2) pinch = null; return; }
+    if (pinch) {
+      // a quick two-finger tap (no pinching) steps back out, for anyone who can't easily pinch
+      if (touches.size < 2) { if (performance.now() - pinch.at < 300 && Math.abs(zoom.target / pinch.z - 1) < 0.05) zoomStep(-1); pinch = null; }
+      return;
+    }
     clearTimeout(holdTimer);
     const wasTap = pointer.down && pointer.moved < 6 && !pointer.held;
     if (pointer.part) {
