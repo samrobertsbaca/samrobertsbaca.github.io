@@ -1821,7 +1821,7 @@
         if (h.seen.has(s.id) || angle(s.v, h.v) > r) continue;
         h.seen.add(s.id);
         s.hearts = 1500;
-        if (h.gen < 2 && hearts.length < 14) hearts.push({ v: s.v, born: now, gen: h.gen + 1, max: 0.42, seen: new Set([...h.seen]), hue: h.hue + 40 });
+        if (h.gen < 2 && hearts.length < 14 && peers.size + 1 <= 12) hearts.push({ v: s.v, born: now, gen: h.gen + 1, max: 0.42, seen: new Set([...h.seen]), hue: h.hue + 40 });
       }
       const ref = Math.abs(h.v[2]) < 0.9 ? [0, 0, 1] : [0, 1, 0];
       const a = norm(cross(h.v, ref)), b = cross(h.v, a);
@@ -1904,10 +1904,11 @@
       if (!handsHeld.has(other)) { handsHeld.add(other); send({ t: 'hand', with: other }); }
     }
     const byId = new Map(list.map((s) => [s.id, s]));
-    let linksDrawn = 0;
-    if (!calmMood) for (const key of pairs) {
-      if (++linksDrawn > 60) break; // in a crowd only so many links are drawn; every one still counts
-      const [a, b] = key.split('|').map((id) => byId.get(id));
+    const fx = me && me.sz > 0 ? me.sx : CX, fy = me && me.sz > 0 ? me.sy : CY, linkMax = zoom.v >= 2.2 ? 200 : 60;
+    const links = [...pairs].map((key) => key.split('|').map((id) => byId.get(id)))
+      .map((ab) => [ab, Math.hypot((ab[0].sx + ab[1].sx) / 2 - fx, (ab[0].sy + ab[1].sy) / 2 - fy)])
+      .sort((x, y) => x[1] - y[1]).slice(0, linkMax); // (in a crowd only so many are drawn; every one still counts)
+    if (!calmMood) for (const [[a, b]] of links) {
       const mx = (a.sx + b.sx) / 2, my = (a.sy + b.sy) / 2 + 3 + Math.sin(now / 300 + a.seed) * 2;
       c.beginPath();
       c.moveTo(a.sx, a.sy + a.size * 0.15); c.quadraticCurveTo((a.sx + mx) / 2, my + 8, mx - 3, my);
@@ -2585,7 +2586,7 @@
       case 'poke': {
         setTally(m.tally);
         if (me && m.from === me.id) break;
-        capPush(hearts, { v: vec(m.lat, m.lon), born: now, gen: 0, max: 0.8, seen: new Set([m.from]), hue: rand(300, 360) }, 14);
+        capPush(hearts, { v: vec(m.lat, m.lon), born: now, gen: 0, max: 0.8, seen: new Set([m.from]), hue: rand(300, 360) }, peers.size + 1 > 12 ? 4 : 14);
         tone.poke();
         break;
       }
@@ -2790,7 +2791,7 @@
   cv.addEventListener('pointerleave', () => { if (!pointer.down) { pointer.seen = false; showTip(null); } });
 
   function heartsAt(v, from) {
-    capPush(hearts, { v, born: performance.now(), gen: 0, max: 0.8, seen: new Set([from || '']), hue: rand(300, 360) }, 14);
+    capPush(hearts, { v, born: performance.now(), gen: 0, max: 0.8, seen: new Set([from || '']), hue: rand(300, 360) }, peers.size + 1 > 12 ? 4 : 14);
     tone.poke();
   }
 
