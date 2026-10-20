@@ -3014,7 +3014,7 @@
     if (!intro.woke) return;
     const d = new Date(), t = Date.now();
     const at = (h, m = 0) => new Date(d.getFullYear(), d.getMonth(), d.getDate(), h, m).getTime();
-    const breathLen = BREATH_CYCLE * BREATH_TIMES, singLen = HUM.reduce((x, s) => x + s[2], 0);
+    const breathLen = BREATH_CYCLE * BREATH_TIMES + BREATH_REST, singLen = HUM.reduce((x, s) => x + s[2], 0);
     if (d.getDay() === SING_DAY) {
       const s = at(SING_HOUR);
       if (t >= s - 60000 && t < s && warned !== s) { warned = s; whisper(mic.on ? 'in a minute, planet scorsby will sing. set a loving intention, and hum along.' : "in a minute, planet scorsby will sing. tap sing now if you'd like scorsby to hear you hum along.", 7000, true); }
@@ -3030,12 +3030,13 @@
 
   // breathing: the world fills like a lung. in for four, hold for four, out for six, rest for two. three times.
   const BREATH = [['breathe in', 4000], ['hold', 4000], ['breathe out', 6000], ['rest', 2000]];
-  const BREATH_CYCLE = 16000, BREATH_TIMES = 3;
+  const BREATH_CYCLE = 16000, BREATH_TIMES = 3, BREATH_REST = 18000; // and then a quiet, still moment, like after the song
   const breath = { at: 0, phase: -1 };
   function breathNow(now) {
     if (!breath.at || now < breath.at) return null;
     const t = now - breath.at;
-    if (t >= BREATH_CYCLE * BREATH_TIMES) return { done: true };
+    if (t >= BREATH_CYCLE * BREATH_TIMES + BREATH_REST) return { done: true };
+    if (t >= BREATH_CYCLE * BREATH_TIMES) return { phase: 4, k: 0, fill: 0, cycle: BREATH_TIMES }; // the stillness after
     let u = t % BREATH_CYCLE, phase = 0;
     while (u >= BREATH[phase][1]) { u -= BREATH[phase][1]; phase++; }
     const k = u / BREATH[phase][1];
@@ -3046,7 +3047,7 @@
   function startBreath(clockAt = Date.now()) {
     if (hum.at) endHum(true);
     breath.at = performance.now() - (Date.now() - clockAt) + 3000; breath.phase = -1;
-    calmMood = 'sleepy'; setMood('sleepy', BREATH_CYCLE * BREATH_TIMES + 3000);
+    calmMood = 'sleepy'; setMood('sleepy', BREATH_CYCLE * BREATH_TIMES + BREATH_REST + 3000);
     zoom.target = 1; zoom.aim = null;
     closeWindows(); ritualSay('remember who you are.', 3000);
   }
@@ -3091,10 +3092,11 @@
       } else {
         if (b.phase !== breath.phase) {
           breath.phase = b.phase;
-          if (b.phase !== 3) ritualSay(b.phase === 0 && b.cycle === BREATH_TIMES - 1 ? 'one last time. breathe in' : BREATH[b.phase][0], BREATH[b.phase][1] - 200);
+          if (b.phase === 4) ritualSay('rest here in the stillness.', 6000);
+          else if (b.phase !== 3) ritualSay(b.phase === 0 && b.cycle === BREATH_TIMES - 1 ? 'one last time. breathe in' : BREATH[b.phase][0], BREATH[b.phase][1] - 200);
         }
         // a soft tone that rises as you breathe in and falls as you breathe out
-        if (b.phase === 3) voices.hush('guide');
+        if (b.phase >= 3) voices.hush('guide');
         else voices.sing('guide', 130.8 * (1 + 0.5 * b.fill), 0.18 + 0.3 * b.fill, CX, 0.4);
       }
     }
