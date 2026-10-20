@@ -75,6 +75,7 @@
   let c = cv.getContext('2d'); // let: the plant icons borrow the same drawing code for a moment
   let quality = 2; // 2 full detail, 1 lighter, 0 lightest: it steps down by itself on a slow device
   let VW = 0, VH = 0, DPR = 1, baseR = 100, R = 100, L = 1, CX = 0, CY = 0, small = false;
+  let faceFadeFrom = 1.02; // the zoom at which the world's face starts to fade, to let the land show through
   const zoom = { v: 1, target: 1, aim: null };
 
   // waking up: at first there is only the sleeping world and the welcome. then it wakes, and everything else arrives.
@@ -138,7 +139,6 @@
   if (topBar) { underTop(); if (window.ResizeObserver) new ResizeObserver(underTop).observe(topBar); }
 
   // the planet is as big as the screen allows, but its ears stay clear of the whisper's first lines
-  let faceFadeFrom = 1.02; // the zoom at which the world's face starts to fade, to let the land show through
   function fitPlanet() {
     if (!VW || !VH) return;
     baseR = Math.min(VW * (small ? 0.38 : 0.24), VH * 0.25); // the room check below keeps it clear of the whisper
