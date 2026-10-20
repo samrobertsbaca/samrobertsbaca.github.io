@@ -435,8 +435,8 @@
       }
       case 'eye': {
         c.beginPath(); c.moveTo(x - s * 0.5, y); c.quadraticCurveTo(x, y - s * 0.45, x + s * 0.5, y); c.quadraticCurveTo(x, y + s * 0.45, x - s * 0.5, y);
-        c.fillStyle = '#ffffff'; c.fill(); c.stroke(); // white, with a black pupil
-        c.beginPath(); c.arc(x + Math.sin(now / 1500 + seed) * s * 0.12, y, s * 0.13, 0, TAU); c.fillStyle = DARK; c.fill();
+        c.fillStyle = T.paper; c.fill(); c.stroke(); // plain inside, with a dark pupil
+        c.beginPath(); c.arc(x + Math.sin(now / 1500 + seed) * s * 0.12, y, s * 0.13, 0, TAU); c.fillStyle = charInk(); c.fill();
         break;
       }
       case 'cactus': {
@@ -2324,6 +2324,7 @@
     }
   }
 
+  const rainLine = () => (T === THEMES.night ? DARK : ink()); // (black at night, like the little characters)
   function renderRain(now, dt) {
     for (let i = raining.length - 1; i >= 0; i--) {
       const h = raining[i];
@@ -2333,12 +2334,12 @@
       const x = h.x + Math.sin(h.sw) * (h.gold ? 3 : 14);
       if (h.gold) {
         c.beginPath(); c.moveTo(x, h.y - h.s * 1.6); c.quadraticCurveTo(x + h.s, h.y, x, h.y + h.s * 0.8); c.quadraticCurveTo(x - h.s, h.y, x, h.y - h.s * 1.6);
-        c.fillStyle = '#ffc93c'; c.fill(); c.lineWidth = 1; c.strokeStyle = ink(); c.stroke();
+        c.fillStyle = '#ffc93c'; c.fill(); c.lineWidth = 1; c.strokeStyle = rainLine(); c.stroke();
         continue;
       }
       heartPath(x, h.y, h.s * 0.5);
       c.fillStyle = `hsla(${(h.x * 0.5) % 60 + 320},90%,65%,0.9)`; c.fill();
-      c.lineWidth = 1.1; c.strokeStyle = ink(); c.stroke();
+      c.lineWidth = 1.1; c.strokeStyle = rainLine(); c.stroke();
     }
   }
 
