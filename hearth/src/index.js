@@ -17,6 +17,13 @@
 // (with the time they asked) in a small database until they ask to be taken off.
 // a quiet check that they're a person (cloudflare turnstile) comes first.
 //
+// if very many people come at once, the world quietly overflows into more hearths:
+// past 300 scorsbys, half of them (one side of the globe) move together to a new
+// hearth, so every hearth stays full and lively, and as people go home the hearths
+// fold back together. a small lobby sends each newcomer to the hearth with the fewest, and
+// keeps what everyone shares: the love counted each day, the noticing garden, and how
+// many scorsbys are here in all. to everyone it's still one world.
+//
 // no ip addresses are kept. your location is rounded to about 100 km and
 // jittered before anyone else sees it. your voice never arrives here:
 // only its pitch and loudness.
@@ -37,6 +44,10 @@ function consonant(a, b) {
   return INTERVALS.some((x) => Math.abs(r - x) / x < 0.03);
 }
 const MAX_HERE = 400;
+const ROOMY = 300; // past this many in every hearth, the fullest splits in half
+const PRIME = 'heartstar-prime'; // the first hearth, with all the history from before there were more
+const worldName = (i) => (i === 0 ? PRIME : `heartstar-${i}`);
+const WORLD = /^heartstar-(prime|[1-9]\d{0,2})$/;
 const MAX_TRAILS = 500;
 const MAX_MARKS = 300;
 
@@ -231,6 +242,9 @@ async function subscribe(request, env) {
   return reply(200, { ok: true });
 }
 
+const lobby = (env) => env.LOBBY.get(env.LOBBY.idFromName('lobby'));
+let picked = null; // this worker's last answer from the lobby
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -248,10 +262,131 @@ export default {
 
     const headers = new Headers(request.headers);
     headers.set('x-heart-at', at.join(','));
-    const stub = env.HEARTH.get(env.HEARTH.idFromName('heartstar-prime'));
+    let world = PRIME;
+    const now = Date.now();
+    const sent = url.searchParams.get('w');
+    if (sent && WORLD.test(sent)) { world = sent; headers.set('x-moved', '1'); }
+    else if (picked && picked.alone && now - picked.at < 10000 && picked.n < ROOMY - 50) { world = picked.world; picked.n++; } // (while there's only one hearth)
+    else {
+      try { const r = await lobby(env).pick(); world = r.world; picked = { world, n: r.n, alone: r.alone, at: now }; }
+      catch (e) { console.warn('lobby could not be asked:', e?.message); } // then everyone goes to the first hearth, as before
+    }
+    headers.set('x-world', world);
+    const stub = env.HEARTH.get(env.HEARTH.idFromName(world));
     return stub.fetch(new Request(request.url, { headers }));
   },
 };
+
+// ------------------------------------------------------------------ the lobby
+// where newcomers are sent, and what all the hearths share
+export class Lobby extends DurableObject {
+  constructor(ctx, env) {
+    super(ctx, env);
+    this.worlds = null; // [{ n, at }], by number. how many are in each hearth, as they last said
+    this.tally = null;
+    this.noticed = null;
+    this.lastSave = 0;
+    this.many = false; // whether the hearths were last told there's more than one of them
+  }
+
+  async ready() {
+    if (this.worlds) return;
+    this.worlds = (await this.ctx.storage.get('worlds')) || [];
+    this.tally = await this.ctx.storage.get('tally');
+    this.noticed = (await this.ctx.storage.get('noticed')) || [];
+    if (!this.tally) {
+      // the very first time: the love and garden counted so far live in the first hearth
+      let old = null;
+      try { old = await this.env.HEARTH.get(this.env.HEARTH.idFromName(PRIME)).history(); } catch {}
+      this.tally = old?.tally || { days: {}, best: { day: '', n: 0 }, recordAt: 0 };
+      this.noticed = old?.noticed || [];
+      await this.ctx.storage.put({ tally: this.tally, noticed: this.noticed });
+    }
+  }
+
+  // how many are in a hearth (one that hasn't said anything for three minutes has nobody left: busy ones speak up every couple of minutes)
+  count(i, now = Date.now()) { const w = this.worlds[i]; return w && now - w.at < 3 * 60 * 1000 ? w.n : 0; }
+  total() { let n = 0; for (let i = 0; i < this.worlds.length; i++) n += this.count(i); return n; }
+
+  // the hearths with anyone in them
+  live() { const out = []; for (let i = 0; i < this.worlds.length; i++) if (this.count(i)) out.push(i); return out; }
+
+  // a newcomer goes to whichever hearth has the fewest, so they stay about even. (new hearths are opened by
+  // splitting a full one, below, so nobody ever arrives to an empty world while others are full.)
+  async pick() {
+    await this.ready();
+    const live = this.live();
+    let i = live[0] ?? 0;
+    for (const k of live) if (this.count(k) < this.count(i)) i = k;
+    const n = this.count(i) + 1;
+    this.worlds[i] = { n, at: Date.now() }; // counted now, so a rush of arrivals doesn't overfill it
+    return { world: worldName(i), n, alone: live.length <= 1 };
+  }
+
+  // past ROOMY in every hearth, the fullest one splits in half into a new hearth. when there are few enough that
+  // one fewer hearth would hold everyone comfortably, the emptiest one joins another.
+  balance(now) {
+    if (now < (this.movingUntil || 0)) return; // (a move is still on its way)
+    const live = this.live(), total = this.total(), k = Math.max(1, live.length);
+    const byCount = [...live].sort((a, b) => this.count(a) - this.count(b));
+    let from, to, n;
+    if (total > ROOMY * k && live.length) {
+      from = byCount[byCount.length - 1];
+      to = 0; while (this.count(to)) to++;
+      n = Math.floor(this.count(from) / 2);
+    } else if (live.length >= 2 && total < ROOMY * (k - 1) * 0.75) {
+      [from, to] = byCount;
+      n = MAX_HERE;
+    } else return;
+    this.movingUntil = now + 30000;
+    this.worlds[to] = { n: this.count(to) + Math.min(n, this.count(from)), at: now };
+    this.worlds[from] = { n: Math.max(0, this.count(from) - n), at: now };
+    this.env.HEARTH.get(this.env.HEARTH.idFromName(worldName(from))).part(worldName(to), n).catch((e) => console.warn('could not part:', e?.message));
+  }
+
+  // a hearth says how many are there and how much love they've shared since it last said, and hears back
+  // what everyone shares
+  async sync(world, n, love = 0, noticed = 0) {
+    await this.ready();
+    const now = Date.now();
+    const i = world === PRIME ? 0 : Number(String(world).split('-')[1]);
+    if (Number.isInteger(i) && i >= 0 && i < 1000) this.worlds[i] = { n: clamp(n | 0, 0, MAX_HERE), at: now };
+    while (this.worlds.length && !this.count(this.worlds.length - 1)) this.worlds.pop(); // empty hearths at the end are forgotten
+    const t = this.tally, d = today();
+    love = clamp(love | 0, 0, 100000);
+    if (love) {
+      t.days[d] = (t.days[d] || 0) + love;
+      if (t.days[d] > t.best.n) {
+        if (t.best.day !== d && t.best.n > 0) t.recordAt = now; // the moment today passes the old record
+        t.best = { day: d, n: t.days[d] };
+      }
+      const keys = Object.keys(t.days).sort();
+      while (keys.length > 90) delete t.days[keys.shift()];
+    }
+    this.noticed = this.noticed.filter((x) => now - x < DAY);
+    for (let k = 0; k < clamp(noticed | 0, 0, 1000) && this.noticed.length < 5000; k++) this.noticed.push(now);
+    if (noticed || (love && now - this.lastSave > 4000) || t.recordAt === now) {
+      this.lastSave = now;
+      await this.ctx.storage.put({ tally: t, noticed: this.noticed, worlds: this.worlds });
+    } else if (!love) await this.ctx.storage.put('worlds', this.worlds);
+    this.balance(now);
+    // while there's more than one hearth, every one of them hears what changed within a few seconds
+    if ((this.worlds.length > 1 || this.many) && (await this.ctx.storage.getAlarm()) == null) await this.ctx.storage.setAlarm(now + 3000);
+    return this.status();
+  }
+
+  status() {
+    const t = this.tally, d = today();
+    return { day: d, today: t.days[d] || 0, best: t.best, recordAt: t.recordAt || 0, garden: this.noticed.length, total: this.total() };
+  }
+
+  async alarm() {
+    await this.ready();
+    const sh = this.status();
+    this.many = this.worlds.length > 1;
+    await Promise.all(this.worlds.map((w, i) => (this.count(i) ? this.env.HEARTH.get(this.env.HEARTH.idFromName(worldName(i))).hear(sh).catch(() => {}) : null)));
+  }
+}
 
 export class Hearth extends DurableObject {
   constructor(ctx, env) {
@@ -263,8 +398,13 @@ export class Hearth extends DurableObject {
     this.lastTogether = 0;
     this.trails = null;
     this.marks = null;
-    this.tally = null;
+    this.tally = null; // (only the first hearth's, from before the lobby)
     this.lastSave = 0;
+    this.world = null; // which hearth this is
+    this.shared = null; // what the lobby last said: today's love, the hi-score, the garden, how many in all
+    this.unsent = { love: 0, noticed: 0 };
+    this.lastSync = 0;
+    this.toldElsewhere = 0;
     // keepalives are answered without waking anyone up
     ctx.setWebSocketAutoResponse(new WebSocketRequestResponsePair('ping', 'pong'));
   }
@@ -283,28 +423,80 @@ export class Hearth extends DurableObject {
     await this.ctx.storage.put(key, list);
   }
 
-  // how much love was shared, day by day (albuquerque days)
+  // the love and garden counted before there was a lobby (it asks for them once)
+  async history() {
+    return { tally: await this.loadTally(), noticed: (await this.load('noticed', DAY)).map((x) => x.t) };
+  }
+
+  async whoAmI() {
+    if (!this.world) this.world = (await this.ctx.storage.get('world')) || PRIME;
+    return this.world;
+  }
+
+  // tell the lobby what happened here, and hear what everyone shares. if it can't be reached, the world goes on
+  // with what it last heard.
+  async sync() {
+    const send = this.unsent;
+    this.unsent = { love: 0, noticed: 0 };
+    this.lastSync = Date.now();
+    const before = this.shared;
+    try {
+      this.shared = await lobby(this.env).sync(await this.whoAmI(), this.open(), send.love, send.noticed);
+    } catch (e) {
+      console.warn('lobby could not be reached:', e?.message);
+      this.unsent.love += send.love; this.unsent.noticed += send.noticed; // try again next time
+      return false;
+    }
+    this.tell(before, send.love);
+    const sh = this.shared;
+    return before && sh.recordAt !== before.recordAt && Date.now() - sh.recordAt < 60000; // a new hi-score, just now
+  }
+  // the lobby asks this hearth to send n of its scorsbys to another one. those on one side of the globe go together,
+  // so neighbors stay neighbors. everyone else is told, so their going is quiet.
+  async part(world, n) {
+    const open = this.ctx.getWebSockets().filter((w) => w.readyState === 1)
+      .map((ws) => [ws, ws.deserializeAttachment()]).filter(([, p]) => p).sort((a, b) => a[1].lon - b[1].lon);
+    const going = open.slice(0, n);
+    this.broadcast({ t: 'parting' });
+    for (const [ws, p] of going) { p.going = true; ws.serializeAttachment(p); this.send(ws, { t: 'go', w: world }); }
+  }
+  // the lobby, with news from the other hearths
+  async hear(sh) {
+    const before = this.shared;
+    this.shared = sh;
+    this.tell(before, 0);
+  }
+  // news from the other hearths, for everyone here
+  tell(before, sentLove) {
+    const sh = this.shared, elsewhere = this.elsewhere();
+    if (before && sh.garden !== before.garden) this.broadcast({ t: 'garden', n: this.garden() });
+    if (before && sh.day === before.day && sh.today > before.today + sentLove) this.broadcast({ t: 'tally', tally: this.tallyNow() }); // love from the others
+    if (elsewhere !== this.toldElsewhere) { this.toldElsewhere = elsewhere; this.broadcast({ t: 'elsewhere', n: elsewhere }); }
+  }
+  // scorsbys in the other hearths
+  elsewhere() { return this.shared ? Math.max(0, this.shared.total - this.open()) : 0; }
+  // how many are here (not counting anyone on their way out, or moving to another hearth)
+  open() { return this.ctx.getWebSockets().filter((w) => w.readyState === 1 && !w.deserializeAttachment()?.going).length; }
+
+  // how much love was shared, day by day (albuquerque days). counted by the lobby for all the hearths together;
+  // what's shared here is told to it every couple of seconds.
+  async love(n) {
+    this.unsent.love += n;
+    let record = false;
+    if (!this.shared || Date.now() - this.lastSync > 2000) record = await this.sync();
+    return { ...this.tallyNow(), record };
+  }
+  tallyNow() {
+    const sh = this.shared;
+    if (!sh) return { today: this.unsent.love, best: { day: '', n: 0 } };
+    const today_ = (sh.day === today() ? sh.today : 0) + this.unsent.love;
+    return { today: today_, best: today_ > sh.best.n ? { day: today(), n: today_ } : sh.best };
+  }
+  garden() { return (this.shared?.garden || 0) + this.unsent.noticed; }
+
   async loadTally() {
     if (!this.tally) this.tally = (await this.ctx.storage.get('tally')) || { days: {}, best: { day: '', n: 0 } };
     return this.tally;
-  }
-  async love(n) {
-    const t = await this.loadTally();
-    const d = today();
-    t.days[d] = (t.days[d] || 0) + n;
-    let record = false;
-    if (t.days[d] > t.best.n) {
-      record = t.best.day !== d && t.best.n > 0; // announced once, the moment today passes the old record
-      t.best = { day: d, n: t.days[d] };
-    }
-    const keys = Object.keys(t.days).sort();
-    while (keys.length > 90) delete t.days[keys.shift()];
-    if (Date.now() - this.lastSave > 4000 || record) { this.lastSave = Date.now(); await this.ctx.storage.put('tally', t); }
-    return { today: t.days[d], best: t.best, record };
-  }
-  async tallyNow() {
-    const t = await this.loadTally();
-    return { today: t.days[today()] || 0, best: t.best };
   }
 
   here() {
@@ -346,13 +538,16 @@ export class Hearth extends DurableObject {
     this.ctx.acceptWebSocket(server);
     server.serializeAttachment(me);
 
+    const world = request.headers.get('x-world');
+    if (world && world !== this.world) { this.world = world; await this.ctx.storage.put('world', world); }
+    // the lobby hears about arrivals right away when it's been a little while, or when this hearth is getting full
+    if (!this.shared || Date.now() - this.lastSync > 5000 || this.ctx.getWebSockets().length >= ROOMY - 50) await this.sync();
     const trails = await this.load('trails', DAY);
     const marks = await this.load('marks', MARK_LIFE);
-    const tally = await this.tallyNow();
-    const garden = (await this.load('noticed', DAY)).length;
+    const tally = this.tallyNow();
     const others = this.here().filter((p) => p.id !== me.id);
-    this.send(server, { t: 'hello', you: me, here: others, trails, marks, tally, garden });
-    this.broadcast({ t: 'join', p: me }, server);
+    this.send(server, { t: 'hello', you: me, here: others, trails, marks, tally, garden: this.garden(), elsewhere: this.elsewhere() });
+    this.broadcast({ t: 'join', p: me, moved: request.headers.has('x-moved') || undefined }, server);
     if ((await this.ctx.storage.getAlarm()) == null) await this.ctx.storage.setAlarm(Date.now() + 30000 + Math.random() * 45000);
     return new Response(null, { status: 101, webSocket: client });
   }
@@ -473,8 +668,9 @@ export class Hearth extends DurableObject {
         // only the moment is kept (no name, no place), and each visit counts once.
         if (me.noticed) return;
         me.noticed = true; ws.serializeAttachment(me);
-        await this.remember('noticed', { t: Date.now() }, DAY, 5000);
-        this.broadcast({ t: 'garden', n: this.noticed.length });
+        this.unsent.noticed++;
+        this.broadcast({ t: 'garden', n: this.garden() });
+        if (Date.now() - this.lastSync > 2000) await this.sync();
         break;
       }
       case 'mark': {
@@ -489,14 +685,19 @@ export class Hearth extends DurableObject {
 
   // every minute or two, while anyone is here, something strange happens
   async alarm() {
-    if (!this.ctx.getWebSockets().length) return; // nobody here. no omens. no alarm.
+    await this.sync();
+    if (!this.open()) return; // nobody here. no omens. no alarm.
+    const next = (await this.ctx.storage.get('nextOmen')) || 0;
+    if (Date.now() < next) return this.ctx.storage.setAlarm(next); // (woken early, only to tell the lobby who left)
     const last = await this.ctx.storage.get('lastOmen');
     const choices = OMENS.filter((o) => o !== last);
     const k = choices[Math.floor(Math.random() * choices.length)];
     await this.ctx.storage.put('lastOmen', k);
     this.broadcast({ t: 'omen', k, seed: Math.floor(Math.random() * 1e6) });
     await this.echo();
-    await this.ctx.storage.setAlarm(Date.now() + 60000 + Math.random() * 90000);
+    const at = Date.now() + 60000 + Math.random() * 90000;
+    await this.ctx.storage.put('nextOmen', at);
+    await this.ctx.storage.setAlarm(at);
   }
 
   // when only one or two scorsbys are here, sometimes a kind message from earlier is heard again
@@ -513,10 +714,10 @@ export class Hearth extends DurableObject {
     this.broadcast({ t: 'echo', text: m.text, n: m.n, at: m.t });
   }
 
-  async webSocketClose(ws) { this.leave(ws); }
-  async webSocketError(ws) { this.leave(ws); }
+  async webSocketClose(ws) { await this.leave(ws); }
+  async webSocketError(ws) { await this.leave(ws); }
 
-  leave(ws) {
+  async leave(ws) {
     const me = ws.deserializeAttachment();
     try { ws.close(1000, 'goodbye'); } catch {}
     if (!me) return;
@@ -524,5 +725,14 @@ export class Hearth extends DurableObject {
     this.singers.delete(me.id);
     for (const k of this.pairs) if (k.split('|').includes(me.id)) this.pairs.delete(k);
     this.broadcast({ t: 'leave', id: me.id }, ws);
+    // the lobby hears soon: right away if this hearth was nearly full or it's been a while, otherwise in a few seconds
+    // (when many leave at once, the last one out may still see the others on their way)
+    const left = this.open();
+    if (left >= ROOMY - 50 || Date.now() - this.lastSync > 5000) return this.sync();
+    const at = await this.ctx.storage.getAlarm(), soon = Date.now() + 6000;
+    if (at == null || at > soon) {
+      if (at != null) await this.ctx.storage.put('nextOmen', at);
+      await this.ctx.storage.setAlarm(soon);
+    }
   }
 }

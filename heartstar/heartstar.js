@@ -706,7 +706,7 @@
   const hearts = [];     // contagious ripples of hearts
   const bursts = [];     // big love effects in the sky
   const sky = [], pops = [], raining = [];
-  let marks = [], trails = [], tally = null;
+  let marks = [], trails = [], tally = null, elsewhere = 0, quietLeaves = 0;
   let loveWash = 0;
   let goldFlash = 0;
   let stormNow = 0;     // tap sunsby and everything flashes gold      // the paper blushes with color for a moment
@@ -2466,7 +2466,7 @@
     const n = crowd();
     document.getElementById('here').textContent =
       !net.live ? (dreaming ? `dreaming of ${peers.size} scorsbys` : 'the hearth is resting') :
-      n <= 1 ? 'you are the only scorsby here' : `${n} scorsbys here`;
+      n + elsewhere <= 1 ? 'you are the only scorsby here' : `${(n + elsewhere).toLocaleString()} scorsbys here`;
     const el = document.getElementById('today');
     if (tally) {
       el.textContent = `love today ♥ ${tally.today.toLocaleString()}`;
@@ -2508,7 +2508,7 @@
   setInterval(tick, 1000); tick();
 
   // ------------------------------------------------------------------ the hearth
-  const net = { ws: null, live: false, tries: 0, url: '' };
+  const net = { ws: null, live: false, tries: 0, url: '', world: '', moving: false };
   const meta = document.querySelector('meta[name="hearth"]')?.content.trim();
   const local = ['localhost', '127.0.0.1'].includes(location.hostname);
   // where the hearth is: named in the page, or local development, or (served by the hearth worker itself) right here
@@ -2519,11 +2519,18 @@
   function connect() {
     if (!net.url) return alone();
     let ws;
-    try { ws = new WebSocket(`${net.url}?tz=${-new Date().getTimezoneOffset()}&c=${encodeURIComponent(myColor)}&n=${encodeURIComponent(myName)}`); } catch { return alone(); }
+    try { ws = new WebSocket(`${net.url}?tz=${-new Date().getTimezoneOffset()}&c=${encodeURIComponent(myColor)}&n=${encodeURIComponent(myName)}${net.world ? '&w=' + encodeURIComponent(net.world) : ''}`); } catch { return alone(); }
     net.ws = ws;
     ws.onopen = () => { net.live = true; net.tries = 0; updatePresence(); };
     ws.onmessage = (e) => { try { receive(JSON.parse(e.data)); } catch (err) { console.warn(err); } };
     ws.onclose = () => {
+      if (net.moving) {
+        // moving to another part of the world (it got very full): the others here fade away, and we go on
+        net.live = false; net.ws = null;
+        const now = performance.now();
+        for (const [id, s] of peers) if (!id.startsWith('dream')) { s.leaving = now; voices.hush(id); setTimeout(() => peers.get(id) === s && peers.delete(id), 900); }
+        return connect();
+      }
       const was = net.live;
       net.live = false; net.ws = null;
       for (const id of [...peers.keys()]) if (!id.startsWith('dream')) peers.delete(id);
@@ -2566,11 +2573,14 @@
       case 'hello': {
         const old = me;
         me = scorsby(m.you, true);
+        if (net.moving && old) { place(me, old.lat, old.lon); me.c = old.c; send({ t: 'move', lat: me.lat, lon: me.lon }); } // still right where you were
+        net.moving = false; net.world = '';
         for (const p of m.here) peers.set(p.id, scorsby(p));
         trails = m.trails || [];
         marks = []; (m.marks || []).forEach(addMark);
         setTally(m.tally);
         gardenN = m.garden || 0;
+        elsewhere = m.elsewhere || 0;
         if (!old) faceToward(me);
         updatePresence();
         if (!old) welcome();
@@ -2580,6 +2590,7 @@
         const s = scorsby(m.p);
         peers.set(s.id, s);
         updatePresence();
+        if (m.moved) break; // (scorsbys from another part of the world, joining this one: they arrive quietly)
         earPerk = now + 1400;
         if (othersMood(now)) { setMood('o', 1200); setTimeout(() => setMood('grin', 2500), 1200); }
         whisper(`${nameOf(s)} arrived on the ${side(s.v)} side.`, 3800, false);
@@ -2592,7 +2603,7 @@
         s.leaving = now;
         voices.hush(m.id);
         setTimeout(() => { peers.delete(m.id); updatePresence(); }, 900);
-        whisper(`${nameOf(s)} went home.`, 3000, false);
+        if (now > quietLeaves) whisper(`${nameOf(s)} went home.`, 3000, false);
         break;
       }
       case 'move': { const s = peers.get(m.id); if (s) place(s, m.lat, m.lon); break; }
@@ -2613,6 +2624,10 @@
       }
       case 'mark': planted(m); break;
       case 'garden': gardenN = m.n || 0; break;
+      case 'elsewhere': elsewhere = m.n || 0; updatePresence(); break;
+      // the world is very full, so some scorsbys are moving to another part of it: you, or others
+      case 'go': net.world = m.w; net.moving = true; net.ws?.close(); break;
+      case 'parting': quietLeaves = now + 15000; break;
       case 'unmarked': whisper(`your ${lastPlanted || 'plant'} needs a moment to take root. try again in a few seconds.`, 3600); break;
       case 'omen': startOmen(m.k, m.seed); break;
       case 'say': {
@@ -2668,8 +2683,7 @@
         const s = peers.get(m.id);
         if (!s || (calmMood && !hum.at)) break; // while the world breathes, other voices wait
         if (!s.singTarget) whisper(`${nameOf(s)} is singing.`, 3200, false);
-        s.singTarget = m.a; s.freq = m.f; s.lastSing = now;
-        voices.sing(m.id, m.f, m.a, s.sx);
+        s.singTarget = m.a; s.freq = m.f; s.lastSing = now; // (heard through the chorus, below)
         break;
       }
       case 'hush': { const s = peers.get(m.id); if (s) s.singTarget = 0; voices.hush(m.id); break; }
@@ -3512,6 +3526,49 @@
       },
     };
   })();
+
+  // ------------------------------------------------------------------ the chorus
+  // each singer near you (and the loudest) has their own voice, as many as this device sings well. everyone beyond
+  // that joins a few soft chorus voices on the notes most of them are singing, so a whole world can sing together.
+  const solo = new Set();
+  const CHORUS = 3;
+  function mixVoices() {
+    const now = performance.now();
+    const singing = [];
+    if (!(calmMood && !hum.at)) for (const s of peers.values()) {
+      if (s.leaving || !s.freq || !(s.singTarget > 0) || now - s.lastSing > 600) continue;
+      const near = me ? 1.6 - Math.min(1.4, angle(s.v, me.v)) : 1; // nearer on the world sounds closer
+      singing.push([s, s.singTarget * near * (s.sz > 0 ? 1 : 0.6)]);
+    }
+    singing.sort((x, y) => y[1] - x[1]);
+    const room = [10, 16, 24][quality] ?? 10;
+    const heard = new Set();
+    for (const [s] of singing.slice(0, room)) { heard.add(s.id); voices.sing(s.id, s.freq, s.singTarget, s.sx); }
+    for (const id of solo) if (!heard.has(id)) voices.hush(id);
+    solo.clear(); for (const id of heard) solo.add(id);
+    // the rest, gathered by note (any octave), the most sung notes first
+    const notes = new Map();
+    for (const [s] of singing.slice(room)) {
+      const semi = Math.round(12 * Math.log2(s.freq / HUM_ROOT)), pc = ((semi % 12) + 12) % 12;
+      const nt = notes.get(pc) || { pc, w: 0, n: 0, semi: 0, a: 0, x: 0 };
+      nt.w += s.singTarget; nt.n++; nt.semi += semi * s.singTarget; nt.a += s.singTarget; nt.x += s.sx;
+      notes.set(pc, nt);
+    }
+    const top = [...notes.values()].sort((x, y) => y.w - x.w).slice(0, CHORUS);
+    for (let k = 0; k < CHORUS; k++) {
+      const nt = top[k];
+      if (!nt) { voices.hush('chorus' + k); voices.hush('chorus' + k + 'b'); continue; }
+      // the octave most of them sing it in, with that note's own pitch
+      const oct = Math.round((nt.semi / nt.w - nt.pc) / 12) * 12 + nt.pc;
+      const f = HUM_ROOT * Math.pow(2, oct / 12);
+      const a = Math.min(0.75, (nt.a / nt.n) * (0.35 + 0.18 * Math.log2(1 + nt.n))); // more voices, a fuller (never louder) sound
+      const x = clamp(nt.x / nt.n, CX - R * 0.5, CX + R * 0.5);
+      // two voices a breath apart in pitch, so it shimmers like many
+      voices.sing('chorus' + k, f * 1.004, a * 0.6, x - R * 0.25, 0.25);
+      voices.sing('chorus' + k + 'b', f / 1.004, a * 0.6, x + R * 0.25, 0.25);
+    }
+  }
+  setInterval(mixVoices, 120);
 
   // ------------------------------------------------------------------ singing
   const singBtn = document.getElementById('act-sing');

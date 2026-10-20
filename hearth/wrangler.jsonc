@@ -4,9 +4,9 @@
   "main": "src/index.js",
   "compatibility_date": "2025-09-01",
   "durable_objects": {
-    "bindings": [{ "name": "HEARTH", "class_name": "Hearth" }]
+    "bindings": [{ "name": "HEARTH", "class_name": "Hearth" }, { "name": "LOBBY", "class_name": "Lobby" }]
   },
-  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Hearth"] }],
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Hearth"] }, { "tag": "v2", "new_sqlite_classes": ["Lobby"] }],
   // a small language model checks that messages are kind before anyone sees them
   "ai": { "binding": "AI" },
   // the mailing list: names and emails of people who asked for letters
