@@ -618,6 +618,29 @@
   const MARKS = ['cactus', 'flower', 'tree', 'house', 'mushroom', 'heart', 'pyramid', 'eye', 'lips', 'head'];
 
   // the face, as drawn in /images/scorsbyface_big.png (and its blink)
+  // a crowd of faces is many curves to paint every frame, so each kind of face is drawn once into a little picture and
+  // stamped from then on (a new one is drawn only when its color, size, blink, hearts, song or gaze changes)
+  const faceSprites = new Map();
+  function drawFaceCached(cx, cy, size, o = {}) {
+    const q = Math.max(6, Math.round(size));
+    const look = [Math.round((o.look?.[0] || 0) * 3) / 3, Math.round((o.look?.[1] || 0) * 3) / 3];
+    const sing = Math.round((o.sing || 0) * 6) / 6;
+    // a rainbow scorsby's color shifts all the time: its hue is rounded so the pictures can be reused
+    const color = typeof o.color === 'string' && o.color.startsWith('hsl(') ? o.color.replace(/hsl\(([\d.]+)/, (m, h) => `hsl(${Math.round(h / 20) * 20}`) : o.color;
+    const key = `${q}|${color}|${o.nose || ''}|${o.ink || ''}|${o.lid ?? 1}|${o.hearts ? 1 : 0}|${sing}|${look}|${DPR}`;
+    let sp = faceSprites.get(key);
+    if (!sp) {
+      if (faceSprites.size > 500) faceSprites.clear();
+      const px = Math.ceil(q * 1.12 * DPR) + 4;
+      sp = document.createElement('canvas'); sp.width = sp.height = px;
+      const g = sp.getContext('2d'), main = c;
+      c = g;
+      try { g.setTransform(DPR, 0, 0, DPR, 0, 0); drawFace(px / 2 / DPR, px / 2 / DPR, q, { ...o, color, look, sing }); } finally { c = main; }
+      faceSprites.set(key, sp);
+    }
+    const w = (sp.width / DPR) * (size / q);
+    c.drawImage(sp, cx - w / 2, cy - w / 2, w, w);
+  }
   function drawFace(cx, cy, size, o = {}) {
     const s = size / 1900;
     const P = (x, y) => [cx + (x - 955) * s, cy + (y - 900) * s];
@@ -656,6 +679,8 @@
   const peers = new Map();
   let me = null;
   const waves = [];      // love for everyone, rolling around the planet as a rainbow
+  // however busy the world gets, only so many sparkles at once: past the limit, the oldest makes room for the new
+  const capPush = (arr, item, max) => { arr.push(item); if (arr.length > max) arr.splice(0, arr.length - max); };
   const hearts = [];     // contagious ripples of hearts
   const bursts = [];     // big love effects in the sky
   const sky = [], pops = [], raining = [];
@@ -1250,7 +1275,7 @@
     }
     // rainbow hearts flowing out from the world while the singing is in harmony: more of them, the more magical it gets
     songHeartDue += songMagic > 0.05 ? songMagic * 25 * dt / 1000 : 0; // up to about 25 a second, at full harmony
-    while (songHeartDue >= 1 && songHearts.length < 180) {
+    while (songHeartDue >= 1 && songHearts.length < 120) {
       songHeartDue--;
       songHearts.push({ a: rand(0, TAU), d: 1.02, v: rand(0.35, 0.75), r: rand(5, 13), hue: rand(0, 360), seed: rand(0, 99), born: now });
     }
@@ -1744,7 +1769,7 @@
         if (h.seen.has(s.id) || angle(s.v, h.v) > r) continue;
         h.seen.add(s.id);
         s.hearts = 1500;
-        if (h.gen < 2 && hearts.length < 40) hearts.push({ v: s.v, born: now, gen: h.gen + 1, max: 0.42, seen: new Set([...h.seen]), hue: h.hue + 40 });
+        if (h.gen < 2 && hearts.length < 14) hearts.push({ v: s.v, born: now, gen: h.gen + 1, max: 0.42, seen: new Set([...h.seen]), hue: h.hue + 40 });
       }
       const ref = Math.abs(h.v[2]) < 0.9 ? [0, 0, 1] : [0, 1, 0];
       const a = norm(cross(h.v, ref)), b = cross(h.v, a);
@@ -1873,7 +1898,7 @@
       }
       const ci = storm > 0.2 ? 8 : unison || s.c;
       const col = colorOf(ci, now, s.seed);
-      drawFace(s.sx, s.sy - s.size * 0.06, s.size, { lid, look: [s.lookX, s.lookY], hearts: s.hearts > 0, sing: s.sing, color: col, nose: ci !== 8 && reddish(col) ? '#00b4ff' : undefined });
+      drawFaceCached(s.sx, s.sy - s.size * 0.06, s.size, { lid, look: [s.lookX, s.lookY], hearts: s.hearts > 0, sing: s.sing, color: col, nose: ci !== 8 && reddish(col) ? '#00b4ff' : undefined });
       c.restore();
     }
     visible = list;
@@ -1886,13 +1911,13 @@
     setMood('hearts', 2600);
     const [fx, fy] = from || [CX, CY];
     // always: once the rainbow has rolled around the world, it keeps going, out across the universe
-    bursts.push({ k: 'rings', born: now + 1900, dur: 3400 });
+    capPush(bursts, { k: 'rings', born: now + 1900, dur: 3400 }, 4);
     // always: plus-sign sparkles all over
-    bursts.push({ k: 'sparkle', born: now, dur: 3000, parts: Array.from({ length: 60 }, () => ({ x: rand(0, VW), y: rand(0, VH), s: rand(4, 11), d: rand(0, 1400) })) });
+    capPush(bursts, { k: 'sparkle', born: now, dur: 3000, parts: Array.from({ length: 60 }, () => ({ x: rand(0, VW), y: rand(0, VH), s: rand(4, 11), d: rand(0, 1400) })) }, 4);
     // and one extra, different each time
-    if (v === 0 || v === 1) bursts.push({ k: 'fountain', born: now, dur: 3200, parts: Array.from({ length: 70 }, (_, i) => ({ x: fx, y: fy, vx: rand(-0.35, 0.35), vy: rand(-0.75, -0.3), s: rand(5, 12), h: i * 13 })) });
-    if (v === 2) bursts.push({ k: 'confetti', born: now, dur: 4200, parts: Array.from({ length: 36 }, () => { const a = rand(0, TAU); return { x: CX + Math.cos(a) * R * 1.05, y: CY + Math.sin(a) * R * 1.05, vx: Math.cos(a) * rand(0.05, 0.16), vy: Math.sin(a) * rand(0.05, 0.16) - 0.05, s: rand(14, 26), c: (Math.random() * 8) | 0, r: rand(-1, 1) }; }) });
-    if (v === 3) bursts.push({ k: 'angels', born: now, dur: 4500, parts: Array.from({ length: 12 }, (_, i) => { const a = (i / 12) * TAU + rand(-0.2, 0.2); return { x: CX + Math.cos(a) * R, y: CY + Math.sin(a) * R, vx: Math.cos(a) * rand(0.06, 0.12), vy: Math.sin(a) * rand(0.06, 0.12) - 0.03, s: rand(26, 40), seed: rand(0, 99) }; }) });
+    if (v === 0 || v === 1) capPush(bursts, { k: 'fountain', born: now, dur: 3200, parts: Array.from({ length: 70 }, (_, i) => ({ x: fx, y: fy, vx: rand(-0.35, 0.35), vy: rand(-0.75, -0.3), s: rand(5, 12), h: i * 13 })) }, 4);
+    if (v === 2) capPush(bursts, { k: 'confetti', born: now, dur: 4200, parts: Array.from({ length: 36 }, () => { const a = rand(0, TAU); return { x: CX + Math.cos(a) * R * 1.05, y: CY + Math.sin(a) * R * 1.05, vx: Math.cos(a) * rand(0.05, 0.16), vy: Math.sin(a) * rand(0.05, 0.16) - 0.05, s: rand(14, 26), c: (Math.random() * 8) | 0, r: rand(-1, 1) }; }) }, 4);
+    if (v === 3) capPush(bursts, { k: 'angels', born: now, dur: 4500, parts: Array.from({ length: 12 }, (_, i) => { const a = (i / 12) * TAU + rand(-0.2, 0.2); return { x: CX + Math.cos(a) * R, y: CY + Math.sin(a) * R, vx: Math.cos(a) * rand(0.06, 0.12), vy: Math.sin(a) * rand(0.06, 0.12) - 0.03, s: rand(26, 40), seed: rand(0, 99) }; }) }, 4);
   }
   const ease = (t) => 1 - Math.pow(1 - t, 3);
   function renderBursts(now, dt, front) {
@@ -1942,7 +1967,7 @@
           p.x += p.vx * dt; p.y += p.vy * dt; p.vy -= 0.00002 * dt;
           c.save(); c.globalAlpha = 1 - smooth(0.7, 1, k);
           c.translate(p.x, p.y); c.rotate(Math.sin(now / 300 + p.r * 5) * 0.4);
-          drawFace(0, 0, p.s, { color: colorOf(p.c, now, p.r), hearts: true });
+          drawFaceCached(0, 0, p.s, { color: colorOf(p.c, now, p.r), hearts: true });
           c.restore();
         }
       }
@@ -2353,7 +2378,7 @@
     if (!t) return;
     const day = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Denver' }).format(new Date());
     tally = { ...t, day };
-    if (t.record) { whisper(`a new hi-score for love! ♥ ${t.today.toLocaleString()} today.`, 5000, true, null, true); bursts.push({ k: 'rings', born: performance.now(), dur: 2800 }); }
+    if (t.record) { whisper(`a new hi-score for love! ♥ ${t.today.toLocaleString()} today.`, 5000, true, null, true); capPush(bursts, { k: 'rings', born: performance.now(), dur: 2800 }, 4); }
     updatePresence();
   }
 
@@ -2475,7 +2500,7 @@
       case 'poke': {
         setTally(m.tally);
         if (me && m.from === me.id) break;
-        hearts.push({ v: vec(m.lat, m.lon), born: now, gen: 0, max: 0.8, seen: new Set([m.from]), hue: rand(300, 360) });
+        capPush(hearts, { v: vec(m.lat, m.lon), born: now, gen: 0, max: 0.8, seen: new Set([m.from]), hue: rand(300, 360) }, 14);
         tone.poke();
         break;
       }
@@ -2500,7 +2525,7 @@
       case 'tally': {
         // singing earned some love: a heart pops out of whoever sang it
         setTally(m.tally);
-        for (const id of [m.from, m.with]) { if (!id) continue; const s = me && id === me.id ? me : peers.get(id); if (s) pointHearts.push({ s, born: now, together: m.together || m.hand, seed: Math.random() * 10 }); }
+        for (const id of [m.from, m.with]) { if (!id) continue; const s = me && id === me.id ? me : peers.get(id); if (s) capPush(pointHearts, { s, born: now, together: m.together || m.hand, seed: Math.random() * 10 }, 40); }
         if (m.hand && me && (m.from === me.id || m.with === me.id) && !singNoted.hand) { singNoted.hand = true; whisper('a new friend! every new hand you hold adds love. ♥', 3800, true, null, true); }
         if (m.hand) break;
         if (me && m.from === me.id && !singNoted.self) { singNoted.self = true; whisper('your singing adds to the love today. ♥', 3600, true, null, true); }
@@ -2529,7 +2554,7 @@
         setTally(m.tally);
         if ((me && m.from === me.id) || calmMood) break; // (counted, but quiet, while scorsby breathes or sings)
         const v = vec(...m.a);
-        waves.push({ v, born: now, radius: 0, seen: new Set() });
+        capPush(waves, { v, born: now, radius: 0, seen: new Set() }, 6);
         const from = peers.get(m.from);
         loveBurst(m.v ?? 0, from && from.sz > 0 ? [from.sx, from.sy] : null, now);
         whisper(`${from ? nameOf(from) : 'someone'} loves you.`, 4200, true, null, true);
@@ -2684,7 +2709,7 @@
   cv.addEventListener('pointerleave', () => { if (!pointer.down) { pointer.seen = false; showTip(null); } });
 
   function heartsAt(v, from) {
-    hearts.push({ v, born: performance.now(), gen: 0, max: 0.8, seen: new Set([from || '']), hue: rand(300, 360) });
+    capPush(hearts, { v, born: performance.now(), gen: 0, max: 0.8, seen: new Set([from || '']), hue: rand(300, 360) }, 14);
     tone.poke();
   }
 
@@ -2790,7 +2815,7 @@
     if (now - lastAll < 4000) return whisper('the last love is still spreading.', 2000);
     lastAll = now;
     const v = (Math.random() * 4) | 0;
-    waves.push({ v: me.v, born: now, radius: 0, seen: new Set() });
+    capPush(waves, { v: me.v, born: now, radius: 0, seen: new Set() }, 6);
     me.hearts = 2400;
     loveBurst(v, me.sz > 0 ? [me.sx, me.sy] : null, now);
     send({ t: 'all', v, h: me.hands || 0 }); // one point of love, and one more for every hand you are holding
@@ -3053,7 +3078,7 @@
     if (net.live) send({ t: 'noticed' });
     if (me) {
       me.hearts = 2400;
-      for (let i = 0; i < 3; i++) setTimeout(() => pointHearts.push({ s: me, born: performance.now(), together: true, seed: Math.random() * 10 }), i * 250);
+      for (let i = 0; i < 3; i++) setTimeout(() => capPush(pointHearts, { s: me, born: performance.now(), together: true, seed: Math.random() * 10 }, 40), i * 250);
     }
     tone.chime();
     whisper('one more rainbow flower is growing on the world. ♥', 4200);
@@ -3169,6 +3194,7 @@
         // each pretend singer picks a note from scorsby's chord (some an octave up or down), finds it, and wobbles a little
         for (const p of peers.values()) {
           if (!p.id.startsWith('dream') || !chord.length) continue;
+          if (+p.id.slice(5) >= (parseInt(params.get('choir'), 10) || 1e9)) continue; // ?choir=20: only the first twenty sing
           if (p.choirStep !== step) { p.choirStep = step; p.choirNote = pick(chord) + pick([-12, 0, 0, 0, 12]); p.choirFrom = now; p.choirOff = rand(-25, 25); p.choirMiss = rand(-300, 300); }
           if (now - (p.choirAt || 0) < 100) continue;
           p.choirAt = now;
@@ -3203,7 +3229,7 @@
       }
       const magic = wsum ? (csum / wsum) * Math.min(1, voicesNow / 5) : 0;
       hum.magic += (magic - hum.magic) * 0.02;
-      if (hum.close > 0.75 && me && now - hum.lastHeart > 1400) { hum.lastHeart = now; pointHearts.push({ s: me, born: now, together: true, seed: Math.random() * 10 }); }
+      if (hum.close > 0.75 && me && now - hum.lastHeart > 1400) { hum.lastHeart = now; capPush(pointHearts, { s: me, born: now, together: true, seed: Math.random() * 10 }, 40); }
     }
   }
   // a ring around the world: while breathing it swells with you; while humming it glows as your voice finds the note,
@@ -3526,7 +3552,7 @@
         else if (r < 0.45) heartsAt(s.v, id);
         else if (r < 0.5) {
           if (calmMood) return setTimeout(life, rand(2500, 9000));
-          waves.push({ v: s.v, born: performance.now(), radius: 0, seen: new Set() });
+          capPush(waves, { v: s.v, born: performance.now(), radius: 0, seen: new Set() }, 6);
           loveBurst((Math.random() * 4) | 0, s.sz > 0 ? [s.sx, s.sy] : null, performance.now());
           whisper(`${nameOf(s)} loves you.`, 3600, true, null, true);
           tone.swell();
@@ -3603,7 +3629,7 @@
   connect();
   if (!net.url) alone();
   const n = parseInt(params.get('dream'), 10);
-  if (n > 0) dream(Math.min(n, 40));
+  if (n > 0) dream(Math.min(n, params.has('debug') ? 200 : 40)); // (up to 200 for testing a crowd)
   if (params.get('omen')) setTimeout(() => startOmen(params.get('omen')), 1500);
   if (params.get('mood')) setTimeout(() => setMood(params.get('mood'), 30000), Math.max(1500, intro.ui - performance.now() + 500)); // ?mood=worm to see one face for 30s
   if (params.has('debug')) window.heartstar = { get gardenN() { return gardenN; }, set gardenN(v) { gardenN = v; }, pointHearts, get quality() { return quality; }, set quality(q) { quality = q; resize(); }, get frameAvg() { return frameAvg; }, get visible() { return visible; }, get ac() { return ac; }, get master() { return master; }, get soundOn() { return soundOn; }, mic, pitch, hit, tap, planted, bursts, pf, pull, hitPart, sunAt, view, moon, peers, get me() { return me; }, faceToward, startOmen, setMood, zoom, loveBurst, MOODS, waves, sky };
