@@ -486,7 +486,8 @@
         const petal = (k, grow = 0) => { const a = (k / 7) * TAU + seed; c.beginPath(); c.arc(x + Math.cos(a) * s * 0.17, y + Math.sin(a) * s * 0.17, s * 0.1 + grow, 0, TAU); };
         for (let k = 0; k < 7; k++) { petal(k); c.fillStyle = RAINBOW[k]; c.fill(); c.stroke(); }
         // the first petal goes back over the last one, so each petal overlaps the next all the way round
-        c.save(); petal(6, c.lineWidth); c.clip(); petal(0); // (the clip reaches past the last petal's outline, so none of it shows through) c.fillStyle = RAINBOW[0]; c.fill(); c.stroke(); c.restore();
+        // (the clip reaches past the last petal's outline, so none of it shows through)
+        c.save(); petal(6, c.lineWidth); c.clip(); petal(0); c.fillStyle = RAINBOW[0]; c.fill(); c.stroke(); c.restore();
         c.beginPath(); c.arc(x, y, s * 0.075, 0, TAU); c.fillStyle = '#fff'; c.fill(); c.stroke();
         break;
       }
@@ -1478,7 +1479,7 @@
   // and many fill in all the way round.
   let gardenN = 0;
   const GARDEN_MAX = 56;
-  const GOLDEN = 0.6180339887;
+  const gardenU = []; // where each flower is along the edge (0..1), easing toward its even spot
   function renderGarden(now) {
     const n = Math.min(gardenN, GARDEN_MAX);
     if (n <= 0) return;
@@ -1486,8 +1487,14 @@
     const lw = 70 * L, fs = R * 0.22;
     // the edge, as one long loop: all the way round the face, then the outer side of each ear
     const FACE = 0.62, EAR = (1 - FACE) / 2;
+    // evenly spaced all the way round, the first at the top of the head; when another arrives, the rest slide over to make room
+    while (gardenU.length < n) gardenU.push(gardenU.length ? gardenU[gardenU.length - 1] : FACE / 2);
+    gardenU.length = n;
     for (let i = 0; i < n; i++) {
-      const u = (FACE / 2 + i * GOLDEN) % 1; // the first one lands at the top of the face
+      const want = (FACE / 2 + i / n) % 1;
+      let d = want - gardenU[i]; d -= Math.round(d); // the short way round the loop
+      gardenU[i] = (gardenU[i] + d * 0.06 + 1) % 1;
+      const u = gardenU[i];
       let x, y, a;
       if (u < FACE || ears.length < 2) {
         a = -Math.PI / 2 + (u / FACE - 0.5) * Math.PI * 2 + (pf.spinA || 0); // round the face, from the top
@@ -2963,7 +2970,8 @@
     store.set('kind-done', dayKey());
     paintToday();
     // one more rainbow flower on planet scorsby's head, for everyone (just counted, never named)
-    if (net.live) send({ t: 'noticed' }); else gardenN++;
+    gardenN++;
+    if (net.live) send({ t: 'noticed' });
     if (me) {
       me.hearts = 2400;
       for (let i = 0; i < 3; i++) setTimeout(() => pointHearts.push({ s: me, born: performance.now(), together: true, seed: Math.random() * 10 }), i * 250);
@@ -3070,6 +3078,18 @@
         if (calmMood !== face) { calmMood = face; setMood(face, 60000); }
       }
       const [semi, , , chord] = HUM[step];
+      if (params.has('choir')) {
+        // each pretend singer picks a note from scorsby's chord (some an octave up or down), finds it, and wobbles a little
+        for (const p of peers.values()) {
+          if (!p.id.startsWith('dream') || !chord.length) continue;
+          if (p.choirStep !== step) { p.choirStep = step; p.choirNote = pick(chord) + pick([-12, 0, 0, 0, 12]); p.choirFrom = now; p.choirOff = rand(-25, 25); p.choirMiss = rand(-300, 300); }
+          if (now - (p.choirAt || 0) < 100) continue;
+          p.choirAt = now;
+          const settle = clamp((now - p.choirFrom) / rand(800, 2600), 0, 1); // starting a little off, then finding the note
+          const cents = p.choirOff + p.choirMiss * (1 - settle) + Math.sin(now / 700 + p.seed * 9) * 12;
+          receive({ t: 'sing', id: p.id, f: HUM_ROOT * Math.pow(2, (p.choirNote + cents / 100) / 12), a: 0.35 + 0.25 * Math.sin(now / 1300 + p.seed * 5) ** 2 });
+        }
+      }
       // every note scorsby holds sounds together: the newest a little louder, the ones before it softer underneath
       for (let k = 0; k < 4; k++) {
         if (k >= chord.length) { voices.hush('guide' + k); continue; }
