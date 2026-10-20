@@ -611,7 +611,10 @@
     c.lineCap = 'round';
     for (const ex of [697, 1214]) {
       const [px, py] = P(ex, 883);
-      if (o.hearts) { heartPath(px, py + 10 * s, 250 * s); c.fillStyle = '#ff3d6e'; c.fill(); continue; }
+      if (o.hearts) { // heart eyes: white eyes, black heart pupils
+        c.beginPath(); c.arc(px, py, 258 * s, 0, TAU); c.fillStyle = '#fff'; c.fill();
+        heartPath(px, py + 8 * s, 165 * s); c.fillStyle = k; c.fill(); continue;
+      }
       if (lid < 0.5) {
         // closed eyes are smiles too
         const [ax, ay] = P(ex - 24 + (ex > 955 ? 54 : 0), 843);
@@ -877,7 +880,11 @@
         c.lineWidth = r * 0.13; c.strokeStyle = DARK; c.stroke();
         return;
       }
-      if (f.heart > 0.5) { heartPath(x, y + r * 0.05, r * 0.92); c.fillStyle = '#ff3d6e'; c.fill(); return; }
+      if (f.heart > 0.5) { // heart eyes: white eyes, black heart pupils
+        wobbleCircle(x, y, r, seed, 1 / L, 0); c.fillStyle = '#fff'; c.fill();
+        pupils.push(() => { heartPath(x, y + r * 0.04, r * 0.62); c.fillStyle = DARK; c.fill(); });
+        return;
+      }
       if (f.pixel > 0.5) {
         if (closed) { c.fillStyle = DARK; c.fillRect(x - r * 0.7, y - r * 0.1, r * 1.4, r * 0.28); return; }
         c.fillStyle = '#fff'; c.fillRect(x - r * 0.85, y - r * 0.85, r * 1.7, r * 1.7);
@@ -1946,7 +1953,7 @@
     c.lineCap = 'round';
     for (const ex of [-258, 258]) {
       const [px, py] = P(ex, -82);
-      if (o.hearts) { heartPath(px, py, 230 * k); c.fillStyle = '#ff3d6e'; c.fill(); }
+      if (o.hearts) { c.beginPath(); c.arc(px, py, 250 * k, 0, TAU); c.fillStyle = '#fff'; c.fill(); heartPath(px, py + 8 * k, 160 * k); c.fillStyle = DARK; c.fill(); }
       else if (o.closed) { c.beginPath(); c.arc(px, py - 40 * k, 172 * k, 0, Math.PI); c.lineWidth = 95 * k; c.strokeStyle = DARK; c.stroke(); }
       else {
         c.beginPath(); c.arc(px, py, 250 * k, 0, TAU); c.fillStyle = '#fff'; c.fill();
