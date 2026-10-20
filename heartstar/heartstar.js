@@ -1173,7 +1173,22 @@
   }
 
   // ------------------------------------------------------------------ drawing the world
+  // while scorsby breathes or sings, the sky's little creatures and goings-on fade away and rest (and come back after)
+  let calmK = 0;
+  const fadeBuf = document.createElement('canvas'), fadeC = fadeBuf.getContext('2d');
+  function faded(draw) {
+    if (calmK < 0.005) return draw();
+    if (calmK > 0.995) return; // fully faded: not drawn at all, so they pause
+    if (fadeBuf.width !== cv.width || fadeBuf.height !== cv.height) { fadeBuf.width = cv.width; fadeBuf.height = cv.height; }
+    const main = c;
+    fadeC.setTransform(1, 0, 0, 1, 0, 0); fadeC.clearRect(0, 0, fadeBuf.width, fadeBuf.height);
+    fadeC.setTransform(main.getTransform()); fadeC.globalAlpha = 1; fadeC.globalCompositeOperation = 'source-over';
+    c = fadeC;
+    try { draw(); } finally { c = main; }
+    c.save(); c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = 1 - calmK; c.drawImage(fadeBuf, 0, 0); c.restore();
+  }
   function render(now, dt) {
+    calmK += ((calmMood ? 1 : 0) - calmK) * Math.min(1, dt / 500);
     boil = Math.floor(now / 110);
     R = baseR * zoom.v * introScale(now) * (1 + 0.09 * breathFill(now)); L = R / 645;
     const hue = (now / 70) % 360;
@@ -1206,7 +1221,7 @@
     }
 
     if (T === THEMES.night) renderStars(now, dt);
-    renderSky(now, dt);
+    faded(() => renderSky(now, dt));
     const goldSky = env(omenP('goldrain', now));
     if (goldSky > 0.01) {
       // when it rains gold, the whole sky behind the world turns gold too
@@ -1220,9 +1235,9 @@
       c.save(); c.globalCompositeOperation = 'multiply'; c.globalAlpha = 0.55 * Math.sin(k * Math.PI) ** 0.6;
       c.fillStyle = '#ffc93c'; c.fillRect(0, 0, VW, VH); c.restore();
     }
-    c.save(); c.globalAlpha = awake(now); renderSun(now); c.restore(); // sunsby and moonsby arrive as the world wakes
-    renderRisingHeart(now);
-    renderBursts(now, dt, false);
+    faded(() => { c.save(); c.globalAlpha = awake(now); renderSun(now); c.restore(); }); // sunsby and moonsby arrive as the world wakes
+    faded(() => renderRisingHeart(now));
+    faded(() => renderBursts(now, dt, false));
 
     const sp = omenP('sneeze', now);
     c.save();
@@ -1233,7 +1248,7 @@
       c.translate(CX, CY); c.scale(sxs, sys); c.translate(-CX, -CY);
     }
     renderRays(now, hue, storm);
-    c.save(); c.globalAlpha = awake(now); renderMoon(now, false); c.restore();
+    faded(() => { c.save(); c.globalAlpha = awake(now); renderMoon(now, false); c.restore(); });
     if (pf.cur.angel > 0.02) renderWorldWings(now);
     renderEars(now);
     renderPlanet(now, dt);
@@ -1257,13 +1272,10 @@
       heartPath(x, y, r); c.fillStyle = ph.together ? `hsl(${(now / 4 + ph.seed * 40) % 360},90%,62%)` : '#ff5fae'; c.fill();
       c.lineWidth = 1.6; c.strokeStyle = DARK; c.stroke(); c.restore();
     }
-    c.save(); c.globalAlpha = awake(now); renderMoon(now, true); c.restore();
+    faded(() => { c.save(); c.globalAlpha = awake(now); renderMoon(now, true); c.restore(); });
     c.restore();
 
-    renderFlock(now);
-    renderRain(now, dt);
-    renderBursts(now, dt, true);
-    renderPops(now);
+    faded(() => { renderFlock(now); renderRain(now, dt); renderBursts(now, dt, true); renderPops(now); });
     renderTogether(now);
     if (omen && now - omen.born > omen.dur) omen = null;
   }
@@ -2857,10 +2869,10 @@
   // ------------------------------------------------------------------ today: a small kindness, and breathing and humming together
   // a different small kind act for every day of the year (the same one for everyone, wherever they are)
   function kindToday(d = new Date()) {
-    const list = window.KINDNESS || [];
+    const list = window.AWARENESS || [];
     // counted on a leap-year calendar, so the 29th of february has its own and the 31st of december is always the last
     const i = Math.round((Date.UTC(2024, d.getMonth(), d.getDate()) - Date.UTC(2024, 0, 1)) / 86400000);
-    return { i, text: list[i % (list.length || 1)] || 'be kind to someone today.' };
+    return { i, text: list[i % (list.length || 1)] || 'notice that you are here.' };
   }
   const dayKey = () => new Date().toDateString();
   const todayBtn = document.getElementById('act-today');
@@ -2872,10 +2884,10 @@
   const hourText = (h) => new Date(2024, 0, 1, h).toLocaleTimeString(undefined, { hour: 'numeric' }).toLowerCase();
   function paintToday() {
     const k = kindToday(), d = new Date();
-    document.getElementById('kind-date').textContent = `${d.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' }).toLowerCase()} · day ${k.i + 1} of kindness`;
+    document.getElementById('kind-date').textContent = `${d.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' }).toLowerCase()} · day ${k.i + 1} of awareness`;
     document.getElementById('kind-act').textContent = k.text;
     const done = store.get('kind-done') === dayKey();
-    kindDone.disabled = done; kindDone.textContent = done ? 'done today ♥' : 'i did it ♥';
+    kindDone.disabled = done; kindDone.classList.toggle('done', done); kindDone.textContent = done ? 'noticed today ♥' : 'i noticed ♥';
     document.getElementById('rhythm').textContent = `scorsby breathes slowly at ${BREATH_HOURS.map(hourText).join(', ')}, and sings every sunday at ${hourText(SING_HOUR)}. come and join, wherever you are.`;
   }
   todayBtn.addEventListener('click', () => { closeWindows(todayWin); todayWin.hidden = !todayWin.hidden; if (!todayWin.hidden) paintToday(); });
@@ -2890,7 +2902,7 @@
       for (let i = 0; i < 3; i++) setTimeout(() => pointHearts.push({ s: me, born: performance.now(), together: true, seed: Math.random() * 10 }), i * 250);
     }
     tone.chime();
-    whisper('thank you. a flower grew where you are. ♥', 3800);
+    whisper('a flower grew where you are. ♥', 3800);
   });
   // the clock: a minute before, a little heads-up; at the moment itself, scorsby begins
   let breathSlot = 0, singSlot = 0, warned = 0;
@@ -2912,9 +2924,9 @@
   }
   setInterval(rhythm, 2000);
 
-  // breathing: the world fills like a lung. in for four, hold for four, out for six, rest for two. five times.
+  // breathing: the world fills like a lung. in for four, hold for four, out for six, rest for two. three times.
   const BREATH = [['breathe in', 4000], ['hold', 4000], ['breathe out', 6000], ['rest', 2000]];
-  const BREATH_CYCLE = 16000, BREATH_TIMES = 5;
+  const BREATH_CYCLE = 16000, BREATH_TIMES = 3;
   const breath = { at: 0, phase: -1 };
   function breathNow(now) {
     if (!breath.at || now < breath.at) return null;
@@ -2931,7 +2943,7 @@
     if (hum.at) endHum(true);
     breath.at = performance.now() - (Date.now() - clockAt) + 3000; breath.phase = -1;
     calmMood = 'sleepy'; setMood('sleepy', BREATH_CYCLE * BREATH_TIMES + 3000);
-    whisper('scorsby is breathing slowly. hold someone you love in mind, and breathe along.', 3000);
+    whisper('remember who you are.', 3000);
   }
 
   // humming: scorsby holds a note, and you find it with your voice. any octave counts.
