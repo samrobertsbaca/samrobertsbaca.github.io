@@ -1469,26 +1469,39 @@
   }
 
   const zoomBtn = document.getElementById('zoom-in');
-  // everyone who noticed the day's awareness in the last day: a rainbow flower each, growing along the top of planet scorsby's head
+  // everyone who noticed the day's awareness in the last day: a rainbow flower each, growing out from the edge of
+  // planet scorsby's face and ears like a wreath. each new flower lands in the biggest gap, so a few look balanced
+  // and many fill in all the way round.
   let gardenN = 0;
-  const GARDEN_ROW = 9, GARDEN_MAX = 45;
+  const GARDEN_MAX = 56;
+  const GOLDEN = 0.6180339887;
   function renderGarden(now) {
     const n = Math.min(gardenN, GARDEN_MAX);
     if (n <= 0) return;
-    const rows = Math.ceil(n / GARDEN_ROW);
-    // the back rows first, a little higher, so the front ones stand before them
-    for (let row = rows - 1; row >= 0; row--) {
-      for (let k = 0; k < GARDEN_ROW; k++) {
-        const i = row * GARDEN_ROW + k;
-        if (i >= n) continue;
-        const h = hash(i * 7.31 + 3), fs = R * (0.15 + 0.03 * row) * (0.9 + 0.2 * h);
-        const a = -Math.PI / 2 + ((k + (row % 2) * 0.5 + 0.5) / (GARDEN_ROW + 0.5) - 0.5) * 1.3 + (h - 0.5) * 0.06 + (pf.spinA || 0);
-        const base = R + 55 * L + row * fs * 0.42;
-        const sway = Math.sin(now / 1100 + i * 1.7) * 0.07;
-        c.save(); c.translate(CX + Math.cos(a) * base, CY + Math.sin(a) * base); c.rotate(a + Math.PI / 2 + sway);
-        doodle('rainbowflower', 0, -fs * 0.5, fs, i * 3.3, now, 1.32);
-        c.restore();
+    const ears = pf.ears || [];
+    const lw = 70 * L, fs = R * 0.22;
+    // the edge, as one long loop: all the way round the face, then the outer side of each ear
+    const FACE = 0.62, EAR = (1 - FACE) / 2;
+    for (let i = 0; i < n; i++) {
+      const u = (FACE / 2 + i * GOLDEN) % 1; // the first one lands at the top of the face
+      let x, y, a;
+      if (u < FACE || ears.length < 2) {
+        a = -Math.PI / 2 + (u / FACE - 0.5) * Math.PI * 2 + (pf.spinA || 0); // round the face, from the top
+        const r = R + lw * 0.75;
+        x = CX + Math.cos(a) * r; y = CY + Math.sin(a) * r;
+      } else {
+        const side = u < FACE + EAR ? 0 : 1, t = (u - FACE - side * EAR) / EAR; // 0..1 along the ear's outer edge
+        const [ex, ey, er] = ears[side];
+        const out = Math.atan2(ey - CY, ex - CX); // the side of the ear facing away from the face
+        a = out + (t - 0.5) * Math.PI * 1.15;
+        const r = er + lw * 0.75;
+        x = ex + Math.cos(a) * r; y = ey + Math.sin(a) * r;
       }
+      const sway = Math.sin(now / 1100 + i * 1.7) * 0.08;
+      const size = fs * (0.85 + 0.3 * hash(i * 7.31 + 3));
+      c.save(); c.translate(x, y); c.rotate(a + Math.PI / 2 + sway);
+      doodle('rainbowflower', 0, -size * 0.5, size, i * 3.3, now, 1.32);
+      c.restore();
     }
   }
   function renderPlanet(now, dt) {
