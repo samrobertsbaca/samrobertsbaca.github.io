@@ -1272,7 +1272,7 @@
       doodle(markMode === 'head' ? 'scorsby' : markMode, pointer.x, pointer.y - ds * 0.3, ds, 7, now, 1.32);
       c.restore();
     }
-    renderHearts(now);
+    if (!calmMood) renderHearts(now);
     renderFaces(now, dt, storm);
     for (let i = pointHearts.length - 1; i >= 0; i--) {
       const ph = pointHearts[i], k = (now - ph.born) / 1400;
@@ -1771,7 +1771,7 @@
       if (!handsHeld.has(other)) { handsHeld.add(other); send({ t: 'hand', with: other }); }
     }
     const byId = new Map(list.map((s) => [s.id, s]));
-    for (const key of pairs) {
+    if (!calmMood) for (const key of pairs) {
       const [a, b] = key.split('|').map((id) => byId.get(id));
       const mx = (a.sx + b.sx) / 2, my = (a.sy + b.sy) / 2 + 3 + Math.sin(now / 300 + a.seed) * 2;
       c.beginPath();
@@ -2217,7 +2217,10 @@
     probe.remove();
     return breaks;
   }
+  let ritualVoice = false; // while scorsby breathes or sings, only its own words are whispered
+  const ritualSay = (text, ms) => { ritualVoice = true; whisper(text, ms); ritualVoice = false; };
   function whisper(text, ms = 4200, urgent = true, link = null, queue = false) {
+    if (calmMood && !ritualVoice) return;
     const now = performance.now();
     if (queue && (now < whisperUntil || waiting.length)) {
       waiting.push({ text, ms, link });
@@ -2538,7 +2541,7 @@
     return d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' }).toLowerCase();
   }
   function showTip(s, x, y, text) {
-    if (!s && !text) { tip.hidden = true; return; }
+    if ((!s && !text) || calmMood) { tip.hidden = true; return; }
     tip.hidden = false;
     tip.textContent = text || (s.mine ? `you · ${nameOf(s)} · drag to wander · hold to love everyone` : `${nameOf(s)} · ${localTime(s.tz)} there`);
     // stay on screen: slide in from the edges (and wrap, if it's long)
@@ -3006,26 +3009,28 @@
     if (hum.at) endHum(true);
     breath.at = performance.now() - (Date.now() - clockAt) + 3000; breath.phase = -1;
     calmMood = 'sleepy'; setMood('sleepy', BREATH_CYCLE * BREATH_TIMES + 3000);
-    whisper('remember who you are.', 3000);
+    closeWindows(); ritualSay('remember who you are.', 3000);
   }
 
   // humming: scorsby holds a note, and you find it with your voice. any octave counts.
   const HUM_ROOT = 196; // g, low enough to hum
-  const HUM = [[null, 'before we begin, set a loving intention. who is your song for?', 12000],
-    [0, 'hum this note with scorsby. mmm…', 20000], [0, 'softer now. let it be easy.', 14000], [7, 'rise to a new note.', 18000],
-    [4, 'and one more, in between.', 18000], [12, 'now the high note. reach up gently.', 18000], [0, 'come home to the first note.', 18000],
-    [null, 'rest in the quiet. let your song go to the one you hold in your heart.', 10000]];
+  // [the note to find, the words, how long, every note scorsby is holding (the new one joins the ones before it)]
+  const HUM = [[null, 'before we begin, set a loving intention. who is your song for?', 12000, []],
+    [0, 'hum this note with scorsby. mmm…', 20000, [0]], [0, 'softer now. let it be easy.', 14000, [0]], [7, 'rise to a new note.', 18000, [0, 7]],
+    [4, 'and one more, in between.', 18000, [0, 7, 4]], [12, 'now the high note. reach up gently.', 18000, [0, 7, 4, 12]], [0, 'come home to the first note.', 18000, [0]],
+    [null, 'rest in the quiet. let your song go to the one you hold in your heart.', 18000, []]];
+  const hushGuides = () => { for (let k = 0; k < 4; k++) voices.hush('guide' + k); voices.hush('guide'); };
   const hum = { at: 0, step: -1, close: 0, c: 0, lastHeart: 0 };
   function startHum(clockAt = Date.now()) {
-    if (breath.at) { breath.at = 0; calmMood = null; voices.hush('guide'); }
+    if (breath.at) { breath.at = 0; calmMood = null; hushGuides(); }
     hum.at = performance.now() - (Date.now() - clockAt) + 2500; hum.step = -1; hum.close = 0;
-    calmMood = 'o'; setMood('o', HUM.reduce((a, s) => a + s[2], 0) + 2500);
-    whisper(mic.on ? 'scorsby is singing. hum along.' : 'scorsby is singing. hum along (tap sing to let scorsby hear you).', 3500);
-    if (!soundOn) whisper('turn the sound on to hear scorsby sing.', 4000, false, null, true);
+    calmMood = 'sleepy'; setMood('sleepy', HUM.reduce((a, s) => a + s[2], 0) + 2500); // eyes closed while you set your intention
+    closeWindows();
+    ritualSay(soundOn ? 'scorsby is about to sing. hum along.' : 'scorsby is about to sing. turn the sound on to hear it.', 2400);
   }
   function endHum(quiet = false) {
     hum.at = 0; hum.step = -1; calmMood = null;
-    voices.hush('guide');
+    hushGuides();
     if (!quiet) { setMood('hearts', 2600); whisper('thank you for humming with scorsby. ♥', 4200); }
   }
   if (params.has('breathe')) setTimeout(() => startBreath(), 3000); // to try them any time
@@ -3033,6 +3038,8 @@
 
   // each frame: the guide's voice, the words, and how close your voice is
   function updateTogether(now) {
+    document.body.classList.toggle('ritual', !!calmMood);
+    document.body.classList.toggle('ritual-sing', !!hum.at);
     const b = breathNow(now);
     if (b) {
       if (b.done) {
@@ -3041,7 +3048,7 @@
       } else {
         if (b.phase !== breath.phase) {
           breath.phase = b.phase;
-          if (b.phase !== 3) whisper(b.phase === 0 && b.cycle === BREATH_TIMES - 1 ? 'one last time. breathe in' : BREATH[b.phase][0], BREATH[b.phase][1] - 200);
+          if (b.phase !== 3) ritualSay(b.phase === 0 && b.cycle === BREATH_TIMES - 1 ? 'one last time. breathe in' : BREATH[b.phase][0], BREATH[b.phase][1] - 200);
         }
         // a soft tone that rises as you breathe in and falls as you breathe out
         if (b.phase === 3) voices.hush('guide');
@@ -3052,11 +3059,22 @@
       let t = now - hum.at, step = 0;
       while (step < HUM.length && t >= HUM[step][2]) { t -= HUM[step][2]; step++; }
       if (step >= HUM.length) { endHum(); return; }
-      if (step !== hum.step) { hum.step = step; whisper(HUM[step][1], 4500); }
-      const semi = HUM[step][0];
-      if (semi === null) { voices.hush('guide'); hum.close *= 0.95; return; }
+      if (step !== hum.step) {
+        hum.step = step;
+        ritualSay(HUM[step][1], 4500);
+        // humming: an open "o". before and after: eyes closed, a contented smile
+        const face = HUM[step][0] === null ? 'sleepy' : 'o';
+        if (calmMood !== face) { calmMood = face; setMood(face, 60000); }
+      }
+      const [semi, , , chord] = HUM[step];
+      // every note scorsby holds sounds together: the newest a little louder, the ones before it softer underneath
+      for (let k = 0; k < 4; k++) {
+        if (k >= chord.length) { voices.hush('guide' + k); continue; }
+        const newest = k === chord.length - 1;
+        voices.sing('guide' + k, HUM_ROOT * Math.pow(2, chord[k] / 12), (step === 2 ? 0.6 : 1) * (newest ? 0.4 : 0.2), CX + (k - 1.5) * R * 0.3, 0.25);
+      }
+      if (semi === null) { hum.close *= 0.95; return; }
       const target = HUM_ROOT * Math.pow(2, semi / 12);
-      voices.sing('guide', target, step === 1 ? 0.25 : 0.42, CX, 0.25);
       // how far your voice is from the note, folded into one octave: -600..600 cents
       let close = 0;
       if (mic.f > 0 && now - mic.heard < 300) {

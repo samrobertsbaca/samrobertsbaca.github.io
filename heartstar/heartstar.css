@@ -229,6 +229,11 @@ h1 { font-family: var(--head); font-weight: 400; font-size: 30px; line-height: 1
 #today-win .together { border-top: 1px dashed var(--ui); margin: 12px 14px 0; padding: 10px 0 0; }
 #today-win .together { padding-bottom: 14px; }
 
+/* while planet scorsby breathes or sings, everything else steps back */
+#act-all, #acts .row button, .win { transition: opacity 1.2s ease; }
+body.ritual #top, body.ritual #act-all, body.ritual #acts .row button:not(#act-sound), body.ritual #zoom, body.ritual .win, body.ritual #tip { opacity: 0 !important; pointer-events: none !important; }
+body.ritual.ritual-sing #acts .row button#act-sing, body.ritual.ritual-sing #zoom { opacity: 1 !important; pointer-events: auto !important; }
+
 #zoom { position: fixed; right: 18px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 10px; }
 #zoom button { width: 32px; height: 32px; padding: 0; font-size: 16px; }
 
