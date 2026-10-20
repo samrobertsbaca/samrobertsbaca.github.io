@@ -2947,7 +2947,7 @@
     const src = document.getElementById('kind-src'); src.textContent = k.src; src.hidden = !k.src;
     const done = store.get('kind-done') === dayKey();
     kindDone.disabled = done; kindDone.classList.toggle('done', done); kindDone.textContent = done ? 'noticed today ♥' : 'i noticed ♥';
-    document.getElementById('rhythm').textContent = 'planet scorsby breathes slowly at 3, 6, and 9 am and pm, and sings every sunday at noon. come and join, wherever you are.';
+    document.getElementById('rhythm').textContent = 'planet scorsby breathes slowly every day at 3, 6, and 9 am and pm, and sings every sunday at noon. come and join, wherever you are.';
   }
   // a little rainbow flower on each side of the button, like the ones that grow on the world
   {
@@ -3031,7 +3031,7 @@
   function endHum(quiet = false) {
     hum.at = 0; hum.step = -1; calmMood = null;
     hushGuides();
-    if (!quiet) { setMood('hearts', 2600); whisper('thank you for humming with scorsby. ♥', 4200); }
+    if (!quiet) { setMood('hearts', 2600); whisper('thank you for singing with scorsby. ♥', 4200); }
   }
   if (params.has('breathe')) setTimeout(() => startBreath(), 3000); // to try them any time
   if (params.has('hum')) setTimeout(() => startHum(), 3000);
