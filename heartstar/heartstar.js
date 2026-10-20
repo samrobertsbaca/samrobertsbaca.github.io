@@ -615,6 +615,25 @@
     }
     c.restore();
   }
+  // planted things are many little drawings, so each is drawn once into a picture and stamped from then on.
+  // three versions of each are kept and flipped between, so the hand-drawn wobble still lives.
+  const doodleSprites = new Map();
+  function doodleCached(kind, x, y, size, seed, now, lw) {
+    const q = Math.max(6, Math.round(size)), frame = boil % 3;
+    const key = `${kind}|${q}|${Math.round(seed * 10)}|${frame}|${DPR}|${T === THEMES.night ? 1 : 0}`;
+    let sp = doodleSprites.get(key);
+    if (!sp) {
+      if (doodleSprites.size > 1500) doodleSprites.clear();
+      const px = Math.ceil(q * 1.8 * DPR) + 6;
+      sp = document.createElement('canvas'); sp.width = sp.height = px;
+      const g = sp.getContext('2d'), main = c, b0 = boil;
+      c = g; boil = frame;
+      try { g.setTransform(DPR, 0, 0, DPR, 0, 0); doodle(kind, px / 2 / DPR, px / 2 / DPR, q, seed, now, lw); } finally { c = main; boil = b0; }
+      doodleSprites.set(key, sp);
+    }
+    const w = (sp.width / DPR) * (size / q);
+    c.drawImage(sp, x - w / 2, y - w / 2, w, w);
+  }
   const MARKS = ['cactus', 'flower', 'tree', 'house', 'mushroom', 'heart', 'pyramid', 'eye', 'lips', 'head'];
 
   // the face, as drawn in /images/scorsbyface_big.png (and its blink)
@@ -1541,6 +1560,29 @@
   let gardenN = 0;
   const GARDEN_MAX = 56;
   const gardenU = []; // where each flower is along the edge (0..1), easing toward its even spot
+  // a rainbow flower's head (petals overlapping all the way round), drawn once per size and turned to spin
+  const rainbowHeads = new Map();
+  function drawRainbowHead(size) {
+    const q = Math.max(6, Math.round(size));
+    let sp = rainbowHeads.get(q);
+    if (!sp) {
+      if (rainbowHeads.size > 60) rainbowHeads.clear();
+      const px = Math.ceil(q * 0.6 * DPR) + 4;
+      sp = document.createElement('canvas'); sp.width = sp.height = px;
+      const g = sp.getContext('2d'), main = c, b0 = boil;
+      c = g; boil = 0;
+      try { g.setTransform(DPR, 0, 0, DPR, 0, 0); g.lineWidth = 1.32; g.strokeStyle = charInk(0.95); g.lineCap = 'round';
+        const x = px / 2 / DPR, y = px / 2 / DPR, s = q;
+        const petal = (k, grow = 0) => { const a = (k / 7) * TAU; g.beginPath(); g.arc(x + Math.cos(a) * s * 0.17, y + Math.sin(a) * s * 0.17, s * 0.1 + grow, 0, TAU); };
+        for (let k = 0; k < 7; k++) { petal(k); g.fillStyle = RAINBOW[k]; g.fill(); g.stroke(); }
+        g.save(); petal(6, g.lineWidth); g.clip(); petal(0); g.fillStyle = RAINBOW[0]; g.fill(); g.stroke(); g.restore();
+        g.beginPath(); g.arc(x, y, s * 0.075, 0, TAU); g.fillStyle = '#fff'; g.fill(); g.stroke();
+      } finally { c = main; boil = b0; }
+      rainbowHeads.set(q, sp);
+    }
+    const w = (sp.width / DPR) * (size / q);
+    c.drawImage(sp, -w / 2, -w / 2, w, w);
+  }
   function renderGarden(now) {
     const n = Math.min(gardenN, GARDEN_MAX), show = awake(now); // (hidden while the world sleeps, then fading in as it wakes)
     if (n <= 0 || show <= 0) return;
@@ -1576,7 +1618,8 @@
       const sway = Math.sin(now / 1100 + i * 1.7) * 0.08;
       const size = fs * (0.85 + 0.3 * hash(i * 7.31 + 3));
       c.save(); c.translate(x, y); c.rotate(a + Math.PI / 2 + sway);
-      doodle('rainbowflower', 0, -size * 0.5, size, i * 3.3, now, 1.32);
+      c.beginPath(); c.moveTo(0, 0); c.lineTo(0, -size * 0.5); c.lineWidth = 1.32; c.strokeStyle = charInk(0.95); c.stroke();
+      c.translate(0, -size * 0.5); c.rotate(now / 2200 + i * 3.3); drawRainbowHead(size);
       c.restore();
     }
   }
@@ -1743,7 +1786,7 @@
       if (pz < 0.15) continue;
       const fade = clamp((life - (t - m.t)) / 600000, 0.25, 1);
       c.globalAlpha = show * fade * Math.min(1, pz * 3);
-      doodle(m.k === 'head' ? 'scorsby' : m.k, px, py - ds * 0.3, ds, m.seed, now, 1.32);
+      doodleCached(m.k === 'head' ? 'scorsby' : m.k, px, py - ds * 0.3, ds, m.seed, now, 1.32);
       m.sx = px; m.sy = py - ds * 0.3; m.ss = ds;
     }
     for (const g of found) {
@@ -1751,7 +1794,7 @@
       if (pz < 0.15) continue;
       const gs = ds * (1.6 + Math.min(1, (g.members.length - GROVE_TREES) * 0.1));
       c.globalAlpha = show * clamp((life - (t - g.t)) / 600000, 0.25, 1) * Math.min(1, pz * 3);
-      doodle('smiletree', px, py - gs * 0.45, gs, g.members[0].seed, now, 1.32);
+      doodleCached('smiletree', px, py - gs * 0.45, gs, g.members[0].seed, now, 1.32);
       g.members.forEach((m) => { m.sx = px; m.sy = py - gs * 0.45; m.ss = gs; });
     }
     c.restore();
@@ -1845,7 +1888,9 @@
       if (!handsHeld.has(other)) { handsHeld.add(other); send({ t: 'hand', with: other }); }
     }
     const byId = new Map(list.map((s) => [s.id, s]));
+    let linksDrawn = 0;
     if (!calmMood) for (const key of pairs) {
+      if (++linksDrawn > 60) break; // in a crowd only so many links are drawn; every one still counts
       const [a, b] = key.split('|').map((id) => byId.get(id));
       const mx = (a.sx + b.sx) / 2, my = (a.sy + b.sy) / 2 + 3 + Math.sin(now / 300 + a.seed) * 2;
       c.beginPath();
@@ -3538,6 +3583,14 @@
   // ------------------------------------------------------------------ dreaming (?dream=5 to preview with imaginary scorsbys)
   function dream(n) {
     dreaming = true;
+    if (params.has('debug') && n > 40) {
+      // a busy day for testing: plants all over the land (as many as the hearth keeps), and a full wreath of noticing flowers
+      for (let i = 0; i < Math.min(300, n * 2); i++) {
+        const j = ((Math.random() * NL) | 0) * 2;
+        planted({ lat: LAND[j], lon: LAND[j + 1], k: pick(MARKS), n: '', at: Date.now() - rand(0, 5.5 * 3600 * 1000) });
+      }
+      gardenN = 56;
+    }
     const names = ['glonk', 'lumi', 'tonka', 'briar', 'oreo', 'kimchi', 'dorf', 'bean', 'pip', 'moss'];
     const scale = PENTA.map((f) => f * 0.75);
     for (let i = 0; i < n; i++) {
