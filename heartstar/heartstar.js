@@ -3410,6 +3410,11 @@
 
   function listen(now) {
     if (!mic.on || !me) return;
+    if (calmMood && !hum.at) {
+      // while the world breathes, your voice rests too: not heard, not sent (it picks up again afterwards)
+      if (mic.wasSinging) { mic.wasSinging = false; me.singTarget = 0; voices.hush('me'); send({ t: 'hush' }); }
+      return;
+    }
     mic.analyser.getFloatTimeDomainData(mic.buf);
     const [f, rms] = pitch(mic.buf, ac.sampleRate);
     // loudness matters a little (a louder voice is a louder scorsby), but even a quiet note sounds
