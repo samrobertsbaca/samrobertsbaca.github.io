@@ -808,6 +808,7 @@
     if (pointer.seen) { tx = clamp((pointer.x - CX) / (VW * 0.45), -1, 1); ty = clamp((pointer.y - CY) / (VH * 0.45), -1, 1); }
     else if (crowd() <= 1) { tx = Math.sin(now / 2300) * 0.8; ty = Math.cos(now / 3100) * 0.5; } // alone, it looks around for someone
     else { tx = Math.sin(now / 3700) * 0.5; ty = Math.cos(now / 5100) * 0.3; }
+    if (calmMood) { tx = 0; ty = 0; } // while breathing or singing, the face rests in the middle, looking straight out
     pf.lx += (tx - pf.lx) * 0.08; pf.ly += (ty - pf.ly) * 0.08;
 
     // the world sings along: when two or more scorsbys sing, it hums the note between them
@@ -2979,7 +2980,7 @@
     const breathLen = BREATH_CYCLE * BREATH_TIMES, singLen = HUM.reduce((x, s) => x + s[2], 0);
     if (d.getDay() === SING_DAY) {
       const s = at(SING_HOUR);
-      if (t >= s - 60000 && t < s && warned !== s) { warned = s; whisper('in a minute, planet scorsby will sing. set a loving intention, and hum along.', 6000, true); }
+      if (t >= s - 60000 && t < s && warned !== s) { warned = s; whisper(mic.on ? 'in a minute, planet scorsby will sing. set a loving intention, and hum along.' : "in a minute, planet scorsby will sing. tap sing now if you'd like scorsby to hear you hum along.", 7000, true); }
       if (t >= s && t < s + singLen - 8000 && singSlot !== s && !hum.at) { singSlot = s; startHum(s); return; }
     }
     for (const h of BREATH_HOURS) {
@@ -3009,6 +3010,7 @@
     if (hum.at) endHum(true);
     breath.at = performance.now() - (Date.now() - clockAt) + 3000; breath.phase = -1;
     calmMood = 'sleepy'; setMood('sleepy', BREATH_CYCLE * BREATH_TIMES + 3000);
+    zoom.target = 1; zoom.aim = null;
     closeWindows(); ritualSay('remember who you are.', 3000);
   }
 
@@ -3025,6 +3027,7 @@
     if (breath.at) { breath.at = 0; calmMood = null; hushGuides(); }
     hum.at = performance.now() - (Date.now() - clockAt) + 2500; hum.step = -1; hum.close = 0;
     calmMood = 'sleepy'; setMood('sleepy', HUM.reduce((a, s) => a + s[2], 0) + 2500); // eyes closed while you set your intention
+    zoom.target = 1; zoom.aim = null;
     closeWindows();
     ritualSay(soundOn ? 'scorsby is about to sing. hum along.' : 'scorsby is about to sing. turn the sound on to hear it.', 2400);
   }
@@ -3438,7 +3441,8 @@
         if (Math.abs(zoom.target - zoom.v) < 0.01) zoom.aim = null;
       }
       if (!pointer.down && now > view.idleAt) view.auto = true;
-      if (view.auto) view.vlon += (-0.004 * dt / Math.max(1, zoom.v) - view.vlon) * 0.02;
+      if (calmMood) view.vlon *= 0.9; // the world holds still while it breathes and sings
+      else if (view.auto) view.vlon += (-0.004 * dt / Math.max(1, zoom.v) - view.vlon) * 0.02;
       else if (!pointer.down) view.vlon *= 0.94;
       if (!pointer.down) { view.lon += view.vlon; setView(); }
       if (!intro.woke && now >= intro.wake) {
