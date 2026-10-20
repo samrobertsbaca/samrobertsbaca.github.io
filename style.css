@@ -456,15 +456,6 @@ nav.world-nav.scrolled { box-shadow: 0 2px 0 rgba(29, 26, 94, 0.25); }
 .wn-links a { color: #1d1a5e; text-decoration: none; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; border-bottom: 1px solid transparent; }
 .wn-links a:hover, .wn-links a[aria-current="page"] { border-bottom-color: #1d1a5e; color: #1d1a5e; }
 .wn-links a:hover { color: #fff; border-bottom-color: #fff; }
-.wn-discord {
-  display: inline-flex; align-items: center; gap: 7px;
-  font-size: 10px; letter-spacing: .08em; text-transform: uppercase; text-decoration: none;
-  color: #05060a; background: #fff; border: 1px solid #05060a; box-shadow: 3px 3px 0 #05060a;
-  padding: 6px 10px; transition: background .15s, color .15s, transform .08s, box-shadow .08s;
-}
-.wn-discord svg { width: 15px; height: 15px; }
-.wn-discord:hover { background: #5865f2; color: #fff; }
-.wn-discord:active { transform: translate(3px, 3px); box-shadow: none; }
 .wn-burger, .wn-clock-menu { display: none; }
 @media (max-width: 600px) {
   /* phones: scorsby on the left, a hamburger on the right, everything else folded inside */
@@ -489,8 +480,6 @@ nav.world-nav.scrolled { box-shadow: 0 2px 0 rgba(29, 26, 94, 0.25); }
   nav.world-nav.open .wn-right { display: flex; }
   .wn-links { flex-direction: column; align-items: flex-start; gap: 14px; }
   .wn-links a { font-size: 15px; }
-  .wn-discord { font-size: 11px; padding: 8px 12px; }
   .wn-clock-menu { display: block; margin: 0; }
 }
 
-/* peace: who the notes are from */
