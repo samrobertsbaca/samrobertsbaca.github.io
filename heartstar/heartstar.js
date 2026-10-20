@@ -1259,6 +1259,7 @@
     if (pf.cur.angel > 0.02) renderWorldWings(now);
     renderEars(now);
     renderPlanet(now, dt);
+    renderGarden(now);
     // little markers people planted sit on top of the world's face, like the scorsbys do
     renderMarks(now);
     if (markMode && pointer.seen && !pointer.down && unproject(pointer.x, pointer.y)) {
@@ -1468,6 +1469,28 @@
   }
 
   const zoomBtn = document.getElementById('zoom-in');
+  // everyone who noticed the day's awareness in the last day: a rainbow flower each, growing along the top of planet scorsby's head
+  let gardenN = 0;
+  const GARDEN_ROW = 9, GARDEN_MAX = 45;
+  function renderGarden(now) {
+    const n = Math.min(gardenN, GARDEN_MAX);
+    if (n <= 0) return;
+    const rows = Math.ceil(n / GARDEN_ROW);
+    // the back rows first, a little higher, so the front ones stand before them
+    for (let row = rows - 1; row >= 0; row--) {
+      for (let k = 0; k < GARDEN_ROW; k++) {
+        const i = row * GARDEN_ROW + k;
+        if (i >= n) continue;
+        const h = hash(i * 7.31 + 3), fs = R * (0.15 + 0.03 * row) * (0.9 + 0.2 * h);
+        const a = -Math.PI / 2 + ((k + (row % 2) * 0.5 + 0.5) / (GARDEN_ROW + 0.5) - 0.5) * 1.3 + (h - 0.5) * 0.06 + (pf.spinA || 0);
+        const base = R + 55 * L + row * fs * 0.42;
+        const sway = Math.sin(now / 1100 + i * 1.7) * 0.07;
+        c.save(); c.translate(CX + Math.cos(a) * base, CY + Math.sin(a) * base); c.rotate(a + Math.PI / 2 + sway);
+        doodle('rainbowflower', 0, -fs * 0.5, fs, i * 3.3, now, 1.32);
+        c.restore();
+      }
+    }
+  }
   function renderPlanet(now, dt) {
     // the bold outline first, then the blue head inside it
     wobbleCircle(CX, CY, R + 70 * L, 7, 1.6, 0); c.fillStyle = DARK; c.fill();
@@ -2355,6 +2378,7 @@
         trails = m.trails || [];
         marks = []; (m.marks || []).forEach(addMark);
         setTally(m.tally);
+        gardenN = m.garden || 0;
         if (!old) faceToward(me);
         updatePresence();
         if (!old) welcome();
@@ -2395,6 +2419,7 @@
         break;
       }
       case 'mark': planted(m); break;
+      case 'garden': gardenN = m.n || 0; break;
       case 'unmarked': whisper(`your ${lastPlanted || 'plant'} needs a moment to take root. try again in a few seconds.`, 3600); break;
       case 'omen': startOmen(m.k, m.seed); break;
       case 'say': {
@@ -2909,12 +2934,14 @@
   kindDone.addEventListener('click', () => {
     store.set('kind-done', dayKey());
     paintToday();
+    // one more rainbow flower on planet scorsby's head, for everyone (just counted, never named)
+    if (net.live) send({ t: 'noticed' }); else gardenN++;
     if (me) {
       me.hearts = 2400;
       for (let i = 0; i < 3; i++) setTimeout(() => pointHearts.push({ s: me, born: performance.now(), together: true, seed: Math.random() * 10 }), i * 250);
     }
     tone.chime();
-    whisper('a rainbow flower is growing on your head. ♥', 3800);
+    whisper('a rainbow flower is growing on your head, and one more on the world\'s. ♥', 4200);
   });
   // the clock: a minute before, a little heads-up; at the moment itself, scorsby begins
   let breathSlot = 0, singSlot = 0, warned = 0;
@@ -3404,6 +3431,6 @@
   if (n > 0) dream(Math.min(n, 40));
   if (params.get('omen')) setTimeout(() => startOmen(params.get('omen')), 1500);
   if (params.get('mood')) setTimeout(() => setMood(params.get('mood'), 30000), Math.max(1500, intro.ui - performance.now() + 500)); // ?mood=worm to see one face for 30s
-  if (params.has('debug')) window.heartstar = { pointHearts, get quality() { return quality; }, set quality(q) { quality = q; resize(); }, get frameAvg() { return frameAvg; }, get visible() { return visible; }, get ac() { return ac; }, get master() { return master; }, get soundOn() { return soundOn; }, mic, pitch, hit, tap, planted, bursts, pf, pull, hitPart, sunAt, view, moon, peers, get me() { return me; }, faceToward, startOmen, setMood, zoom, loveBurst, MOODS, waves, sky };
+  if (params.has('debug')) window.heartstar = { get gardenN() { return gardenN; }, set gardenN(v) { gardenN = v; }, pointHearts, get quality() { return quality; }, set quality(q) { quality = q; resize(); }, get frameAvg() { return frameAvg; }, get visible() { return visible; }, get ac() { return ac; }, get master() { return master; }, get soundOn() { return soundOn; }, mic, pitch, hit, tap, planted, bursts, pf, pull, hitPart, sunAt, view, moon, peers, get me() { return me; }, faceToward, startOmen, setMood, zoom, loveBurst, MOODS, waves, sky };
   requestAnimationFrame(frame);
 })();

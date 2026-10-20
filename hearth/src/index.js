@@ -43,7 +43,7 @@ const MAX_MARKS = 300;
 // tokens per second, burst
 const LIMITS = {
   move: [6, 12], all: [0.25, 1], blink: [2, 4], sing: [14, 20], hush: [2, 4],
-  color: [1, 4], poke: [3, 6], name: [1, 4], mark: [0.2, 4], say: [1 / 30, 2], hand: [1, 5],
+  color: [1, 4], poke: [3, 6], name: [1, 4], mark: [0.2, 4], say: [1 / 30, 2], hand: [1, 5], noticed: [1 / 60, 1],
 };
 
 // strange things that happen to everyone at once
@@ -349,8 +349,9 @@ export class Hearth extends DurableObject {
     const trails = await this.load('trails', DAY);
     const marks = await this.load('marks', MARK_LIFE);
     const tally = await this.tallyNow();
+    const garden = (await this.load('noticed', DAY)).length;
     const others = this.here().filter((p) => p.id !== me.id);
-    this.send(server, { t: 'hello', you: me, here: others, trails, marks, tally });
+    this.send(server, { t: 'hello', you: me, here: others, trails, marks, tally, garden });
     this.broadcast({ t: 'join', p: me }, server);
     if ((await this.ctx.storage.getAlarm()) == null) await this.ctx.storage.setAlarm(Date.now() + 30000 + Math.random() * 45000);
     return new Response(null, { status: 101, webSocket: client });
@@ -465,6 +466,15 @@ export class Hearth extends DurableObject {
         this.pairs.add(key);
         const tally = await this.love(1);
         this.broadcast({ t: 'tally', tally, from: me.id, with: other.id, hand: true });
+        break;
+      }
+      case 'noticed': {
+        // someone noticed today's awareness: one more rainbow flower on the planet's head, for a day.
+        // only the moment is kept (no name, no place), and each visit counts once.
+        if (me.noticed) return;
+        me.noticed = true; ws.serializeAttachment(me);
+        await this.remember('noticed', { t: Date.now() }, DAY, 5000);
+        this.broadcast({ t: 'garden', n: this.noticed.length });
         break;
       }
       case 'mark': {
