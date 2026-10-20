@@ -348,7 +348,7 @@
         return;
       }
       case 'bell': {
-        // a plain golden bell. tap it and it swings and rings.
+        // a plain bell. tap it and it swings and rings.
         const ring = extra ? now - extra : 1e9;
         const swing = ring < 2600 ? Math.sin(ring / 90) * Math.exp(-ring / 900) * 0.6 : Math.sin(now / 1500 + seed) * 0.06;
         const top = y - s * 0.5;
@@ -362,7 +362,7 @@
         c.quadraticCurveTo(x + s * 0.34, y + s * 0.27, x + s * 0.32, y + s * 0.1);
         c.quadraticCurveTo(x + s * 0.32, top + s * 0.06, x + s * 0.1, top + s * 0.02);
         c.closePath();
-        c.fillStyle = '#ffd23f'; c.fill(); c.stroke();
+        c.fillStyle = T.paper; c.fill(); c.stroke();
         const cl = ring < 2600 ? Math.sin(ring / 90 - 1.2) * Math.exp(-ring / 900) * s * 0.14 : 0;
         c.beginPath(); c.arc(x + cl, y + s * 0.42, s * 0.07, 0, TAU); c.fillStyle = charInk(); c.fill();
         break;
