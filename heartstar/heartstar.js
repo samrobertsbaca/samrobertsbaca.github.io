@@ -1160,22 +1160,26 @@
     if (f.bubble > 0.02 && pf.mood === 'bubble') {
       const t = now - (pf.moodAt || now), ph = t / 4200;
       if (t > 4200 + 1500) { setMood('smile'); } // a moment to take it in, then back to himself
-      const bx = mpx, by0 = my + w * 0.35;
-      if (ph < 0.9) {
-        const r = (40 + 300 * ph ** 1.6) * f.bubble, by = by0 + r * 0.45;
-        c.beginPath(); c.arc(bx, by, r, 0, TAU); c.fillStyle = 'rgba(255,120,190,0.88)'; c.fill(); c.lineWidth = 14; c.strokeStyle = DARK; c.stroke();
-        c.beginPath(); c.arc(bx - r * 0.35, by - r * 0.38, r * 0.22, Math.PI * 1.1, Math.PI * 1.6); c.lineWidth = Math.max(8, r * 0.07); c.strokeStyle = '#fff'; c.stroke();
-      } else if (ph < 1) {
-        if (pf.popped !== pf.moodAt) { pf.popped = pf.moodAt; tone.bubblePop(); pf.blink = 1; setTimeout(() => { pf.blink = 1; }, 380); } // snap! blink, blink
-        const k = (ph - 0.9) / 0.1, R0 = (40 + 300 * 0.9 ** 1.6) * f.bubble, cy0 = by0 + R0 * 0.45; // the bubble at its biggest, the burst centered where it was
-        c.globalAlpha = A * (1 - k * k);
-        for (let i = 0; i < 14; i++) { // pink lines bursting outward
-          const a = (i / 14) * TAU, r2 = R0, r1 = R0 * (0.55 + 0.4 * k); // reaching exactly to the bubble's edge // never past where the bubble was
-          c.beginPath(); c.moveTo(bx + Math.cos(a) * r1, cy0 + Math.sin(a) * r1); c.lineTo(bx + Math.cos(a) * r2, cy0 + Math.sin(a) * r2);
-          c.lineWidth = 16; c.strokeStyle = '#ff78be'; c.lineCap = 'round'; c.stroke();
+      // the bubble floats in front of everything else on the page, so it's drawn last, right where it is now
+      const T0 = c.getTransform(), bx = mpx, by0 = my + w * 0.35;
+      drawLast.push(() => {
+        c.setTransform(T0); c.globalAlpha = A;
+        if (ph < 0.9) {
+          const r = (40 + 300 * ph ** 1.6) * f.bubble, by = by0 + r * 0.45;
+          c.beginPath(); c.arc(bx, by, r, 0, TAU); c.fillStyle = 'rgba(255,120,190,0.88)'; c.fill(); c.lineWidth = 14; c.strokeStyle = DARK; c.stroke();
+          c.beginPath(); c.arc(bx - r * 0.35, by - r * 0.38, r * 0.22, Math.PI * 1.1, Math.PI * 1.6); c.lineWidth = Math.max(8, r * 0.07); c.strokeStyle = '#fff'; c.stroke();
+        } else if (ph < 1) {
+          if (pf.popped !== pf.moodAt) { pf.popped = pf.moodAt; tone.bubblePop(); pf.blink = 1; setTimeout(() => { pf.blink = 1; }, 380); } // snap! blink, blink
+          const k = (ph - 0.9) / 0.1, R0 = (40 + 300 * 0.9 ** 1.6) * f.bubble, cy0 = by0 + R0 * 0.45; // the bubble at its biggest, the burst centered where it was
+          c.globalAlpha = A * (1 - k * k);
+          for (let i = 0; i < 14; i++) { // pink lines bursting outward
+            const a = (i / 14) * TAU, r2 = R0, r1 = R0 * (0.55 + 0.4 * k); // reaching exactly to the bubble's edge // never past where the bubble was
+            c.beginPath(); c.moveTo(bx + Math.cos(a) * r1, cy0 + Math.sin(a) * r1); c.lineTo(bx + Math.cos(a) * r2, cy0 + Math.sin(a) * r2);
+            c.lineWidth = 16; c.strokeStyle = '#ff78be'; c.lineCap = 'round'; c.stroke();
+          }
+          c.globalAlpha = A;
         }
-        c.globalAlpha = A;
-      }
+      });
     }
 
     // garden: grass and flowers sprout from the top of the head and sway
@@ -1269,6 +1273,7 @@
     try { draw(); } finally { c = main; }
     c.save(); c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = 1 - calmK; c.drawImage(fadeBuf, 0, 0); c.restore();
   }
+  const drawLast = []; // things that belong in front of everything, saved up while drawing and painted at the end
   function render(now, dt) {
     calmK += ((calmMood ? 1 : 0) - calmK) * Math.min(1, dt / 500);
     boil = Math.floor(now / 110);
@@ -1379,6 +1384,8 @@
     c.restore();
 
     faded(() => { renderFlock(now); renderRain(now, dt); renderBursts(now, dt, true); renderPops(now); });
+    for (const draw of drawLast) { c.save(); draw(); c.restore(); }
+    drawLast.length = 0;
     renderTogether(now);
     if (omen && now - omen.born > omen.dur) omen = null;
   }
