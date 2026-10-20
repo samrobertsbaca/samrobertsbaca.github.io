@@ -1239,6 +1239,22 @@
       RAINBOW.concat(RAINBOW[0]).forEach((col, i) => g.addColorStop(i / RAINBOW.length, col));
       c.save(); c.globalAlpha = Math.max(0.32 * stormNow, songMagic * (0.32 + 0.33 * hum.prog)); c.fillStyle = g; c.fillRect(0, 0, VW, VH); c.restore();
     }
+    // rainbow hearts flowing out from the world while the singing is in harmony: more of them, the more magical it gets
+    songHeartDue += songMagic > 0.05 ? songMagic * 25 * dt / 1000 : 0; // up to about 25 a second, at full harmony
+    while (songHeartDue >= 1 && songHearts.length < 180) {
+      songHeartDue--;
+      songHearts.push({ a: rand(0, TAU), d: 1.02, v: rand(0.35, 0.75), r: rand(5, 13), hue: rand(0, 360), seed: rand(0, 99), born: now });
+    }
+    songHeartDue = Math.min(songHeartDue, 1);
+    for (let i = songHearts.length - 1; i >= 0; i--) {
+      const h = songHearts[i];
+      h.d += h.v * dt / 1000; // in planet radii, so they flow out the same way at any size
+      if (h.d > 3.2) { songHearts.splice(i, 1); continue; }
+      const a = h.a + Math.sin(now / 1100 + h.seed) * 0.05, rr = R * h.d;
+      c.save(); c.globalAlpha = Math.min(1, (now - h.born) / 600) * (1 - smooth(1.8, 3.2, h.d)) * (0.4 + 0.5 * Math.max(songMagic, 0.25));
+      heartPath(CX + Math.cos(a) * rr, CY + Math.sin(a) * rr, h.r * (0.8 + 0.3 * h.d)); c.fillStyle = `hsl(${(h.hue + now / 30) % 360},90%,66%)`; c.fill();
+      c.restore();
+    }
 
     if (T === THEMES.night) renderStars(now, dt);
     faded(() => renderSky(now, dt));
@@ -3043,6 +3059,8 @@
     [null, 'rest in the quiet. let your song go to the one you hold in your heart.', 18000, []]];
   const hushGuides = () => { for (let k = 0; k < 4; k++) voices.hush('guide' + k); voices.hush('guide'); };
   const hum = { at: 0, step: -1, close: 0, c: 0, lastHeart: 0, magic: 0, prog: 0 };
+  const songHearts = []; // rainbow hearts flowing out from the world while everyone sings in harmony
+  let songHeartDue = 0;
   function startHum(clockAt = Date.now()) {
     if (breath.at) { breath.at = 0; calmMood = null; hushGuides(); }
     hum.at = performance.now() - (Date.now() - clockAt) + 2500; hum.step = -1; hum.close = 0;
