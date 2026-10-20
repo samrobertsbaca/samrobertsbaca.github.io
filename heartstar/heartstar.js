@@ -2943,6 +2943,12 @@
     kindDone.disabled = done; kindDone.classList.toggle('done', done); kindDone.textContent = done ? 'noticed today ♥' : 'i noticed ♥';
     document.getElementById('rhythm').textContent = 'planet scorsby breathes slowly at 3, 6, and 9 am and pm, and sings every sunday at noon. come and join, wherever you are.';
   }
+  // a little rainbow flower on each side of the button, like the ones that grow on the world
+  {
+    const petals = RAINBOW.map((col, k) => { const a = (k / 7) * Math.PI * 2 - Math.PI / 2; return `<circle cx="${(15 + Math.cos(a) * 6.2).toFixed(1)}" cy="${(13 + Math.sin(a) * 6.2).toFixed(1)}" r="3.8" fill="${col}"/>`; }).join('');
+    const svg = `<svg viewBox="0 0 30 38" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M15 20 Q13 28 15 37"/><path d="M14.5 29 Q9 26 7 28 Q10 31 14.5 30"/>${petals}<circle cx="15" cy="13" r="2.8" fill="#fff"/></svg>`;
+    document.querySelectorAll('#today-win .kflower').forEach((el) => { el.innerHTML = svg; });
+  }
   todayBtn.addEventListener('click', () => { closeWindows(todayWin); todayWin.hidden = !todayWin.hidden; if (!todayWin.hidden) paintToday(); });
   kindDone.addEventListener('click', () => {
     store.set('kind-done', dayKey());
