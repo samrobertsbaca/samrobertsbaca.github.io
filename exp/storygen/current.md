@@ -1,3 +1,3 @@
-### the glop-fall revelation
+### scorsby and the momentary flare
 
-scorsby, accused of up-rooting the chirp-stone, met three grump-ministers. 'guilty!' they swore by the whimsy-weaver, whom scorsby once fed a dewdrop. the weaver, remembering, sang: 'rrombo dombo di di dai!' it revealed each minister's past: rope-pulling, rope-snapping, tumbling into the glimmer-gloop. shames unravelled; they fell into the mirth-mire. scorsby just smiled.
+scorsby, a fox of keen smiles, asked the duck, "rrombo dombo di di dai! your beak, in slumber's breeze?" the duck, an essence of pure arc, tucked her head under wing. *gulp*. a wolf nearby mumbled, "oh, the unfairness. if *i* did that, they'd call it eating." later, scorsby bought a pipe, lit it in a barn. hay glowed. a swish of his tail, fire gone, tail a bit crispy. "ah," he thought, "the aroma."
