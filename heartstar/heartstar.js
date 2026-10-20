@@ -3005,7 +3005,7 @@
     const src = document.getElementById('kind-src'); src.textContent = k.src; src.hidden = !k.src;
     const done = store.get('kind-done') === dayKey();
     kindDone.disabled = done; kindDone.classList.toggle('done', done); kindDone.textContent = done ? 'noticed today ♥' : 'i noticed ♥';
-    document.getElementById('rhythm').textContent = 'planet scorsby breathes slowly every day at 3, 6, and 9 am and pm, and sings every sunday at noon. come and join, wherever you are.';
+    document.getElementById('rhythm').textContent = 'planet scorsby breathes slowly every day at 3, 6, and 9 am/pm, and sings every sunday at noon. come and join, wherever you are.';
   }
   // a little rainbow flower on each side of the button, like the ones that grow on the world
   {
