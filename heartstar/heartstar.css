@@ -237,6 +237,8 @@ body.ritual.ritual-sing #acts .row button:not(#act-sound), body.ritual.ritual-si
 body.ritual.ritual-sing #acts .row { justify-content: center; }
 body.ritual.ritual-sing #acts { align-items: center; }
 body.ritual.ritual-sing #acts .row button#act-sound { opacity: 1 !important; pointer-events: auto !important; }
+/* once the sound is on, that button fades away too, leaving just the song */
+body.ritual.ritual-sing.sound-on #acts .row button#act-sound { opacity: 0 !important; pointer-events: none !important; }
 
 #zoom { position: fixed; right: 18px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 10px; }
 #zoom button { width: 32px; height: 32px; padding: 0; font-size: 16px; }

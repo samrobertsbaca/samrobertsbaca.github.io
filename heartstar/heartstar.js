@@ -1211,7 +1211,9 @@
     const hue = (now / 70) % 360;
     const storm = Math.max(env(omenP('colorstorm', now)), env(omenP('thirdeye', now)) * 0.7);
     stormNow = env(omenP('colorstorm', now));
-    const skyStorm = Math.max(stormNow, hum.magic * 0.9); // harmonious singing stirs a rainbow sky behind the world
+    // harmonious singing stirs a rainbow sky behind the world, more and more as the song goes on
+    const songMagic = hum.magic * (0.55 + 0.45 * hum.prog);
+    const skyStorm = Math.max(stormNow, songMagic);
     updatePlanetFace(now, dt);
     updatePulls();
     blendWorld(now, storm);
@@ -1219,7 +1221,7 @@
     // white paper. colors bloom only when something happens.
     c.globalCompositeOperation = 'source-over';
     c.fillStyle = T.paper; c.fillRect(0, 0, VW, VH);
-    const bloom = Math.max(storm, smooth(0, 1, (loveWash - now) / 1500), env(omenP('goldrain', now)) * 0.5, env(omenP('heartstar', now)) * 0.6, hum.magic * 0.7);
+    const bloom = Math.max(storm, smooth(0, 1, (loveWash - now) / 1500), env(omenP('goldrain', now)) * 0.5, env(omenP('heartstar', now)) * 0.6, hum.magic * (0.6 + 0.4 * hum.prog));
     if (bloom > 0.01) {
       c.globalCompositeOperation = T.wash;
       for (let k = 0; k < 4; k++) {
@@ -1235,7 +1237,7 @@
       // a spinning rainbow sky
       const g = c.createConicGradient(now / 500, CX, CY);
       RAINBOW.concat(RAINBOW[0]).forEach((col, i) => g.addColorStop(i / RAINBOW.length, col));
-      c.save(); c.globalAlpha = 0.32 * skyStorm; c.fillStyle = g; c.fillRect(0, 0, VW, VH); c.restore();
+      c.save(); c.globalAlpha = Math.max(0.32 * stormNow, songMagic * (0.32 + 0.33 * hum.prog)); c.fillStyle = g; c.fillRect(0, 0, VW, VH); c.restore();
     }
 
     if (T === THEMES.night) renderStars(now, dt);
@@ -3040,7 +3042,7 @@
     [4, 'and one more, in between.', 18000, [0, 7, 4]], [12, 'now the high note. reach up gently.', 18000, [0, 7, 4, 12]], [0, 'come home to the first note.', 18000, [0]],
     [null, 'rest in the quiet. let your song go to the one you hold in your heart.', 18000, []]];
   const hushGuides = () => { for (let k = 0; k < 4; k++) voices.hush('guide' + k); voices.hush('guide'); };
-  const hum = { at: 0, step: -1, close: 0, c: 0, lastHeart: 0, magic: 0 };
+  const hum = { at: 0, step: -1, close: 0, c: 0, lastHeart: 0, magic: 0, prog: 0 };
   function startHum(clockAt = Date.now()) {
     if (breath.at) { breath.at = 0; calmMood = null; hushGuides(); }
     hum.at = performance.now() - (Date.now() - clockAt) + 2500; hum.step = -1; hum.close = 0;
@@ -3089,6 +3091,8 @@
         if (calmMood !== face) { calmMood = face; setMood(face, 60000); }
       }
       const [semi, , , chord] = HUM[step];
+      const songLen = HUM.slice(1, -1).reduce((x, h) => x + h[2], 0);
+      hum.prog = clamp((now - hum.at - HUM[0][2]) / songLen, 0, 1);
       if (params.has('choir')) {
         // each pretend singer picks a note from scorsby's chord (some an octave up or down), finds it, and wobbles a little
         for (const p of peers.values()) {
@@ -3107,7 +3111,7 @@
         const newest = k === chord.length - 1;
         voices.sing('guide' + k, HUM_ROOT * Math.pow(2, chord[k] / 12), (step === 2 ? 0.6 : 1) * (newest ? 0.4 : 0.2), CX + (k - 1.5) * R * 0.3, 0.25);
       }
-      if (semi === null) { hum.close *= 0.95; return; }
+      if (semi === null) { hum.close *= 0.95; hum.magic *= 0.985; return; }
       const target = HUM_ROOT * Math.pow(2, semi / 12);
       // how far your voice is from the note, folded into one octave: -600..600 cents
       let close = 0;
@@ -3178,9 +3182,13 @@
     audio();
     master.gain.setTargetAtTime(on ? 1 : 0, ac.currentTime, 0.3);
     soundBtn.setAttribute('aria-pressed', on);
+    document.body.classList.toggle('sound-on', on);
     soundBtn.textContent = on ? 'sound on' : 'sound off';
   }
-  soundBtn.addEventListener('click', () => setSound(!soundOn));
+  soundBtn.addEventListener('click', () => {
+    setSound(!soundOn);
+    if (soundOn && hum.at && !mic.on) openVoice(true); // during the song: also let scorsby hear you
+  });
 
   const PENTA = [261.6, 293.7, 329.6, 392, 440, 523.3, 587.3, 659.3, 784];
   const tone = {
