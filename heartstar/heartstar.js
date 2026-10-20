@@ -11,6 +11,8 @@
   const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
   const hash = (n) => { const x = Math.sin(n * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
   const params = new URLSearchParams(location.search);
+  // ?card: posing for the share picture (tools/sharecard.html): still, looking straight out, no halo, sun and moon set just so
+  const CARD = params.has('card');
   const store = { get(k) { try { return localStorage.getItem(k); } catch { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch {} } };
 
   // ------------------------------------------------------------------ colors of a scorsby
@@ -882,6 +884,7 @@
     else if (crowd() <= 1) { tx = Math.sin(now / 2300) * 0.8; ty = Math.cos(now / 3100) * 0.5; } // alone, it looks around for someone
     else { tx = Math.sin(now / 3700) * 0.5; ty = Math.cos(now / 5100) * 0.3; }
     if (calmMood) { tx = 0; ty = 0; } // while breathing or singing, the face rests in the middle, looking straight out
+    if (CARD) { tx = 0; ty = 0; }
     pf.lx += (tx - pf.lx) * 0.08; pf.ly += (ty - pf.ly) * 0.08;
 
     // the world sings along: when two or more scorsbys sing, it hums the note between them
@@ -1407,6 +1410,7 @@
   }
 
   function renderRays(now, hue, storm) {
+    if (CARD) return;
     const n = 54, breathe = 1 + 0.02 * Math.sin((now / 8000) * TAU);
     const love = smooth(0, 1, (loveWash - now) / 1500);
     const on = clamp((now - intro.wake) / 250, 0, 1); // no halo while the world sleeps
@@ -2226,6 +2230,7 @@
 
   // place sunsby or moonsby off in the direction of the real sun or moon, gliding as the world turns
   function placeOrb(st, v, avoid) {
+    if (CARD) { const sd = st === sunAt ? -1 : 1; Object.assign(st, { x: CX + sd * R * 1.85, y: CY + sd * R * 0.95, ok: true }); return [st.x, st.y]; }
     const [vx, vy] = viewOf(v);
     const l = Math.hypot(vx, vy);
     // when it points almost straight at you (or away), its direction on screen means little: lean on the old one
@@ -3795,6 +3800,7 @@
       if (!pointer.down && now > view.idleAt) view.auto = true;
       if (view.auto) view.vlon += (-0.004 * dt / Math.max(1, zoom.v) - view.vlon) * 0.02;
       else if (!pointer.down) view.vlon *= 0.94;
+      if (CARD) { view.lon = +(params.get('lon') ?? -20); view.lat = +(params.get('lat') ?? 28); view.vlon = 0; view.auto = false; }
       if (!pointer.down) { view.lon += view.vlon; setView(); }
       if (!intro.woke && now >= intro.wake) {
         intro.woke = true;
