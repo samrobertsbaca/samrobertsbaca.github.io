@@ -18,7 +18,7 @@
 // a quiet check that they're a person (cloudflare turnstile) comes first.
 //
 // if very many people come at once, the world quietly overflows into more hearths:
-// past 300 scorsbys, half of them (one side of the globe) move together to a new
+// past 150 scorsbys, half of them (one side of the globe) move together to a new
 // hearth, so every hearth stays full and lively, and as people go home the hearths
 // fold back together. a small lobby sends each newcomer to the hearth with the fewest, and
 // keeps what everyone shares: the love counted each day, the noticing garden, and how
@@ -43,10 +43,11 @@ function consonant(a, b) {
   while (r > 2.06) r /= 2; // fold into one octave
   return INTERVALS.some((x) => Math.abs(r - x) / x < 0.03);
 }
-const MAX_HERE = 400;
-const ROOMY = 300; // past this many in every hearth, the fullest splits in half
+const MAX_HERE = 200;
+const ROOMY = 150; // past this many in every hearth, the fullest splits in half
 const PRIME = 'heartstar-prime'; // the first hearth, with all the history from before there were more
 const worldName = (i) => (i === 0 ? PRIME : `heartstar-${i}`);
+const FEW = 20; // hearths the lobby keeps up to date itself
 const WORLD = /^heartstar-(prime|[1-9]\d{0,2})$/;
 const MAX_TRAILS = 500;
 const MAX_MARKS = 300;
@@ -370,8 +371,9 @@ export class Lobby extends DurableObject {
       await this.ctx.storage.put({ tally: t, noticed: this.noticed, worlds: this.worlds });
     } else if (!love) await this.ctx.storage.put('worlds', this.worlds);
     this.balance(now);
-    // while there's more than one hearth, every one of them hears what changed within a few seconds
-    if ((this.worlds.length > 1 || this.many) && (await this.ctx.storage.getAlarm()) == null) await this.ctx.storage.setAlarm(now + 3000);
+    // while there are a few hearths, every one of them hears what changed within a few seconds. (with very many,
+    // each one hears when it next checks in: nobody can tell if a count in the thousands is a little behind.)
+    if (this.live().length <= FEW && (this.worlds.length > 1 || this.many) && (await this.ctx.storage.getAlarm()) == null) await this.ctx.storage.setAlarm(now + 3000);
     return this.status();
   }
 
@@ -382,6 +384,7 @@ export class Lobby extends DurableObject {
 
   async alarm() {
     await this.ready();
+    if (this.live().length > FEW) return;
     const sh = this.status();
     this.many = this.worlds.length > 1;
     await Promise.all(this.worlds.map((w, i) => (this.count(i) ? this.env.HEARTH.get(this.env.HEARTH.idFromName(worldName(i))).hear(sh).catch(() => {}) : null)));
@@ -540,8 +543,8 @@ export class Hearth extends DurableObject {
 
     const world = request.headers.get('x-world');
     if (world && world !== this.world) { this.world = world; await this.ctx.storage.put('world', world); }
-    // the lobby hears about arrivals right away when it's been a little while, or when this hearth is getting full
-    if (!this.shared || Date.now() - this.lastSync > 5000 || this.ctx.getWebSockets().length >= ROOMY - 50) await this.sync();
+    // the lobby counted this arrival when it chose this hearth. it hears the rest when it's been a little while
+    if (!this.shared || Date.now() - this.lastSync > 5000) await this.sync();
     const trails = await this.load('trails', DAY);
     const marks = await this.load('marks', MARK_LIFE);
     const tally = this.tallyNow();
@@ -725,10 +728,9 @@ export class Hearth extends DurableObject {
     this.singers.delete(me.id);
     for (const k of this.pairs) if (k.split('|').includes(me.id)) this.pairs.delete(k);
     this.broadcast({ t: 'leave', id: me.id }, ws);
-    // the lobby hears soon: right away if this hearth was nearly full or it's been a while, otherwise in a few seconds
+    // the lobby hears soon: right away if it's been a while, otherwise in a few seconds
     // (when many leave at once, the last one out may still see the others on their way)
-    const left = this.open();
-    if (left >= ROOMY - 50 || Date.now() - this.lastSync > 5000) return this.sync();
+    if (Date.now() - this.lastSync > 5000) return this.sync();
     const at = await this.ctx.storage.getAlarm(), soon = Date.now() + 6000;
     if (at == null || at > soon) {
       if (at != null) await this.ctx.storage.put('nextOmen', at);

@@ -1023,8 +1023,8 @@
       lipsPath(0, my + w * 0.3, w * 1.15); c.fillStyle = '#e8336b'; c.fill(); c.lineWidth = 26; c.strokeStyle = DARK; c.stroke();
       c.beginPath(); c.moveTo(-w * 1.15, my + w * 0.3); c.quadraticCurveTo(0, my + w * 0.42, w * 1.15, my + w * 0.3); c.stroke();
     } else if (singO > 0.04) {
-      // singing: a tall oval, like the little scorsbys' when they sing, opening wider the louder it sings
-      c.beginPath(); c.ellipse(0, my + w * 0.23, w * 0.7, w * (0.35 + 1.34 * singO), 0, 0, TAU); c.fillStyle = DARK; c.fill();
+      // singing: a little round o, the size of his pupils
+      c.beginPath(); c.arc(0, my + w * 0.3, f.pr, 0, TAU); c.fillStyle = DARK; c.fill();
     } else if (f.oh > 0.5 && pf.sing < 0.3) {
       c.beginPath(); c.ellipse(0, my + w * 0.35, w * 0.55, w * 0.75 * f.oh, 0, 0, TAU); c.fillStyle = DARK; c.fill();
     } else if (open > 0.08) {
