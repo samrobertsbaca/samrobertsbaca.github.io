@@ -946,9 +946,10 @@
     // the mouth: a round smile, opening wide when it grins or sings
     const [mpx, mpy] = loc('mouth');
     const my = lerp(f.my + f.melt * 70, -360, f.scramble) + mpy, w = f.mw * (1 + Math.min(0.6, Math.abs(mpx) / 600));
-    const open = Math.max(f.mo, pf.sing * 0.9);
+    const open = calmMood === 'sleepy' ? f.mo : Math.max(f.mo, pf.sing * 0.9);
     // how open the singing mouth is: singing along with others, or humming its song (gently opening and closing)
-    const singO = Math.max(pf.sing * 0.6, calmMood === 'o' ? 0.42 + 0.08 * Math.sin(now / 650) : 0);
+    // (in the quiet parts of a ritual it rests in a smile, however much singing lingers around it)
+    const singO = calmMood === 'sleepy' ? 0 : Math.max(pf.sing * 0.6, calmMood === 'o' ? 0.42 + 0.08 * Math.sin(now / 650) : 0);
     c.save();
     c.translate(mpx, 0);
     if (f.scramble > 0.5) { c.translate(0, my); c.scale(1, -1); c.translate(0, -my); }
