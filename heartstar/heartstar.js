@@ -2400,7 +2400,7 @@
   function welcome() {
     if (welcomed) return;
     welcomed = true;
-    whisper('welcome to planet scorsby, a world of peace, love, and joy for everyone everywhere. please enjoy your stay :-)', 6500);
+    whisper('welcome to planet scorsby, a world of peace, love, and joy for everyone everywhere. please enjoy your visit :-)', 6500);
   }
   function alone() {
     if (me) return;
