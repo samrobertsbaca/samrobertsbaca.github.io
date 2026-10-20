@@ -681,6 +681,7 @@
     wings: 'the world remembered it has wings.',
   };
   function startOmen(k, seed = Math.random() * 1e6) {
+    if (calmMood) return;
     if (!OMEN_DUR[k] || performance.now() < intro.ui) return;
     omen = { k, seed, born: performance.now(), dur: OMEN_DUR[k] };
     whisper(typeof OMEN_WORDS[k] === 'function' ? OMEN_WORDS[k](seed) : OMEN_WORDS[k], 5200, true, null, true);
@@ -743,8 +744,10 @@
     clock: { clock: 1, er: 120, pr: 60, ex: 330, ey: -210, mw: 110, my: 400, ny: 0, nose: 80 },
   };
   const pf = { cur: { ...FACE_BASE }, target: { ...FACE_BASE }, mood: 'smile', next: 7000, honk: 0, wink: 0, winkSide: -1, blink: 0, nextBlink: 3000, lx: 0, ly: 0, hit: null, hold: 0, sing: 0, singing: false, rings: [], spinA: 0 };
+  let calmMood = null; // while breathing or humming together, the world keeps one calm face and nothing else stirs
   function setMood(m, hold = 0) {
     if (!MOODS[m] || (!intro.woke && m !== 'sleepy')) return; // nothing stirs the world before it wakes
+    if (calmMood && m !== calmMood) return;
     if (pf.mood !== m) pf.moodAt = performance.now();
     const lasts = { meltdown: 7800, bubble: 5800, whirl: 1600 }[m]; // these play all the way through
     if (lasts) hold = Math.max(hold, lasts);
@@ -1172,7 +1175,7 @@
   // ------------------------------------------------------------------ drawing the world
   function render(now, dt) {
     boil = Math.floor(now / 110);
-    R = baseR * zoom.v * introScale(now); L = R / 645;
+    R = baseR * zoom.v * introScale(now) * (1 + 0.09 * breathFill(now)); L = R / 645;
     const hue = (now / 70) % 360;
     const storm = Math.max(env(omenP('colorstorm', now)), env(omenP('thirdeye', now)) * 0.7);
     stormNow = env(omenP('colorstorm', now));
@@ -1261,6 +1264,7 @@
     renderRain(now, dt);
     renderBursts(now, dt, true);
     renderPops(now);
+    renderTogether(now);
     if (omen && now - omen.born > omen.dur) omen = null;
   }
 
@@ -2733,11 +2737,11 @@
   const sayIn = document.getElementById('say-in'), sayBtn = document.querySelector('#say-form button');
   let sayWait = 0;
   const singNoted = { self: false, together: false, hand: false }; // say each once per visit
-  const youWin = document.getElementById('you-win'), plantWin = document.getElementById('plant-win'), card = document.getElementById('sing-card');
-  function closeWindows(except) { for (const w of [youWin, plantWin, card]) if (w !== except) w.hidden = true; }
+  const youWin = document.getElementById('you-win'), plantWin = document.getElementById('plant-win'), card = document.getElementById('sing-card'), todayWin = document.getElementById('today-win');
+  function closeWindows(except) { for (const w of [youWin, plantWin, card, todayWin]) if (w !== except) w.hidden = true; }
   document.addEventListener('pointerdown', (e) => {
-    for (const w of [youWin, plantWin, card]) {
-      if (w.hidden || w.contains(e.target) || e.target.closest('#act-you, #act-plant, #act-sing')) continue;
+    for (const w of [youWin, plantWin, card, todayWin]) {
+      if (w.hidden || w.contains(e.target) || e.target.closest('#act-you, #act-plant, #act-sing, #act-today')) continue;
       w.hidden = true;
     }
   }, true);
@@ -2849,6 +2853,184 @@
     c = saved;
   }
   document.getElementById('act-plant').addEventListener('click', () => { closeWindows(plantWin); plantWin.hidden = !plantWin.hidden; if (!plantWin.hidden) paintPlantIcons(); });
+
+  // ------------------------------------------------------------------ today: a small kindness, and breathing and humming together
+  // a different small kind act for every day of the year (the same one for everyone, wherever they are)
+  function kindToday(d = new Date()) {
+    const list = window.KINDNESS || [];
+    // counted on a leap-year calendar, so the 29th of february has its own and the 31st of december is always the last
+    const i = Math.round((Date.UTC(2024, d.getMonth(), d.getDate()) - Date.UTC(2024, 0, 1)) / 86400000);
+    return { i, text: list[i % (list.length || 1)] || 'be kind to someone today.' };
+  }
+  const dayKey = () => new Date().toDateString();
+  const todayBtn = document.getElementById('act-today');
+  const kindDone = document.getElementById('kind-done');
+  // the weekly gatherings, at one moment for the whole world (shown in your own time)
+  const GATHER = { breathe: { day: 0, hour: 18 }, hum: { day: 3, hour: 18 } }; // sundays and wednesdays, 18:00 utc
+  function nextGathering(g, now = new Date()) {
+    const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), g.hour));
+    d.setUTCDate(d.getUTCDate() + ((g.day - d.getUTCDay() + 7) % 7));
+    if (now - d > 20 * 60000) d.setUTCDate(d.getUTCDate() + 7); // still "now" for twenty minutes after it starts
+    return d;
+  }
+  const gatheringNow = (g) => { const t = Date.now() - nextGathering(g); return t >= 0 && t < 20 * 60000; };
+  function whenText(g) {
+    if (gatheringNow(g)) return '<span class="now">happening now. come!</span>';
+    const d = nextGathering(g);
+    const day = d.toLocaleDateString(undefined, { weekday: 'long' }).toLowerCase();
+    const time = d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' }).toLowerCase();
+    return `every ${day} at ${time}, everyone together. or any time on your own.`;
+  }
+  function paintToday() {
+    const k = kindToday(), d = new Date();
+    document.getElementById('kind-date').textContent = `${d.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' }).toLowerCase()} · day ${k.i + 1} of kindness`;
+    document.getElementById('kind-act').textContent = k.text;
+    const done = store.get('kind-done') === dayKey();
+    kindDone.disabled = done; kindDone.textContent = done ? 'done today ♥' : 'i did it ♥';
+    document.getElementById('breathe-when').innerHTML = whenText(GATHER.breathe);
+    document.getElementById('hum-when').innerHTML = whenText(GATHER.hum);
+  }
+  todayBtn.addEventListener('click', () => { closeWindows(todayWin); todayWin.hidden = !todayWin.hidden; if (!todayWin.hidden) paintToday(); });
+  kindDone.addEventListener('click', () => {
+    store.set('kind-done', dayKey());
+    paintToday();
+    // a flower grows where you are, for everyone to see
+    if (me) {
+      const m = { lat: me.lat, lon: me.lon, k: 'flower', n: myName, at: Date.now() };
+      if (net.live) send({ t: 'mark', lat: m.lat, lon: m.lon, k: m.k }); else planted(m);
+      me.hearts = 2400;
+      for (let i = 0; i < 3; i++) setTimeout(() => pointHearts.push({ s: me, born: performance.now(), together: true, seed: Math.random() * 10 }), i * 250);
+    }
+    tone.chime();
+    whisper('thank you. a flower grew where you are. ♥', 3800);
+  });
+  // once a day, the world tells you today's kindness (after it wakes)
+  setTimeout(() => {
+    if (store.get('kind-seen') === dayKey()) return;
+    store.set('kind-seen', dayKey());
+    whisper(`today's small kindness: ${kindToday().text}`, 7000, false, null, true);
+  }, Math.max(0, intro.ui - performance.now()) + 9000);
+  // when a gathering is happening, everyone here is invited
+  setInterval(() => {
+    for (const [k, g] of Object.entries(GATHER)) {
+      if (!gatheringNow(g) || store.get('gather-' + k) === dayKey()) continue;
+      store.set('gather-' + k, dayKey());
+      whisper(k === 'breathe' ? 'everyone is breathing together right now. tap today → breathe.' : 'everyone is humming together right now. tap today → hum.', 6000, false, null, true);
+    }
+  }, 30000);
+
+  // breathing: the world fills like a lung. in for four, hold for four, out for six, rest for two. five times.
+  const BREATH = [['breathe in', 4000], ['hold', 4000], ['breathe out', 6000], ['rest', 2000]];
+  const BREATH_CYCLE = 16000, BREATH_TIMES = 5;
+  const breath = { at: 0, phase: -1 };
+  function breathNow(now) {
+    if (!breath.at || now < breath.at) return null;
+    const t = now - breath.at;
+    if (t >= BREATH_CYCLE * BREATH_TIMES) return { done: true };
+    let u = t % BREATH_CYCLE, phase = 0;
+    while (u >= BREATH[phase][1]) { u -= BREATH[phase][1]; phase++; }
+    const k = u / BREATH[phase][1];
+    const fill = phase === 0 ? smooth(0, 1, k) : phase === 1 ? 1 : phase === 2 ? 1 - smooth(0, 1, k) : 0;
+    return { phase, k, fill, cycle: Math.floor(t / BREATH_CYCLE) };
+  }
+  function breathFill(now) { const b = breathNow(now); return b && !b.done ? b.fill : 0; }
+  function startBreath() {
+    if (hum.at) endHum(true);
+    todayWin.hidden = true;
+    if (!soundOn) setSound(true);
+    breath.at = performance.now() + 3000; breath.phase = -1;
+    calmMood = 'sleepy'; setMood('sleepy', BREATH_CYCLE * BREATH_TIMES + 3000);
+    whisper('let\'s breathe together. follow the world.', 2800);
+  }
+  document.getElementById('breathe-now').addEventListener('click', startBreath);
+
+  // humming: scorsby holds a note, and you find it with your voice. any octave counts.
+  const HUM_ROOT = 196; // g, low enough to hum
+  const HUM = [[0, 'hum this note with scorsby. mmm…', 20000], [0, 'softer now. let it be easy.', 14000], [7, 'rise to a new note.', 18000],
+    [4, 'and one more, in between.', 18000], [0, 'come home to the first note.', 18000], [null, 'rest in the quiet, and listen.', 9000]];
+  const hum = { at: 0, step: -1, close: 0, c: 0, lastHeart: 0, opened: false };
+  async function startHum() {
+    if (breath.at) { breath.at = 0; calmMood = null; voices.hush('guide'); }
+    todayWin.hidden = true;
+    if (!mic.on) { hum.opened = await openVoice(true); if (!hum.opened) return; }
+    hum.at = performance.now() + 2500; hum.step = -1; hum.close = 0;
+    calmMood = 'o'; setMood('o', HUM.reduce((a, s) => a + s[2], 0) + 2500);
+    whisper('let\'s hum together. scorsby will start.', 2500);
+  }
+  function endHum(quiet = false) {
+    hum.at = 0; hum.step = -1; calmMood = null;
+    voices.hush('guide');
+    if (hum.opened) { stopSinging(); hum.opened = false; }
+    if (!quiet) { setMood('hearts', 2600); whisper('thank you for humming with scorsby. ♥', 4200); }
+  }
+  document.getElementById('hum-now').addEventListener('click', startHum);
+
+  // each frame: the guide's voice, the words, and how close your voice is
+  function updateTogether(now) {
+    const b = breathNow(now);
+    if (b) {
+      if (b.done) {
+        breath.at = 0; calmMood = null; voices.hush('guide'); setMood('smile', 2000);
+        whisper('thank you for breathing with the world. ♥', 4200);
+      } else {
+        if (b.phase !== breath.phase) {
+          breath.phase = b.phase;
+          if (b.phase !== 3) whisper(b.phase === 0 && b.cycle === BREATH_TIMES - 1 ? 'one last time. breathe in' : BREATH[b.phase][0], BREATH[b.phase][1] - 200);
+        }
+        // a soft tone that rises as you breathe in and falls as you breathe out
+        if (b.phase === 3) voices.hush('guide');
+        else voices.sing('guide', 130.8 * (1 + 0.5 * b.fill), 0.18 + 0.3 * b.fill, CX, 0.4);
+      }
+    }
+    if (hum.at && now >= hum.at) {
+      let t = now - hum.at, step = 0;
+      while (step < HUM.length && t >= HUM[step][2]) { t -= HUM[step][2]; step++; }
+      if (step >= HUM.length) { endHum(); return; }
+      if (step !== hum.step) { hum.step = step; whisper(HUM[step][1], 4500); }
+      const semi = HUM[step][0];
+      if (semi === null) { voices.hush('guide'); hum.close *= 0.95; return; }
+      const target = HUM_ROOT * Math.pow(2, semi / 12);
+      voices.sing('guide', target, step === 1 ? 0.25 : 0.42, CX, 0.25);
+      // how far your voice is from the note, folded into one octave: -600..600 cents
+      let close = 0;
+      if (mic.f > 0 && now - mic.heard < 300) {
+        const cents = 1200 * Math.log2(mic.f / target);
+        hum.c += ((((cents % 1200) + 1800) % 1200 - 600) - hum.c) * 0.2;
+        close = clamp(1 - Math.abs(hum.c) / 140, 0, 1);
+      }
+      hum.close += (close - hum.close) * 0.08;
+      if (hum.close > 0.75 && me && now - hum.lastHeart > 1400) { hum.lastHeart = now; pointHearts.push({ s: me, born: now, together: true, seed: Math.random() * 10 }); }
+    }
+  }
+  // a ring around the world: while breathing it swells with you; while humming it glows as your voice finds the note,
+  // and a little light shows where your voice is (straight up is the note: to the left is too low, to the right too high)
+  function renderTogether(now) {
+    updateTogether(now);
+    const b = breathNow(now);
+    if (b && !b.done) {
+      c.save();
+      c.globalAlpha = 0.18 + 0.25 * b.fill;
+      c.beginPath(); c.arc(CX, CY, R * (1.18 + 0.12 * b.fill), 0, TAU);
+      c.lineWidth = 3 + 8 * b.fill; c.strokeStyle = '#7fd0ff'; c.stroke();
+      c.restore();
+    }
+    if (hum.at && now >= hum.at && hum.step >= 0 && HUM[hum.step][0] !== null) {
+      const rr = R * 1.2, hue = (now / 40) % 360;
+      c.save();
+      c.globalAlpha = 0.25 + 0.6 * hum.close;
+      c.beginPath(); c.arc(CX, CY, rr, 0, TAU);
+      c.lineWidth = 3 + 12 * hum.close; c.strokeStyle = `hsl(${hue},90%,62%)`; c.stroke();
+      if (mic.f > 0 && now - mic.heard < 600) {
+        const a = -Math.PI / 2 + (hum.c / 600) * Math.PI;
+        c.globalAlpha = 0.9;
+        c.beginPath(); c.arc(CX + Math.cos(a) * rr, CY + Math.sin(a) * rr, 9, 0, TAU);
+        c.fillStyle = '#fff'; c.fill(); c.lineWidth = 2.5; c.strokeStyle = DARK; c.stroke();
+      }
+      // the note itself, a small mark at the top
+      c.globalAlpha = 0.9; c.beginPath(); c.arc(CX, CY - rr, 5, 0, TAU); c.fillStyle = DARK; c.fill();
+      c.restore();
+    }
+  }
 
   // ------------------------------------------------------------------ sound
   let ac = null, master = null, soundOn = false;
@@ -2999,8 +3181,8 @@
     closeWindows(card); card.hidden = !card.hidden;
   });
   document.getElementById('sing-no').addEventListener('click', () => { card.hidden = true; });
-  document.getElementById('sing-yes').addEventListener('click', async () => {
-    card.hidden = true;
+  document.getElementById('sing-yes').addEventListener('click', () => { card.hidden = true; openVoice(); });
+  async function openVoice(quiet = false) {
     try {
       audio();
       // the noise filter treats a long held note as noise and fades it out, so it stays off
@@ -3012,11 +3194,13 @@
       mic.on = true;
       singBtn.setAttribute('aria-pressed', 'true'); singBtn.textContent = 'singing';
       if (!soundOn) setSound(true);
-      whisper('sing anything. everyone hears you as a scorsby.', 4000);
+      if (!quiet) whisper('sing anything. everyone hears you as a scorsby.', 4000);
+      return true;
     } catch {
       whisper('your voice stayed closed. that is okay too.', 3000);
+      return false;
     }
-  });
+  }
   function stopSinging() {
     mic.stream?.getTracks().forEach((t) => t.stop());
     mic.on = false; mic.stream = null;
