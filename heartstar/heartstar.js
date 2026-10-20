@@ -618,7 +618,9 @@
   // planted things are many little drawings, so each is drawn once into a picture and stamped from then on.
   // three versions of each are kept and flipped between, so the hand-drawn wobble still lives.
   const doodleSprites = new Map();
+  let stampFaces = false, stampPlants = false; // only past a crowd: below it, everything is drawn live as always
   function doodleCached(kind, x, y, size, seed, now, lw) {
+    if (!stampPlants) return doodle(kind, x, y, size, seed, now, lw);
     const q = Math.max(6, Math.round(size)), frame = boil % 3;
     const key = `${kind}|${q}|${Math.round(seed * 10)}|${frame}|${DPR}|${T === THEMES.night ? 1 : 0}`;
     let sp = doodleSprites.get(key);
@@ -641,6 +643,7 @@
   // stamped from then on (a new one is drawn only when its color, size, blink, hearts, song or gaze changes)
   const faceSprites = new Map();
   function drawFaceCached(cx, cy, size, o = {}) {
+    if (!stampFaces) return drawFace(cx, cy, size, o);
     const q = Math.max(6, Math.round(size));
     const look = [Math.round((o.look?.[0] || 0) * 3) / 3, Math.round((o.look?.[1] || 0) * 3) / 3];
     const sing = Math.round((o.sing || 0) * 6) / 6;
@@ -1423,7 +1426,7 @@
     if (!glows.length) return;
     const gold = pf.cur.gold, rad = R * (0.5 + 0.35 * worldRain);
     // the ones facing us first; past a hundred or so the rest add nothing you could see
-    const list = glows.map(([s, col]) => [project(s.v[0], s.v[1], s.v[2]), col, s.sing || 0]).filter(([p]) => p[2] > -0.15).sort((a, b) => b[0][2] - a[0][2]).slice(0, 120);
+    const list = glows.map(([s, col]) => [project(s.v[0], s.v[1], s.v[2]), col, s.sing || 0]).filter(([p]) => p[2] > -0.15).sort((a, b) => b[0][2] - a[0][2]).slice(0, 40); // (past forty, more glows only blur together)
     if (glowBuf.width !== cv.width || glowBuf.height !== cv.height) { glowBuf.width = cv.width; glowBuf.height = cv.height; }
     glowC.setTransform(DPR, 0, 0, DPR, 0, 0); glowC.globalCompositeOperation = 'source-over'; glowC.globalAlpha = 1;
     glowC.clearRect(0, 0, VW, VH);
@@ -1618,8 +1621,10 @@
       const sway = Math.sin(now / 1100 + i * 1.7) * 0.08;
       const size = fs * (0.85 + 0.3 * hash(i * 7.31 + 3));
       c.save(); c.translate(x, y); c.rotate(a + Math.PI / 2 + sway);
-      c.beginPath(); c.moveTo(0, 0); c.lineTo(0, -size * 0.5); c.lineWidth = 1.32; c.strokeStyle = charInk(0.95); c.stroke();
-      c.translate(0, -size * 0.5); c.rotate(now / 2200 + i * 3.3); drawRainbowHead(size);
+      if (n > 20) { // a full wreath: each head a ready-made picture, turned as it spins, on a one-line stem
+        c.beginPath(); c.moveTo(0, 0); c.lineTo(0, -size * 0.5); c.lineWidth = 1.32; c.strokeStyle = charInk(0.95); c.stroke();
+        c.translate(0, -size * 0.5); c.rotate(now / 2200 + i * 3.3); drawRainbowHead(size);
+      } else doodle('rainbowflower', 0, -size * 0.5, size, i * 3.3, now, 1.32); // a few flowers are drawn live
       c.restore();
     }
   }
@@ -1839,6 +1844,7 @@
   }
 
   function renderFaces(now, dt, storm) {
+    stampFaces = peers.size > 40; stampPlants = marks.length > 60;
     const list = [...everyone()].map((s) => {
       const [x, y, z] = project(s.v[0], s.v[1], s.v[2], 1.015);
       s.sx = x; s.sy = y; s.sz = z;
@@ -2599,7 +2605,7 @@
         setTally(m.tally);
         if ((me && m.from === me.id) || calmMood) break; // (counted, but quiet, while scorsby breathes or sings)
         const v = vec(...m.a);
-        capPush(waves, { v, born: now, radius: 0, seen: new Set() }, 6);
+        capPush(waves, { v, born: now, radius: 0, seen: new Set() }, 3);
         const from = peers.get(m.from);
         loveBurst(m.v ?? 0, from && from.sz > 0 ? [from.sx, from.sy] : null, now);
         whisper(`${from ? nameOf(from) : 'someone'} loves you.`, 4200, true, null, true);
@@ -2860,7 +2866,7 @@
     if (now - lastAll < 4000) return whisper('the last love is still spreading.', 2000);
     lastAll = now;
     const v = (Math.random() * 4) | 0;
-    capPush(waves, { v: me.v, born: now, radius: 0, seen: new Set() }, 6);
+    capPush(waves, { v: me.v, born: now, radius: 0, seen: new Set() }, 3);
     me.hearts = 2400;
     loveBurst(v, me.sz > 0 ? [me.sx, me.sy] : null, now);
     send({ t: 'all', v, h: me.hands || 0 }); // one point of love, and one more for every hand you are holding
@@ -3605,7 +3611,7 @@
         else if (r < 0.45) heartsAt(s.v, id);
         else if (r < 0.5) {
           if (calmMood) return setTimeout(life, rand(2500, 9000));
-          capPush(waves, { v: s.v, born: performance.now(), radius: 0, seen: new Set() }, 6);
+          capPush(waves, { v: s.v, born: performance.now(), radius: 0, seen: new Set() }, 3);
           loveBurst((Math.random() * 4) | 0, s.sz > 0 ? [s.sx, s.sy] : null, performance.now());
           whisper(`${nameOf(s)} loves you.`, 3600, true, null, true);
           tone.swell();
@@ -3682,7 +3688,7 @@
   connect();
   if (!net.url) alone();
   const n = parseInt(params.get('dream'), 10);
-  if (n > 0) dream(Math.min(n, params.has('debug') ? 200 : 40)); // (up to 200 for testing a crowd)
+  if (n > 0) dream(Math.min(n, params.has('debug') ? 400 : 40)); // (up to 400, the hearth's limit, for testing a crowd)
   if (params.get('omen')) setTimeout(() => startOmen(params.get('omen')), 1500);
   if (params.get('mood')) setTimeout(() => setMood(params.get('mood'), 30000), Math.max(1500, intro.ui - performance.now() + 500)); // ?mood=worm to see one face for 30s
   if (params.has('debug')) window.heartstar = { get gardenN() { return gardenN; }, set gardenN(v) { gardenN = v; }, pointHearts, get quality() { return quality; }, set quality(q) { quality = q; resize(); }, get frameAvg() { return frameAvg; }, get visible() { return visible; }, get ac() { return ac; }, get master() { return master; }, get soundOn() { return soundOn; }, mic, pitch, hit, tap, planted, bursts, pf, pull, hitPart, sunAt, view, moon, peers, get me() { return me; }, faceToward, startOmen, setMood, zoom, loveBurst, MOODS, waves, sky };
