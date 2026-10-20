@@ -1517,8 +1517,12 @@
   const GARDEN_MAX = 56;
   const gardenU = []; // where each flower is along the edge (0..1), easing toward its even spot
   function renderGarden(now) {
-    const n = Math.min(gardenN, GARDEN_MAX);
-    if (n <= 0) return;
+    const n = Math.min(gardenN, GARDEN_MAX), show = awake(now); // (hidden while the world sleeps, then fading in as it wakes)
+    if (n <= 0 || show <= 0) return;
+    c.save(); c.globalAlpha *= show;
+    try { drawGarden(now, n); } finally { c.restore(); }
+  }
+  function drawGarden(now, n) {
     const ears = pf.ears || [];
     const lw = 70 * L, fs = R * 0.22;
     // the edge, as one long loop: all the way round the face, then the outer side of each ear
@@ -3017,7 +3021,7 @@
   const kindDone = document.getElementById('kind-done');
   // scorsby breathes on its own a few times a day, and sings every sunday at noon: by your own clock, so everyone
   // in your part of the world breathes and sings at the same moment, and anyone arriving partway joins where it is
-  const BREATH_HOURS = [3, 6, 9, 15, 18, 21];
+  const BREATH_HOURS = [0, 3, 6, 9, 12, 15, 18, 21]; // 3, 6, 9 and 12, morning and evening (on sundays at noon it sings instead)
   const SING_DAY = 0, SING_HOUR = 12; // sunday, noon
   function paintToday() {
     const k = kindToday(), d = new Date();
@@ -3026,7 +3030,7 @@
     const src = document.getElementById('kind-src'); src.textContent = k.src.replace(/ (\([^)]*\))$/, '\n$1'); src.hidden = !k.src; // a closing (aside) gets its own line
     const done = store.get('kind-done') === dayKey();
     kindDone.disabled = done; kindDone.classList.toggle('done', done); kindDone.textContent = done ? 'i see you too ♥' : 'i see you ♥';
-    document.getElementById('rhythm').textContent = 'planet scorsby breathes slowly every day at 3, 6, and 9 am/pm, and sings every sunday at noon. come and join, wherever you are.';
+    document.getElementById('rhythm').textContent = 'planet scorsby breathes slowly every day at 3, 6, 9, and 12 am/pm, and sings every sunday at noon. come and join, wherever you are.';
   }
   // a little rainbow flower on each side of the button, like the ones that grow on the world
   {
@@ -3064,6 +3068,7 @@
       if (t >= s && t < s + singLen - 8000 && singSlot !== s && !hum.at) { singSlot = s; startHum(s); return; }
     }
     for (const h of BREATH_HOURS) {
+      if (d.getDay() === SING_DAY && h === SING_HOUR) continue;
       const s = at(h);
       if (t >= s - 60000 && t < s && warned !== s) { warned = s; whisper('in a minute, planet scorsby will breathe slowly. breathe along if you like.', 6000, true); }
       if (t >= s && t < s + breathLen - 6000 && breathSlot !== s && !breath.at && !hum.at) { breathSlot = s; startBreath(s); }
