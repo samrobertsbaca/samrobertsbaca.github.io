@@ -2999,7 +2999,7 @@
     const k = kindToday(), d = new Date();
     document.getElementById('kind-date').textContent = `${d.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' }).toLowerCase()} · day ${k.i + 1} of awareness`;
     document.getElementById('kind-act').textContent = k.text;
-    const src = document.getElementById('kind-src'); src.textContent = k.src; src.hidden = !k.src;
+    const src = document.getElementById('kind-src'); src.textContent = k.src.replace(/ (\([^)]*\))$/, '\n$1'); src.hidden = !k.src; // a closing (aside) gets its own line
     const done = store.get('kind-done') === dayKey();
     kindDone.disabled = done; kindDone.classList.toggle('done', done); kindDone.textContent = done ? 'noticed today ♥' : 'i noticed ♥';
     document.getElementById('rhythm').textContent = 'planet scorsby breathes slowly every day at 3, 6, and 9 am/pm, and sings every sunday at noon. come and join, wherever you are.';
