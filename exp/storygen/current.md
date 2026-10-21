@@ -1,3 +1,3 @@
-### scorsby and the momentary flare
+### scorsby's warm tart
 
-scorsby, a fox of keen smiles, asked the duck, "rrombo dombo di di dai! your beak, in slumber's breeze?" the duck, an essence of pure arc, tucked her head under wing. *gulp*. a wolf nearby mumbled, "oh, the unfairness. if *i* did that, they'd call it eating." later, scorsby bought a pipe, lit it in a barn. hay glowed. a swish of his tail, fire gone, tail a bit crispy. "ah," he thought, "the aroma."
+scorsby, cat-eyed, saw joy in moonbeams. never with the grumbly masses, he hung his iridescent coat on a sunbeam: *rrombo dombo di di dai!* when ogre gloom challenged him, scorsby smiled, sending 'uncle' bartholomew, a bear whose warmth profoundly softened. the ogre, baffled by un-logic, melted. scorsby just wondered, was that a warm berry tart?
