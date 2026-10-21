@@ -685,8 +685,10 @@ export class Hearth extends DurableObject {
         if (me.noticed) return;
         me.noticed = true; ws.serializeAttachment(me);
         this.unsent.noticed++;
+        // (waking from a rest, this hearth doesn't know the garden yet: it asks the lobby first, so the count
+        // is everyone's flowers plus this one, not just this one)
+        if (!this.shared || Date.now() - this.lastSync > 2000) await this.sync();
         this.broadcast({ t: 'garden', n: this.garden() });
-        if (Date.now() - this.lastSync > 2000) await this.sync();
         break;
       }
       case 'mark': {
