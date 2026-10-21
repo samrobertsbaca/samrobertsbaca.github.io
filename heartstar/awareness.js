@@ -322,7 +322,7 @@ window.AWARENESS = [
   "notice what it feels like to be welcomed.",
   ["see the world as it is, before your mind describes it.", "after the yoga sutras of patañjali"],
   "notice the curiosity that wakes up when you slow down.",
-  ["mooncheese, mooncheese, soft and sweet, loose from my head down to my feet.", "a glongingstonian mantra"],
+  ["mooncheese, mooncheese, soft and sweet, cheesy head and cheesy feet.", "a glongingstonian mantra"],
   "notice where you feel safe, and let your body know it.",
   "notice the sound of your breath as it leaves you.",
   ["feel the whole universe as one living body, with you inside it.", "after the vijñāna bhairava tantra (shiva's 112 ways)"],
