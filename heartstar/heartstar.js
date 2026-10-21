@@ -2760,6 +2760,42 @@
 
   const pointHearts = []; // hearts that pop out of scorsbys when they add love by singing or holding a new hand
   const handsHeld = new Set(); // everyone you've held hands with this visit
+  // the void: scroll or pinch out past the furthest view and everything (the world, the corners, the buttons) shrinks
+  // away into white, until only the void is left. it says one thing. scroll or pinch back in to return.
+  let voidZ = 1, voidK = 1; // how far into the void you've gone (1 = not at all), and how far it shows (easing after it)
+  const VOID_END = 0.02;
+  const totalZoom = () => zoom.target * voidZ;
+  function setTotalZoom(t) {
+    if (t < 0.75) { zoom.target = 0.75; voidZ = clamp(t / 0.75, VOID_END, 1); }
+    else { voidZ = 1; zoom.target = Math.min(16.8, t); }
+  }
+  const voidWords = document.createElement('p');
+  voidWords.textContent = 'welcome to the void. the void says i love you too! feel free to return anytime.';
+  voidWords.style.cssText = 'position:fixed;inset:0;margin:auto;height:fit-content;max-width:min(520px,calc(100vw - 32px));text-align:center;font-family:Scheme,Georgia,serif;font-size:24px;line-height:1.35;color:#1d1a5e;opacity:0;transition:opacity 1.2s ease;pointer-events:none;z-index:2147483647;';
+  document.documentElement.appendChild(voidWords);
+  // in the void the world is too small to scroll or pinch on, so the whole page listens (only while you're there)
+  addEventListener('wheel', (e) => {
+    if (voidZ === 1 || e.target === cv) return;
+    e.preventDefault();
+    const k = e.ctrlKey ? 0.012 : e.deltaMode === 0 && Math.abs(e.deltaY) < 50 ? 0.006 : 0.0016;
+    setTotalZoom(totalZoom() * Math.exp(-(e.deltaMode === 1 ? e.deltaY * 33 : e.deltaY) * k));
+  }, { passive: false });
+  let voidPinch = null;
+  const span = (t) => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+  addEventListener('touchstart', (e) => { if (voidZ < 1 && e.touches.length === 2 && e.target !== cv) voidPinch = { d: span(e.touches), z: totalZoom() }; }, { passive: true });
+  addEventListener('touchmove', (e) => { if (voidPinch && e.touches.length === 2) setTotalZoom(voidPinch.z * span(e.touches) / voidPinch.d); }, { passive: true });
+  addEventListener('touchend', (e) => { if (e.touches.length < 2) voidPinch = null; }, { passive: true });
+  (function voidLoop() {
+    voidK += (voidZ - voidK) * 0.15;
+    if (Math.abs(voidK - voidZ) < 0.0005) voidK = voidZ;
+    const b = document.body.style, deep = voidK < 0.999;
+    b.transform = deep ? `scale(${voidK})` : '';
+    b.transformOrigin = deep ? `${innerWidth / 2}px ${innerHeight / 2}px` : '';
+    b.opacity = deep ? String(smooth(VOID_END * 1.5, 0.08, voidK)) : '';
+    document.documentElement.style.background = deep ? '#fff' : '';
+    voidWords.style.opacity = voidK < VOID_END * 1.6 ? '1' : '0';
+    requestAnimationFrame(voidLoop);
+  })();
   let tipHold = null; // a tapped scorsby's tip, held for a moment on touch screens
   const touches = new Map();
   let pinch = null, holdTimer = 0, lastTap = 0;
@@ -2769,10 +2805,11 @@
     try { cv.setPointerCapture(e.pointerId); } catch {}
     if (touches.size === 2) {
       const [a, b] = [...touches.values()];
-      pinch = { d: Math.hypot(a[0] - b[0], a[1] - b[1]), z: zoom.target, at: performance.now() };
+      pinch = { d: Math.hypot(a[0] - b[0], a[1] - b[1]), z: totalZoom(), at: performance.now() };
       clearTimeout(holdTimer); pointer.down = false;
       return;
     }
+    if (voidK < 0.98) return;
     Object.assign(pointer, { down: true, x: e.clientX, y: e.clientY, moved: 0, held: false, seen: e.pointerType === 'mouse' });
     const s = hit(e.clientX, e.clientY);
     pointer.onMe = s && s.mine;
@@ -2784,7 +2821,7 @@
     if (touches.has(e.pointerId)) touches.set(e.pointerId, [e.clientX, e.clientY]);
     if (pinch && touches.size === 2) {
       const [a, b] = [...touches.values()];
-      zoom.target = clamp(pinch.z * Math.hypot(a[0] - b[0], a[1] - b[1]) / pinch.d, 0.75, 16.8);
+      setTotalZoom(pinch.z * Math.hypot(a[0] - b[0], a[1] - b[1]) / pinch.d);
       return;
     }
     const dx = e.clientX - pointer.x, dy = e.clientY - pointer.y;
@@ -2828,7 +2865,7 @@
     touches.delete(e.pointerId);
     if (pinch) {
       // a quick two-finger tap (no pinching) steps back out, for anyone who can't easily pinch
-      if (touches.size < 2) { if (performance.now() - pinch.at < 300 && Math.abs(zoom.target / pinch.z - 1) < 0.05) zoomStep(-1); pinch = null; }
+      if (touches.size < 2) { if (performance.now() - pinch.at < 300 && Math.abs(totalZoom() / pinch.z - 1) < 0.05 && voidZ === 1) zoomStep(-1); pinch = null; }
       return;
     }
     clearTimeout(holdTimer);
@@ -2941,8 +2978,8 @@
     // a pinch on a trackpad arrives as a wheel with ctrl held, in small steps; two-finger scrolls are small steps too. a mouse wheel clicks in big ones.
     const k = e.ctrlKey ? 0.012 : e.deltaMode === 0 && Math.abs(e.deltaY) < 50 ? 0.006 : 0.0016;
     const f = Math.exp(-(e.deltaMode === 1 ? e.deltaY * 33 : e.deltaY) * k);
-    zoom.target = clamp(zoom.target * f, 0.75, 16.8);
-    if (f > 1) { const ll = unproject(e.clientX, e.clientY); if (ll) zoom.aim = ll; }
+    setTotalZoom(totalZoom() * f);
+    if (f > 1 && voidZ === 1) { const ll = unproject(e.clientX, e.clientY); if (ll) zoom.aim = ll; }
   }, { passive: false });
   // the buttons step between fixed stops, so stepping back out always lands on the usual view (1), with the whole face showing
   const ZOOM_STOPS = [0.75, 1, 2.56, 6.55, 16.8];
