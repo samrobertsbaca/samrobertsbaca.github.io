@@ -140,7 +140,11 @@
        win.style.visibility = ''; win.hidden = false;
      };
      const close = () => { win.hidden = true; if (location.hash === '#support') history.replaceState(null, '', location.pathname + location.search); };
-     document.addEventListener('click', (e) => { if (e.target.closest('a[href="#support"]')) open(e); });
+     // the support link opens it; a click anywhere outside it closes it (like letters.exe)
+     document.addEventListener('click', (e) => {
+       if (e.target.closest('a[href="#support"]')) return open(e);
+       if (!win.hidden && !win.contains(e.target)) close();
+     }, true);
      win.querySelector('.x').addEventListener('click', close);
      // dragged by its title bar, like letters.exe: anywhere on a computer, up and down on a phone, never off the page
      const bar = win.querySelector('.bar');
