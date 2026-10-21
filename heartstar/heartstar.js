@@ -2786,7 +2786,7 @@
     [45, 'the void has been thinking. mostly about nothing.'],
     [50, 'is the void staring into you, or are you staring into the void? either way, hi.'],
     [55, "the void tried to plant a flower once. it didn’t grow."],
-    [60, 'somewhere out there, scorsby is wondering where you went. or was there ever a scorsby?'],
+    [60, 'somewhere out there, scorsby is wondering where you went… or was there ever a scorsby?'],
     [70, 'the void is made of the same stuff as you. just less of it. or… maybe more… really makes ya think, huh?'],
     [80, 'you have been in the void a long time now. the void is proud of you.'],
     [90, 'the void would like to remind you: there is no other. not even here.'],
