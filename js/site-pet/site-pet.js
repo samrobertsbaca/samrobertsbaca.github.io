@@ -11,7 +11,7 @@ function createSitePet(gfx, opts = {}) {
   ele.style.position = 'fixed';
   ele.style.width = '64px';
   ele.style.height = '64px';
-  ele.style.backgroundImage = `url(/js/site-pet/gfx/${gfx}.png?v=3)`;
+  ele.style.backgroundImage = `url(/js/site-pet/gfx/${gfx}.png?v=4)`;
   ele.style.backgroundRepeat = 'no-repeat';
   ele.style.backgroundPosition = '0px 0px';
   ele.style.imageRendering = 'pixelated';
