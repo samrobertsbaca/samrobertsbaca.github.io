@@ -15,7 +15,7 @@ function createSitePet(gfx, opts = {}) {
   ele.style.backgroundRepeat = 'no-repeat';
   ele.style.backgroundPosition = '0px 0px';
   ele.style.imageRendering = 'pixelated';
-  ele.style.zIndex = '500';
+  ele.style.zIndex = '0'; // behind the words, covers and buttons (in front of the plain page), so it never covers what you're reading
   document.body.appendChild(ele);
 
   const MaxFrame = 8;
@@ -42,13 +42,12 @@ function createSitePet(gfx, opts = {}) {
 
   const setAnim = a => { frame = 0; anim = a; };
 
-  const update = () => {
-    let bgX = -64 * frame;
-    let bgY = -64 * anim;
-    ele.style.backgroundPosition = `${bgX}px ${bgY}px`;
-    frame++;
+  const draw = () => { ele.style.backgroundPosition = `${-64 * frame}px ${-64 * anim}px`; };
 
+  const update = () => {
+    // the next step is chosen before drawing, so a new direction shows the moment it starts moving that way
     if (frame >= MaxFrame) {
+      moving = false;
       if (sleep > 0) {
         sleep--;
         moving = false;
@@ -77,13 +76,25 @@ function createSitePet(gfx, opts = {}) {
         setAnim(a);
       }
     }
-    ele.style.cursor = (!moving && sleep <= 0 && anim !== ANI.PET) ? 'pointer' : 'default';
+    draw();
+    frame++;
+    ele.style.cursor = (sleep <= 0 && anim !== ANI.PET) ? 'pointer' : 'default';
   };
 
   setInterval(update, 150 + Math.random() * 100);
 
+  // petting: it stops right where it is (even mid-step) and enjoys it
   ele.addEventListener('click', () => {
-    if (!moving && sleep <= 0 && anim !== ANI.PET) setAnim(ANI.PET);
+    if (sleep > 0 || anim === ANI.PET) return;
+    if (moving) {
+      const r = ele.getBoundingClientRect();
+      x = r.left; y = r.top;
+      ele.style.transition = 'none'; ele.style.left = `${x}px`; ele.style.top = `${y}px`;
+      ele.offsetWidth; // (settle there before walking on)
+      ele.style.transition = 'top 1500ms linear, left 1500ms linear';
+      moving = false;
+    }
+    setAnim(ANI.PET); draw();
   });
 
   return ele;
@@ -92,7 +103,6 @@ function createSitePet(gfx, opts = {}) {
 function generateScorsbys() {
   for (let i = 0; i < 5; i++) {
     const side = Math.random() < 0.5 ? 'left' : 'right';
-    const x = Math.random() * (window.innherWidth - 64);
     const y = Math.random() * (64 + window.innerHeight - 64);
     createSitePet('example', { side, y });
   }

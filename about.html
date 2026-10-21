@@ -45,7 +45,7 @@
     <script src="./functional_scripts.js" defer></script>
 
     <link rel="stylesheet" href="/js/site-pet/pet.css">
-    <script src="/js/site-pet/site-pet.js"></script>
+    <script src="/js/site-pet/site-pet.js?v=3"></script>
 
     <script>
       document.addEventListener('DOMContentLoaded', () => {
@@ -56,6 +56,8 @@
 
     <style>
       /* the letter reads like a letter: about the width of a paperback page */
+      /* the little scorsbys walk behind the page: clicks on its empty space reach them (so they can be petted), the words and buttons work as always */
+      article { position: relative; z-index: 1; pointer-events: none; background: transparent; } article * { pointer-events: auto; }
       .joy { max-width: 560px; margin-left: auto; margin-right: auto; text-wrap: balance; }
       /* ways to stay close: three little buttons, like the ones on the planet */
       .stay-title { margin: 2.2rem 0 .8rem; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: rgba(29, 26, 94, .7); }
