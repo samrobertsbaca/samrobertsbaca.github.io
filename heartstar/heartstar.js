@@ -2767,6 +2767,7 @@
   const VOID_STOPS = [1, 0.3, 0.06, 0.012, VOID_END]; // where the zoom buttons step, on the way in
   const totalZoom = () => zoom.target * voidZ;
   function setTotalZoom(t) {
+    if (calmMood) t = Math.max(t, 0.75); // (while the world breathes or sings, the void waits)
     if (t < 0.75) { zoom.target = 0.75; voidZ = clamp(t / 0.75, VOID_END, 1); }
     else { voidZ = 1; zoom.target = Math.min(16.8, t); }
   }
@@ -2801,6 +2802,7 @@
     clearInterval(voidTalk.typing);
     voidTalk.typing = setInterval(() => {
       out.textContent = text.slice(0, ++n);
+      if (n % 3 === 0 && n > 6) tone.voidTick();
       if (n < text.length) return;
       clearInterval(voidTalk.typing);
       // it lingers, then fades, and after a while (if you're still here) the void says something else
@@ -2846,6 +2848,9 @@
     const fade = deep ? smooth(VOID_END, VOID_END * 3, voidK) : 1;
     for (const el of document.body.children) if (el !== zoomBox) el.style.opacity = deep ? String(fade) : '';
     document.documentElement.style.background = deep ? '#fff' : '';
+    // the world's sounds fade away as the void comes near
+    const vol = smooth(VOID_END * 3, 0.5, voidK);
+    if (Math.abs(vol - worldVol) > 0.01 || (vol === 1) !== (worldVol === 1)) { worldVol = vol; setVoidSound(vol); }
     const there = voidK <= VOID_END * 1.05;
     if (there && voidTalk.line < 0) { voidTalk.line = 0; voidTalk.timer = setTimeout(() => voidSay(0), 4000); } // (a few seconds of nothing first)
     else if (!there && voidTalk.line >= 0) voidHush();
@@ -3040,7 +3045,7 @@
   const ZOOM_STOPS = [0.75, 1, 2.56, 6.55, 16.8];
   const zoomStep = (dir) => {
     // past the furthest view, the buttons step into the void (and back out of it)
-    if (voidZ < 1 || (dir < 0 && zoom.target <= 0.751)) {
+    if (voidZ < 1 || (dir < 0 && zoom.target <= 0.751 && !calmMood)) {
       const v = dir < 0 ? VOID_STOPS.find((x) => x < voidZ / 1.02) ?? VOID_END : [...VOID_STOPS].reverse().find((x) => x > voidZ * 1.02) ?? 1;
       voidZ = v; zoom.target = 0.75;
       return;
@@ -3376,7 +3381,7 @@
     const SOAK = 7000; // "remember who you are." stays a while, to soak in, before the first breath
     breath.at = performance.now() - (Date.now() - clockAt) + SOAK; breath.phase = -1;
     calmMood = 'sleepy'; setMood('sleepy', BREATH_CYCLE * BREATH_TIMES + BREATH_REST + SOAK);
-    zoom.target = 1; zoom.aim = null;
+    zoom.target = 1; zoom.aim = null; voidZ = 1; // (and back from the void, if you were there)
     closeWindows(); ritualSay('remember who you are.', SOAK);
   }
 
@@ -3395,7 +3400,7 @@
     if (breath.at) { breath.at = 0; calmMood = null; hushGuides(); }
     hum.at = performance.now() - (Date.now() - clockAt) + 2500; hum.step = -1; hum.close = 0;
     calmMood = 'sleepy'; setMood('sleepy', HUM.reduce((a, s) => a + s[2], 0) + 2500); // eyes closed while you set your intention
-    zoom.target = 1; zoom.aim = null;
+    zoom.target = 1; zoom.aim = null; voidZ = 1; // (and back from the void, if you were there)
     closeWindows();
     ritualSay(soundOn ? 'scorsby is about to sing. hum along.' : 'scorsby is about to sing. turn the sound on to hear it.', 2400);
   }
@@ -3515,22 +3520,42 @@
   }
 
   // ------------------------------------------------------------------ sound
-  let ac = null, master = null, soundOn = false;
+  // every sound of the world goes through master (which fades away as the void comes near); the sound button turns
+  // everything on and off at the speaker (soundGain), and the void's own typing goes straight there
+  // (on the way out to the void, the world's sounds also echo more and more, as if heard from far away)
+  let ac = null, master = null, soundGain = null, soundOn = false, worldVol = 1, dryG = null, wetG = null;
   function audio() {
     if (!ac) {
       ac = new (window.AudioContext || window.webkitAudioContext)();
-      master = ac.createGain(); master.gain.value = soundOn ? 1 : 0;
+      master = ac.createGain();
+      soundGain = ac.createGain(); soundGain.gain.value = soundOn ? 1 : 0;
       const comp = ac.createDynamicsCompressor();
-      master.connect(comp); comp.connect(ac.destination);
+      dryG = ac.createGain(); dryG.gain.value = 1;
+      wetG = ac.createGain(); wetG.gain.value = 0;
+      // a big, soft room: a few seconds of fading noise, a little different in each ear
+      const len = Math.floor(ac.sampleRate * 3.5), ir = ac.createBuffer(2, len, ac.sampleRate);
+      for (let ch = 0; ch < 2; ch++) { const d = ir.getChannelData(ch); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.6); }
+      const room = ac.createConvolver(); room.buffer = ir;
+      master.connect(dryG); dryG.connect(comp);
+      master.connect(room); room.connect(wetG); wetG.connect(comp);
+      comp.connect(soundGain); soundGain.connect(ac.destination);
+      setVoidSound(worldVol);
     }
     if (ac.state === 'suspended') ac.resume();
     return ac;
+  }
+  // how near the void you are, in sound: quieter and roomier the further out, until it's gone
+  function setVoidSound(vol) {
+    if (!dryG) return;
+    const far = 1 - vol;
+    dryG.gain.setTargetAtTime(vol * (1 - 0.7 * far), ac.currentTime, 0.15);
+    wetG.gain.setTargetAtTime(Math.sqrt(vol) * far * 1.1, ac.currentTime, 0.15);
   }
   const soundBtn = document.getElementById('act-sound');
   function setSound(on) {
     soundOn = on;
     audio();
-    master.gain.setTargetAtTime(on ? 1 : 0, ac.currentTime, 0.3);
+    soundGain.gain.setTargetAtTime(on ? 1 : 0, ac.currentTime, 0.3);
     soundBtn.setAttribute('aria-pressed', on);
     document.body.classList.toggle('sound-on', on);
     // words on a computer; on a phone, just a little speaker (with waves when it's on), so the buttons fit on one row
@@ -3557,6 +3582,14 @@
     chime() { [0, 2, 4].forEach((k, i) => this.note(PENTA[k + 2] * 2, 2.2, 0.04, 'sine', i * 0.12)); },
     blink() { this.note(880, 0.25, 0.02, 'triangle'); },
     tick() { this.note(1760, 0.03, 0.006, 'square'); },
+    // the void's typing: the only sound left there
+    voidTick() {
+      if (!soundOn || !ac) return;
+      const t = ac.currentTime, o = ac.createOscillator(), g = ac.createGain();
+      o.type = 'square'; o.frequency.value = 1760;
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.006, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.03);
+      o.connect(g); g.connect(soundGain); o.start(t); o.stop(t + 0.13);
+    },
     poke() { [0, 2, 4].forEach((k, i) => this.note(PENTA[k + 4], 0.9, 0.03, 'triangle', i * 0.07)); },
     pop() { this.note(pick(PENTA) * 2, 0.35, 0.04, 'square'); this.note(pick(PENTA) * 3, 0.3, 0.02, 'sine', 0.05); },
     // a bubblegum pop: a sharp snap of noise and a quick little "plip" that drops in pitch
