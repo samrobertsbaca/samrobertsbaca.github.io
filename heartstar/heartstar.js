@@ -3275,10 +3275,11 @@
   function breathFill(now) { const b = breathNow(now); return b && !b.done ? b.fill : 0; }
   function startBreath(clockAt = Date.now()) {
     if (hum.at) endHum(true);
-    breath.at = performance.now() - (Date.now() - clockAt) + 3000; breath.phase = -1;
-    calmMood = 'sleepy'; setMood('sleepy', BREATH_CYCLE * BREATH_TIMES + BREATH_REST + 3000);
+    const SOAK = 8000; // "remember who you are." stays a while, to soak in, before the first breath
+    breath.at = performance.now() - (Date.now() - clockAt) + SOAK; breath.phase = -1;
+    calmMood = 'sleepy'; setMood('sleepy', BREATH_CYCLE * BREATH_TIMES + BREATH_REST + SOAK);
     zoom.target = 1; zoom.aim = null;
-    closeWindows(); ritualSay('remember who you are.', 3000);
+    closeWindows(); ritualSay('remember who you are.', SOAK);
   }
 
   // humming: scorsby holds a note, and you find it with your voice. any octave counts.
