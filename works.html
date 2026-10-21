@@ -43,6 +43,16 @@
     .grid.books .item:nth-child(5) { grid-column: 4 / 6; }
     .grid.games { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 760px; margin: 0 auto; }
     .games .cover { aspect-ratio: 16 / 9; }
+    /* the three records to start with, as big as the books; the rest in a quiet list underneath */
+    .grid.three { grid-template-columns: repeat(3, 1fr); max-width: 760px; margin: 0 auto; gap: 26px 22px; }
+    .more-intro { max-width: 760px; margin: 38px auto 14px; font-size: 13px; color: rgba(29, 26, 94, .7); }
+    .more { max-width: 760px; margin: 0 auto; display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px 26px; }
+    .row { display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; }
+    .row img { width: 52px; height: 52px; flex: none; object-fit: cover; border: 1px solid #05060a; box-shadow: 2px 2px 0 #05060a; transition: transform .12s; }
+    .row:hover img { transform: translate(-1px, -1px) rotate(-2deg); }
+    .row b { display: block; font-weight: normal; font-size: 13px; line-height: 1.3; }
+    .row:hover b { color: red; }
+    .row .w { display: block; font-size: 11px; letter-spacing: .05em; text-transform: uppercase; color: rgba(29, 26, 94, .6); margin-top: 2px; }
     .item { display: block; text-decoration: none; color: inherit; }
     .cover {
       display: block; width: 100%; aspect-ratio: 1; object-fit: cover; background: #e8f6ff;
@@ -64,6 +74,9 @@
       .grid.books .item, .grid.books .item:nth-child(4), .grid.books .item:nth-child(5) { grid-column: auto; }
       .grid.books .item:nth-child(5) { grid-column: 1 / 3; justify-self: center; width: calc(50% - 7px); } /* the fifth, centered under the others */
       .grid.games { grid-template-columns: 1fr; }
+      .grid.three { grid-template-columns: repeat(2, 1fr); }
+      .grid.three .item:nth-child(3) { grid-column: 1 / 3; justify-self: center; width: calc(50% - 7px); }
+      .more { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -81,7 +94,9 @@
     <div class="grid games" id="games"></div>
 
     <div class="twitter-text"><h3>music</h3></div>
-    <div class="grid" id="music"></div>
+    <div class="grid three" id="music"></div>
+    <p class="more-intro">and more from the scorsby records catalog:</p>
+    <div class="more" id="more"></div>
 
     <div class="twitter-text"><h3>links</h3></div>
     <div class="reading">
@@ -142,7 +157,12 @@
     const pic = (src, alt) => `<img class="cover" src="${src}" alt="${alt}" loading="lazy">`;
     document.getElementById('books').innerHTML = BOOKS.map(([t, l, h, src]) => card(h, pic(src, t), t, [l])).join('');
     document.getElementById('games').innerHTML = GAMES.map(([t, l, h, src]) => card(h, pic(src, t), t, [l])).join('');
-    document.getElementById('music').innerHTML = MUSIC.map(([t, who, l, h, id]) => card(h, pic(bc(id), t), t, [who, l])).join('');
+    // where to start: the essential scorsby records
+    const ESSENTIAL = ['god says you’re a champ', 'bless me, valentine', 'sweeping beauties'];
+    const first = ESSENTIAL.map((t) => MUSIC.find((m) => m[0] === t));
+    document.getElementById('music').innerHTML = first.map(([t, who, l, h, id]) => card(h, pic(bc(id), t), t, [who, l])).join('');
+    document.getElementById('more').innerHTML = MUSIC.filter((m) => !first.includes(m)).map(([t, who, l, h, id]) =>
+      `<a class="row" href="${h}" target="_blank" rel="noopener"><img src="${bc(id)}" alt="" loading="lazy"><span><b>${t}</b><span class="w">${who} · ${l}</span></span></a>`).join('');
   </script>
 </body>
 </html>
