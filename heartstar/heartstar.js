@@ -2766,8 +2766,8 @@
   // the void: scroll or pinch out past the furthest view and everything (the world, the corners, the buttons) shrinks
   // away into white, until only the void is left. it says one thing. scroll or pinch back in to return.
   let voidZ = 1, voidK = 1; // how far into the void you've gone (1 = not at all), and how far it shows (easing after it)
-  const VOID_END = 0.002; // about a pixel's worth of world
-  const VOID_STOPS = [1, 0.1, 0.02, VOID_END]; // where the zoom buttons step, on the way in
+  const VOID_END = 0.0005; // less than a pixel's worth of world
+  const VOID_STOPS = [1, 0.1, 0.02, 0.004, VOID_END]; // where the zoom buttons step, on the way in
   const totalZoom = () => zoom.target * voidZ;
   // zooming out, the planet first gets small on its own screen (down to PLANET_MIN); only then does everything shrink away
   const PLANET_MIN = 0.004; // (about a pixel of planet)
@@ -2848,10 +2848,10 @@
     const cx = innerWidth / 2, cy = innerHeight / 2;
     b.transform = deep ? `scale(${voidK})` : '';
     b.transformOrigin = deep ? `${cx}px ${cy}px` : '';
-    b.visibility = deep && voidK < VOID_END * 2.5 ? 'hidden' : ''; // (not even a speck left)
-    // everything shrinks at full strength, and only fades in the very last moment, when it's about pixel-sized
-    const fade = deep ? smooth(VOID_END, VOID_END * 3, voidK) : 1;
-    for (const el of document.body.children) if (el !== zoomBox) el.style.opacity = deep ? String(fade) : '';
+    b.visibility = deep && voidK <= VOID_END * 1.05 ? 'hidden' : ''; // (not even a speck left, once it has faded)
+    // everything shrinks at full strength, and only fades (the whole frame, background and all) as it shrinks
+    // below a few pixels, so it's gone smoothly by the time it's smaller than one
+    b.opacity = deep ? String(smooth(VOID_END * 1.1, 0.006, voidK)) : '';
     document.documentElement.style.background = deep ? '#fff' : '';
     document.documentElement.style.touchAction = deep ? 'none' : '';
     // the zoom buttons fade in step with the frame: half its size, half there (and they still work until the very end)
