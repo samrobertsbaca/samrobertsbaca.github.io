@@ -2841,6 +2841,7 @@
     const cx = innerWidth / 2, cy = innerHeight / 2;
     b.transform = deep ? `scale(${voidK})` : '';
     b.transformOrigin = deep ? `${cx}px ${cy}px` : '';
+    b.visibility = deep && voidK < VOID_END * 2.5 ? 'hidden' : ''; // (not even a speck left)
     // everything shrinks at full strength, and only fades in the very last moment, when it's about pixel-sized
     const fade = deep ? smooth(VOID_END, VOID_END * 3, voidK) : 1;
     for (const el of document.body.children) if (el !== zoomBox) el.style.opacity = deep ? String(fade) : '';
