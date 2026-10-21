@@ -2854,8 +2854,8 @@
     for (const el of document.body.children) if (el !== zoomBox) el.style.opacity = deep ? String(fade) : '';
     document.documentElement.style.background = deep ? '#fff' : '';
     document.documentElement.style.touchAction = deep ? 'none' : '';
-    const btnA = deep ? clamp(Math.log(voidK / VOID_END) / Math.log(1 / VOID_END), 0, 1) : 1;
-    zoomBox.style.opacity = deep ? String(btnA) : ''; zoomBox.style.pointerEvents = deep && btnA < 0.05 ? 'none' : '';
+    // the zoom buttons fade in step with the frame: half its size, half there (and they still work until the very end)
+    zoomBox.style.opacity = deep ? String(voidK) : ''; zoomBox.style.pointerEvents = deep && voidK <= VOID_END * 1.05 ? 'none' : '';
     // the world's sounds fade away as the void comes near
     const vol = smooth(VOID_END * 3, 0.5, voidK);
     if (Math.abs(vol - worldVol) > 0.01 || (vol === 1) !== (worldVol === 1)) { worldVol = vol; setVoidSound(vol); }
