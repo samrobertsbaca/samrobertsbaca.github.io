@@ -2855,6 +2855,7 @@
     document.documentElement.style.background = deep ? '#fff' : '';
     document.documentElement.style.touchAction = deep ? 'none' : '';
     // the zoom buttons fade in step with the frame: half its size, half there (and they still work until the very end)
+    zoomBox.style.transition = deep ? 'none' : ''; // (their usual slow fade-in would lag behind)
     zoomBox.style.opacity = deep ? String(voidK) : ''; zoomBox.style.pointerEvents = deep && voidK <= VOID_END * 1.05 ? 'none' : '';
     // the world's sounds fade away as the void comes near
     const vol = smooth(VOID_END * 3, 0.5, voidK);
