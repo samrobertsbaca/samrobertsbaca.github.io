@@ -20,7 +20,7 @@ function createSitePet(gfx, opts = {}) {
 
   const MaxFrame = 8;
   const tick = 150 + Math.random() * 100; // each one walks at its own pace
-  let anim = 0, frame = 0, sleep = 0, hold = 0, moving = false;
+  let anim = 0, frame = 0, sleep = 0, moving = false;
 
   // Spawn off-screen
   const side = opts.side || (Math.random() < 0.5 ? 'left' : 'right');
@@ -52,12 +52,13 @@ function createSitePet(gfx, opts = {}) {
     ele.style.backgroundPosition = `${-64 * col}px ${-64 * anim}px`;
   };
 
+  let petting = 0; // the petting plays on its own quicker clock, and walking waits for it
   const update = () => {
+    if (petting) return;
     // the next step is chosen before drawing, so a new direction shows the moment it starts moving that way
     if (frame >= MaxFrame) {
       moving = false;
-      if (anim === ANI.PET && hold < 4) { hold++; frame = MaxFrame - 1; } // the happy pose at the end lingers a moment
-      else if (sleep > 0) {
+      if (sleep > 0) {
         sleep--;
         setAnim(ANI.SLEEP);
       } else if (anim !== ANI.PET && anim !== ANI.SLEEP && Math.random() < 0.04) {
@@ -91,21 +92,30 @@ function createSitePet(gfx, opts = {}) {
     }
     draw();
     frame++;
-    ele.style.cursor = anim !== ANI.PET ? 'pointer' : 'default';
+    ele.style.cursor = 'pointer';
   };
 
   setInterval(update, tick);
 
   // petting: it stops right where it is (even mid-step, or waking from a doze) and enjoys it
   ele.addEventListener('click', () => {
-    if (anim === ANI.PET) return;
+    if (petting) return;
     if (moving) {
       [x, y] = here();
       step.fx = x; step.fy = y;
       moving = false;
     }
-    sleep = 0; hold = 0;
-    setAnim(ANI.PET); draw();
+    sleep = 0;
+    // forward through the petting, then back to the start, quickly
+    const SEQ = [0, 1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 1, 0];
+    anim = ANI.PET; let i = 0;
+    const play = () => {
+      frame = SEQ[i]; draw();
+      if (++i < SEQ.length) return;
+      clearInterval(petting); petting = 0;
+      frame = MaxFrame; // (and then on its way)
+    };
+    clearInterval(petting); petting = setInterval(play, 80); play();
     hopAt = performance.now();
     for (let i = 0; i < 3; i++) setTimeout(() => heart(ele), i * 260);
   });
