@@ -216,7 +216,8 @@ h1 { font-family: var(--head); font-weight: 400; font-size: 30px; line-height: 1
   border: 1px solid var(--ui); box-shadow: 3px 3px 0 var(--ui); color: var(--ui); background: var(--paper);
 }
 #today-win button:not(.x):active { transform: translate(3px, 3px); box-shadow: none; }
-#kind-done { background: var(--ui) !important; color: var(--ui-fg) !important; }
+#kind-done { background: var(--paper) !important; color: var(--ui) !important; } /* unfilled, until you hover or say it */
+#kind-done:not(.done):hover { background: var(--ui) !important; color: var(--ui-fg) !important; }
 #kind-done.done { color: #fff !important; border-color: transparent !important; text-shadow: 0 1px 0 rgba(0, 0, 0, .35);
   background: linear-gradient(90deg, #ff4a6e, #ff9a3c, #ffd23f, #62d64a, #00b4ff, #6b7bff, #b06bff, #ff4a6e) 0 0 / 200% 100% !important;
   animation: rainbowslide 3s linear infinite; cursor: default; }
