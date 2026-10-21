@@ -29,9 +29,11 @@
   <link rel="icon" href="./favicon.webp" type="image/webp">
   <style>
     .shelf { box-sizing: border-box; width: 100%; max-width: 980px; margin: 0 auto; padding: 34px 20px 70px; color: #1d1a5e; text-align: left; display: block; }
-    .shelf h2 { font-size: 13px; letter-spacing: .14em; text-transform: uppercase; font-weight: normal; margin: 44px 0 16px; display: flex; align-items: center; gap: 12px; }
-    .shelf h2:first-child { margin-top: 0; }
-    .shelf h2::after { content: ''; flex: 1; border-top: 1px dashed rgba(29, 26, 94, .3); }
+    /* section titles wobble, like on the peace page */
+    .shelf .twitter-text { text-align: center; margin: 46px 0 18px; }
+    .shelf .twitter-text:first-child { margin-top: 0; }
+    .shelf .twitter-text h3 { margin: 0; }
+    .shelf a { text-decoration: none; }
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 22px 18px; }
     /* five books: three on top, two below, centered under them */
     .grid.books { grid-template-columns: repeat(6, 1fr); max-width: 760px; margin: 0 auto; gap: 26px 22px; }
@@ -50,7 +52,7 @@
     .item:active .cover { transform: translate(4px, 4px); box-shadow: none; }
     .meta { display: block; margin-top: 12px; font-size: 13px; line-height: 1.35; }
     .meta b { display: block; font-weight: normal; color: #1d1a5e; }
-    .item:hover .meta b { text-decoration: underline; text-underline-offset: 3px; }
+    .item:hover .meta b, .reading a:hover { color: red; }
     .meta span { display: block; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: rgba(29, 26, 94, .6); margin-top: 3px; }
     .reading { columns: 2 260px; column-gap: 40px; font-size: 14px; line-height: 1.9; }
     .reading a { color: #1d1a5e; }
@@ -71,16 +73,16 @@
   <script>document.addEventListener('DOMContentLoaded', () => loadNavbar());</script>
 
   <main class="shelf">
-    <h2>books</h2>
+    <div class="twitter-text"><h3 style="text-align:center;">books</h3></div>
     <div class="grid books" id="books"></div>
 
-    <h2>games / apps</h2>
+    <div class="twitter-text"><h3 style="text-align:center;">games / apps</h3></div>
     <div class="grid games" id="games"></div>
 
-    <h2>music</h2>
+    <div class="twitter-text"><h3 style="text-align:center;">music</h3></div>
     <div class="grid" id="music"></div>
 
-    <h2>links</h2>
+    <div class="twitter-text"><h3 style="text-align:center;">links</h3></div>
     <div class="reading">
       <a href="https://www.biblegateway.com/passage/?search=1%20Corinthians%2013&version=NIV" target="_blank">1 corinthians 13</a> <i>text</i><br>
       <a href="https://www.lotsawahouse.org/words-of-the-buddha/clarifying-light-prophecy" target="_blank">clarifying light prophecy</a> <i>text</i><br>
