@@ -19,38 +19,42 @@ function createSitePet(gfx, opts = {}) {
   document.body.appendChild(ele);
 
   const MaxFrame = 8;
-  let anim = 0, frame = 0, sleep = 0, moving = false;
-  let x, y;
+  const tick = 150 + Math.random() * 100; // each one walks at its own pace
+  let anim = 0, frame = 0, sleep = 0, hold = 0, moving = false;
 
   // Spawn off-screen
   const side = opts.side || (Math.random() < 0.5 ? 'left' : 'right');
-  y = Math.floor((opts.y ?? Math.random() * (window.innerHeight - 64)) / 64) * 64;
-  x = side === 'left' ? -64 : window.innerWidth;
+  let y = Math.floor((opts.y ?? Math.random() * (window.innerHeight - 64)) / 64) * 64;
+  let x = side === 'left' ? -64 : window.innerWidth;
 
-  ele.style.top = `${y}px`;
-  ele.style.left = `${x}px`;
-  ele.style.transition = 'top 1500ms linear, left 1500ms linear';
+  // where it is, and where it's walking to. each step glides there over the time its walk takes (8 frames),
+  // drawn every animation frame, so it never jumps (and simply waits while the tab is hidden)
+  const step = { fx: x, fy: y, at: 0, dur: 1 };
+  const place = (px, py) => { ele.style.left = `${px}px`; ele.style.top = `${py}px`; };
+  const here = (now = performance.now()) => {
+    const k = Math.min(1, (now - step.at) / step.dur);
+    return [step.fx + (x - step.fx) * k, step.fy + (y - step.fy) * k];
+  };
+  const glide = (now) => { place(...here(now)); requestAnimationFrame(glide); };
+  place(x, y);
+  requestAnimationFrame(glide);
 
-  // Set initial direction
-  const firstAnim = side === 'left' ? ANI.RIGHT : ANI.LEFT;
-  const firstMove = side === 'left' ? 64 : -64;
-
-  // Move pet into screen immediately
-  //x += firstMove;
-  ele.style.left = `${x}px`;
-  anim = firstAnim;
+  anim = side === 'left' ? ANI.RIGHT : ANI.LEFT;
 
   const setAnim = a => { frame = 0; anim = a; };
-
   const draw = () => { ele.style.backgroundPosition = `${-64 * frame}px ${-64 * anim}px`; };
 
   const update = () => {
     // the next step is chosen before drawing, so a new direction shows the moment it starts moving that way
     if (frame >= MaxFrame) {
       moving = false;
-      if (sleep > 0) {
+      if (anim === ANI.PET && hold < 4) { hold++; frame = MaxFrame - 1; } // the happy pose at the end lingers a moment
+      else if (sleep > 0) {
         sleep--;
-        moving = false;
+        setAnim(ANI.SLEEP);
+      } else if (anim !== ANI.PET && anim !== ANI.SLEEP && Math.random() < 0.04) {
+        // now and then, left to itself, it curls up for a little doze (about 10 to 25 seconds)
+        sleep = 6 + Math.floor(Math.random() * 9);
         setAnim(ANI.SLEEP);
       } else {
         // Random movement after initial spawn
@@ -68,32 +72,31 @@ function createSitePet(gfx, opts = {}) {
         if (y + sy < 0) { sy = 64; a = ANI.DOWN; }
         else if (y + sy > window.innerHeight - 64) { sy = -64; a = ANI.UP; }
 
+        const now = performance.now();
+        [step.fx, step.fy] = here(now);
+        step.at = now; step.dur = tick * MaxFrame;
         x += sx;
         y += sy;
-        ele.style.left = `${x}px`;
-        ele.style.top = `${y}px`;
         moving = true;
         setAnim(a);
       }
     }
     draw();
     frame++;
-    ele.style.cursor = (sleep <= 0 && anim !== ANI.PET) ? 'pointer' : 'default';
+    ele.style.cursor = anim !== ANI.PET ? 'pointer' : 'default';
   };
 
-  setInterval(update, 150 + Math.random() * 100);
+  setInterval(update, tick);
 
-  // petting: it stops right where it is (even mid-step) and enjoys it
+  // petting: it stops right where it is (even mid-step, or waking from a doze) and enjoys it
   ele.addEventListener('click', () => {
-    if (sleep > 0 || anim === ANI.PET) return;
+    if (anim === ANI.PET) return;
     if (moving) {
-      const r = ele.getBoundingClientRect();
-      x = r.left; y = r.top;
-      ele.style.transition = 'none'; ele.style.left = `${x}px`; ele.style.top = `${y}px`;
-      ele.offsetWidth; // (settle there before walking on)
-      ele.style.transition = 'top 1500ms linear, left 1500ms linear';
+      [x, y] = here();
+      step.fx = x; step.fy = y;
       moving = false;
     }
+    sleep = 0; hold = 0;
     setAnim(ANI.PET); draw();
   });
 
