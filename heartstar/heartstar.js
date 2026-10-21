@@ -1425,7 +1425,7 @@
       c.beginPath();
       wobbleLine(CX + Math.cos(a) * r1, CY + Math.sin(a) * r1, CX + Math.cos(a) * (r1 + len), CY + Math.sin(a) * (r1 + len), i * 7 + (many ? boil : 0), 0.6 + many * 0.35);
       c.strokeStyle = `hsla(${(hue + i * 12) % 360},85%,58%,${Math.min(1, 0.6 + (storm + love + flash) * 0.4)})`;
-      c.lineWidth = 1.8 + many * 0.4 + flash * 1.6; c.stroke();
+      c.lineWidth = (1.8 + many * 0.4 + flash * 1.6) * farK(); c.stroke();
     }
   }
 
@@ -1816,7 +1816,9 @@
     }
     return { found, used };
   }
-  const markSize = () => clamp((small ? 7.5 : 6) * zoom.v, small ? 15 : 13, 28); // the same at the usual view; up close they grow slower than the scorsbys
+  // far out (below the usual furthest view), everything around the planet shrinks along with it
+  const farK = () => Math.min(1, zoom.v / 0.75);
+  const markSize = () => clamp((small ? 7.5 : 6) * zoom.v, small ? 15 : 13, 28) * farK(); // the same at the usual view; up close they grow slower than the scorsbys
   function renderMarks(now) {
     const show = awake(now); // plants are always visible, even zoomed all the way out (once the world is awake)
     for (const m of marks) m.sx = -1e4;
@@ -1916,7 +1918,7 @@
         const a = list[i], b = list[j];
         let dx = (b.sx + b.ox) - (a.sx + a.ox), dy = (b.sy + b.oy) - (a.sy + a.oy);
         let d = Math.hypot(dx, dy);
-        const min = (a.mine || b.mine ? 44 : 34) * (small ? 0.9 : 1) * zf * (a.ck + b.ck) / 2;
+        const min = (a.mine || b.mine ? 44 : 34) * (small ? 0.9 : 1) * zf * (a.ck + b.ck) / 2 * farK(); // (far out, they stand closer, as they shrink)
         if (d >= min) continue;
         if (d < 0.01) { const t = rand(0, TAU); dx = Math.cos(t); dy = Math.sin(t); d = 1; }
         const push = (min - d) * 0.25, ux = dx / d, uy = dy / d;
@@ -1948,14 +1950,15 @@
     const links = [...pairs].map((key) => key.split('|').map((id) => byId.get(id)))
       .map((ab) => [ab, Math.hypot((ab[0].sx + ab[1].sx) / 2 - fx, (ab[0].sy + ab[1].sy) / 2 - fy)])
       .sort((x, y) => x[1] - y[1]).slice(0, linkMax); // (in a crowd only so many are drawn; every one still counts)
+    const lk = farK(); // (far out, the hands and hearts between them shrink with everyone)
     if (!calmMood) for (const [[a, b]] of links) {
-      const mx = (a.sx + b.sx) / 2, my = (a.sy + b.sy) / 2 + 3 + Math.sin(now / 300 + a.seed) * 2;
+      const mx = (a.sx + b.sx) / 2, my = (a.sy + b.sy) / 2 + (3 + Math.sin(now / 300 + a.seed) * 2) * lk;
       c.beginPath();
-      c.moveTo(a.sx, a.sy + a.size * 0.15); c.quadraticCurveTo((a.sx + mx) / 2, my + 8, mx - 3, my);
-      c.moveTo(b.sx, b.sy + b.size * 0.15); c.quadraticCurveTo((b.sx + mx) / 2, my + 8, mx + 3, my);
-      c.lineWidth = 2.2; c.strokeStyle = DARK; c.stroke();
-      heartPath(mx, my, 5.5 * zf); c.fillStyle = mixColor(colorOf(a.c, now, a.seed), colorOf(b.c, now, b.seed)); c.fill();
-      c.lineWidth = 1.3; c.stroke();
+      c.moveTo(a.sx, a.sy + a.size * 0.15); c.quadraticCurveTo((a.sx + mx) / 2, my + 8 * lk, mx - 3 * lk, my);
+      c.moveTo(b.sx, b.sy + b.size * 0.15); c.quadraticCurveTo((b.sx + mx) / 2, my + 8 * lk, mx + 3 * lk, my);
+      c.lineWidth = 2.2 * lk; c.strokeStyle = DARK; c.stroke();
+      heartPath(mx, my, 5.5 * zf * lk); c.fillStyle = mixColor(colorOf(a.c, now, a.seed), colorOf(b.c, now, b.seed)); c.fill();
+      c.lineWidth = 1.3 * lk; c.stroke();
     }
 
     const unison = omenP('unison', now) >= 0 ? unisonColor(omen.seed)[1] : null;
@@ -1981,7 +1984,7 @@
       if (grow <= 0) continue;
       const fade = s.leaving ? Math.max(0, 1 - (now - s.leaving) / 900) : 1;
       const edge = Math.min(1, s.sz / 0.25);
-      s.size = (s.mine ? (small ? 42 : 46) : (small ? 30 : 32)) * zf * s.ck * (0.55 + 0.45 * edge) * (0.3 + 0.7 * grow) * (1 + s.sing * 0.25);
+      s.size = (s.mine ? (small ? 42 : 46) : (small ? 30 : 32)) * zf * s.ck * (0.55 + 0.45 * edge) * (0.3 + 0.7 * grow) * (1 + s.sing * 0.25) * farK();
 
       c.save();
       c.globalAlpha = edge * fade;
@@ -2008,7 +2011,7 @@
       if (now < arrivedAt(s)) continue;
       const col = colorOf(storm > 0.2 ? 8 : s.c, now, s.seed);
       c.globalAlpha = Math.min(1, s.sz / 0.25) * (s.leaving ? Math.max(0, 1 - (now - s.leaving) / 900) : 1) * 0.85;
-      c.beginPath(); c.arc(s.sx, s.sy, 3.6 * (small ? 1 : 1.1), 0, TAU); c.fillStyle = col; c.fill();
+      c.beginPath(); c.arc(s.sx, s.sy, 3.6 * (small ? 1 : 1.1) * farK(), 0, TAU); c.fillStyle = col; c.fill();
       c.lineWidth = 1; c.strokeStyle = DARK; c.stroke();
       s.size = 10;
     }
@@ -2163,7 +2166,7 @@
       if (d.x < -80 || d.x > VW + 80 || d.y > VH + 80) { sky.splice(i, 1); continue; }
       const dd = Math.hypot(d.x - CX, y - CY);
       c.globalAlpha = smooth(R * 1.3, R * 1.6, dd) * Math.min(1, (now - d.born) / 1200);
-      if (c.globalAlpha > 0.02) doodle(d.kind, d.x, y, d.s, d.seed, now, 1.4, d.ring);
+      if (c.globalAlpha > 0.02) doodle(d.kind, d.x, y, d.s * farK(), d.seed, now, 1.4, d.ring);
       c.globalAlpha = 1;
     }
   }
@@ -2741,7 +2744,7 @@
     for (const [ex, ey, er, k] of pf.ears || []) if (Math.hypot(x - ex, y - ey) < er) return k;
     return null;
   }
-  const hitSky = (x, y) => sky.find((d) => Math.hypot(d.x - x, (d.cy ?? d.y) - y) < d.s * 0.7);
+  const hitSky = (x, y) => sky.find((d) => Math.hypot(d.x - x, (d.cy ?? d.y) - y) < d.s * 0.7 * farK());
   const hitMoon = (x, y) => moon.r && Math.hypot(moon.x - x, moon.y - y) < moon.r * 1.2;
   const hitMark = (x, y) => marks.find((m) => Math.hypot(m.sx - x, m.sy - y) < m.ss * 0.5);
   function localTime(tz) {
@@ -2764,10 +2767,10 @@
   // away into white, until only the void is left. it says one thing. scroll or pinch back in to return.
   let voidZ = 1, voidK = 1; // how far into the void you've gone (1 = not at all), and how far it shows (easing after it)
   const VOID_END = 0.002; // about a pixel's worth of world
-  const VOID_STOPS = [1, 0.3, 0.06, 0.012, VOID_END]; // where the zoom buttons step, on the way in
+  const VOID_STOPS = [1, 0.1, 0.02, VOID_END]; // where the zoom buttons step, on the way in
   const totalZoom = () => zoom.target * voidZ;
   // zooming out, the planet first gets small on its own screen (down to PLANET_MIN); only then does everything shrink away
-  const PLANET_MIN = 0.2;
+  const PLANET_MIN = 0.004; // (about a pixel of planet)
   function setTotalZoom(t) {
     if (calmMood) t = Math.max(t, 0.75); // (while the world breathes or sings, the void waits, and so does the shrinking)
     if (t < PLANET_MIN) { zoom.target = PLANET_MIN; voidZ = clamp(t / PLANET_MIN, VOID_END, 1); }
@@ -2851,6 +2854,8 @@
     for (const el of document.body.children) if (el !== zoomBox) el.style.opacity = deep ? String(fade) : '';
     document.documentElement.style.background = deep ? '#fff' : '';
     document.documentElement.style.touchAction = deep ? 'none' : '';
+    const btnA = deep ? clamp(Math.log(voidK / VOID_END) / Math.log(1 / VOID_END), 0, 1) : 1;
+    zoomBox.style.opacity = deep ? String(btnA) : ''; zoomBox.style.pointerEvents = deep && btnA < 0.05 ? 'none' : '';
     // the world's sounds fade away as the void comes near
     const vol = smooth(VOID_END * 3, 0.5, voidK);
     if (Math.abs(vol - worldVol) > 0.01 || (vol === 1) !== (worldVol === 1)) { worldVol = vol; setVoidSound(vol); }
@@ -3045,7 +3050,7 @@
     if (f > 1 && voidZ === 1) { const ll = unproject(e.clientX, e.clientY); if (ll) zoom.aim = ll; }
   }, { passive: false });
   // the buttons step between fixed stops, so stepping back out always lands on the usual view (1), with the whole face showing
-  const ZOOM_STOPS = [PLANET_MIN, 0.4, 0.75, 1, 2.56, 6.55, 16.8];
+  const ZOOM_STOPS = [PLANET_MIN, 0.02, 0.08, 0.25, 0.75, 1, 2.56, 6.55, 16.8];
   const zoomStep = (dir) => {
     // past the furthest view, the buttons step into the void (and back out of it)
     if (calmMood && dir < 0 && zoom.target <= 0.751) return;
