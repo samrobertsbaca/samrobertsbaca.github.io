@@ -245,11 +245,22 @@ async function subscribe(request, env) {
 
 const lobby = (env) => env.LOBBY.get(env.LOBBY.idFromName('lobby'));
 let picked = null; // this worker's last answer from the lobby
+let statusSeen = null; // and the last numbers it gave the other pages
 
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     if (url.pathname === '/subscribe') return subscribe(request, env);
+    // just the numbers, for the other pages' corners: how many scorsbys are here, and today's love. nobody joins.
+    if (url.pathname === '/status') {
+      // (each copy of this worker remembers the answer for 15 seconds, so readers barely touch the lobby)
+      let st = statusSeen && Date.now() - statusSeen.at < 15000 ? statusSeen.st : null;
+      if (!st) { try { st = await lobby(env).statusNow(); statusSeen = { st, at: Date.now() }; } catch {} }
+      return new Response(JSON.stringify(st ? { here: st.total, today: st.today, best: st.best } : null), {
+        status: st ? 200 : 503,
+        headers: { 'content-type': 'application/json', 'access-control-allow-origin': '*', 'cache-control': 'public, max-age=15' },
+      });
+    }
     if (url.pathname !== '/hearth') {
       if (env.ASSETS) return env.ASSETS.fetch(request); // the whole site, when this worker serves it
       return new Response('the world of scorsby is breathing.\n', { headers: { 'content-type': 'text/plain; charset=utf-8' } });
@@ -376,6 +387,8 @@ export class Lobby extends DurableObject {
     if (this.live().length <= FEW && (this.worlds.length > 1 || this.many) && (await this.ctx.storage.getAlarm()) == null) await this.ctx.storage.setAlarm(now + 3000);
     return this.status();
   }
+
+  async statusNow() { await this.ready(); return this.status(); }
 
   status() {
     const t = this.tally, d = today();

@@ -31,6 +31,29 @@ function scorsbyClock(d = new Date()) {
   return `${date} · ${time} · now here`;
 }
 
+// how many scorsbys are on the planet right now, and how much love today: the same two lines as in the world's corner.
+// (only asked for, never joined: reading here doesn't put a scorsby on the planet.)
+const HEARTH_STATUS = ['localhost', '127.0.0.1'].includes(location.hostname) ? 'http://127.0.0.1:8787/status' : 'https://scorsby-hearth.samrobertsbaca.workers.dev/status';
+function hearthStatus(box) {
+  if (!box) return;
+  const day = (d) => { const [y, m, dd] = d.split('-').map(Number); return new Date(y, m - 1, dd).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }).toLowerCase(); };
+  const ask = async () => {
+    if (document.hidden) return;
+    try {
+      const st = await fetch(HEARTH_STATUS).then((r) => (r.ok ? r.json() : null));
+      if (!st) return;
+      const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Denver' }).format(new Date());
+      box.querySelector('.wn-here').textContent = st.here === 1 ? '1 scorsby here' : st.here ? `${st.here.toLocaleString()} scorsbys here` : 'the world is quiet';
+      let love = `love today ♥ ${st.today.toLocaleString()}`;
+      if (st.best && st.best.n) love += ` · hi-score ♥ ${st.best.n.toLocaleString()} ${st.best.day === today ? '(today!)' : 'on ' + day(st.best.day)}`;
+      box.querySelector('.wn-love').textContent = love;
+      box.hidden = false;
+    } catch {}
+  };
+  ask(); setInterval(ask, 60000); // once a minute
+  document.addEventListener('visibilitychange', ask);
+}
+
 function loadNavbar(targetSelector = 'nav') {
   const nav = document.querySelector(targetSelector);
   if (!nav) return;
@@ -48,11 +71,13 @@ function loadNavbar(targetSelector = 'nav') {
     </div>
     <button class="wn-burger" type="button" aria-label="menu" aria-expanded="false" aria-controls="wn-menu"><span></span><span></span><span></span></button>
     <div class="wn-right" id="wn-menu">
+      <div class="wn-status" hidden><a class="wn-here" href="/"></a><p class="wn-love"></p></div>
       <div class="wn-links">${links}</div>
       <p class="wn-clock wn-clock-menu">${scorsbyClock()}</p>
     </div>`;
   // the subscribe link opens a little letters window, the same one as on the home page
   if (!document.querySelector('script[src^="/subscribe.js"]')) { const sc = document.createElement('script'); sc.src = '/subscribe.js?v=5'; sc.defer = true; document.head.appendChild(sc); }
+  hearthStatus(nav.querySelector('.wn-status'));
   const clocks = nav.querySelectorAll('.wn-clock');
   setInterval(() => { const t = scorsbyClock(); clocks.forEach((c) => { c.textContent = t; }); }, 1000);
 

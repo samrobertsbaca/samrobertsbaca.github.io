@@ -457,6 +457,13 @@ nav.world-nav.scrolled { box-shadow: 0 2px 0 rgba(29, 26, 94, 0.25); }
 .wn-links a:hover, .wn-links a[aria-current="page"] { border-bottom-color: #1d1a5e; color: #1d1a5e; }
 .wn-links a:hover { color: #fff; border-bottom-color: #fff; }
 .wn-burger, .wn-clock-menu { display: none; }
+/* the planet's two lines, as in its own corner: how many are here (a door to the world), and the love today */
+.wn-status[hidden] { display: none; }
+.wn-status { text-align: right; font-size: 11px; line-height: 1.8; letter-spacing: .04em; text-transform: uppercase; color: rgba(29, 26, 94, 0.75); }
+.wn-status p { margin: 0; }
+.wn-here { color: #1d1a5e; text-decoration: none; }
+.wn-here::before { content: '● '; color: #2bd96b; }
+.wn-here:hover { color: #fff; }
 @media (max-width: 600px) {
   /* phones: scorsby on the left, a hamburger on the right, everything else folded inside */
   nav.world-nav { padding: 12px 16px; align-items: center; position: sticky; }
@@ -481,5 +488,7 @@ nav.world-nav.scrolled { box-shadow: 0 2px 0 rgba(29, 26, 94, 0.25); }
   .wn-links { flex-direction: column; align-items: flex-start; gap: 14px; }
   .wn-links a { font-size: 15px; }
   .wn-clock-menu { display: block; margin: 0; }
+  /* in the menu: the links, then the planet's two lines, then the date at the bottom */
+  .wn-links { order: 1; } .wn-status { order: 2; text-align: left; } .wn-clock-menu { order: 3; }
 }
 
