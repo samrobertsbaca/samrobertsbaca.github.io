@@ -11,7 +11,7 @@ function createSitePet(gfx, opts = {}) {
   ele.style.position = 'fixed';
   ele.style.width = '64px';
   ele.style.height = '64px';
-  ele.style.backgroundImage = `url(/js/site-pet/gfx/${gfx}.png)`;
+  ele.style.backgroundImage = `url(/js/site-pet/gfx/${gfx}.png?v=2)`;
   ele.style.backgroundRepeat = 'no-repeat';
   ele.style.backgroundPosition = '0px 0px';
   ele.style.imageRendering = 'pixelated';
@@ -107,8 +107,7 @@ function createSitePet(gfx, opts = {}) {
     }
     sleep = 0;
     // forward through the petting, then back to the start, quickly
-    // (frames 4 to 6, where the eyes stretch, are skipped: their changing shapes flicker)
-    const SEQ = [0, 1, 2, 3, 7, 3, 2, 1, 0];
+    const SEQ = [0, 1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 1, 0];
     anim = ANI.PET; let i = 0;
     const play = () => {
       frame = SEQ[i]; draw();
