@@ -1818,6 +1818,9 @@
   }
   // far out (below the usual furthest view), everything around the planet shrinks along with it
   const farK = () => Math.min(1, zoom.v / 0.75);
+  // the sky's doodads shrink faster still, and are gone while the planet is still a small dot
+  const skyK = () => Math.pow(farK(), 1.6);
+  const skyFade = () => smooth(0.03, 0.15, farK());
   const markSize = () => clamp((small ? 7.5 : 6) * zoom.v, small ? 15 : 13, 28) * farK(); // the same at the usual view; up close they grow slower than the scorsbys
   function renderMarks(now) {
     const show = awake(now); // plants are always visible, even zoomed all the way out (once the world is awake)
@@ -2166,7 +2169,8 @@
       if (d.x < -80 || d.x > VW + 80 || d.y > VH + 80) { sky.splice(i, 1); continue; }
       const dd = Math.hypot(d.x - CX, y - CY);
       c.globalAlpha = smooth(R * 1.3, R * 1.6, dd) * Math.min(1, (now - d.born) / 1200);
-      if (c.globalAlpha > 0.02) doodle(d.kind, d.x, y, d.s * farK(), d.seed, now, 1.4, d.ring);
+      c.globalAlpha *= skyFade();
+      if (c.globalAlpha > 0.02) doodle(d.kind, d.x, y, d.s * skyK(), d.seed, now, 1.4, d.ring);
       c.globalAlpha = 1;
     }
   }
@@ -2744,7 +2748,7 @@
     for (const [ex, ey, er, k] of pf.ears || []) if (Math.hypot(x - ex, y - ey) < er) return k;
     return null;
   }
-  const hitSky = (x, y) => sky.find((d) => Math.hypot(d.x - x, (d.cy ?? d.y) - y) < d.s * 0.7 * farK());
+  const hitSky = (x, y) => skyFade() > 0.3 && sky.find((d) => Math.hypot(d.x - x, (d.cy ?? d.y) - y) < d.s * 0.7 * skyK());
   const hitMoon = (x, y) => moon.r && Math.hypot(moon.x - x, moon.y - y) < moon.r * 1.2;
   const hitMark = (x, y) => marks.find((m) => Math.hypot(m.sx - x, m.sy - y) < m.ss * 0.5);
   function localTime(tz) {
