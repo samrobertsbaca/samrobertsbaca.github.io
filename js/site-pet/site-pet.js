@@ -35,14 +35,22 @@ function createSitePet(gfx, opts = {}) {
     const k = Math.min(1, (now - step.at) / step.dur);
     return [step.fx + (x - step.fx) * k, step.fy + (y - step.fy) * k];
   };
-  const glide = (now) => { place(...here(now)); requestAnimationFrame(glide); };
+  // being petted: two little happy hops
+  let hopAt = -1e9;
+  const hop = (now) => { const t = (now - hopAt) / 700; return t < 1 ? -7 * Math.abs(Math.sin(t * Math.PI * 2)) : 0; };
+  const glide = (now) => { const [px, py] = here(now); place(px, py + hop(now)); requestAnimationFrame(glide); };
   place(x, y);
   requestAnimationFrame(glide);
 
   anim = side === 'left' ? ANI.RIGHT : ANI.LEFT;
 
   const setAnim = a => { frame = 0; anim = a; };
-  const draw = () => { ele.style.backgroundPosition = `${-64 * frame}px ${-64 * anim}px`; };
+  // (the sleep row's last drawing belongs second, so the breathing loops without a flicker at the seam)
+  const SLEEP_ORDER = [0, 7, 1, 2, 3, 4, 5, 6];
+  const draw = () => {
+    const col = anim === ANI.SLEEP ? SLEEP_ORDER[frame % MaxFrame] : frame;
+    ele.style.backgroundPosition = `${-64 * col}px ${-64 * anim}px`;
+  };
 
   const update = () => {
     // the next step is chosen before drawing, so a new direction shows the moment it starts moving that way
@@ -98,9 +106,24 @@ function createSitePet(gfx, opts = {}) {
     }
     sleep = 0; hold = 0;
     setAnim(ANI.PET); draw();
+    hopAt = performance.now();
+    for (let i = 0; i < 3; i++) setTimeout(() => heart(ele), i * 260);
   });
 
   return ele;
+}
+
+// a little pixel heart that floats up from a petted scorsby's head and fades
+const HEART_SVG = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 7 6" shape-rendering="crispEdges"><path fill="#ff4f8b" d="M1 0h2v1h1V0h2v1h1v2H6v1H5v1H4v1H3V5H2V4H1V3H0V1h1z"/><path fill="#fff" d="M1 1h1v1H1z"/></svg>');
+function heart(pet) {
+  const r = pet.getBoundingClientRect();
+  const h = document.createElement('img');
+  h.src = HEART_SVG; h.alt = '';
+  const x = r.left + 22 + (Math.random() - 0.5) * 26, y = r.top + 2;
+  h.style.cssText = `position:fixed;left:${x}px;top:${y}px;width:14px;height:12px;image-rendering:pixelated;pointer-events:none;z-index:0;transition:transform 1100ms ease-out, opacity 1100ms ease-in;`;
+  document.body.appendChild(h);
+  requestAnimationFrame(() => requestAnimationFrame(() => { h.style.transform = `translate(${(Math.random() - 0.5) * 16}px, -34px)`; h.style.opacity = '0'; }));
+  setTimeout(() => h.remove(), 1200);
 }
 
 function generateScorsbys() {
