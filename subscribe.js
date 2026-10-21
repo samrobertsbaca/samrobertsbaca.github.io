@@ -42,7 +42,7 @@
   win.innerHTML = `
     <div class="bar"><span>letters.exe</span><button type="button" class="x" aria-label="close">×</button></div>
     <form novalidate>
-      <p>leave your name and email and scorsby will write when something new happens. ♥</p>
+      <p>leave your name and email and scorsby will write when something interesting happens. ♥</p>
       <label for="letters-name">name</label>
       <input id="letters-name" name="name" maxlength="60" autocomplete="name" placeholder="glonk" required>
       <label for="letters-email">email</label>
