@@ -2779,9 +2779,9 @@
     [40, 'fun fact: the void is 0% planet and 100% void.'],
     [45, 'the void has been thinking. mostly about nothing.'],
     [50, 'is the void staring into you, or are you staring into the void? either way, hi.'],
-    [55, "the void tried to plant a flower once. it didn't take."],
-    [60, 'somewhere out there, scorsby is wondering where you went.'],
-    [70, 'the void is made of the same stuff as you. just less of it.'],
+    [55, "the void tried to plant a flower once. it didn’t grow."],
+    [60, 'somewhere out there, scorsby is wondering where you went. or was there ever a scorsby?'],
+    [70, 'the void is made of the same stuff as you. just less of it. or… maybe more… really gets ya thinkin.'],
     [80, 'you have been in the void a long time now. the void is proud of you.'],
     [90, 'the void would like to remind you: there is no other. not even here.'],
     [120, "okay. the void is going to take a little nap. zoom in whenever you're ready. ♥"],
@@ -2846,7 +2846,7 @@
     for (const el of document.body.children) if (el !== zoomBox) el.style.opacity = deep ? String(fade) : '';
     document.documentElement.style.background = deep ? '#fff' : '';
     const there = voidK <= VOID_END * 1.05;
-    if (there && voidTalk.line < 0) voidSay(0);
+    if (there && voidTalk.line < 0) { voidTalk.line = 0; voidTalk.timer = setTimeout(() => voidSay(0), 4000); } // (a few seconds of nothing first)
     else if (!there && voidTalk.line >= 0) voidHush();
     requestAnimationFrame(voidLoop);
   })();
