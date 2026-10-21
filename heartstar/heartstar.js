@@ -2763,16 +2763,62 @@
   // the void: scroll or pinch out past the furthest view and everything (the world, the corners, the buttons) shrinks
   // away into white, until only the void is left. it says one thing. scroll or pinch back in to return.
   let voidZ = 1, voidK = 1; // how far into the void you've gone (1 = not at all), and how far it shows (easing after it)
-  const VOID_END = 0.02;
+  const VOID_END = 0.002; // about a pixel's worth of world
+  const VOID_STOPS = [1, 0.3, 0.06, 0.012, VOID_END]; // where the zoom buttons step, on the way in
   const totalZoom = () => zoom.target * voidZ;
   function setTotalZoom(t) {
     if (t < 0.75) { zoom.target = 0.75; voidZ = clamp(t / 0.75, VOID_END, 1); }
     else { voidZ = 1; zoom.target = Math.min(16.8, t); }
   }
+  // the void speaks the way the world whispers: typed out, a blinking cursor, then gone. stay, and it keeps talking.
+  const VOID_SAYS = [
+    [0, 'welcome to the void. the void says i love you too! feel free to return anytime.'],
+    [25, "you're still here."],
+    [30, "the void appreciates the company. it doesn't get many visitors."],
+    [35, 'the void would offer you a chair, but.'],
+    [40, 'fun fact: the void is 0% planet and 100% void.'],
+    [45, 'the void has been thinking. mostly about nothing.'],
+    [50, 'is the void staring into you, or are you staring into the void? either way, hi.'],
+    [55, "the void tried to plant a flower once. it didn't take."],
+    [60, 'somewhere out there, scorsby is wondering where you went.'],
+    [70, 'the void is made of the same stuff as you. just less of it.'],
+    [80, 'you have been in the void a long time now. the void is proud of you.'],
+    [90, 'the void would like to remind you: there is no other. not even here.'],
+    [120, "okay. the void is going to take a little nap. zoom in whenever you're ready. ♥"],
+  ];
   const voidWords = document.createElement('p');
-  voidWords.textContent = 'welcome to the void. the void says i love you too! feel free to return anytime.';
-  voidWords.style.cssText = 'position:fixed;inset:0;margin:auto;height:fit-content;max-width:min(520px,calc(100vw - 32px));text-align:center;font-family:Scheme,Georgia,serif;font-size:24px;line-height:1.35;color:#1d1a5e;opacity:0;transition:opacity 1.2s ease;pointer-events:none;z-index:2147483647;';
+  voidWords.style.cssText = 'position:fixed;inset:0;margin:auto;height:fit-content;max-width:min(520px,calc(100vw - 32px));text-align:center;font-family:Scheme,Georgia,serif;font-size:24px;line-height:1.35;color:#1d1a5e;opacity:0;transition:opacity 1.2s ease;pointer-events:none;z-index:2147483647;text-wrap:balance;';
   document.documentElement.appendChild(voidWords);
+  const voidTalk = { line: -1, timer: 0, typing: 0 };
+  function voidSay(i) {
+    const [, text] = VOID_SAYS[i];
+    voidTalk.line = i;
+    voidWords.textContent = ''; voidWords.style.transition = 'opacity .3s ease'; voidWords.style.opacity = '1';
+    const out = document.createElement('span'), cur = document.createElement('span');
+    cur.textContent = '▌'; cur.style.animation = 'blink 1s steps(1) infinite';
+    voidWords.append(out, cur);
+    let n = 0;
+    clearInterval(voidTalk.typing);
+    voidTalk.typing = setInterval(() => {
+      out.textContent = text.slice(0, ++n);
+      if (n < text.length) return;
+      clearInterval(voidTalk.typing);
+      // it lingers, then fades, and after a while (if you're still here) the void says something else
+      voidTalk.timer = setTimeout(() => {
+        voidWords.style.transition = 'opacity 1.2s ease'; voidWords.style.opacity = '0';
+        const next = VOID_SAYS[i + 1];
+        if (next) voidTalk.timer = setTimeout(() => voidSay(i + 1), next[0] * 1000);
+      }, 3000 + text.length * 60);
+    }, 45);
+  }
+  function voidHush() {
+    clearInterval(voidTalk.typing); clearTimeout(voidTalk.timer); voidTalk.line = -1;
+    voidWords.style.transition = 'opacity .4s ease'; voidWords.style.opacity = '0';
+  }
+  // the zoom buttons stay their size and stay put, so there's always a way back: while you're in the void they step
+  // out of the shrinking page, and step back in when you return
+  const zoomBox = document.getElementById('zoom'), zoomHome = zoomBox.nextSibling;
+  let zoomBoxAt = null;
   // in the void the world is too small to scroll or pinch on, so the whole page listens (only while you're there)
   addEventListener('wheel', (e) => {
     if (voidZ === 1 || e.target === cv) return;
@@ -2787,13 +2833,21 @@
   addEventListener('touchend', (e) => { if (e.touches.length < 2) voidPinch = null; }, { passive: true });
   (function voidLoop() {
     voidK += (voidZ - voidK) * 0.15;
-    if (Math.abs(voidK - voidZ) < 0.0005) voidK = voidZ;
+    if (Math.abs(voidK - voidZ) < voidZ * 0.002) voidK = voidZ;
     const b = document.body.style, deep = voidK < 0.999;
+    if (!deep && !zoomBoxAt) return requestAnimationFrame(voidLoop); // (nothing to do, or to undo)
+    if (!deep) { zoomBoxAt = null; document.body.insertBefore(zoomBox, zoomHome); }
+    else if (!zoomBoxAt) { zoomBoxAt = true; document.documentElement.appendChild(zoomBox); }
+    const cx = innerWidth / 2, cy = innerHeight / 2;
     b.transform = deep ? `scale(${voidK})` : '';
-    b.transformOrigin = deep ? `${innerWidth / 2}px ${innerHeight / 2}px` : '';
-    b.opacity = deep ? String(smooth(VOID_END * 1.5, 0.08, voidK)) : '';
+    b.transformOrigin = deep ? `${cx}px ${cy}px` : '';
+    // everything shrinks at full strength, and only fades in the very last moment, when it's about pixel-sized
+    const fade = deep ? smooth(VOID_END, VOID_END * 3, voidK) : 1;
+    for (const el of document.body.children) if (el !== zoomBox) el.style.opacity = deep ? String(fade) : '';
     document.documentElement.style.background = deep ? '#fff' : '';
-    voidWords.style.opacity = voidK < VOID_END * 1.6 ? '1' : '0';
+    const there = voidK <= VOID_END * 1.05;
+    if (there && voidTalk.line < 0) voidSay(0);
+    else if (!there && voidTalk.line >= 0) voidHush();
     requestAnimationFrame(voidLoop);
   })();
   let tipHold = null; // a tapped scorsby's tip, held for a moment on touch screens
@@ -2984,6 +3038,12 @@
   // the buttons step between fixed stops, so stepping back out always lands on the usual view (1), with the whole face showing
   const ZOOM_STOPS = [0.75, 1, 2.56, 6.55, 16.8];
   const zoomStep = (dir) => {
+    // past the furthest view, the buttons step into the void (and back out of it)
+    if (voidZ < 1 || (dir < 0 && zoom.target <= 0.751)) {
+      const v = dir < 0 ? VOID_STOPS.find((x) => x < voidZ / 1.02) ?? VOID_END : [...VOID_STOPS].reverse().find((x) => x > voidZ * 1.02) ?? 1;
+      voidZ = v; zoom.target = 0.75;
+      return;
+    }
     const z = zoom.target;
     zoom.target = dir > 0 ? ZOOM_STOPS.find((v) => v > z * 1.02) ?? 16.8 : [...ZOOM_STOPS].reverse().find((v) => v < z / 1.02) ?? 0.75;
   };
