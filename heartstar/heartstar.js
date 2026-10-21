@@ -2766,9 +2766,11 @@
   const VOID_END = 0.002; // about a pixel's worth of world
   const VOID_STOPS = [1, 0.3, 0.06, 0.012, VOID_END]; // where the zoom buttons step, on the way in
   const totalZoom = () => zoom.target * voidZ;
+  // zooming out, the planet first gets small on its own screen (down to PLANET_MIN); only then does everything shrink away
+  const PLANET_MIN = 0.2;
   function setTotalZoom(t) {
-    if (calmMood) t = Math.max(t, 0.75); // (while the world breathes or sings, the void waits)
-    if (t < 0.75) { zoom.target = 0.75; voidZ = clamp(t / 0.75, VOID_END, 1); }
+    if (calmMood) t = Math.max(t, 0.75); // (while the world breathes or sings, the void waits, and so does the shrinking)
+    if (t < PLANET_MIN) { zoom.target = PLANET_MIN; voidZ = clamp(t / PLANET_MIN, VOID_END, 1); }
     else { voidZ = 1; zoom.target = Math.min(16.8, t); }
   }
   // the void speaks the way the world whispers: typed out, a blinking cursor, then gone. stay, and it keeps talking.
@@ -2831,7 +2833,7 @@
   let voidPinch = null;
   const span = (t) => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
   addEventListener('touchstart', (e) => { if (voidZ < 1 && e.touches.length === 2 && e.target !== cv) voidPinch = { d: span(e.touches), z: totalZoom() }; }, { passive: true });
-  addEventListener('touchmove', (e) => { if (voidPinch && e.touches.length === 2) setTotalZoom(voidPinch.z * span(e.touches) / voidPinch.d); }, { passive: true });
+  addEventListener('touchmove', (e) => { if (voidZ < 1 && e.touches.length > 1) e.preventDefault(); if (voidPinch && e.touches.length === 2) setTotalZoom(voidPinch.z * span(e.touches) / voidPinch.d); }, { passive: false });
   addEventListener('touchend', (e) => { if (e.touches.length < 2) voidPinch = null; }, { passive: true });
   (function voidLoop() {
     voidK += (voidZ - voidK) * 0.15;
@@ -2848,6 +2850,7 @@
     const fade = deep ? smooth(VOID_END, VOID_END * 3, voidK) : 1;
     for (const el of document.body.children) if (el !== zoomBox) el.style.opacity = deep ? String(fade) : '';
     document.documentElement.style.background = deep ? '#fff' : '';
+    document.documentElement.style.touchAction = deep ? 'none' : '';
     // the world's sounds fade away as the void comes near
     const vol = smooth(VOID_END * 3, 0.5, voidK);
     if (Math.abs(vol - worldVol) > 0.01 || (vol === 1) !== (worldVol === 1)) { worldVol = vol; setVoidSound(vol); }
@@ -3042,16 +3045,17 @@
     if (f > 1 && voidZ === 1) { const ll = unproject(e.clientX, e.clientY); if (ll) zoom.aim = ll; }
   }, { passive: false });
   // the buttons step between fixed stops, so stepping back out always lands on the usual view (1), with the whole face showing
-  const ZOOM_STOPS = [0.75, 1, 2.56, 6.55, 16.8];
+  const ZOOM_STOPS = [PLANET_MIN, 0.4, 0.75, 1, 2.56, 6.55, 16.8];
   const zoomStep = (dir) => {
     // past the furthest view, the buttons step into the void (and back out of it)
-    if (voidZ < 1 || (dir < 0 && zoom.target <= 0.751 && !calmMood)) {
+    if (calmMood && dir < 0 && zoom.target <= 0.751) return;
+    if (voidZ < 1 || (dir < 0 && zoom.target <= PLANET_MIN * 1.01 && !calmMood)) {
       const v = dir < 0 ? VOID_STOPS.find((x) => x < voidZ / 1.02) ?? VOID_END : [...VOID_STOPS].reverse().find((x) => x > voidZ * 1.02) ?? 1;
-      voidZ = v; zoom.target = 0.75;
+      voidZ = v; zoom.target = PLANET_MIN;
       return;
     }
     const z = zoom.target;
-    zoom.target = dir > 0 ? ZOOM_STOPS.find((v) => v > z * 1.02) ?? 16.8 : [...ZOOM_STOPS].reverse().find((v) => v < z / 1.02) ?? 0.75;
+    zoom.target = dir > 0 ? ZOOM_STOPS.find((v) => v > z * 1.02) ?? 16.8 : [...ZOOM_STOPS].reverse().find((v) => v < z / 1.02) ?? PLANET_MIN;
   };
   document.getElementById('zoom-in').addEventListener('click', () => zoomStep(1));
   document.getElementById('zoom-out').addEventListener('click', () => zoomStep(-1));
