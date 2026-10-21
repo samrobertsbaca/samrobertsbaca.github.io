@@ -51,7 +51,7 @@
       <div class="check"></div>
       <p class="why" aria-live="polite"></p>
       <button type="submit">subscribe</button>
-      <p class="small">only letters from scorsby. never shared.<br>reply any time to be taken off.</p>
+      <p class="small" style="text-align:center">only letters from scorsby. never shared.<br>reply any time to be taken off.</p>
     </form>
     <div class="done" hidden><p class="big"></p><p class="small">you can close this window.</p></div>`;
   document.body.appendChild(win);
