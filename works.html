@@ -121,7 +121,7 @@
       ['go for gold', '2025 · 120 pages', '/books/gold.html', '/images/love/book-gold.webp'],
       ['scorsbycomix vol. 1', '2025 · 105 pages', '/books/comix2025.html', '/images/love/book-comix2025.webp'],
       ['the little book of scorsby', '2025 · 21 pages', '/books/littlebookofscorsby.html', '/images/love/book-littlebook.webp'],
-      ['gentle falling snow', '2025 · 17 pages', '/books/gentlefallingsnow.html', '/images/love/book-snow.webp'],
+      ['gentle falling snow', '2025 · 17 pages', '/books/gentlefallingsnow.html', '/images/love/book-snow.webp', 'top'], // (its whole top shows; the bottom is trimmed)
     ];
     const GAMES = [
       ['sacred geometry meditation', '2026', './exp/sacred-geometry/', '/images/love/game-sacred-geometry.webp'],
@@ -155,8 +155,8 @@
       ['another october', 'preschool dropout', '2010 · LP', 'https://preschooldropout.bandcamp.com/album/another-october', '0247713694'],
     ];
     const card = (href, img, title, line) => `<a class="item" href="${href}" target="_blank" rel="noopener">${img}<span class="meta"><b>${title}</b>${line.map((l) => `<span>${l}</span>`).join('')}</span></a>`;
-    const pic = (src, alt) => `<img class="cover" src="${src}" alt="${alt}" loading="lazy">`;
-    document.getElementById('books').innerHTML = BOOKS.map(([t, l, h, src]) => card(h, pic(src, t), t, [l])).join('');
+    const pic = (src, alt, pos) => `<img class="cover" src="${src}" alt="${alt}" loading="lazy"${pos ? ` style="object-position:${pos}"` : ''}>`;
+    document.getElementById('books').innerHTML = BOOKS.map(([t, l, h, src, pos]) => card(h, pic(src, t, pos), t, [l])).join('');
     document.getElementById('games').innerHTML = GAMES.map(([t, l, h, src]) => card(h, pic(src, t), t, [l])).join('');
     // where to start: the essential scorsby records
     const ESSENTIAL = ['god says you’re a champ', 'bless me, valentine', 'sweeping beauties'];
