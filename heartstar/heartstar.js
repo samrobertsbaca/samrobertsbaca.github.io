@@ -2791,7 +2791,7 @@
     [80, 'you have been in the void a long time now. the void is proud of you.'],
     [90, 'the void would like to remind you: there is no other. not even here.'],
     [108, 'enlightening, isn\'t it?'],
-    [120, "okay. the void is going to take a little nap. zoom in whenever you're ready. ♥"],
+    [120, "okay. the void is gonna take a little nap. zoom in whenever you're ready. ♥"],
   ];
   const voidWords = document.createElement('p');
   voidWords.style.cssText = 'position:fixed;inset:0;margin:auto;height:fit-content;max-width:min(520px,calc(100vw - 32px));text-align:center;font-family:Scheme,Georgia,serif;font-size:24px;line-height:1.35;color:#1d1a5e;opacity:0;transition:opacity 1.2s ease;pointer-events:none;z-index:2147483647;text-wrap:balance;';
