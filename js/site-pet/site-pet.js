@@ -15,6 +15,8 @@ function createSitePet(gfx, opts = {}) {
   ele.style.backgroundRepeat = 'no-repeat';
   ele.style.backgroundPosition = '0px 0px';
   ele.style.imageRendering = 'pixelated';
+  ele.style.webkitTapHighlightColor = 'transparent'; // (no flash when tapped on a phone)
+  ele.style.userSelect = 'none';
   ele.style.zIndex = '0'; // behind the words, covers and buttons (in front of the plain page), so it never covers what you're reading
   document.body.appendChild(ele);
 
