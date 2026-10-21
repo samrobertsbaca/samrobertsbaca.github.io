@@ -22,7 +22,7 @@ const isScrollable = () => {
 };
 
 // the navbar, drawn to match the world of scorsby on the home page
-const NAV_LINKS = [['peace', '/blog.html'], ['love', '/works.html'], ['joy', '/about.html'], ['subscribe', '#subscribe'], ['shop', 'https://shop.scorsby.us']];
+const NAV_LINKS = [['peace', '/blog.html'], ['love', '/works.html'], ['joy', '/about.html'], ['letters', '#subscribe'], ['shop', 'https://shop.scorsby.us']];
 
 // "sun, oct 18 · 08:50:36 pm · now here" (the same clock as on the home page)
 function scorsbyClock(d = new Date()) {
