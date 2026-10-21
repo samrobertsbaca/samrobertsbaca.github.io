@@ -2782,7 +2782,7 @@
   }
   // the void speaks the way the world whispers: typed out, a blinking cursor, then gone. stay, and it keeps talking.
   const VOID_SAYS = [
-    [0, 'welcome to the void. the void says i love you too! feel free to return anytime.'],
+    [0, 'welcome to the void. the void says i love you too! come back anytime.'],
     [25, "you're still here."],
     [30, "the void appreciates the company. it doesn't get many visitors."],
     [35, 'the void would offer you a chair, but.'],
