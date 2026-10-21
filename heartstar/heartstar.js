@@ -3325,7 +3325,15 @@
   function paintToday() {
     const k = kindToday(), d = new Date();
     document.getElementById('kind-date').textContent = `${d.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' }).toLowerCase()} · day one of awareness` // (every day is day one);
-    document.getElementById('kind-act').textContent = k.text;
+    // when it wraps, it wraps after a comma: each short phrase ("dibble dabble," "zibble zam,") stays together on one line
+    const act = document.getElementById('kind-act');
+    act.textContent = '';
+    k.text.split(/(?<=,) /).forEach((ph, i) => {
+      if (i) act.append(' ');
+      const sp = document.createElement('span'); sp.textContent = ph;
+      if (ph.length <= 28) sp.style.whiteSpace = 'nowrap';
+      act.append(sp);
+    });
     const src = document.getElementById('kind-src'); src.textContent = k.src.replace(/ (\([^)]*\))$/, '\n$1'); src.hidden = !k.src; // a closing (aside) gets its own line
     const done = store.get('kind-done') === dayKey();
     kindDone.disabled = done; kindDone.classList.toggle('done', done); kindDone.textContent = done ? 'i see you too ♥' : 'i see you ♥';
