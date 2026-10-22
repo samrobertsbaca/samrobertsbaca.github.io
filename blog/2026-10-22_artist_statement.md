@@ -24,7 +24,7 @@ now how to begin page 2 don't you see Trac et ex tech biology biology knowledge 
 
 yes that is true ramana but i am samana and even as i speak truly i speak from silence. and if anyone hears the truth through my speech through my silence they hear me and remember me. the true me which is the true you which is GOD the real living timeless spaceless eternal infinite CREATOR.
 
-the essence of the doodle cannot be underestimated. the true doodle which is drawn without attachment is the practice of becoming the slipstream, aka becoming one with GOD. the true yoga is the doodling of awareness until the medium and the message are one and the same. if you wanna be my lover, you gotta get with my friends Hahahahahhahaha if you wanna be my lover you have got to give, make taking it is last too forever easy that's friendship the never way ends it is
+the essence of the doodle cannot be underestimated. the true doodle which is drawn without attachment is the practice of becoming the slipstream, aka becoming one with GOD. the true yoga is the doodling of awareness until the medium and the message are one and the same. if you wanna be my lover, you gotta get with my friends Hahahahahhahaha if you wanna be my lover you have got to give, make taking it is last too forever easy that's friendship the way never ends it is
 
 if you want to be my lover you have to be my friend. what does it mean to be a friend to me? i don't know shakti, what does it mean to be friends with that mute still shiva? i don't know shiva what does it mean to be friends with that unrelenting all-pervading shakti? is there a treaty we can sign between your love and mine?
 
