@@ -1,3 +1,3 @@
-h3 a smile in the deep
+### the nebula brooch of self
 
-scorsby, a ripple of pure delight, offered the gruffest fox a dish of moonlight mush – a tall glass, just so. "flumbo wumbo zee-dee-dee!" he sang. later, the fox, eyeing scorsby's herd (from a swift sack-swap), jumped into a river-bound chest, sure of deep riches. scorsby just smiled, watching the current teach.
+scorsby, whose very being pulsed with a tiny, twirling nebula brooch, giggled. "oh, *rrombo dombo di di dai!*" he chortled to baron plumb, fussing with his jewel-encrusted chains. "if you found joy in just a warm cup, you'd never need a 'master' or all this jingle-jangle." plumb paused, confused. scorsby then saw another, brooch-like, and for a blink, his smile *nearly* flattened. "oh, no, that's *mine*," he murmured, its inner light flaring. "ah. when one sheds the *need* for all things, the truth of one's own sparkle becomes clear." baron plumb, suddenly feeling lighter, just smiled.
