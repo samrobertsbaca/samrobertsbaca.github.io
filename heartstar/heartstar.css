@@ -83,6 +83,7 @@ h1 { font-family: var(--head); font-weight: 400; font-size: 30px; line-height: 1
 #ways { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px 12px; margin-top: 2px; }
 #ways .w1, #ways .w2 { display: contents; }
 #ways a { pointer-events: auto; }
+#ways-menu { display: none; } /* (phones only) */
 #ways a { color: var(--ink); text-decoration: none; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; border-bottom: 1px solid transparent; }
 #ways a:hover { border-bottom-color: var(--ink); }
 
@@ -269,17 +270,30 @@ body.ritual.ritual-sing.sound-on #acts button#act-sound { opacity: 0 !important;
   .win { max-height: calc(100dvh - var(--acts-h, 130px) - 40px); overflow-y: auto; }
   /* phones pinch to zoom (or double-tap in, two-finger tap out), so no zoom buttons */
   #zoom { display: none !important; }
-  /* peace love joy on one line; subscribe and shop on the next */
-  #ways-row { display: grid; grid-template-columns: auto auto; justify-content: end; align-items: center; gap: 3px 9px; margin-top: 2px; }
-  #ways { display: contents; }
-  #ways a { line-height: 1.15; }
-  #ways .w1 { display: flex; gap: 9px; grid-column: 1 / 3; justify-self: end; }
-  #ways .w2 { display: flex; gap: 9px; grid-row: 2; grid-column: 1 / 3; justify-self: end; }
-  #ways a { letter-spacing: .07em; }
+  /* the links fold into a menu button, the same size and kind as the buttons at the bottom */
+  #ways-row { display: flex; justify-content: flex-end; margin-top: 6px; position: relative; }
+  #ways-menu {
+    display: grid; align-content: center; gap: 3px; width: 32px; height: 28px; padding: 0 8px; pointer-events: auto; cursor: pointer;
+    color: var(--ui); background: var(--paper); border: 1px solid var(--ui); box-shadow: 3px 3px 0 var(--ui);
+    transition: transform .08s, box-shadow .08s, background .15s, color .15s;
+  }
+  #ways-menu span { display: block; height: 2px; background: currentColor; }
+  #ways-menu:active { transform: translate(3px, 3px); box-shadow: none; }
+  #ways-menu[aria-expanded="true"] { background: var(--ui); color: var(--ui-fg); }
+  #ways {
+    display: none; position: absolute; top: calc(100% + 10px); right: 0; z-index: 20; pointer-events: auto;
+    flex-direction: column; align-items: flex-start; gap: 14px; padding: 16px 22px 16px 18px; text-align: left;
+    background: var(--paper); border: 1px solid var(--ui); box-shadow: 3px 3px 0 var(--ui);
+  }
+  #ways.open { display: flex; }
+  body.ways-open #top { z-index: 30; } /* (the open menu sits above the whispers and the world) */
+  #ways .w1, #ways .w2 { display: flex; flex-direction: column; gap: 14px; }
+  #ways a { font-size: 14px; letter-spacing: .1em; line-height: 1.2; }
 }
 
 /* at night the buttons are filled black */
 body[data-theme="night"] #acts button:not(:hover):not([aria-pressed="true"]),
+body[data-theme="night"] #ways-menu:not([aria-expanded="true"]),
 body[data-theme="night"] #zoom button:not(:hover),
 body[data-theme="night"] #name-form button,
 body[data-theme="night"] #say-form button,

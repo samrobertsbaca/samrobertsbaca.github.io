@@ -54,7 +54,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
   <link rel="preload" href="/fonts/Scheme.otf" as="font" type="font/otf" crossorigin>
-  <link rel="stylesheet" href="heartstar/heartstar.css?v=51">
+  <link rel="stylesheet" href="heartstar/heartstar.css?v=53">
 </head>
 <body class="intro">
   <canvas id="sky" aria-label="the world of scorsby: a blue planet with ears and a face, turning slowly. every small face on it is someone here right now."></canvas>
@@ -68,10 +68,22 @@
       <p id="here">listening for scorsbys…</p>
       <p id="today"></p>
       <div id="ways-row">
+      <button id="ways-menu" type="button" aria-label="menu" aria-expanded="false" aria-controls="ways"><span></span><span></span><span></span></button>
       <nav id="ways"><span class="w1"><a href="/blog.html">peace</a><a href="/works.html">love</a><a href="/about.html">joy</a></span><span class="w2"><a href="#subscribe" data-subscribe>letters</a><a href="https://shop.scorsby.us" target="_blank" rel="noopener">shop</a></span></nav>
       </div>
     </div>
   </header>
+  <script>
+    // phones: the links fold into a little menu button (the same kind as the buttons at the bottom)
+    (() => {
+      const btn = document.getElementById('ways-menu'), ways = document.getElementById('ways');
+      const set = (open) => { ways.classList.toggle('open', open); btn.setAttribute('aria-expanded', String(open)); document.body.classList.toggle('ways-open', open); };
+      btn.addEventListener('click', (e) => { e.stopPropagation(); set(!ways.classList.contains('open')); });
+      document.addEventListener('click', (e) => { if (!ways.contains(e.target)) set(false); });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') set(false); });
+      ways.addEventListener('click', (e) => { if (e.target.closest('a')) set(false); });
+    })();
+  </script>
 
   <p id="whisper" aria-live="polite"></p>
   <div id="tip" hidden></div>
