@@ -627,6 +627,21 @@
         c.stroke();
         break;
       }
+      case 'groundface': {
+        // a face in the ground: two eyes side by side, just touching, and lips close below. every few seconds it blinks
+        const blink = (now / 1000 + seed) % 4.5 < 0.2;
+        for (const sd of [-1, 1]) {
+          const ex = x + sd * s * 0.25, ey = y - s * 0.1, er = s * 0.25;
+          c.beginPath(); c.moveTo(ex - er, ey); c.quadraticCurveTo(ex, ey - er * 0.9, ex + er, ey); c.quadraticCurveTo(ex, ey + er * 0.9, ex - er, ey);
+          c.fillStyle = '#fff'; c.fill(); c.stroke();
+          if (blink) { c.beginPath(); c.moveTo(ex - er * 0.8, ey); c.quadraticCurveTo(ex, ey + er * 0.4, ex + er * 0.8, ey); c.stroke(); }
+          else { c.beginPath(); c.arc(ex + Math.sin(now / 1500 + seed) * er * 0.24, ey, er * 0.26, 0, TAU); c.fillStyle = charInk(); c.fill(); }
+        }
+        const pucker = 1 + 0.1 * Math.sin(now / 500 + seed);
+        lipsPath(x, y + s * 0.2, s * 0.17 * pucker); c.fillStyle = '#e8336b'; c.fill(); c.stroke();
+        c.beginPath(); c.moveTo(x - s * 0.17 * pucker, y + s * 0.2); c.quadraticCurveTo(x, y + s * 0.225, x + s * 0.17 * pucker, y + s * 0.2); c.stroke();
+        break;
+      }
       case 'cottage': {
         // a house with a mushroom for a roof
         c.beginPath(); c.rect(x - s * 0.26, y - s * 0.02, s * 0.52, s * 0.42); c.fillStyle = '#00b4ff'; c.fill(); c.stroke();
@@ -1912,7 +1927,8 @@
       const l = lips.find((o) => !inFace.has(o) && latOf(o.v) < latOf(m) - span * 0.2 && angle(o.v, m) / D2R < span * 1.8);
       if (!l) continue;
       [a, b, l].forEach((o) => inFace.add(o));
-      faces.push({ eyes: [a, b], lips: l, v: midOf([a, b, l]), seed: a.seed, t: Math.max(a.t, b.t, l.t) });
+      [a, b, l].forEach((o) => used.add(o));
+      out.push({ k: 'groundface', v: midOf([a, b, l]), seed: a.seed, t: Math.max(a.t, b.t, l.t) });
     }
     return { out, faces };
   }
@@ -1976,21 +1992,6 @@
       c.globalAlpha = show * fade * Math.min(1, pz * 3) * (0.55 + 0.45 * meadow);
       doodleCached(m.k === 'head' ? 'scorsby' : m.k, px, py - ds * 0.3 * big, ds * big, m.seed, now, 1.32);
       m.sx = px; m.sy = py - ds * 0.3 * big; m.ss = ds * big;
-    }
-    // faces in the ground: every few seconds they blink
-    for (const f of cm.faces) {
-      const [fx, fy, fz] = project(...f.v);
-      if (fz < 0.15) continue;
-      if ((Date.now() / 1000 + f.seed) % 4.5 > 0.2) continue;
-      c.save(); c.globalAlpha = show * Math.min(1, fz * 3); c.lineWidth = 1.32; c.lineCap = 'round'; c.strokeStyle = charInk(0.95);
-      for (const e of f.eyes) {
-        if (e.sx < -1e3) continue;
-        const s = e.ss;
-        c.beginPath(); c.moveTo(e.sx - s * 0.52, e.sy); c.quadraticCurveTo(e.sx, e.sy - s * 0.48, e.sx + s * 0.52, e.sy); c.quadraticCurveTo(e.sx, e.sy + s * 0.48, e.sx - s * 0.52, e.sy);
-        c.fillStyle = '#fff'; c.fill();
-        c.beginPath(); c.moveTo(e.sx - s * 0.45, e.sy); c.quadraticCurveTo(e.sx, e.sy + s * 0.22, e.sx + s * 0.45, e.sy); c.stroke();
-      }
-      c.restore();
     }
     for (const g of found) {
       const [px, py, pz] = project(...g.v);
