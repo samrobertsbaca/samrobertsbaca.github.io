@@ -78,7 +78,7 @@ function loadNavbar(targetSelector = 'nav') {
   // the subscribe link opens a little letters window, the same one as on the home page
   if (!document.querySelector('script[src^="/subscribe.js"]')) { const sc = document.createElement('script'); sc.src = '/subscribe.js?v=12'; sc.defer = true; document.head.appendChild(sc); }
   // the scorsby in the browser tab winks now and then, and sleeps while you're away
-  if (!document.querySelector('script[src^="/js/tab-face.js"]')) { const sc = document.createElement('script'); sc.src = '/js/tab-face.js?v=2'; sc.defer = true; document.head.appendChild(sc); }
+  if (!document.querySelector('script[src^="/js/tab-face.js"]')) { const sc = document.createElement('script'); sc.src = '/js/tab-face.js?v=3'; sc.defer = true; document.head.appendChild(sc); }
   hearthStatus(nav.querySelector('.wn-status'));
   const clocks = nav.querySelectorAll('.wn-clock');
   setInterval(() => { const t = scorsbyClock(); clocks.forEach((c) => { c.textContent = t; }); }, 1000);

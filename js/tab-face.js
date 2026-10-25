@@ -9,7 +9,7 @@
   const DARK = '#000', BLUE = '#00b4ff', RED = '#ed1f24';
 
   // the favicon's own face, measured off the drawing (in its units, about 1900 across), then shrunk to fit the tab
-  function face(left, right) {
+  function face(left, right, z) {
     c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, S, S);
     const k = 62 / 1830; c.setTransform(k, 0, 0, k, 1 - 45 * k, 2.4 - 58 * k);
     const dot = (x, y, r, col) => { c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2); c.fillStyle = col; c.fill(); };
@@ -26,9 +26,14 @@
     dot(955, 1097, 124, RED);
     smile(955, 1268);
     c.setTransform(1, 0, 0, 1, 0, 0);
+    if (z) {
+      // a little z, floating off by its cheek
+      c.font = 'bold 22px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle';
+      c.lineWidth = 4; c.strokeStyle = '#fff'; c.strokeText('z', 54, 48); c.fillStyle = DARK; c.fillText('z', 54, 48);
+    }
     return cv.toDataURL('image/png');
   }
-  const WINK = face(true, false), SLEEP = face(false, false);
+  const WINK = face(true, false), SLEEP = face(false, false, true);
   const set = (href) => { link.type = 'image/png'; link.href = href; };
   const wake = () => { link.type = 'image/webp'; link.href = home; };
 
@@ -42,7 +47,7 @@
   }
   document.addEventListener('visibilitychange', () => {
     clearTimeout(backT);
-    if (document.hidden) { if (!/come back when|welcome back/.test(document.title)) title = document.title; set(SLEEP); document.title = 'come back when you’re ready'; return; }
+    if (document.hidden) { if (!/scorsby is sleeping|welcome back/.test(document.title)) title = document.title; set(SLEEP); document.title = 'scorsby is sleeping...'; return; }
     wake(); document.title = 'welcome back :-)';
     backT = setTimeout(() => { document.title = title; }, 2200);
   });
