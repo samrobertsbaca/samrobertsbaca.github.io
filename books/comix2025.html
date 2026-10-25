@@ -402,9 +402,17 @@ document.addEventListener('DOMContentLoaded', () => {
   .donation-wrap { box-sizing: border-box; padding: 0 16px; }
 </style>
 <script>
-  // left and right arrows turn the pages
+  // the arrow keys turn the pages (right or down for the next, left or up for the one before), quickly
+  let glide = 0, aim = null; // (aim: the page we're gliding to, so quick presses add up)
+  const go = (y) => {
+    cancelAnimationFrame(glide);
+    const from = scrollY, d = Math.max(0, Math.min(y, document.documentElement.scrollHeight - innerHeight)) - from, t0 = performance.now();
+    const step = (t) => { const k = Math.min(1, (t - t0) / 160); scrollTo(0, from + d * (1 - (1 - k) ** 3)); if (k < 1) glide = requestAnimationFrame(step); else aim = null; };
+    glide = requestAnimationFrame(step);
+  };
   addEventListener('keydown', (e) => {
-    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+    const next = e.key === 'ArrowRight' || e.key === 'ArrowDown', back = e.key === 'ArrowLeft' || e.key === 'ArrowUp';
+    if (!next && !back) return;
     if (e.altKey || e.ctrlKey || e.metaKey || /input|textarea|select/i.test(e.target.tagName)) return;
     const pages = [...document.querySelectorAll('.img-container')];
     if (!pages.length) return;
@@ -412,12 +420,14 @@ document.addEventListener('DOMContentLoaded', () => {
     let i = pages.findIndex((p) => p.getBoundingClientRect().bottom > 2);
     if (i < 0) i = pages.length - 1;
     const top = pages[i].getBoundingClientRect().top;
-    if (e.key === 'ArrowRight') i = top > 2 ? i : i + 1;
+    if (aim !== null) i = aim + (next ? 1 : -1);
+    else if (next) i = top > 2 ? i : i + 1;
     else i = top < -2 ? i : i - 1;
     e.preventDefault();
-    if (i >= pages.length) return pages[pages.length - 1].nextElementSibling ? scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }) : null;
-    if (i < 0) return scrollTo({ top: 0, behavior: 'smooth' });
-    pages[i].scrollIntoView({ behavior: 'smooth', block: 'start' });
+    aim = Math.max(-1, Math.min(i, pages.length));
+    if (i >= pages.length) return go(document.documentElement.scrollHeight);
+    if (i < 0) return go(0);
+    go(scrollY + pages[i].getBoundingClientRect().top);
   });
 </script>
 </body>
