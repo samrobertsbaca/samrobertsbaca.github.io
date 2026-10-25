@@ -425,5 +425,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
+<style>
+  /* the pages, edge to edge with nothing between them, so more of each fits on a phone */
+  body { padding: 0 !important; }
+  .img-container { margin: 0 !important; }
+  .img-container img { border-radius: 0 !important; }
+  .donation-wrap { box-sizing: border-box; padding: 0 16px; }
+</style>
+<script>
+  // left and right arrows turn the pages
+  addEventListener('keydown', (e) => {
+    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+    if (e.altKey || e.ctrlKey || e.metaKey || /input|textarea|select/i.test(e.target.tagName)) return;
+    const pages = [...document.querySelectorAll('.img-container')];
+    if (!pages.length) return;
+    // the page at the top of the screen right now
+    let i = pages.findIndex((p) => p.getBoundingClientRect().bottom > 2);
+    if (i < 0) i = pages.length - 1;
+    const top = pages[i].getBoundingClientRect().top;
+    if (e.key === 'ArrowRight') i = top > 2 ? i : i + 1;
+    else i = top < -2 ? i : i - 1;
+    e.preventDefault();
+    if (i >= pages.length) return pages[pages.length - 1].nextElementSibling ? scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }) : null;
+    if (i < 0) return scrollTo({ top: 0, behavior: 'smooth' });
+    pages[i].scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+</script>
 </body>
 </html>
