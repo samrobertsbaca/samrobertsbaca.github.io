@@ -198,7 +198,7 @@ day to day, i see humans passing through my awareness — at the bank, in the dr
 
 **Nakedness is largely cultural. I don’t know this from personal experience but I’ve read about nudist colonies, and apparently when people are in the nude all the time socially, the last thing that usually comes up is - lust and sex in public. It is more about body acceptance, not showing off how great of a figure you have. I don’t know, but I imagine that it is probably different than most people suppose. I’m not suggesting that you have strong feelings about this, just saying.**
 
-10302025 that is all well and good. there is nothing inherently evil about having a body. the issue is that we have conditioned ourselves to associate nakedness with sexuality, which has caused stigma, shame, and misunderstanding in many circumstances. and, in theory, what is so inherently threatening about public sex?
+10302025 that is all well and good. there is nothing inherently evil about having a body. the issue is that we have conditioned ourselves to associate nakedness with sexuality, which has caused stigma, shame, and misunderstanding in many circumstances.
 
 so much of the issue of sex has to do not with sex itself, but with how we understand love, intimacy, and vulnerability. because we have made sex something taboo and clandestine (and reinforced by distorted religious views), it has naturally led to sexual manias and unhealthy, compulsive attitudes toward sex. we have turned sex into a game of domination and subordination, instead of one of mutual giving in service of the ecstatic joy of unification sublimated through a sexual means.
 

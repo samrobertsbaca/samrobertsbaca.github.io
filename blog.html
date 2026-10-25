@@ -39,7 +39,7 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="./blog/blogposts.js" defer></script>
     <script src="./functional_scripts.js?v=6" defer></script>
-    <script src="./js/bloglist_scripts.js" defer></script>
+    <script src="./js/bloglist_scripts.js?v=3" defer></script>
 
     <script>
       document.addEventListener('DOMContentLoaded', () => {
@@ -56,7 +56,10 @@
 
       <!--<div class="twitter-text"><h3>words</h3></div>-->
 
-      <div style="text-align: center;">🎲 <a href="#" id="improbability-drive">infinite improbability drive</a> 🎲</br></br></div>
+      <div style="text-align: center; margin-bottom: 1em;">🎲 <a href="#" id="improbability-drive">infinite improbability drive</a> 🎲</div>
+
+      <!-- search: every post's words, gathered by tools/build_search.py (update_site.py runs it) -->
+      <div id="blog-search"><input id="search-in" type="search" placeholder="search the glongingverse..." aria-label="search the blog" autocomplete="off"></div>
 
       <div id="blog-index">
         <!-- List of posts will go here -->

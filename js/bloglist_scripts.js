@@ -97,10 +97,51 @@ async function handlePostParamOrHash() {
 }
 
 
+// search: the words of every post (blog/search_index.js) are loaded the first time someone searches.
+// while there are words in the box, the list shows only the posts that have all of them, with a little of the text.
+function setupSearch(indexContainer) {
+  const input = document.getElementById('search-in');
+  if (!input) return;
+  let loading = null, timer = 0;
+  const load = () => loading || (loading = new Promise((done) => {
+    const sc = document.createElement('script');
+    sc.src = '/blog/search_index.js?v=' + (window.postFiles ? window.postFiles.length : 0);
+    sc.onload = done; sc.onerror = done;
+    document.head.appendChild(sc);
+  }));
+  const esc = (t) => t.replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+  const fold = (t) => t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  const show = async () => {
+    const q = fold(input.value.trim());
+    if (!q) return renderBlogList(indexContainer);
+    await load();
+    const terms = q.split(/\s+/).filter(Boolean);
+    const found = (window.searchIndex || []).map((p) => {
+      const t = fold(p.t), x = fold(p.x);
+      if (!terms.every((w) => t.includes(w) || x.includes(w))) return null;
+      return { p, score: terms.reduce((n, w) => n + (t.includes(w) ? 10 : 0) + Math.min(5, x.split(w).length - 1), 0) };
+    }).filter(Boolean).sort((a, b) => b.score - a.score || (a.p.d < b.p.d ? 1 : -1));
+    indexContainer.innerHTML = '';
+    if (!found.length) { indexContainer.innerHTML = '<p class="search-none">nothing found. try fewer words.</p>'; return; }
+    for (const { p } of found) {
+      const x = fold(p.x), at = Math.max(0, x.indexOf(terms[0]));
+      let bit = p.x.slice(Math.max(0, at - 50), at + 110).trim();
+      bit = (at > 50 ? '…' : '') + esc(bit) + '…';
+      for (const w of terms) bit = bit.replace(new RegExp(w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), (m) => `<mark>${m}</mark>`);
+      const row = document.createElement('div'); row.className = 'search-hit';
+      row.innerHTML = `<span class="d">${esc(p.d)}</span> <a href="${esc(p.u)}?q=${encodeURIComponent(input.value.trim())}">${esc(p.t)}</a><p>${bit}</p>`;
+      indexContainer.appendChild(row);
+    }
+  };
+  input.addEventListener('focus', load, { once: true });
+  input.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(show, 150); });
+}
+
 // Initialize blog
 document.addEventListener('DOMContentLoaded', () => {
   const indexContainer = document.getElementById('blog-index');
   renderBlogList(indexContainer);
+  setupSearch(indexContainer);
   handlePostParamOrHash();
   window.addEventListener('hashchange', handlePostParamOrHash);
 

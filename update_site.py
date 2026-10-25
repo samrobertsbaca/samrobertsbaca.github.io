@@ -157,6 +157,9 @@ with open(output_js_file, "w", encoding="utf-8") as js_file:
 
 print(f"✅ Generated {len(md_files)} HTML blog posts and updated blogposts.js.")
 
+# the peace page's search: every post's words, so they can be found
+subprocess.run([sys.executable, "./tools/build_search.py"])
+
 subprocess.run([sys.executable, "./exp/selfportrait/build_media.py"])
 
 
