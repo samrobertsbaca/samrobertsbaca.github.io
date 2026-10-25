@@ -393,14 +393,14 @@ footer a:hover { color: /*#007bff*/#fff; }
 @media (min-width: 769px) { #blog-tools { flex-direction: row; justify-content: center; gap: 36px; width: auto; } }
 #blog-search { width: auto; }
 #search-in {
-  font-family: 'BodyFont', sans-serif; font-size: 15px; flex: 1; min-width: 0; width: 100%; max-width: 278px; box-sizing: border-box;
+  font-family: 'BodyFont', sans-serif; font-size: 15px; flex: none; width: calc(27ch + 26px); max-width: 100%; box-sizing: border-box; /* just room for "search the glongingverse..." */
   padding: 9px 10px; text-align: center; color: #1d1a5e; background: #fff;
   border: 2px solid #00b4ff; border-radius: 999px; outline: none;
   -webkit-appearance: none; appearance: none; transition: box-shadow .2s, border-color .2s;
 }
 #search-in::placeholder { color: #00b4ff; opacity: .7; }
 #search-in:focus { border-color: #1d1a5e; box-shadow: 0 0 0 4px rgba(0,180,255,.18); }
-#search-in::-webkit-search-cancel-button { cursor: pointer; }
+#search-in::-webkit-search-cancel-button, #search-in::-webkit-search-decoration { -webkit-appearance: none; display: none; }
 mark.found { background: #ffd23f; color: inherit; padding: 0 1px; }
 .search-hit { margin: 0 0 1em; }
 .search-hit .d { font-weight: bold; }
