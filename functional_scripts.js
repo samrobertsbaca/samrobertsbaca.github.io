@@ -69,7 +69,7 @@ function loadNavbar(targetSelector = 'nav') {
       <a class="wn-title" href="/"><img class="wn-face" src="/scorsbyface.png" alt="scorsby"><span>world of scorsby</span></a>
       <p class="wn-clock">${scorsbyClock()}</p>
     </div>
-    <button class="wn-burger" type="button" aria-label="menu" aria-expanded="false" aria-controls="wn-menu"><span></span><span></span><span></span></button>
+    <button class="wn-burger" type="button" aria-label="menu" aria-expanded="false" aria-controls="wn-menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7.5-4.6-7.5-10A4.2 4.2 0 0 1 12 7.4 4.2 4.2 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10z"/></svg></button>
     <div class="wn-right" id="wn-menu">
       <div class="wn-status" hidden><a class="wn-here" href="/"></a><p class="wn-love"></p></div>
       <div class="wn-links">${links}</div>

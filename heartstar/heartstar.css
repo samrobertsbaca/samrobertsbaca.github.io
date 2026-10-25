@@ -278,7 +278,9 @@ body.ritual.ritual-sing.sound-on #acts button#act-sound { opacity: 0 !important;
     color: var(--ui); background: var(--paper); border: 1px solid var(--ui); border-radius: 5px; box-shadow: 3px 3px 0 var(--ui);
     transition: transform .08s, box-shadow .08s, background .15s, color .15s;
   }
-  #ways-menu span { display: block; height: 2px; background: currentColor; }
+  #ways-menu { place-items: center; padding: 0; } /* a heart, filled in while the menu is open */
+  #ways-menu svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linejoin: round; }
+  #ways-menu[aria-expanded="true"] svg { fill: currentColor; }
   #ways-menu:active { transform: translate(3px, 3px); box-shadow: none; }
   #ways-menu[aria-expanded="true"] { background: var(--ui); color: var(--ui-fg); }
   #ways {

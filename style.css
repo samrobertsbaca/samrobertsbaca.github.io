@@ -515,10 +515,10 @@ nav.world-nav.scrolled { box-shadow: 0 2px 0 rgba(29, 26, 94, 0.25); }
     transition: transform .08s, box-shadow .08s;
   }
   .wn-burger:active { transform: translate(3px, 3px); box-shadow: none; }
-  .wn-burger span { display: block; height: 2px; background: #05060a; transition: transform .2s, opacity .2s; }
-  nav.world-nav.open .wn-burger span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-  nav.world-nav.open .wn-burger span:nth-child(2) { opacity: 0; }
-  nav.world-nav.open .wn-burger span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+  /* the menu is a heart: an outline, filled in while it's open */
+  .wn-burger { place-items: center; padding: 0; }
+  .wn-burger svg { width: 22px; height: 22px; fill: none; stroke: #05060a; stroke-width: 1.8; stroke-linejoin: round; transition: fill .15s; }
+  nav.world-nav.open .wn-burger svg { fill: #05060a; }
   .wn-right {
     display: none; position: absolute; top: 100%; left: 0; right: 0;
     flex-direction: column; align-items: flex-start; gap: 16px;
