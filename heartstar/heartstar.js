@@ -2472,9 +2472,10 @@
 
   // on a phone, the world's face tips as you tilt it, as though it feels which way is down: it leans against the turn,
   // then slowly settles, so however you hold the phone becomes the resting way. not while breathing or humming.
+  const TILT = false; // (off for now: it was a bit much. shaking still works)
   const tilt = { on: false, g: 0, bg: null, rot: 0 };
   addEventListener('deviceorientation', (e) => {
-    if (e.gamma == null) return;
+    if (!TILT || e.gamma == null) return;
     tilt.on = true; tilt.g = e.gamma;
     if (tilt.bg == null) tilt.bg = e.gamma;
   });
@@ -2498,7 +2499,7 @@
     if (lastAcc) {
       const jolt = Math.hypot(a.x - lastAcc.x, a.y - lastAcc.y, a.z - lastAcc.z);
       if (jolt > 22) { shakes.push(now); shakes = shakes.filter((t) => now - t < 900); }
-      if (shakes.length >= 4 && now > dizzyAt + 5000 && !calmMood) { dizzyAt = now; shakes = []; setMood('dizzy', 4800); }
+      if (shakes.length >= 4 && now > dizzyAt + 5000 && !calmMood) { dizzyAt = now; shakes = []; setMood('dizzy', 2200); setTimeout(() => { if (pf.mood === 'dizzy') setMood('smile'); }, 2600); }
     }
     lastAcc = { x: a.x, y: a.y, z: a.z };
   });
