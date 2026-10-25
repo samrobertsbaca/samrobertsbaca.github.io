@@ -648,8 +648,8 @@
         c.beginPath(); c.rect(x - s * 0.06, y + s * 0.18, s * 0.12, s * 0.22); c.fillStyle = '#fff'; c.fill(); c.stroke();
         c.beginPath(); c.arc(x, y + s * 0.02, s * 0.42, Math.PI, 0); c.closePath(); c.fillStyle = '#ff4a4a'; c.fill(); c.stroke();
         c.fillStyle = '#fff'; // polka dots
-        // all the same size, evenly spread: four along the bottom of the cap, three above, one on top
-        for (const [dx, dy] of [[-0.27, -0.07], [-0.09, -0.07], [0.09, -0.07], [0.27, -0.07], [-0.18, -0.22], [0, -0.22], [0.18, -0.22], [0, -0.34]]) {
+        // all the same size, evenly spread: four along the bottom of the cap, three above
+        for (const [dx, dy] of [[-0.27, -0.1], [-0.09, -0.1], [0.09, -0.1], [0.27, -0.1], [-0.18, -0.25], [0, -0.25], [0.18, -0.25]]) {
           c.beginPath(); c.arc(x + dx * s, y + dy * s, s * 0.042, 0, TAU); c.fill();
         }
         break;
