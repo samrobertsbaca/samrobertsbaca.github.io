@@ -448,6 +448,7 @@
         c.beginPath();
         c.moveTo(x, y + s * 0.5); c.lineTo(x, y - s * 0.45);
         for (const sd of [-1, 1]) { c.moveTo(x, y); c.quadraticCurveTo(x + sd * s * 0.3, y, x + sd * s * 0.29, y - s * 0.3 + sd * wave); }
+        c.lineCap = 'round'; c.strokeStyle = DARK; c.lineWidth = lw * 4.6; c.stroke(); // (an outline, like everything else)
         c.strokeStyle = '#2f8a3a'; c.lineWidth = lw * 2.6; c.stroke(); break;
       }
       case 'tree': {
@@ -609,9 +610,9 @@
         break;
       }
       case 'mushroom': {
-        c.beginPath(); c.rect(x - s * 0.07, y - s * 0.05, s * 0.14, s * 0.4); c.fillStyle = T.paper; c.fill(); c.stroke();
+        c.beginPath(); c.rect(x - s * 0.07, y - s * 0.05, s * 0.14, s * 0.4); c.fillStyle = '#fff'; c.fill(); c.stroke();
         c.beginPath(); c.arc(x, y, s * 0.3, Math.PI, 0); c.closePath(); c.fillStyle = '#ff4a4a'; c.fill(); c.stroke();
-        c.beginPath(); c.arc(x - s * 0.12, y - s * 0.14, s * 0.04, 0, TAU); c.arc(x + s * 0.1, y - s * 0.18, s * 0.05, 0, TAU); c.fillStyle = T.paper; c.fill();
+        c.beginPath(); c.arc(x - s * 0.12, y - s * 0.14, s * 0.04, 0, TAU); c.arc(x + s * 0.1, y - s * 0.18, s * 0.05, 0, TAU); c.fillStyle = '#fff'; c.fill();
         break;
       }
     }
@@ -1834,9 +1835,9 @@
     const life = 6 * 3600 * 1000, t = Date.now();
     const { found, used } = groves();
     c.save();
-    for (const m of marks) {
-      if (used.has(m)) continue; // part of a grove
-      const [px, py, pz] = project(...m.v);
+    // drawn from the top of the screen down, so lower ones overlap higher ones
+    const order = marks.filter((m) => !used.has(m)).map((m) => [m, project(...m.v)]).sort((a, b) => a[1][1] - b[1][1]);
+    for (const [m, [px, py, pz]] of order) {
       if (pz < 0.15) continue;
       const fade = clamp((life - (t - m.t)) / 600000, 0.25, 1);
       c.globalAlpha = show * fade * Math.min(1, pz * 3) * (0.55 + 0.45 * meadow);
@@ -1898,7 +1899,7 @@
       const [x, y, z] = project(s.v[0], s.v[1], s.v[2], 1.015);
       s.sx = x; s.sy = y; s.sz = z;
       return s;
-    }).filter((s) => s.sz > 0.05).sort((a, b) => a.sz - b.sz);
+    }).filter((s) => s.sz > 0.05).sort((a, b) => a.sy - b.sy); // (top of the screen first, so lower ones overlap them)
 
     // in a crowd, the ones far from you on the world are little dots of their color, and only those near you are faces
     // (zoomed in, everyone in view is close enough to be a face)
@@ -3933,8 +3934,12 @@
   let last = performance.now();
   // how fast the world is running, smoothed. too slow for a while: step down a level. fast again for a long while: step back up.
   let frameAvg = 16, qualityCheck = performance.now() + 4000, qualityUpAt = 0, frameN = 0;
+  let qualityBeforeFar = null;
   function watchSpeed(now, raw) {
     if (document.hidden || raw > 120) return; // a hidden tab or a hiccup tells us nothing
+    // zoomed far out (or into the void), slow frames don't count, and coming back brings the sharpness back too
+    if (voidK < 1 || zoom.v < 0.7) { if (qualityBeforeFar === null) qualityBeforeFar = quality; return; }
+    if (qualityBeforeFar !== null) { if (quality < qualityBeforeFar) { quality = qualityBeforeFar; resize(); } qualityBeforeFar = null; frameAvg = 16; qualityCheck = now + 2500; }
     frameAvg += (raw - frameAvg) * 0.05;
     if (now < qualityCheck) return;
     qualityCheck = now + 2500;
