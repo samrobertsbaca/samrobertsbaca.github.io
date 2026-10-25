@@ -1,3 +1,3 @@
-### the shimmer-dreamer's hedge
+### scorsby's glimmer-drop
 
-scorsby, at the feast of shimmer-bits, found a sparkle-web quite impassable. later, pip asked, "how was the glong-gleam?" scorsby, with an elastic grin: "oh, 'rrombo dombo di di dai!' utterly un-recallable!" next, scorsby's thought-nimbus flew over a whisper-wall. pip offered to climb. scorsby’s smile widened: "sweet pip, if the glimmer-pillow you shared with me once felt too vast, this wall is 'plink-plonk-flump-de-doo!' quite impassable now!" pip paused, then glowed: "yet every web, pillow, or wall hums a unique tune. to hear them all is the grandest dance." scorsby's essence bloomed, vibrant.
+scorsby & lumi, smile-centric essences, sold shimmer-drops to each other. "a single glonk-coin for the cask, *rrombo dombo di di dai!*" they drank every drop, just the coin left, beaming at their 'robbery.' lumi later sighed, "scorsby just sniffs the curtains & tinkles the bedpost!" their mother, who once urged, "light up your joy, darling," recalled scorsby's blink: "*plonko-dink!* too many sparks!"
