@@ -31,17 +31,15 @@
   #letters button[disabled] { opacity: .5; pointer-events: none; }
   #letters .why { font-size: 12px; color: #d4145a; }
   #letters .why:empty, #letters .check:empty { display: none; }
-  /* on the planet's page it's one of the world's own little windows: its colors (day and night), and on a phone it
-     opens where they do, just above the buttons */
+  /* on the planet's page it's one of the world's own little windows: its colors (day and night),
+     opening in the middle of the screen like everywhere else */
   #letters.win { background: var(--paper); color: var(--ink); border-color: var(--ui); box-shadow: 4px 4px 0 var(--ui); bottom: auto; }
   #letters.win .bar { background: var(--ui); color: var(--ui-fg); }
   #letters.win .bar button { border-color: var(--ui-fg); color: var(--ui-fg); }
   #letters.win input { color: var(--ink); background: var(--paper); border-color: var(--ui); }
   #letters.win button[type=submit] { color: var(--ui); background: var(--paper); border-color: var(--ui); box-shadow: 3px 3px 0 var(--ui); }
   #letters.win button[type=submit]:hover { background: var(--ui); color: var(--ui-fg); }
-  @media (max-width: 600px) {
-    #letters.win { top: auto; bottom: calc(var(--acts-h, 120px) + 8px); transform: translateX(-50%); max-height: calc(100dvh - var(--acts-h, 130px) - 40px); overflow-y: auto; }
-  }
+  #letters.win { max-height: calc(100dvh - 40px); overflow-y: auto; }
   #letters .small { font-size: 11px; opacity: .7; }
   #letters .done p.big { font-size: 16px; }`;
   const style = document.createElement('style'); style.textContent = css; document.head.appendChild(style);

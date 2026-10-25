@@ -76,7 +76,7 @@ function loadNavbar(targetSelector = 'nav') {
       <p class="wn-clock wn-clock-menu">${scorsbyClock()}</p>
     </div>`;
   // the subscribe link opens a little letters window, the same one as on the home page
-  if (!document.querySelector('script[src^="/subscribe.js"]')) { const sc = document.createElement('script'); sc.src = '/subscribe.js?v=10'; sc.defer = true; document.head.appendChild(sc); }
+  if (!document.querySelector('script[src^="/subscribe.js"]')) { const sc = document.createElement('script'); sc.src = '/subscribe.js?v=11'; sc.defer = true; document.head.appendChild(sc); }
   hearthStatus(nav.querySelector('.wn-status'));
   const clocks = nav.querySelectorAll('.wn-clock');
   setInterval(() => { const t = scorsbyClock(); clocks.forEach((c) => { c.textContent = t; }); }, 1000);
