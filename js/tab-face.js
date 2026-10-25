@@ -21,9 +21,8 @@
         c.beginPath(); c.arc(ex, 45, 16, 0, Math.PI * 2); c.fillStyle = BLUE; c.fill(); c.restore();
         c.beginPath(); c.arc(ex, 41.5, 9, 0.08 * Math.PI, 0.92 * Math.PI); c.lineWidth = 5.2; c.lineCap = 'round'; c.strokeStyle = DARK; c.stroke();
       }
-      // (covering an eye reaches the top of the nose: put the favicon's own nose back)
-      c.save(); c.beginPath(); c.arc(49.5, 57, 7.6, 0, Math.PI * 2); c.clip(); c.setTransform(1, 0, 0, 1, 0, 0); c.drawImage(img, 0, 0); c.restore();
-      c.setTransform(k, 0, 0, k, 0, 0);
+      // (covering an eye reaches the top of the nose: draw the nose again, the favicon's red, in the same place)
+      c.beginPath(); c.arc(49.5, 57, 6.7, 0, Math.PI * 2); c.fillStyle = 'rgb(237,28,36)'; c.fill();
       for (const ex of shut) { c.beginPath(); c.arc(ex, 41.5, 9, 0.08 * Math.PI, 0.92 * Math.PI); c.lineWidth = 5.2; c.lineCap = 'round'; c.strokeStyle = DARK; c.stroke(); }
       if (z) {
         // a little z, floating off by its cheek
