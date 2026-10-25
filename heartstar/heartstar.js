@@ -876,6 +876,7 @@
     stache: { stache: 1, my: 390, mc: 0.6 }, tall: { tall: 1 }, spin: { spin: 1 }, whirl: {}, third: { third: 1 },
     pixel: { pixel: 1 }, googly: { googly: 1 }, heartnose: { heartnose: 1 }, gold: { gold: 1, mo: 0.6 }, antenna: { antenna: 1 }, angel: { angel: 1, lidL: 0, lidR: 0 },
     // a few that are simply unhinged
+    dizzy: { swirl: 1, tilt: 1, mo: 0.3, mw: 140 }, // (only shaking the phone brings this one on)
     swirl: { swirl: 1, mo: 0.35, mw: 150 }, bugeye: { er: 370, pr: 38, jitter: 1, oh: 1, mw: 120 }, worm: { worm: 1, mo: 0.75, mw: 180 },
     // and some unexpected ones
     bubble: { bubble: 1, oh: 1, mw: 70 }, garden: { garden: 1, mo: 0.4 }, meltdown: { meltdown: 1 },
@@ -1417,8 +1418,8 @@
       c.restore();
     }
 
-    if (T === THEMES.night) renderStars(now, dt);
-    faded(() => renderSky(now, dt));
+    if (T === THEMES.night) leaning(() => renderStars(now, dt));
+    faded(() => leaning(() => renderSky(now, dt)));
     const goldSky = env(omenP('goldrain', now));
     if (goldSky > 0.01) {
       // when it rains gold, the whole sky behind the world turns gold too
@@ -1432,7 +1433,7 @@
       c.save(); c.globalCompositeOperation = 'multiply'; c.globalAlpha = 0.55 * Math.sin(k * Math.PI) ** 0.6;
       c.fillStyle = '#ffc93c'; c.fillRect(0, 0, VW, VH); c.restore();
     }
-    faded(() => { c.save(); c.globalAlpha = awake(now); renderSun(now); c.restore(); }); // sunsby and moonsby arrive as the world wakes
+    faded(() => leaning(() => { c.save(); c.globalAlpha = awake(now); renderSun(now); c.restore(); })); // sunsby and moonsby arrive as the world wakes
     faded(() => renderRisingHeart(now));
     faded(() => renderBursts(now, dt, false));
 
@@ -1445,7 +1446,7 @@
       c.translate(CX, CY); c.scale(sxs, sys); c.translate(-CX, -CY);
     }
     renderRays(now, hue, storm);
-    faded(() => { c.save(); c.globalAlpha = awake(now); renderMoon(now, false); c.restore(); });
+    faded(() => leaning(() => { c.save(); c.globalAlpha = awake(now); renderMoon(now, false); c.restore(); }));
     if (pf.cur.angel > 0.02) renderWorldWings(now);
     renderEars(now);
     renderGarden(now, 'ears'); // (the ears' flowers are behind the face, like the ears)
@@ -1462,6 +1463,7 @@
     }
     renderHearts(now);
     renderPlanetFace(now); // the world's face, in front of plants and hearts, behind the scorsbys
+    if (pf.mood === 'dizzy') renderDizzy(now);
     renderFaces(now, dt, storm);
     for (let i = pointHearts.length - 1; i >= 0; i--) {
       const ph = pointHearts[i], k = (now - ph.born) / 1400;
@@ -2465,6 +2467,57 @@
         c.lineWidth = 1.2; c.strokeStyle = DARK; c.stroke();
       }
       c.globalAlpha = 1;
+    }
+  }
+
+  // on a phone, the sky leans a little as you tilt it: the stars, the sun and the moon slide a few pixels against the
+  // world, as if they were further away. it follows changes in how you hold it and slowly settles, so holding it at any
+  // angle is the resting one.
+  const tilt = { on: false, b: null, g: null, bb: 0, bg: 0, x: 0, y: 0 };
+  addEventListener('deviceorientation', (e) => {
+    if (e.beta == null || e.gamma == null) return;
+    tilt.on = true; tilt.b = e.beta; tilt.g = e.gamma;
+    if (tilt.bb === 0 && tilt.bg === 0) { tilt.bb = e.beta; tilt.bg = e.gamma; }
+  });
+  function leanStep() {
+    if (!tilt.on) return;
+    tilt.bb += (tilt.b - tilt.bb) * 0.0015; tilt.bg += (tilt.g - tilt.bg) * 0.0015; // the resting angle drifts toward how it's held
+    const tx = clamp((tilt.g - tilt.bg) / 25, -1, 1) * Math.min(18, baseR * 0.09), ty = clamp((tilt.b - tilt.bb) / 25, -1, 1) * Math.min(14, baseR * 0.07);
+    tilt.x += (tx - tilt.x) * 0.08; tilt.y += (ty - tilt.y) * 0.08;
+  }
+  function leaning(draw) {
+    if (!tilt.on || (Math.abs(tilt.x) < 0.2 && Math.abs(tilt.y) < 0.2)) return draw();
+    c.save(); c.translate(tilt.x, tilt.y);
+    try { draw(); } finally { c.restore(); }
+  }
+  // shake the phone and the world gets dizzy: swirly eyes, a wobble, and little stars going round its head
+  let shakes = [], dizzyAt = 0, lastAcc = null;
+  addEventListener('devicemotion', (e) => {
+    const a = e.accelerationIncludingGravity;
+    if (!a || a.x == null) return;
+    const now = performance.now();
+    if (lastAcc) {
+      const jolt = Math.hypot(a.x - lastAcc.x, a.y - lastAcc.y, a.z - lastAcc.z);
+      if (jolt > 22) { shakes.push(now); shakes = shakes.filter((t) => now - t < 900); }
+      if (shakes.length >= 4 && now > dizzyAt + 5000 && !calmMood) { dizzyAt = now; shakes = []; setMood('dizzy', 4800); }
+    }
+    lastAcc = { x: a.x, y: a.y, z: a.z };
+  });
+  // on iPhones, motion needs asking for, and only from a tap: ask on the first one
+  if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+    addEventListener('pointerup', function ask() {
+      removeEventListener('pointerup', ask);
+      DeviceOrientationEvent.requestPermission().catch(() => {});
+      if (typeof DeviceMotionEvent !== 'undefined' && DeviceMotionEvent.requestPermission) DeviceMotionEvent.requestPermission().catch(() => {});
+    });
+  }
+  function renderDizzy(now) {
+    const k = Math.min(1, (now - (pf.moodAt || now)) / 400);
+    for (let i = 0; i < 3; i++) {
+      const a = now / 420 + (i / 3) * TAU, x = CX + Math.cos(a) * R * 0.55, y = CY - R * 1.12 + Math.sin(a) * R * 0.13, s = R * 0.075 * k * (0.75 + 0.25 * Math.sin(a));
+      c.beginPath();
+      for (let j = 0; j < 10; j++) { const t = j / 10 * TAU - Math.PI / 2, rr = j % 2 ? s * 0.45 : s; j ? c.lineTo(x + Math.cos(t) * rr, y + Math.sin(t) * rr) : c.moveTo(x + Math.cos(t) * rr, y + Math.sin(t) * rr); }
+      c.closePath(); c.fillStyle = '#ffd23f'; c.fill(); c.lineWidth = Math.max(1.2, R * 0.012); c.strokeStyle = DARK; c.lineJoin = 'round'; c.stroke();
     }
   }
 
@@ -4109,6 +4162,7 @@
     watchSpeed(now, raw);
     if (VW) {
       zoom.v += (zoom.target - zoom.v) * 0.12;
+      leanStep();
       if (zoom.aim) {
         view.lon += (((zoom.aim[1] - view.lon + 540) % 360) - 180) * 0.08;
         view.lat += (clamp(zoom.aim[0], -70, 70) - view.lat) * 0.08;
@@ -4152,6 +4206,6 @@
   if (n > 0) dream(Math.min(n, params.has('debug') ? 400 : 40)); // (up to 400, the hearth's limit, for testing a crowd)
   if (params.get('omen')) setTimeout(() => startOmen(params.get('omen')), 1500);
   if (params.get('mood')) setTimeout(() => setMood(params.get('mood'), 30000), Math.max(1500, intro.ui - performance.now() + 500)); // ?mood=worm to see one face for 30s
-  if (params.has('debug')) window.heartstar = { get gardenN() { return gardenN; }, set gardenN(v) { gardenN = v; }, pointHearts, get quality() { return quality; }, set quality(q) { quality = q; resize(); }, get frameAvg() { return frameAvg; }, get visible() { return visible; }, get ac() { return ac; }, get master() { return master; }, get soundOn() { return soundOn; }, mic, pitch, hit, tap, planted, bursts, pf, pull, hitPart, sunAt, view, moon, peers, get me() { return me; }, faceToward, startOmen, setMood, zoom, loveBurst, MOODS, waves, sky };
+  if (params.has('debug')) window.heartstar = { get gardenN() { return gardenN; }, set gardenN(v) { gardenN = v; }, pointHearts, get quality() { return quality; }, set quality(q) { quality = q; resize(); }, get frameAvg() { return frameAvg; }, get visible() { return visible; }, get ac() { return ac; }, get master() { return master; }, get soundOn() { return soundOn; }, mic, pitch, hit, tap, planted, bursts, pf, pull, hitPart, sunAt, view, moon, peers, get me() { return me; }, faceToward, startOmen, setMood, zoom, loveBurst, MOODS, waves, sky, tilt };
   requestAnimationFrame(frame);
 })();
