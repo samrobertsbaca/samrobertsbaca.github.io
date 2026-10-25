@@ -443,7 +443,7 @@
       }
       case 'eye': {
         c.beginPath(); c.moveTo(x - s * 0.5, y); c.quadraticCurveTo(x, y - s * 0.45, x + s * 0.5, y); c.quadraticCurveTo(x, y + s * 0.45, x - s * 0.5, y);
-        c.fillStyle = T.paper; c.fill(); c.stroke(); // plain inside, with a dark pupil
+        c.fillStyle = '#fff'; c.fill(); c.stroke(); // white, day or night, with a dark pupil
         c.beginPath(); c.arc(x + Math.sin(now / 1500 + seed) * s * 0.12, y, s * 0.13, 0, TAU); c.fillStyle = charInk(); c.fill();
         break;
       }
@@ -632,36 +632,37 @@
         c.beginPath(); c.rect(x - s * 0.26, y - s * 0.02, s * 0.52, s * 0.42); c.fillStyle = '#00b4ff'; c.fill(); c.stroke();
         c.beginPath(); c.rect(x - s * 0.06, y + s * 0.18, s * 0.12, s * 0.22); c.fillStyle = '#fff'; c.fill(); c.stroke();
         c.beginPath(); c.arc(x, y + s * 0.02, s * 0.42, Math.PI, 0); c.closePath(); c.fillStyle = '#ff4a4a'; c.fill(); c.stroke();
-        c.beginPath(); c.arc(x - s * 0.18, y - s * 0.13, s * 0.055, 0, TAU); c.arc(x + s * 0.12, y - s * 0.24, s * 0.065, 0, TAU); c.arc(x + s * 0.22, y - s * 0.07, s * 0.045, 0, TAU);
-        c.fillStyle = '#fff'; c.fill();
+        c.fillStyle = '#fff'; // polka dots
+        for (const [dx, dy, r] of [[-0.25, -0.08, 0.05], [-0.1, -0.22, 0.055], [0.08, -0.3, 0.05], [0.22, -0.16, 0.055], [0.04, -0.1, 0.045], [-0.2, -0.02, 0.03], [0.3, -0.04, 0.03]]) {
+          c.beginPath(); c.arc(x + dx * s, y + dy * s, r * s, 0, TAU); c.fill();
+        }
         break;
       }
       case 'hearthouse': {
-        // home is where the heart is: a glowing heart in the window, and little hearts puffing from the chimney
-        c.beginPath(); c.rect(x + s * 0.12, y - s * 0.34, s * 0.09, s * 0.18); c.fillStyle = '#ed1c24'; c.fill(); c.stroke();
-        miniHouse(x, y, s, 'roof');
-        c.save(); c.shadowColor = '#ff5fae'; c.shadowBlur = s * 0.25;
-        heartPath(x - s * 0.15, y + s * 0.12, s * 0.07); c.fillStyle = '#ff5fae'; c.fill(); c.restore(); c.stroke();
+        // home is where the heart is: a house shaped like a heart, with a door, a window, and little hearts puffing from the chimney
+        c.beginPath(); c.rect(x + s * 0.14, y - s * 0.36, s * 0.09, s * 0.2); c.fillStyle = '#ed1c24'; c.fill(); c.stroke();
+        heartPath(x, y + s * 0.02, s * 0.42); c.fillStyle = '#ff5fae'; c.fill(); c.stroke();
+        c.beginPath(); c.moveTo(x - s * 0.07, y + s * 0.3); c.lineTo(x - s * 0.07, y + s * 0.12); c.arc(x, y + s * 0.12, s * 0.07, Math.PI, 0); c.lineTo(x + s * 0.07, y + s * 0.3);
+        c.fillStyle = '#fff'; c.fill(); c.stroke();
+        c.beginPath(); c.rect(x - s * 0.22, y - s * 0.12, s * 0.11, s * 0.11); c.fillStyle = '#ffd23f'; c.fill(); c.stroke();
         for (let k = 0; k < 3; k++) {
-          const t = (now / 2200 + k / 3 + seed) % 1;
-          c.globalAlpha *= 1 - t;
-          heartPath(x + s * 0.165 + Math.sin(t * 6 + k) * s * 0.06, y - s * 0.42 - t * s * 0.5, s * 0.05 * (0.6 + t * 0.7));
+          const t = (now / 2200 + k / 3 + seed) % 1, a0 = c.globalAlpha;
+          c.globalAlpha = a0 * (1 - t);
+          heartPath(x + s * 0.185 + Math.sin(t * 6 + k) * s * 0.06, y - s * 0.44 - t * s * 0.5, s * 0.05 * (0.6 + t * 0.7));
           c.fillStyle = '#ff5fae'; c.fill(); c.stroke();
-          c.globalAlpha /= 1 - t || 1;
+          c.globalAlpha = a0;
         }
         break;
       }
       case 'eyepyramid': {
-        // the all-seeing pyramid: the eye has settled on top, and now and then it winks
-        doodle('pyramid', x, y + s * 0.08, s, seed, now, c.lineWidth);
-        const ex = x, ey = y - s * 0.5 + Math.sin(now / 900 + seed) * s * 0.02, er = s * 0.2;
+        // the all-seeing pyramid: an eye right on its face, and now and then it winks
+        doodle('pyramid', x, y, s, seed, now, c.lineWidth);
+        const ex = x, ey = y + s * 0.02, er = s * 0.17;
         const wink = (now / 1000 + seed) % 6 < 0.22;
-        if (wink) { c.beginPath(); c.moveTo(ex - er, ey); c.quadraticCurveTo(ex, ey + er * 0.5, ex + er, ey); c.stroke(); }
-        else {
-          c.beginPath(); c.moveTo(ex - er, ey); c.quadraticCurveTo(ex, ey - er * 0.9, ex + er, ey); c.quadraticCurveTo(ex, ey + er * 0.9, ex - er, ey);
-          c.fillStyle = T.paper; c.fill(); c.stroke();
-          c.beginPath(); c.arc(ex + Math.sin(now / 1300 + seed) * er * 0.25, ey, er * 0.28, 0, TAU); c.fillStyle = charInk(); c.fill();
-        }
+        c.beginPath(); c.moveTo(ex - er, ey); c.quadraticCurveTo(ex, ey - er * 0.95, ex + er, ey); c.quadraticCurveTo(ex, ey + er * 0.95, ex - er, ey);
+        c.fillStyle = wink ? '#ffd23f' : '#fff'; c.fill(); c.stroke();
+        if (wink) { c.beginPath(); c.moveTo(ex - er * 0.8, ey); c.quadraticCurveTo(ex, ey + er * 0.4, ex + er * 0.8, ey); c.stroke(); }
+        else { c.beginPath(); c.arc(ex + Math.sin(now / 1300 + seed) * er * 0.25, ey, er * 0.3, 0, TAU); c.fillStyle = charInk(); c.fill(); }
         break;
       }
       case 'mushroom': {
@@ -1880,31 +1881,19 @@
   const markSize = () => clamp((small ? 7.5 : 6) * zoom.v, small ? 15 : 13, 28) * farK(); // the same at the usual view; up close they grow slower than the scorsbys
   // plants that are planted close together can become something else. a house and a tree make a treehouse, a house
   // and a mushroom a mushroom cottage, a house and a heart a heart house, a pyramid and an eye the all-seeing pyramid.
-  // five mushrooms make a fairy ring (scorsbys inside it dance), and two eyes with lips below them make a face in the
-  // ground that blinks. none of it is ever explained.
+  // two eyes with lips below them make a face in the ground that blinks. none of it is ever explained.
   const COMBO_NEAR = Math.cos(3 * D2R); // about 330 km
-  const RING_NEAR = Math.cos(1.6 * D2R); // a fairy ring's mushrooms stand closer together
   const latOf = (v) => Math.asin(clamp(v[2], -1, 1)) / D2R, lonOf = (v) => Math.atan2(v[1], v[0]) / D2R;
   const midOf = (ms) => norm(ms.reduce((a, o) => [a[0] + o.v[0], a[1] + o.v[1], a[2] + o.v[2]], [0, 0, 0]));
-  let fairyRings = [], groundFaces = [], faceSmileAt = 0;
+  let groundFaces = [];
   function combos(used) {
     const free = (k) => marks.filter((m) => m.k === k && !used.has(m));
-    const out = [], rings = [], faces = [];
-    // fairy rings first: their mushrooms stay as they are, with the ring among them
-    const mush = marks.filter((m) => m.k === 'mushroom'), inRing = new Set();
-    for (const m of mush) {
-      if (inRing.has(m)) continue;
-      const g = mush.filter((o) => !inRing.has(o) && dot(o.v, m.v) > RING_NEAR);
-      if (g.length < 5) continue;
-      g.forEach((o) => inRing.add(o));
-      const v = midOf(g);
-      rings.push({ v, r: Math.max(...g.map((o) => angle(o.v, v))) + 0.004, t: Math.max(...g.map((o) => o.t)) });
-    }
+    const out = [], faces = [];
     const take = (a, b, k) => { used.add(a); used.add(b); out.push({ k, v: midOf([a, b]), seed: a.seed + b.seed, t: Math.max(a.t, b.t) }); };
     for (const h of free('house')) {
       let best = null, kind = null, bd = COMBO_NEAR;
       for (const [k, as] of [['tree', 'treehouse'], ['mushroom', 'cottage'], ['heart', 'hearthouse']]) {
-        for (const o of free(k)) { const d = dot(o.v, h.v); if (!inRing.has(o) && d > bd) { bd = d; best = o; kind = as; } }
+        for (const o of free(k)) { const d = dot(o.v, h.v); if (d > bd) { bd = d; best = o; kind = as; } }
       }
       if (best) take(h, best, kind);
     }
@@ -1925,18 +1914,16 @@
       [a, b, l].forEach((o) => inFace.add(o));
       faces.push({ eyes: [a, b], lips: l, v: midOf([a, b, l]), seed: a.seed, t: Math.max(a.t, b.t, l.t) });
     }
-    return { out, rings, faces };
+    return { out, faces };
   }
   // creatures: they come when certain plants are near each other, and leave when the plants fade.
-  // the glimbo (a mushroom and two eyes), the window man (a house, an eye and lips), the visitor (a pyramid, an eye and a cactus).
+  // the glimbo comes to a mushroom with two eyes near it.
   const creatureState = new Map();
   function creatures() {
     const near = (a, k) => marks.filter((o) => o.k === k && dot(o.v, a.v) > COMBO_NEAR);
     const firstT = (ms) => Math.max(...ms.map((o) => o.t));
     const found = [];
     for (const m of marks.filter((o) => o.k === 'mushroom')) { const e = near(m, 'eye'); if (e.length >= 2) found.push({ k: 'glimbo', v: m.v, seed: m.seed, t: firstT([m, e[0], e[1]]) }); }
-    for (const h of marks.filter((o) => o.k === 'house')) { const e = near(h, 'eye'), l = near(h, 'lips'); if (e.length && l.length) found.push({ k: 'windowman', v: h.v, seed: h.seed, t: firstT([h, e[0], l[0]]) }); }
-    for (const p of marks.filter((o) => o.k === 'pyramid')) { const e = near(p, 'eye'), cc = near(p, 'cactus'); if (e.length && cc.length) found.push({ k: 'visitor', v: p.v, seed: p.seed, t: firstT([p, e[0], cc[0]]) }); }
     // (no more than two of each at once, so they stay rare)
     const per = {};
     return found.filter((f) => (per[f.k] = (per[f.k] || 0) + 1) <= 2);
@@ -1964,51 +1951,6 @@
           c.beginPath(); c.arc(px + sd * s * 0.19 + look, by - s * 0.02, s * 0.035, 0, TAU); c.fillStyle = charInk(); c.fill();
         }
       }
-    } else if (cr.k === 'windowman') {
-      // a window frame with legs. through it, a different sky. it walks around the world, one step a minute
-      const since = Math.max(0, clock - cr.t), steps = Math.floor(since / 60000), inStep = (since % 60000) / 1600;
-      const lon = lon0 + 0.6 + steps * 1 + Math.min(1, inStep) * 1 - 1, v = vec(lat0 - 0.3, lon);
-      const [px, py, pz] = project(...v);
-      if (pz > 0.15) {
-        c.globalAlpha *= Math.min(1, pz * 3);
-        const stride = inStep < 1 ? Math.sin(inStep * Math.PI) * s * 0.07 : 0;
-        const w = s * 0.42, hgt = s * 0.5, top = py - s * 0.28 - hgt;
-        c.beginPath(); c.moveTo(px - w * 0.25, py - s * 0.28); c.lineTo(px - w * 0.25 - stride, py); c.moveTo(px + w * 0.25, py - s * 0.28); c.lineTo(px + w * 0.25 + stride, py); c.stroke();
-        const g = c.createLinearGradient(0, top, 0, top + hgt); g.addColorStop(0, '#16324f'); g.addColorStop(0.6, '#7a4f8c'); g.addColorStop(1, '#ff9e6d');
-        c.beginPath(); c.rect(px - w / 2, top, w, hgt); c.fillStyle = g; c.fill();
-        c.beginPath(); c.arc(px + w * 0.2, top + hgt * 0.22, s * 0.035, 0, TAU); c.fillStyle = '#e8fff4'; c.fill(); // someone else's moon
-        c.lineWidth = lw * 2.2; c.strokeStyle = T.paper; c.beginPath(); c.rect(px - w / 2, top, w, hgt); c.moveTo(px, top); c.lineTo(px, top + hgt); c.moveTo(px - w / 2, top + hgt / 2); c.lineTo(px + w / 2, top + hgt / 2); c.stroke();
-        c.lineWidth = lw; c.strokeStyle = charInk(0.95); c.beginPath(); c.rect(px - w / 2 - lw, top - lw, w + lw * 2, hgt + lw * 2); c.stroke();
-      }
-    } else if (cr.k === 'visitor') {
-      // a little grey visitor comes down in a saucer, plants a silver spiral, and leaves. the spiral stays.
-      const sv = vec(lat0 - 0.5, lon0 + 0.9), [px, py, pz] = project(...sv);
-      if (pz > 0.15) {
-        c.globalAlpha *= Math.min(1, pz * 3);
-        const ph = (clock - cr.t) / 1000;
-        const grow = clamp((ph - 4) / 3, 0, 1);
-        if (grow > 0) {
-          c.save(); c.translate(px, py - s * 0.06); c.rotate(clock / 4000); c.beginPath();
-          for (let i = 0; i <= 60; i++) { const a = (i / 60) * TAU * 3 * grow, r = (i / 60) * s * 0.2 * grow; i ? c.lineTo(Math.cos(a) * r, Math.sin(a) * r * 0.55) : c.moveTo(0, 0); }
-          c.lineWidth = lw * 2.4; c.strokeStyle = charInk(0.95); c.stroke(); c.lineWidth = lw * 1.2; c.strokeStyle = '#dfe6ee'; c.stroke(); c.restore();
-        }
-        if (ph < 12) {
-          const down = smooth(0, 3, ph), up = smooth(8.5, 11.5, ph);
-          const sy = py - s * 0.95 - (1 - down) * s * 3 - up * s * 4;
-          c.save(); c.globalAlpha *= 1 - up;
-          if (ph > 3 && ph < 8.5) { c.beginPath(); c.moveTo(px - s * 0.1, sy + s * 0.05); c.lineTo(px - s * 0.22, py); c.lineTo(px + s * 0.22, py); c.lineTo(px + s * 0.1, sy + s * 0.05); c.closePath(); c.fillStyle = 'rgba(255,255,190,0.35)'; c.fill(); }
-          if (ph > 3.5 && ph < 8) { // the visitor itself, by the spiral
-            const ax = px + s * 0.2, ay = py - s * 0.12 - Math.abs(Math.sin(clock / 160)) * s * 0.04 * (ph < 4 ? 1 : 0);
-            c.beginPath(); c.moveTo(ax, ay); c.lineTo(ax, ay + s * 0.12); c.stroke();
-            c.beginPath(); c.ellipse(ax, ay - s * 0.06, s * 0.08, s * 0.1, 0, 0, TAU); c.fillStyle = '#b8bcc4'; c.fill(); c.stroke();
-            for (const sd of [-1, 1]) { c.beginPath(); c.ellipse(ax + sd * s * 0.035, ay - s * 0.07, s * 0.022, s * 0.035, sd * 0.4, 0, TAU); c.fillStyle = '#05060a'; c.fill(); }
-          }
-          c.beginPath(); c.arc(px, sy - s * 0.02, s * 0.13, Math.PI, 0); c.fillStyle = '#bfe8ff'; c.fill(); c.stroke();
-          c.beginPath(); c.ellipse(px, sy + s * 0.02, s * 0.32, s * 0.08, 0, 0, TAU); c.fillStyle = '#c9ced6'; c.fill(); c.stroke();
-          for (let k = -1; k <= 1; k++) { c.beginPath(); c.arc(px + k * s * 0.17, sy + s * 0.03, s * 0.025, 0, TAU); c.fillStyle = (Math.floor(clock / 300) + k) % 2 ? '#ffd23f' : '#ff5fae'; c.fill(); }
-          c.restore();
-        }
-      }
     }
     c.restore();
   }
@@ -2025,18 +1967,7 @@
     const { found, used } = groves();
     c.save();
     const cm = combos(used);
-    fairyRings = cm.rings; groundFaces = cm.faces;
-    // fairy rings glow under everything (more at night)
-    for (const r of cm.rings) {
-      const [px, py, pz] = project(...r.v);
-      if (pz < 0.15) continue;
-      const rx = Math.sin(r.r) * R * 1.15, ry = rx * Math.max(0.3, pz), night = T === THEMES.night;
-      c.save(); c.globalAlpha = show * Math.min(1, pz * 3) * (night ? 0.9 : 0.5);
-      c.shadowColor = '#b9ff9e'; c.shadowBlur = 12;
-      c.beginPath(); c.ellipse(px, py, rx, ry, 0, 0, TAU); c.lineWidth = 2; c.strokeStyle = 'rgba(190,255,160,0.8)'; c.stroke();
-      for (let k = 0; k < 14; k++) { const a = (k / 14) * TAU + now / 6000, tw = 0.5 + 0.5 * Math.sin(now / 400 + k * 1.7); c.beginPath(); c.arc(px + Math.cos(a) * rx, py + Math.sin(a) * ry, 1.4 + tw * 1.4, 0, TAU); c.fillStyle = `rgba(230,255,200,${0.4 + 0.6 * tw})`; c.fill(); }
-      c.restore();
-    }
+    groundFaces = cm.faces;
     // drawn from the top of the screen down, so lower ones overlap higher ones (the combinations among them)
     const order = marks.filter((m) => !used.has(m)).concat(cm.out).map((m) => [m, project(...m.v)]).sort((a, b) => a[1][1] - b[1][1]);
     for (const [m, [px, py, pz]] of order) {
@@ -2046,18 +1977,17 @@
       doodleCached(m.k === 'head' ? 'scorsby' : m.k, px, py - ds * 0.3 * big, ds * big, m.seed, now, 1.32);
       m.sx = px; m.sy = py - ds * 0.3 * big; m.ss = ds * big;
     }
-    // faces in the ground: every few seconds they blink; and planet scorsby, seeing one, smiles back
+    // faces in the ground: every few seconds they blink
     for (const f of cm.faces) {
       const [fx, fy, fz] = project(...f.v);
       if (fz < 0.15) continue;
-      if (fz > 0.35 && !calmMood && now > faceSmileAt) { faceSmileAt = now + 45000; setMood('grin', 2600); }
       if ((Date.now() / 1000 + f.seed) % 4.5 > 0.2) continue;
       c.save(); c.globalAlpha = show * Math.min(1, fz * 3); c.lineWidth = 1.32; c.lineCap = 'round'; c.strokeStyle = charInk(0.95);
       for (const e of f.eyes) {
         if (e.sx < -1e3) continue;
         const s = e.ss;
         c.beginPath(); c.moveTo(e.sx - s * 0.52, e.sy); c.quadraticCurveTo(e.sx, e.sy - s * 0.48, e.sx + s * 0.52, e.sy); c.quadraticCurveTo(e.sx, e.sy + s * 0.48, e.sx - s * 0.52, e.sy);
-        c.fillStyle = T.paper; c.fill();
+        c.fillStyle = '#fff'; c.fill();
         c.beginPath(); c.moveTo(e.sx - s * 0.45, e.sy); c.quadraticCurveTo(e.sx, e.sy + s * 0.22, e.sx + s * 0.45, e.sy); c.stroke();
       }
       c.restore();
@@ -2228,8 +2158,7 @@
       }
       const ci = storm > 0.2 ? 8 : unison || s.c;
       const col = colorOf(ci, now, s.seed);
-      const dance = fairyRings.length && fairyRings.some((r) => angle(s.v, r.v) < r.r + 0.004) ? Math.abs(Math.sin(now / 170 + s.seed * 3)) * s.size * 0.16 : 0; // (inside a fairy ring, they dance)
-      drawFaceCached(s.sx, s.sy - s.size * 0.06 - dance, s.size, { lid, look: [s.lookX, s.lookY], hearts: s.hearts > 0, sing: s.sing, color: col, nose: ci !== 8 && reddish(col) ? '#00b4ff' : undefined });
+      drawFaceCached(s.sx, s.sy - s.size * 0.06, s.size, { lid, look: [s.lookX, s.lookY], hearts: s.hearts > 0, sing: s.sing, color: col, nose: ci !== 8 && reddish(col) ? '#00b4ff' : undefined });
       c.restore();
     }
     // the far ones, as soft dots
