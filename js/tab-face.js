@@ -4,36 +4,37 @@
   const link = document.querySelector('link[rel~="icon"]');
   if (!link) return;
   const home = link.href; let title = document.title;
-  const S = 64, cv = document.createElement('canvas'); cv.width = cv.height = S;
-  const c = cv.getContext('2d');
-  const DARK = '#000', BLUE = '#00b4ff', RED = '#ed1f24';
-
-  // the favicon's own face, measured off the drawing (in its units, about 1900 across), then shrunk to fit the tab
-  function face(left, right, z) {
-    c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, S, S);
-    const k = 62 / 1830; c.setTransform(k, 0, 0, k, 1 - 45 * k, 2.4 - 58 * k);
-    const dot = (x, y, r, col) => { c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2); c.fillStyle = col; c.fill(); };
-    // outlines first, then the blue on top, so the ears and the head are one shape
-    dot(440, 450, 395, DARK); dot(1470, 450, 395, DARK); dot(955, 968, 738, DARK);
-    dot(440, 450, 297, BLUE); dot(1470, 450, 297, BLUE); dot(955, 968, 641, BLUE);
-    c.lineCap = 'round'; c.lineWidth = 96; c.strokeStyle = DARK;
-    const smile = (x, y) => { c.beginPath(); c.arc(x, y, 172, 0, Math.PI); c.stroke(); };
-    const eye = (x, open) => {
-      if (!open) return smile(x, 842);
-      dot(x, 845, 268, '#fff'); dot(x + 30, 852, 132, DARK); // (as big as the favicon's own eyes)
+  // the winking and sleeping faces are the favicon itself, with only its eyes drawn over, so nothing else moves
+  const DARK = '#000', BLUE = 'rgb(0,174,239)';
+  const cv = document.createElement('canvas'), c = cv.getContext('2d');
+  let WINK = null, SLEEP = null;
+  const img = new Image();
+  img.onload = () => {
+    cv.width = img.naturalWidth; cv.height = img.naturalHeight;
+    const k = cv.width / 100; // (measured on the 100-wide favicon: eyes at 35.5 and 63.5, 45 down, about 13.5 across)
+    const face = (shut, z) => {
+      c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, cv.width, cv.height); c.drawImage(img, 0, 0);
+      c.setTransform(k, 0, 0, k, 0, 0);
+      for (const ex of shut) {
+        // the two eyes touch in the middle, so each is covered only on its own side of it
+        c.save(); c.beginPath(); c.rect(ex < 49.5 ? 0 : 49.5, 0, 49.5 + (ex < 49.5 ? 0 : 50.5), 91); c.clip();
+        c.beginPath(); c.arc(ex, 45, 16, 0, Math.PI * 2); c.fillStyle = BLUE; c.fill(); c.restore();
+        c.beginPath(); c.arc(ex, 41.5, 9, 0.08 * Math.PI, 0.92 * Math.PI); c.lineWidth = 5.2; c.lineCap = 'round'; c.strokeStyle = DARK; c.stroke();
+      }
+      // (covering an eye reaches the top of the nose: put the favicon's own nose back)
+      c.save(); c.beginPath(); c.arc(49.5, 57, 7.6, 0, Math.PI * 2); c.clip(); c.setTransform(1, 0, 0, 1, 0, 0); c.drawImage(img, 0, 0); c.restore();
+      c.setTransform(k, 0, 0, k, 0, 0);
+      for (const ex of shut) { c.beginPath(); c.arc(ex, 41.5, 9, 0.08 * Math.PI, 0.92 * Math.PI); c.lineWidth = 5.2; c.lineCap = 'round'; c.strokeStyle = DARK; c.stroke(); }
+      if (z) {
+        // a little z, floating off by its cheek
+        c.font = 'bold 30px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle';
+        c.lineWidth = 6; c.lineJoin = 'round'; c.strokeStyle = '#fff'; c.strokeText('z', 86, 74); c.fillStyle = DARK; c.fillText('z', 86, 74);
+      }
+      return cv.toDataURL('image/png');
     };
-    eye(672, left); eye(1244, right);
-    dot(955, 1097, 124, RED);
-    smile(955, 1268);
-    c.setTransform(1, 0, 0, 1, 0, 0);
-    if (z) {
-      // a little z, floating off by its cheek
-      c.font = 'bold 22px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle';
-      c.lineWidth = 4; c.strokeStyle = '#fff'; c.strokeText('z', 54, 48); c.fillStyle = DARK; c.fillText('z', 54, 48);
-    }
-    return cv.toDataURL('image/png');
-  }
-  const WINK = face(true, false), SLEEP = face(false, false, true);
+    WINK = face([63.5]); SLEEP = face([35.5, 63.5], true);
+  };
+  img.src = home;
   const set = (href) => { link.type = 'image/png'; link.href = href; };
   const wake = () => { link.type = 'image/webp'; link.href = home; };
 
@@ -41,13 +42,13 @@
   function winkSoon() {
     clearTimeout(winkT);
     winkT = setTimeout(() => {
-      if (!document.hidden) { set(WINK); setTimeout(() => { if (!document.hidden) wake(); }, 450); }
+      if (!document.hidden && WINK) { set(WINK); setTimeout(() => { if (!document.hidden) wake(); }, 450); }
       winkSoon();
     }, 25000 + Math.random() * 35000);
   }
   document.addEventListener('visibilitychange', () => {
     clearTimeout(backT);
-    if (document.hidden) { if (!/scorsby is sleeping|welcome back/.test(document.title)) title = document.title; set(SLEEP); document.title = 'scorsby is sleeping...'; return; }
+    if (document.hidden) { if (!/scorsby is sleeping|welcome back/.test(document.title)) title = document.title; if (SLEEP) set(SLEEP); document.title = 'scorsby is sleeping...'; return; }
     wake(); document.title = 'welcome back :-)';
     backT = setTimeout(() => { document.title = title; }, 2200);
   });
