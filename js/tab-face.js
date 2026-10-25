@@ -6,32 +6,29 @@
   const home = link.href; let title = document.title;
   const S = 64, cv = document.createElement('canvas'); cv.width = cv.height = S;
   const c = cv.getContext('2d');
-  const DARK = '#05060a', BLUE = '#3fb6ff';
+  const DARK = '#000', BLUE = '#00b4ff', RED = '#ed1f24';
 
-  // the same face as the favicon: blue, round ears, big eyes, a red nose, a smile
-  function face(eyes) {
-    c.clearRect(0, 0, S, S);
+  // the favicon's own face, measured off the drawing (in its units, about 1900 across), then shrunk to fit the tab
+  function face(left, right) {
+    c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, S, S);
+    const k = 62 / 1830; c.setTransform(k, 0, 0, k, 1 - 45 * k, 2.4 - 58 * k);
     const dot = (x, y, r, col) => { c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2); c.fillStyle = col; c.fill(); };
-    dot(15, 15, 14, DARK); dot(49, 15, 14, DARK); dot(32, 36, 28.5, DARK);
-    dot(15, 15, 9, BLUE); dot(49, 15, 9, BLUE); dot(32, 36, 23, BLUE);
-    c.lineCap = 'round'; c.lineWidth = 3.4; c.strokeStyle = DARK;
-    const shut = (x) => { c.beginPath(); c.arc(x, 30, 5.2, 0.15 * Math.PI, 0.85 * Math.PI); c.stroke(); };
-    const open = (x) => { dot(x, 31, 7.6, '#fff'); dot(x + 0.6, 31.5, 3.6, DARK); };
-    eyes[0] ? open(23) : shut(23);
-    eyes[1] ? open(41) : shut(41);
-    dot(32, 40, 4.2, '#ed1c24');
-    c.beginPath(); c.arc(32, 45.5, 6.5, 0.15 * Math.PI, 0.85 * Math.PI); c.stroke();
+    // outlines first, then the blue on top, so the ears and the head are one shape
+    dot(440, 450, 395, DARK); dot(1470, 450, 395, DARK); dot(955, 968, 738, DARK);
+    dot(440, 450, 297, BLUE); dot(1470, 450, 297, BLUE); dot(955, 968, 641, BLUE);
+    c.lineCap = 'round'; c.lineWidth = 96; c.strokeStyle = DARK;
+    const smile = (x, y) => { c.beginPath(); c.arc(x, y, 172, 0, Math.PI); c.stroke(); };
+    const eye = (x, open) => {
+      if (!open) return smile(x, 842);
+      dot(x, 845, 268, '#fff'); dot(x + 30, 852, 132, DARK); // (as big as the favicon's own eyes)
+    };
+    eye(672, left); eye(1244, right);
+    dot(955, 1097, 124, RED);
+    smile(955, 1268);
+    c.setTransform(1, 0, 0, 1, 0, 0);
     return cv.toDataURL('image/png');
   }
-  const WINK = face([true, false]);
-  function asleep() {
-    face([false, false]);
-    // a little z, floating off one ear
-    c.font = 'bold 22px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle';
-    c.lineWidth = 4; c.strokeStyle = '#fff'; c.strokeText('z', 54, 48); c.fillStyle = DARK; c.fillText('z', 54, 48);
-    return cv.toDataURL('image/png');
-  }
-  const SLEEP = asleep();
+  const WINK = face(true, false), SLEEP = face(false, false);
   const set = (href) => { link.type = 'image/png'; link.href = href; };
   const wake = () => { link.type = 'image/webp'; link.href = home; };
 
