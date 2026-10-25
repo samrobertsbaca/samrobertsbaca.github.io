@@ -1022,7 +1022,7 @@
     if (f.jitter > 0.02) { cx += (Math.random() - 0.5) * R * 0.04 * f.jitter; cy += (Math.random() - 0.5) * R * 0.04 * f.jitter; }
     const blinkClosed = pf.blink > 0.2 && pf.blink < 0.8;
     const worldClosed = planetBlink > 0.15 && planetBlink < 0.85;
-    const rot = f.tilt * Math.sin(now / 1300) * 0.22 + f.flip * Math.PI + (pf.spinA || 0);
+    const rot = f.tilt * Math.sin(now / 1300) * 0.22 + f.flip * Math.PI + (pf.spinA || 0) + tilt.rot;
     const sq = f.squish * Math.sin(now / 260);
     const cosR = Math.cos(rot), sinR = Math.sin(rot);
     // a pull in screen pixels, turned into the face's own units
@@ -1418,8 +1418,8 @@
       c.restore();
     }
 
-    if (T === THEMES.night) leaning(() => renderStars(now, dt));
-    faded(() => leaning(() => renderSky(now, dt)));
+    if (T === THEMES.night) renderStars(now, dt);
+    faded(() => renderSky(now, dt));
     const goldSky = env(omenP('goldrain', now));
     if (goldSky > 0.01) {
       // when it rains gold, the whole sky behind the world turns gold too
@@ -1433,7 +1433,7 @@
       c.save(); c.globalCompositeOperation = 'multiply'; c.globalAlpha = 0.55 * Math.sin(k * Math.PI) ** 0.6;
       c.fillStyle = '#ffc93c'; c.fillRect(0, 0, VW, VH); c.restore();
     }
-    faded(() => leaning(() => { c.save(); c.globalAlpha = awake(now); renderSun(now); c.restore(); })); // sunsby and moonsby arrive as the world wakes
+    faded(() => { c.save(); c.globalAlpha = awake(now); renderSun(now); c.restore(); }); // sunsby and moonsby arrive as the world wakes
     faded(() => renderRisingHeart(now));
     faded(() => renderBursts(now, dt, false));
 
@@ -1446,7 +1446,7 @@
       c.translate(CX, CY); c.scale(sxs, sys); c.translate(-CX, -CY);
     }
     renderRays(now, hue, storm);
-    faded(() => leaning(() => { c.save(); c.globalAlpha = awake(now); renderMoon(now, false); c.restore(); }));
+    faded(() => { c.save(); c.globalAlpha = awake(now); renderMoon(now, false); c.restore(); });
     if (pf.cur.angel > 0.02) renderWorldWings(now);
     renderEars(now);
     renderGarden(now, 'ears'); // (the ears' flowers are behind the face, like the ears)
@@ -2470,25 +2470,19 @@
     }
   }
 
-  // on a phone, the sky leans a little as you tilt it: the stars, the sun and the moon slide a few pixels against the
-  // world, as if they were further away. it follows changes in how you hold it and slowly settles, so holding it at any
-  // angle is the resting one.
-  const tilt = { on: false, b: null, g: null, bb: 0, bg: 0, x: 0, y: 0 };
+  // on a phone, the world's face tips as you tilt it, as though it feels which way is down: it leans against the turn,
+  // then slowly settles, so however you hold the phone becomes the resting way. not while breathing or humming.
+  const tilt = { on: false, g: 0, bg: null, rot: 0 };
   addEventListener('deviceorientation', (e) => {
-    if (e.beta == null || e.gamma == null) return;
-    tilt.on = true; tilt.b = e.beta; tilt.g = e.gamma;
-    if (tilt.bb === 0 && tilt.bg === 0) { tilt.bb = e.beta; tilt.bg = e.gamma; }
+    if (e.gamma == null) return;
+    tilt.on = true; tilt.g = e.gamma;
+    if (tilt.bg == null) tilt.bg = e.gamma;
   });
   function leanStep() {
     if (!tilt.on) return;
-    tilt.bb += (tilt.b - tilt.bb) * 0.0015; tilt.bg += (tilt.g - tilt.bg) * 0.0015; // the resting angle drifts toward how it's held
-    const tx = clamp((tilt.g - tilt.bg) / 25, -1, 1) * Math.min(18, baseR * 0.09), ty = clamp((tilt.b - tilt.bb) / 25, -1, 1) * Math.min(14, baseR * 0.07);
-    tilt.x += (tx - tilt.x) * 0.08; tilt.y += (ty - tilt.y) * 0.08;
-  }
-  function leaning(draw) {
-    if (!tilt.on || (Math.abs(tilt.x) < 0.2 && Math.abs(tilt.y) < 0.2)) return draw();
-    c.save(); c.translate(tilt.x, tilt.y);
-    try { draw(); } finally { c.restore(); }
+    tilt.bg += (tilt.g - tilt.bg) * 0.0015; // the resting angle drifts toward how it's held
+    const want = calmMood ? 0 : -clamp((tilt.g - tilt.bg) / 40, -1, 1) * 0.32;
+    tilt.rot += (want - tilt.rot) * 0.07;
   }
   // shake the phone and the world gets dizzy: swirly eyes, a wobble, and little stars going round its head
   let shakes = [], dizzyAt = 0, lastAcc = null;
@@ -2503,14 +2497,7 @@
     }
     lastAcc = { x: a.x, y: a.y, z: a.z };
   });
-  // on iPhones, motion needs asking for, and only from a tap: ask on the first one
-  if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-    addEventListener('pointerup', function ask() {
-      removeEventListener('pointerup', ask);
-      DeviceOrientationEvent.requestPermission().catch(() => {});
-      if (typeof DeviceMotionEvent !== 'undefined' && DeviceMotionEvent.requestPermission) DeviceMotionEvent.requestPermission().catch(() => {});
-    });
-  }
+  // (iPhones only share motion after asking permission; rather than ask, they simply go without)
   function renderDizzy(now) {
     const k = Math.min(1, (now - (pf.moodAt || now)) / 400);
     for (let i = 0; i < 3; i++) {
