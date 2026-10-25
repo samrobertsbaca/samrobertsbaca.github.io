@@ -81,7 +81,6 @@ window.postFiles = [
   "/blog/2025-04-19_an_inquisition_between_little_and_big_scorsby.html",
   "/blog/2025-04-07_this_one_is_worth_remembering.html",
   "/blog/2025-03-27_marriage_is_an_eternity.html",
-  "/blog/2025-03-25_a_beglonging_without_end.html",
   "/blog/2025-03-24_make_love_always.html",
   "/blog/2025-03-21_we_are_the_power.html",
   "/blog/2025-03-18_maybe_we_are_all_one_hemi.html",
