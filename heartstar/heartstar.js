@@ -1448,8 +1448,8 @@
     renderRays(now, hue, storm);
     faded(() => { c.save(); c.globalAlpha = awake(now); renderMoon(now, false); c.restore(); });
     if (pf.cur.angel > 0.02) renderWorldWings(now);
-    renderEars(now);
-    renderGarden(now, 'ears'); // (the ears' flowers are behind the face, like the ears)
+    // the ears tip with the face when the phone tilts (turned about the middle of the world), their flowers with them
+    tipped(() => { renderEars(now); renderGarden(now, 'ears'); }); // (the ears' flowers are behind the face, like the ears)
     renderPlanet(now, dt);
     renderGarden(now, 'face');
     // little markers people planted sit on top of the world's face, like the scorsbys do
@@ -2478,6 +2478,11 @@
     tilt.on = true; tilt.g = e.gamma;
     if (tilt.bg == null) tilt.bg = e.gamma;
   });
+  function tipped(draw) {
+    if (Math.abs(tilt.rot) < 0.002) return draw();
+    c.save(); c.translate(CX, CY); c.rotate(tilt.rot); c.translate(-CX, -CY);
+    try { draw(); } finally { c.restore(); }
+  }
   function leanStep() {
     if (!tilt.on) return;
     tilt.bg += (tilt.g - tilt.bg) * 0.0015; // the resting angle drifts toward how it's held
