@@ -13,19 +13,19 @@
 
   const css = `
   #letters { position: fixed; z-index: 1000; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(360px, calc(100vw - 32px));
-    background: #fff; color: #1d1a5e; border: 1px solid #1d1a5e; box-shadow: 4px 4px 0 #1d1a5e; font-family: inherit; }
+    background: #fff; color: #1d1a5e; border: 1px solid #1d1a5e; border-radius: 5px; box-shadow: 4px 4px 0 #1d1a5e; font-family: inherit; }
   #letters[hidden], #letters [hidden] { display: none !important; }
-  #letters .bar { display: flex; justify-content: space-between; align-items: center; background: #1d1a5e; color: #fff;
+  #letters .bar { border-radius: 4px 4px 0 0; display: flex; justify-content: space-between; align-items: center; background: #1d1a5e; color: #fff;
     font-size: 10px; letter-spacing: .1em; text-transform: uppercase; padding: 3px 4px 3px 8px; }
-  #letters .bar button { width: 16px; height: 16px; line-height: 14px; font-size: 13px; padding: 0; border: 1px solid #fff; color: #fff; background: none; cursor: pointer; }
+  #letters .bar button { border-radius: 3px; width: 16px; height: 16px; line-height: 14px; font-size: 13px; padding: 0; border: 1px solid #fff; color: #fff; background: none; cursor: pointer; }
   #letters form, #letters .done { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 9px; }
   #letters p { margin: 0; font-size: 13px; line-height: 1.5; }
   #letters label { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; opacity: .75; }
-  #letters input { font: inherit; font-size: 15px; color: #1d1a5e; background: #fff; border: 1px solid #1d1a5e; padding: 7px 9px; border-radius: 0; width: 100%; box-sizing: border-box; }
+  #letters input { font: inherit; font-size: 15px; color: #1d1a5e; background: #fff; border: 1px solid #1d1a5e; padding: 7px 9px; border-radius: 4px; width: 100%; box-sizing: border-box; }
   #letters input:focus { outline: 2px solid #00b4ff; outline-offset: 1px; }
   #letters .trap { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
   #letters button[type=submit] { align-self: flex-start; font: inherit; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: #1d1a5e;
-    background: #fff; border: 1px solid #1d1a5e; box-shadow: 3px 3px 0 #1d1a5e; padding: 7px 14px; cursor: pointer; margin-top: 2px; }
+    background: #fff; border: 1px solid #1d1a5e; border-radius: 5px; box-shadow: 3px 3px 0 #1d1a5e; padding: 7px 14px; cursor: pointer; margin-top: 2px; }
   #letters button[type=submit]:hover { background: #1d1a5e; color: #fff; }
   #letters button[type=submit]:active { transform: translate(3px, 3px); box-shadow: none; }
   #letters button[disabled] { opacity: .5; pointer-events: none; }

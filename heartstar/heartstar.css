@@ -123,7 +123,7 @@ h1 { font-family: var(--head); font-weight: 400; font-size: 30px; line-height: 1
 #acts button, #zoom button {
   font-size: 11px; letter-spacing: .08em; text-transform: uppercase;
   padding: 8px 12px; color: var(--ui); background: var(--paper);
-  border: 1px solid var(--ui); border-radius: 0;
+  border: 1px solid var(--ui); border-radius: 5px;
   box-shadow: 3px 3px 0 var(--ui);
   transition: transform .08s, box-shadow .08s, background .15s, color .15s;
 }
@@ -150,21 +150,22 @@ h1 { font-family: var(--head); font-weight: 400; font-size: 30px; line-height: 1
 /* little windows */
 .win {
   position: fixed; z-index: 4; left: 50%; bottom: calc(var(--acts-h, 120px) + 8px); transform: translateX(-50%); /* 12px above the buttons, like the gap between them */
-  background: var(--paper); border: 1px solid var(--ui); box-shadow: 4px 4px 0 var(--ui);
+  background: var(--paper); border: 1px solid var(--ui); border-radius: 5px; box-shadow: 4px 4px 0 var(--ui);
   width: min(380px, calc(100vw - 32px));
 }
 .win[hidden] { display: none; }
 .win .bar {
+  border-radius: 4px 4px 0 0;
   display: flex; justify-content: space-between; align-items: center;
   background: var(--ui); color: var(--ui-fg);
   font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
   padding: 3px 4px 3px 8px;
 }
-.win .bar button { width: 16px; height: 16px; line-height: 14px; font-size: 13px; border: 1px solid var(--ui-fg); color: var(--ui-fg); }
+.win .bar button { border-radius: 3px; width: 16px; height: 16px; line-height: 14px; font-size: 13px; border: 1px solid var(--ui-fg); color: var(--ui-fg); }
 .win .small { font-size: 11px; color: var(--dim); line-height: 1.6; padding: 10px 14px 0; }
 
 #swatches { display: flex; flex-wrap: wrap; gap: 6px; padding: 12px 14px 4px; }
-.swatch { width: 26px; height: 26px; border: 1px solid #05060a; transition: transform .1s, box-shadow .1s; }
+.swatch { width: 26px; height: 26px; border: 1px solid #05060a; border-radius: 4px; transition: transform .1s, box-shadow .1s; }
 .swatch:hover { transform: translate(-2px, -2px); box-shadow: 2px 2px 0 var(--ui); }
 
 #custom { position: relative; display: grid; place-items: center; background: #fff; color: #05060a; cursor: pointer; }
@@ -173,24 +174,24 @@ h1 { font-family: var(--head); font-weight: 400; font-size: 30px; line-height: 1
 #name-form { display: flex; align-items: center; gap: 6px; padding: 10px 14px 14px; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
 #name-form input {
   flex: 1; min-width: 0; font: inherit; font-size: 12px; text-transform: lowercase; letter-spacing: .02em;
-  padding: 6px 8px; border: 1px solid var(--ui); background: var(--paper); color: var(--ink); border-radius: 0; outline: none;
+  padding: 6px 8px; border: 1px solid var(--ui); background: var(--paper); color: var(--ink); border-radius: 4px; outline: none;
 }
 #name-form input:focus { box-shadow: 2px 2px 0 var(--ui); }
 #name-form .suffix { color: var(--dim); text-transform: lowercase; }
-#name-form button { padding: 6px 10px; border: 1px solid var(--ui); box-shadow: 2px 2px 0 var(--ui); text-transform: uppercase; }
+#name-form button { padding: 6px 10px; border: 1px solid var(--ui); border-radius: 4px; box-shadow: 2px 2px 0 var(--ui); text-transform: uppercase; }
 #name-form button:active { transform: translate(2px, 2px); box-shadow: none; }
 #say-form { display: flex; align-items: center; gap: 6px; padding: 0 14px 14px; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
 #say-form input {
   flex: 1; min-width: 0; font: inherit; font-size: 12px; text-transform: lowercase; letter-spacing: .02em;
-  padding: 6px 8px; border: 1px solid var(--ui); background: var(--paper); color: var(--ink); border-radius: 0; outline: none;
+  padding: 6px 8px; border: 1px solid var(--ui); background: var(--paper); color: var(--ink); border-radius: 4px; outline: none;
 }
 #say-form input:focus { box-shadow: 2px 2px 0 var(--ui); }
-#say-form button { padding: 6px 10px; border: 1px solid var(--ui); box-shadow: 2px 2px 0 var(--ui); text-transform: uppercase; }
+#say-form button { padding: 6px 10px; border: 1px solid var(--ui); border-radius: 4px; box-shadow: 2px 2px 0 var(--ui); text-transform: uppercase; }
 #say-form button:active { transform: translate(2px, 2px); box-shadow: none; }
 #say-form button:disabled { opacity: .5; }
 
 #plants { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; padding: 12px 14px 14px; }
-.plant { aspect-ratio: 1; border: 1px solid var(--ui); display: grid; place-items: center; background: var(--paper); }
+.plant { aspect-ratio: 1; border: 1px solid var(--ui); border-radius: 4px; display: grid; place-items: center; background: var(--paper); }
 .plant canvas { width: 34px; height: 34px; }
 .plant:hover { box-shadow: 2px 2px 0 var(--ui); transform: translate(-1px, -1px); }
 
@@ -198,7 +199,7 @@ h1 { font-family: var(--head); font-weight: 400; font-size: 30px; line-height: 1
 #sing-card .row { display: flex; gap: 10px; padding: 14px; }
 #sing-card .row button {
   font-size: 11px; letter-spacing: .08em; text-transform: uppercase; padding: 7px 12px;
-  border: 1px solid var(--ui); box-shadow: 3px 3px 0 var(--ui); color: var(--ui);
+  border: 1px solid var(--ui); border-radius: 5px; box-shadow: 3px 3px 0 var(--ui); color: var(--ui);
 }
 #sing-card .row button:active { transform: translate(3px, 3px); box-shadow: none; }
 #sing-yes { background: var(--ui) !important; color: var(--ui-fg) !important; }
@@ -214,7 +215,7 @@ h1 { font-family: var(--head); font-weight: 400; font-size: 30px; line-height: 1
 @keyframes petalspin { to { transform: rotate(360deg); } }
 #today-win button:not(.x) {
   font-size: 11px; letter-spacing: .08em; text-transform: uppercase; padding: 7px 12px;
-  border: 1px solid var(--ui); box-shadow: 3px 3px 0 var(--ui); color: var(--ui); background: var(--paper);
+  border: 1px solid var(--ui); border-radius: 5px; box-shadow: 3px 3px 0 var(--ui); color: var(--ui); background: var(--paper);
 }
 #today-win button:not(.x):active { transform: translate(3px, 3px); box-shadow: none; }
 #kind-done { background: var(--paper) !important; color: var(--ui) !important; } /* unfilled, until you hover or say it */
@@ -274,7 +275,7 @@ body.ritual.ritual-sing.sound-on #acts button#act-sound { opacity: 0 !important;
   #ways-row { display: flex; justify-content: flex-end; margin-top: 6px; position: relative; }
   #ways-menu {
     display: grid; align-content: center; gap: 3px; width: 32px; height: 28px; padding: 0 8px; pointer-events: auto; cursor: pointer;
-    color: var(--ui); background: var(--paper); border: 1px solid var(--ui); box-shadow: 3px 3px 0 var(--ui);
+    color: var(--ui); background: var(--paper); border: 1px solid var(--ui); border-radius: 5px; box-shadow: 3px 3px 0 var(--ui);
     transition: transform .08s, box-shadow .08s, background .15s, color .15s;
   }
   #ways-menu span { display: block; height: 2px; background: currentColor; }
@@ -283,7 +284,7 @@ body.ritual.ritual-sing.sound-on #acts button#act-sound { opacity: 0 !important;
   #ways {
     display: none; position: absolute; top: calc(100% + 10px); right: 0; z-index: 20; pointer-events: auto;
     flex-direction: column; align-items: flex-start; gap: 14px; padding: 16px 22px 16px 18px; text-align: left;
-    background: var(--paper); border: 1px solid var(--ui); box-shadow: 3px 3px 0 var(--ui);
+    background: var(--paper); border: 1px solid var(--ui); border-radius: 5px; box-shadow: 3px 3px 0 var(--ui);
   }
   #ways.open { display: flex; }
   body.ways-open #top { z-index: 30; } /* (the open menu sits above the whispers and the world) */

@@ -387,19 +387,26 @@ footer a:hover { color: /*#007bff*/#fff; }
 }
 
 /* peace: the search box, and what it finds */
-#blog-tools { display: flex; flex-direction: column; gap: 12px; width: min(100%, 360px); margin: 0 auto 1.6em; }
-#drive, #blog-search { display: flex; align-items: center; gap: 10px; }
-#drive > span, #blog-search > span { width: 1.4em; flex: none; display: flex; align-items: center; justify-content: center; line-height: 1; }
-@media (min-width: 769px) { #blog-tools { flex-direction: row; justify-content: center; gap: 36px; width: auto; } }
-#blog-search { width: auto; }
-#search-in {
-  font-family: 'BodyFont', sans-serif; font-size: 15px; flex: none; width: calc(27ch + 26px); max-width: 100%; box-sizing: border-box; /* just room for "search the glongingverse..." */
-  padding: 9px 10px; text-align: center; color: #1d1a5e; background: #fff;
-  border: 2px solid #00b4ff; border-radius: 999px; outline: none;
-  -webkit-appearance: none; appearance: none; transition: box-shadow .2s, border-color .2s;
+#blog-tools { display: flex; flex-direction: column; align-items: stretch; gap: 14px; width: min(100%, 330px); margin: 0 auto 1.8em; }
+@media (min-width: 769px) { #blog-tools { flex-direction: row; justify-content: center; align-items: center; gap: 22px; width: auto; } }
+/* the same paper blocks as the rest of the site: a thin black line, a hard shadow, blue under a finger, sinking when pressed */
+.tool-btn, #blog-search {
+  display: flex; align-items: center; justify-content: center; gap: 9px; height: 40px; box-sizing: border-box; padding: 0 16px;
+  font-family: 'BodyFont', sans-serif; font-size: 15px; color: #05060a !important; background: #fff;
+  border: 1px solid #05060a; border-radius: 5px; box-shadow: 3px 3px 0 #05060a; text-decoration: none !important;
+  transition: transform .08s, box-shadow .08s, background .15s;
 }
-#search-in::placeholder { color: #00b4ff; opacity: .7; }
-#search-in:focus { border-color: #1d1a5e; box-shadow: 0 0 0 4px rgba(0,180,255,.18); }
+.tool-btn svg, #blog-search svg { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linejoin: round; stroke-linecap: round; }
+.tool-btn svg .pip { fill: currentColor; stroke: none; }
+.tool-btn:hover { background: #00b4ff; color: #fff !important; }
+.tool-btn:active { transform: translate(3px, 3px); box-shadow: none; }
+#blog-search { justify-content: flex-start; padding: 0 12px; cursor: text; }
+#blog-search:focus-within { box-shadow: 3px 3px 0 #00b4ff; }
+#search-in {
+  font: inherit; color: #05060a; background: transparent; border: 0; outline: none; padding: 0; margin: 0;
+  flex: 1; min-width: 0; width: 27ch; -webkit-appearance: none; appearance: none; /* just room for "search the glongingverse..." */
+}
+#search-in::placeholder { color: #05060a; opacity: .45; }
 #search-in::-webkit-search-cancel-button, #search-in::-webkit-search-decoration { -webkit-appearance: none; display: none; }
 mark.found { background: #ffd23f; color: inherit; padding: 0 1px; }
 .search-hit { margin: 0 0 1em; }
@@ -496,7 +503,7 @@ nav.world-nav.scrolled { box-shadow: 0 2px 0 rgba(29, 26, 94, 0.25); }
   .wn-face { width: 44px; height: 44px; }
   .wn-burger {
     display: grid; align-content: center; gap: 5px; width: 40px; height: 40px; padding: 0 9px;
-    background: #fff; border: 1px solid #05060a; box-shadow: 3px 3px 0 #05060a; cursor: pointer;
+    background: #fff; border: 1px solid #05060a; border-radius: 5px; box-shadow: 3px 3px 0 #05060a; cursor: pointer;
     transition: transform .08s, box-shadow .08s;
   }
   .wn-burger:active { transform: translate(3px, 3px); box-shadow: none; }

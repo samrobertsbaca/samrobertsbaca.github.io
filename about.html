@@ -42,7 +42,7 @@
     <script type="module" src="/module_scripts.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="./blog/blogposts.js" defer></script>
-    <script src="./functional_scripts.js?v=6" defer></script>
+    <script src="./functional_scripts.js?v=7" defer></script>
 
     <link rel="stylesheet" href="/js/site-pet/pet.css">
     <script src="/js/site-pet/site-pet.js?v=11"></script>
@@ -63,17 +63,17 @@
       .stay-title { margin: 2.2rem 0 .8rem; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: rgba(29, 26, 94, .7); }
       .stay { display: flex; justify-content: center; flex-wrap: wrap; gap: 14px; }
       .way { display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px; font-size: 12px; letter-spacing: .1em; text-transform: uppercase;
-        color: #05060a !important; background: #fff; border: 1px solid #05060a; box-shadow: 3px 3px 0 #05060a; text-decoration: none; transition: transform .08s, box-shadow .08s, background .15s; }
+        color: #05060a !important; background: #fff; border: 1px solid #05060a; border-radius: 5px; box-shadow: 3px 3px 0 #05060a; text-decoration: none; transition: transform .08s, box-shadow .08s, background .15s; }
       .way svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linejoin: round; stroke-linecap: round; }
       .way:hover { background: #00b4ff; color: #fff !important; }
       .way:active { transform: translate(3px, 3px); box-shadow: none; }
       /* smile.exe: the same kind of little window as letters.exe */
       #smile { position: fixed; z-index: 2000; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(860px, calc(100vw - 32px)); /* (wide on a computer: paypal lays itself out side by side, so nothing needs scrolling) */
-        max-height: calc(100dvh - 40px); display: flex; flex-direction: column; background: #fff; color: #1d1a5e; border: 1px solid #1d1a5e; box-shadow: 4px 4px 0 #1d1a5e; text-align: center; }
+        max-height: calc(100dvh - 40px); display: flex; flex-direction: column; background: #fff; color: #1d1a5e; border: 1px solid #1d1a5e; border-radius: 5px; box-shadow: 4px 4px 0 #1d1a5e; text-align: center; }
       #smile[hidden] { display: none; }
-      #smile .bar { display: flex; justify-content: space-between; align-items: center; background: #1d1a5e; color: #fff;
+      #smile .bar { border-radius: 4px 4px 0 0; display: flex; justify-content: space-between; align-items: center; background: #1d1a5e; color: #fff;
         font-size: 10px; letter-spacing: .1em; text-transform: uppercase; padding: 3px 4px 3px 8px; }
-      #smile .bar button { width: 16px; height: 16px; line-height: 14px; font-size: 13px; padding: 0; border: 1px solid #fff; color: #fff; background: none; cursor: pointer; }
+      #smile .bar button { border-radius: 3px; width: 16px; height: 16px; line-height: 14px; font-size: 13px; padding: 0; border: 1px solid #fff; color: #fff; background: none; cursor: pointer; }
       #smile .body { padding: 10px 14px 14px; overflow-y: auto; }
       @media (max-width: 600px) { #smile { top: 12px; transform: translateX(-50%); max-height: calc(100dvh - 24px); } }
     </style>
