@@ -389,12 +389,12 @@ footer a:hover { color: /*#007bff*/#fff; }
 /* peace: the search box, and what it finds */
 #blog-tools { display: flex; flex-direction: column; gap: 12px; width: min(100%, 360px); margin: 0 auto 1.6em; }
 #drive, #blog-search { display: flex; align-items: center; gap: 10px; }
-#drive > span, #blog-search > span { width: 1.4em; flex: none; text-align: center; }
+#drive > span, #blog-search > span { width: 1.4em; flex: none; display: flex; align-items: center; justify-content: center; line-height: 1; }
 @media (min-width: 769px) { #blog-tools { flex-direction: row; justify-content: center; gap: 36px; width: auto; } }
 #blog-search { width: 100%; max-width: 360px; }
 #search-in {
-  font-family: 'BodyFont', sans-serif; font-size: 15px; flex: 1; min-width: 0; width: 100%; max-width: 320px; box-sizing: border-box;
-  padding: 9px 16px; text-align: center; color: #1d1a5e; background: #fff;
+  font-family: 'BodyFont', sans-serif; font-size: 14px; flex: 1; min-width: 0; width: 100%; max-width: 320px; box-sizing: border-box;
+  padding: 4px 14px; line-height: 1.3; text-align: center; color: #1d1a5e; background: #fff;
   border: 2px solid #00b4ff; border-radius: 999px; outline: none;
   -webkit-appearance: none; appearance: none; transition: box-shadow .2s, border-color .2s;
 }
