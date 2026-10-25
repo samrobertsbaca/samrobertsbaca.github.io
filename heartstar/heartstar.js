@@ -3207,8 +3207,13 @@
     const k = e.ctrlKey ? 0.012 : e.deltaMode === 0 && Math.abs(e.deltaY) < 50 ? 0.006 : 0.0016;
     const f = Math.exp(-(e.deltaMode === 1 ? e.deltaY * 33 : e.deltaY) * k);
     setTotalZoom(totalZoom() * f);
-    if (f > 1 && voidZ === 1) { const ll = unproject(e.clientX, e.clientY); if (ll) zoom.aim = ll; }
+    // zooming in turns the world toward the place under the cursor. a pinch or scroll arrives as many small steps, so
+    // the place is chosen once, when the gesture begins; choosing it again each step chased a spot that kept moving
+    // under the cursor as the world turned, and set it spinning
+    const t = performance.now(), fresh = t - wheelAt > 300; wheelAt = t;
+    if (f > 1 && voidZ === 1 && fresh) { const ll = unproject(e.clientX, e.clientY); if (ll) zoom.aim = ll; }
   }, { passive: false });
+  let wheelAt = -1e9;
   // the buttons step between fixed stops, so stepping back out always lands on the usual view (1), with the whole face showing
   const ZOOM_STOPS = [PLANET_MIN, 0.02, 0.08, 0.25, 0.75, 1, 2.56, 6.55, 16.8];
   const zoomStep = (dir) => {
