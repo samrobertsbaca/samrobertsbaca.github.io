@@ -134,7 +134,12 @@ function setupSearch(indexContainer) {
     }
   };
   input.addEventListener('focus', load, { once: true });
-  input.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(show, 150); });
+  const x = document.getElementById('search-x');
+  const mark = () => { const on = !!input.value; input.parentNode.classList.toggle('has-text', on); if (x) x.hidden = !on; };
+  input.addEventListener('input', () => { mark(); clearTimeout(timer); timer = setTimeout(show, 150); });
+  if (x) x.addEventListener('click', () => { input.value = ''; mark(); show(); input.focus(); });
+  window.addEventListener('pageshow', () => { mark(); if (input.value) show(); }); // (coming back to the page with words still in the box)
+  input.addEventListener('keydown', (e) => { if (e.key === 'Escape' && input.value) { input.value = ''; mark(); show(); } });
 }
 
 // Initialize blog

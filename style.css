@@ -400,12 +400,19 @@ footer a:hover { color: /*#007bff*/#fff; }
 .tool-btn svg .pip { fill: currentColor; stroke: none; }
 .tool-btn:hover { background: #00b4ff; color: #fff !important; }
 .tool-btn:active { transform: translate(3px, 3px); box-shadow: none; }
-#blog-search { justify-content: flex-start; padding: 0 12px; cursor: text; }
+#blog-search { position: relative; justify-content: flex-start; padding: 0 12px; cursor: text; }
 #blog-search:focus-within { box-shadow: 3px 3px 0 #00b4ff; }
 #search-in {
   font: inherit; color: #05060a; background: transparent; border: 0; outline: none; padding: 0; margin: 0;
-  flex: 1; min-width: 0; width: 27ch; -webkit-appearance: none; appearance: none; /* just room for "search the glongingverse..." */
+  flex: 1; min-width: 0; width: 27ch; box-sizing: border-box; -webkit-appearance: none; appearance: none; /* just room for "search the glongingverse..." */
 }
+#blog-search.has-text #search-in { padding-right: 22px; } /* the words stop short of the little x */
+#search-x {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%); display: grid; place-items: center;
+  width: 22px; height: 22px; padding: 0; border: 0; border-radius: 4px; background: none; color: #05060a; cursor: pointer;
+}
+#search-x svg { width: 14px; height: 14px; }
+#search-x:hover { background: #00b4ff; color: #fff; }
 #search-in::placeholder { color: #05060a; opacity: .45; }
 #search-in::-webkit-search-cancel-button, #search-in::-webkit-search-decoration { -webkit-appearance: none; display: none; }
 mark.found { background: #ffd23f; color: inherit; padding: 0 1px; }
