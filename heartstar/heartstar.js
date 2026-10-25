@@ -638,8 +638,8 @@
           else { c.beginPath(); c.arc(ex + Math.sin(now / 1500 + seed) * er * 0.24, ey, er * 0.26, 0, TAU); c.fillStyle = charInk(); c.fill(); }
         }
         const pucker = 1 + 0.1 * Math.sin(now / 500 + seed);
-        lipsPath(x, y + s * 0.2, s * 0.17 * pucker); c.fillStyle = '#e8336b'; c.fill(); c.stroke();
-        c.beginPath(); c.moveTo(x - s * 0.17 * pucker, y + s * 0.2); c.quadraticCurveTo(x, y + s * 0.225, x + s * 0.17 * pucker, y + s * 0.2); c.stroke();
+        lipsPath(x, y + s * 0.23, s * 0.24 * pucker); c.fillStyle = '#e8336b'; c.fill(); c.stroke();
+        c.beginPath(); c.moveTo(x - s * 0.24 * pucker, y + s * 0.23); c.quadraticCurveTo(x, y + s * 0.265, x + s * 0.24 * pucker, y + s * 0.23); c.stroke();
         break;
       }
       case 'cottage': {
@@ -648,8 +648,9 @@
         c.beginPath(); c.rect(x - s * 0.06, y + s * 0.18, s * 0.12, s * 0.22); c.fillStyle = '#fff'; c.fill(); c.stroke();
         c.beginPath(); c.arc(x, y + s * 0.02, s * 0.42, Math.PI, 0); c.closePath(); c.fillStyle = '#ff4a4a'; c.fill(); c.stroke();
         c.fillStyle = '#fff'; // polka dots
-        for (const [dx, dy, r] of [[-0.25, -0.08, 0.05], [-0.1, -0.22, 0.055], [0.08, -0.3, 0.05], [0.22, -0.16, 0.055], [0.04, -0.1, 0.045], [-0.2, -0.02, 0.03], [0.3, -0.04, 0.03]]) {
-          c.beginPath(); c.arc(x + dx * s, y + dy * s, r * s, 0, TAU); c.fill();
+        // all the same size, evenly spread: four along the bottom of the cap, three above, one on top
+        for (const [dx, dy] of [[-0.27, -0.07], [-0.09, -0.07], [0.09, -0.07], [0.27, -0.07], [-0.18, -0.22], [0, -0.22], [0.18, -0.22], [0, -0.34]]) {
+          c.beginPath(); c.arc(x + dx * s, y + dy * s, s * 0.042, 0, TAU); c.fill();
         }
         break;
       }
