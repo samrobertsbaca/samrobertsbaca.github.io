@@ -153,22 +153,30 @@ async function judgeBoinks(env, toks) {
 
 // the best things anyone says to the world (the most interesting, thought-provoking, and kind: the best of humanity)
 // are kept for good, for samuel to read through some day, and now and then the world remembers one out loud. the
-// small model decides which. odd is welcome; plain hellos and filler are not kept.
-const SWEET = 'You read one short message someone typed to a gentle little planet website, for everyone there to see. ' +
-  'Answer only yes or no: is it worth keeping forever as some of the best of humanity: especially interesting, thought-provoking, ' +
-  'wise, strange in a wonderful way, funny in a kind way, or deeply kind, loving, or grateful? ' +
-  'Plain greetings (hi, hello, hey), single words, filler, spam, and anything cruel or hateful are no.';
+// small model decides which, by whether it would plausibly be remembered. odd is welcome, and so is short, if it's
+// wondrous; plain hellos, filler and the everyday are not kept, and nothing is kept twice.
+const SWEET = 'You read one message someone typed to a gentle little planet website, for everyone there to see. ' +
+  'Answer only yes or no: is it plausibly memorable, something a person might still think about days later, as some of the best of humanity? ' +
+  'That means especially interesting, thought-provoking, wise, wonderfully strange, kindly funny, or deeply kind, loving, or grateful. ' +
+  'A very short message is yes only if it is wondrous on its own: surprising, poetic, or striking (yes: "the moon waved back"; no: "i love you", "so cute"). ' +
+  'Greetings (hi, hello, hey), filler, everyday chatter, spam, and anything cruel or hateful are no.';
+// the same words, however they were capitalized or punctuated
+const sameKey = (t) => t.toLowerCase().normalize('NFKC').replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
 async function sweetEnough(env, text) {
-  if (!env.AI || text.length < 12) return false;
+  if (!env.AI || sameKey(text).length < 4) return false;
   try {
     const out = await env.AI.run(JUDGE_MODEL, { messages: [{ role: 'system', content: SWEET }, { role: 'user', content: text }], max_tokens: 3, temperature: 0 });
     return /^\W*yes\b/i.test(String(out?.response ?? ''));
   } catch { return false; }
 }
 async function keepSweet(env, text) {
-  if (!env.LETTERS || !(await sweetEnough(env, text))) return;
-  await env.LETTERS.prepare('CREATE TABLE IF NOT EXISTS sweet (id INTEGER PRIMARY KEY AUTOINCREMENT, text TEXT NOT NULL, said TEXT NOT NULL)').run();
-  await env.LETTERS.prepare('INSERT INTO sweet (text, said) VALUES (?1, ?2)').bind(text, new Date().toISOString()).run();
+  if (!env.LETTERS) return;
+  await env.LETTERS.prepare('CREATE TABLE IF NOT EXISTS sweet (id INTEGER PRIMARY KEY AUTOINCREMENT, text TEXT NOT NULL, said TEXT NOT NULL, same TEXT)').run();
+  try { await env.LETTERS.prepare('ALTER TABLE sweet ADD COLUMN same TEXT').run(); } catch {} // (the box from before it knew repeats)
+  const key = sameKey(text);
+  if (await env.LETTERS.prepare('SELECT 1 FROM sweet WHERE same = ?1').bind(key).first()) return; // already kept
+  if (!(await sweetEnough(env, text))) return;
+  await env.LETTERS.prepare('INSERT INTO sweet (text, said, same) VALUES (?1, ?2, ?3)').bind(text, new Date().toISOString(), key).run();
 }
 async function oneSweet(env) {
   if (!env.LETTERS) return null;
