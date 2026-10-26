@@ -169,14 +169,15 @@ async function sweetEnough(env, text) {
     return /^\W*yes\b/i.test(String(out?.response ?? ''));
   } catch { return false; }
 }
-async function keepSweet(env, text) {
+async function keepSweet(env, text, name = '') {
   if (!env.LETTERS) return;
-  await env.LETTERS.prepare('CREATE TABLE IF NOT EXISTS sweet (id INTEGER PRIMARY KEY AUTOINCREMENT, text TEXT NOT NULL, said TEXT NOT NULL, same TEXT)').run();
-  try { await env.LETTERS.prepare('ALTER TABLE sweet ADD COLUMN same TEXT').run(); } catch {} // (the box from before it knew repeats)
+  await env.LETTERS.prepare('CREATE TABLE IF NOT EXISTS sweet (id INTEGER PRIMARY KEY AUTOINCREMENT, text TEXT NOT NULL, said TEXT NOT NULL, same TEXT, name TEXT)').run();
+  // (a box from before it knew repeats, or names)
+  for (const col of ['same', 'name']) { try { await env.LETTERS.prepare(`ALTER TABLE sweet ADD COLUMN ${col} TEXT`).run(); } catch {} }
   const key = sameKey(text);
   if (await env.LETTERS.prepare('SELECT 1 FROM sweet WHERE same = ?1').bind(key).first()) return; // already kept
   if (!(await sweetEnough(env, text))) return;
-  await env.LETTERS.prepare('INSERT INTO sweet (text, said, same) VALUES (?1, ?2, ?3)').bind(text, new Date().toISOString(), key).run();
+  await env.LETTERS.prepare('INSERT INTO sweet (text, said, same, name) VALUES (?1, ?2, ?3, ?4)').bind(text, new Date().toISOString(), key, name).run(); // (the name they go by on the planet, if they gave one)
 }
 async function oneSweet(env) {
   if (!env.LETTERS) return null;
@@ -700,7 +701,7 @@ export class Hearth extends DurableObject {
         this.broadcast({ t: 'say', id: me.id, text });
         if (text === raw) {
           await this.remember('said', { text, n: me.n || '', t: Date.now(), r: 0 }, SAID_LIFE, MAX_SAID); // only if nothing was boinked
-          this.ctx.waitUntil(keepSweet(this.env, text).catch(() => {}));
+          this.ctx.waitUntil(keepSweet(this.env, text, me.n || '').catch(() => {}));
         }
         break;
       }
