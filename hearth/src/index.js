@@ -151,11 +151,13 @@ async function judgeBoinks(env, toks) {
   }
 }
 
-// the sweetest things anyone says to the world are kept for good, for samuel to read through some day, and now and
-// then the world remembers one out loud. the small model decides which are the sweetest; plain hellos are not kept.
+// the best things anyone says to the world (the most interesting, thought-provoking, and kind: the best of humanity)
+// are kept for good, for samuel to read through some day, and now and then the world remembers one out loud. the
+// small model decides which. odd is welcome; plain hellos and filler are not kept.
 const SWEET = 'You read one short message someone typed to a gentle little planet website, for everyone there to see. ' +
-  'Answer only yes or no: is it especially sweet: warm, loving, grateful, tender, or kind toward the world, the planet, or other people? ' +
-  'Plain greetings (hi, hello, hey), single words, questions, jokes, and anything sad, rude, or strange are no.';
+  'Answer only yes or no: is it worth keeping forever as some of the best of humanity: especially interesting, thought-provoking, ' +
+  'wise, strange in a wonderful way, funny in a kind way, or deeply kind, loving, or grateful? ' +
+  'Plain greetings (hi, hello, hey), single words, filler, spam, and anything cruel or hateful are no.';
 async function sweetEnough(env, text) {
   if (!env.AI || text.length < 12) return false;
   try {
