@@ -2773,11 +2773,52 @@
   setInterval(() => { if (net.live) net.ws.send('ping'); }, 25000);
   function send(m) { if (net.live && net.ws?.readyState === 1) net.ws.send(JSON.stringify(m)); }
 
-  let welcomed = false;
+  // the world remembers you, and knows its own life. it keeps what it knows of you in your own browser only: when you
+  // first came, when you last did, how many times. most visits it says nothing about any of it. now and then, when it
+  // means something, it says one true thing, and only one.
+  const BORN = new Date(2026, 9, 18); // the day the world first opened (18 october 2026)
+  const DAYMS = 864e5;
+  let welcomed = false, sweetLine = null;
+  function remembered() {
+    let v = null;
+    try { v = JSON.parse(store.get('scorsby-visits') || 'null'); } catch {}
+    const now = Date.now(), first = !v;
+    v = v || { n: 0, first: now, last: 0 };
+    const away = v.last ? now - v.last : 0;
+    if (!v.last || away > 30 * 60 * 1000) v.n += 1; // (a new visit, after half an hour away)
+    const was = { ...v, away, first };
+    v.last = now;
+    store.set('scorsby-visits', JSON.stringify(v));
+    return was;
+  }
+  const visit = remembered();
+  function oneTrueThing() {
+    const d = new Date(), h = d.getHours();
+    const age = Math.floor((new Date(d.getFullYear(), d.getMonth(), d.getDate()) - BORN) / DAYMS);
+    const years = d.getFullYear() - BORN.getFullYear();
+    if (d.getMonth() === BORN.getMonth() && d.getDate() === BORN.getDate() && years > 0)
+      return `today is my birthday. i'm ${years === 1 ? 'one year' : years + ' years'} old. thank you for being here for it ♥`;
+    if (visit.first) return null;
+    if (visit.away > 60 * DAYMS) return 'oh! you came back. it has been such a long time. i missed you.';
+    if (visit.away > 14 * DAYMS) return "oh, it's you. it's been a while :-)";
+    if ([10, 25, 50, 100, 250, 500, 1000].includes(visit.n) && visit.away > 30 * 60 * 1000) return `this is your ${visit.n}th visit. thank you for coming back.`;
+    if (h >= 1 && h < 4 && Math.random() < 0.5) return "it's late where you are. i'm glad you're here.";
+    if (visit.n >= 3 && sweetLine && Math.random() < 0.6) return `someone once told me: “${sweetLine}”`;
+    if (visit.n >= 3 && Math.random() < 1 / 15 && age > 0) {
+      const love = tally?.ever;
+      return love > 0 ? `i am ${age} days old, and ${love.toLocaleString()} love has been shared on me so far. thank you for keeping me company.`
+        : `i am ${age} days old. thank you for keeping me company.`;
+    }
+    return null;
+  }
   function welcome() {
     if (welcomed) return;
     welcomed = true;
+    const said = oneTrueThing();
+    // coming back after a long time, the world greets you itself; anything else waits until the welcome is said
+    if (said && visit.away > 14 * DAYMS) { whisper(said, 6500); return; }
     whisper('welcome to planet scorsby, a world of peace, love, and joy for everyone everywhere. please enjoy your visit :-)', 6500);
+    if (said) whisper(said, 6000, true, null, true);
   }
   function alone() {
     if (me) return;
@@ -2811,6 +2852,7 @@
         setTally(m.tally);
         gardenN = m.garden || 0;
         elsewhere = m.elsewhere || 0;
+        sweetLine = m.sweet || null;
         if (!old) faceToward(me);
         updatePresence();
         if (!old) welcome();

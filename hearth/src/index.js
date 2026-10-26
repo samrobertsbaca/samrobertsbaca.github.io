@@ -151,6 +151,28 @@ async function judgeBoinks(env, toks) {
   }
 }
 
+// the sweetest things anyone says to the world are kept for good, for samuel to read through some day, and now and
+// then the world remembers one out loud. the small model decides which are the sweetest; plain hellos are not kept.
+const SWEET = 'You read one short message someone typed to a gentle little planet website, for everyone there to see. ' +
+  'Answer only yes or no: is it especially sweet: warm, loving, grateful, tender, or kind toward the world, the planet, or other people? ' +
+  'Plain greetings (hi, hello, hey), single words, questions, jokes, and anything sad, rude, or strange are no.';
+async function sweetEnough(env, text) {
+  if (!env.AI || text.length < 12) return false;
+  try {
+    const out = await env.AI.run(JUDGE_MODEL, { messages: [{ role: 'system', content: SWEET }, { role: 'user', content: text }], max_tokens: 3, temperature: 0 });
+    return /^\W*yes\b/i.test(String(out?.response ?? ''));
+  } catch { return false; }
+}
+async function keepSweet(env, text) {
+  if (!env.LETTERS || !(await sweetEnough(env, text))) return;
+  await env.LETTERS.prepare('CREATE TABLE IF NOT EXISTS sweet (id INTEGER PRIMARY KEY AUTOINCREMENT, text TEXT NOT NULL, said TEXT NOT NULL)').run();
+  await env.LETTERS.prepare('INSERT INTO sweet (text, said) VALUES (?1, ?2)').bind(text, new Date().toISOString()).run();
+}
+async function oneSweet(env) {
+  if (!env.LETTERS) return null;
+  try { return (await env.LETTERS.prepare('SELECT text FROM sweet ORDER BY RANDOM() LIMIT 1').first())?.text || null; } catch { return null; } // (none kept yet)
+}
+
 // the message as everyone will see it, or null if it can't be checked right now
 async function boinked(env, text) {
   const toks = text.replace(PHONE, ' boink ').split(' ').filter(Boolean);
@@ -366,7 +388,9 @@ export class Lobby extends DurableObject {
     while (this.worlds.length && !this.count(this.worlds.length - 1)) this.worlds.pop(); // empty hearths at the end are forgotten
     const t = this.tally, d = today();
     love = clamp(love | 0, 0, 100000);
+    if (t.ever == null) t.ever = Object.values(t.days).reduce((a, b) => a + b, 0); // (from before it was counted for good)
     if (love) {
+      t.ever += love;
       t.days[d] = (t.days[d] || 0) + love;
       if (t.days[d] > t.best.n) {
         if (t.best.day !== d && t.best.n > 0) t.recordAt = now; // the moment today passes the old record
@@ -392,7 +416,8 @@ export class Lobby extends DurableObject {
 
   status() {
     const t = this.tally, d = today();
-    return { day: d, today: t.days[d] || 0, best: t.best, recordAt: t.recordAt || 0, garden: this.noticed.length, total: this.total() };
+    if (t.ever == null) t.ever = Object.values(t.days).reduce((a, b) => a + b, 0);
+    return { day: d, today: t.days[d] || 0, best: t.best, recordAt: t.recordAt || 0, garden: this.noticed.length, total: this.total(), ever: t.ever };
   }
 
   async alarm() {
@@ -506,7 +531,7 @@ export class Hearth extends DurableObject {
     const sh = this.shared;
     if (!sh) return { today: this.unsent.love, best: { day: '', n: 0 } };
     const today_ = (sh.day === today() ? sh.today : 0) + this.unsent.love;
-    return { today: today_, best: today_ > sh.best.n ? { day: today(), n: today_ } : sh.best };
+    return { today: today_, best: today_ > sh.best.n ? { day: today(), n: today_ } : sh.best, ever: (sh.ever || 0) + this.unsent.love };
   }
   garden() { return (this.shared?.garden || 0) + this.unsent.noticed; }
 
@@ -562,7 +587,8 @@ export class Hearth extends DurableObject {
     const marks = await this.load('marks', MARK_LIFE);
     const tally = this.tallyNow();
     const others = this.here().filter((p) => p.id !== me.id);
-    this.send(server, { t: 'hello', you: me, here: others, trails, marks, tally, garden: this.garden(), elsewhere: this.elsewhere() });
+    const sweet = Math.random() < 0.2 ? await oneSweet(this.env) : null; // (now and then, something someone once said, to remember)
+    this.send(server, { t: 'hello', you: me, here: others, trails, marks, tally, garden: this.garden(), elsewhere: this.elsewhere(), sweet: sweet || undefined });
     this.broadcast({ t: 'join', p: me, moved: request.headers.has('x-moved') || undefined }, server);
     if ((await this.ctx.storage.getAlarm()) == null) await this.ctx.storage.setAlarm(Date.now() + 30000 + Math.random() * 45000);
     return new Response(null, { status: 101, webSocket: client });
@@ -662,7 +688,10 @@ export class Hearth extends DurableObject {
         if (!text) return this.send(ws, { t: 'said', ok: false, why: 'resting' });
         this.send(ws, { t: 'said', ok: true, boinked: text !== raw });
         this.broadcast({ t: 'say', id: me.id, text });
-        if (text === raw) await this.remember('said', { text, n: me.n || '', t: Date.now(), r: 0 }, SAID_LIFE, MAX_SAID); // only if nothing was boinked
+        if (text === raw) {
+          await this.remember('said', { text, n: me.n || '', t: Date.now(), r: 0 }, SAID_LIFE, MAX_SAID); // only if nothing was boinked
+          this.ctx.waitUntil(keepSweet(this.env, text).catch(() => {}));
+        }
         break;
       }
       case 'hand': {
