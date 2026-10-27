@@ -54,13 +54,26 @@
     .row:hover b { color: red; }
     .row .w { display: block; font-size: 11px; letter-spacing: .05em; text-transform: uppercase; color: rgba(29, 26, 94, .6); margin-top: 2px; }
     .item { display: block; text-decoration: none; color: inherit; }
+    /* the big pictures are clouds, like the love-everyone button: an even row of round bumps all the way round,
+       a thin black line, and the same hard shadow */
+    .cloud {
+      display: block; position: relative;
+      filter: drop-shadow(1px 0 0 #05060a) drop-shadow(-1px 0 0 #05060a) drop-shadow(0 1px 0 #05060a) drop-shadow(0 -1px 0 #05060a) drop-shadow(4px 4px 0 #05060a);
+      transition: transform .12s, filter .12s;
+    }
     .cover {
+      --b: 7px; /* (the bumps' size) */
       display: block; width: 100%; aspect-ratio: 1; object-fit: cover; background: #e8f6ff;
-      border: 1px solid #05060a; box-shadow: 4px 4px 0 #05060a; transition: transform .12s, box-shadow .12s;
+      -webkit-mask: radial-gradient(var(--b) at var(--b) var(--b), #000 calc(100% - .6px), #0000) 0 0 / calc(2 * var(--b)) calc(2 * var(--b)) round,
+        linear-gradient(#000 0 0) var(--b) var(--b) / calc(100% - 2 * var(--b)) calc(100% - 2 * var(--b)) no-repeat;
+              mask: radial-gradient(var(--b) at var(--b) var(--b), #000 calc(100% - .6px), #0000) 0 0 / calc(2 * var(--b)) calc(2 * var(--b)) round,
+        linear-gradient(#000 0 0) var(--b) var(--b) / calc(100% - 2 * var(--b)) calc(100% - 2 * var(--b)) no-repeat;
     }
     .books .cover { aspect-ratio: 4 / 5; }
-    .item:hover .cover { transform: translate(-2px, -2px) rotate(-1deg); box-shadow: 6px 6px 0 #05060a; }
-    .item:active .cover { transform: translate(4px, 4px); box-shadow: none; }
+    .item:hover .cloud { transform: translate(-2px, -2px) rotate(-1deg);
+      filter: drop-shadow(1px 0 0 #05060a) drop-shadow(-1px 0 0 #05060a) drop-shadow(0 1px 0 #05060a) drop-shadow(0 -1px 0 #05060a) drop-shadow(6px 6px 0 #05060a); }
+    .item:active .cloud { transform: translate(4px, 4px);
+      filter: drop-shadow(1px 0 0 #05060a) drop-shadow(-1px 0 0 #05060a) drop-shadow(0 1px 0 #05060a) drop-shadow(0 -1px 0 #05060a); }
     .meta { display: block; margin-top: 12px; font-size: 13px; line-height: 1.35; }
     .meta b { display: block; font-weight: normal; color: #1d1a5e; }
     .item:hover .meta b, .reading a:hover { color: red; }
@@ -156,7 +169,7 @@
       ['another october', 'preschool dropout', '2010 · LP', 'https://preschooldropout.bandcamp.com/album/another-october', '0247713694'],
     ];
     const card = (href, img, title, line) => `<a class="item" href="${href}" target="_blank" rel="noopener">${img}<span class="meta"><b>${title}</b>${line.map((l) => `<span>${l}</span>`).join('')}</span></a>`;
-    const pic = (src, alt, pos) => `<img class="cover" src="${src}" alt="${alt}" loading="lazy"${pos ? ` style="object-position:${pos}"` : ''}>`;
+    const pic = (src, alt, pos) => `<span class="cloud"><img class="cover" src="${src}" alt="${alt}" loading="lazy"${pos ? ` style="object-position:${pos}"` : ''}></span>`;
     document.getElementById('books').innerHTML = BOOKS.map(([t, l, h, src, pos]) => card(h, pic(src, t, pos), t, [l])).join('');
     document.getElementById('games').innerHTML = GAMES.map(([t, l, h, src]) => card(h, pic(src, t), t, [l])).join('');
     // where to start: the essential scorsby records
