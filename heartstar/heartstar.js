@@ -2602,10 +2602,10 @@
     }
   }
 
-  // clouds drift slowly across the daytime sky, far behind the world: soft and made of noise, the way shader clouds are
+  // clouds drift slowly across the sky, far behind the world (faint at night): soft and made of noise, the way shader clouds are
   // (several layers of smooth randomness, added together, and only the thickest parts kept), stretched along the horizon
   // so they lie in loose bands. two layers, the nearer one a little faster. they catch the color low in the sky at
-  // sunrise and sunset, and thin away as night comes.
+  // sunrise and sunset, and grow faint as night comes.
   const CLOUD_W = 384, CLOUD_H = 160;
   function cloudTexture(seed, cover) {
     // value noise that wraps around left to right, so the sky can scroll forever without a seam
@@ -2632,7 +2632,7 @@
   }
   let cloudLayers = null, cloudsK = 0, cloudTint = '', cloudTintAt = 0;
   function renderClouds(now, dt) {
-    const want = T === THEMES.night || CARD ? 0 : 1;
+    const want = CARD ? 0 : T === THEMES.night ? 0.2 : 1; // (at night they're still there, faintly)
     cloudsK += (want - cloudsK) * Math.min(1, dt / 2500);
     const k = cloudsK * skyFade();
     if (k < 0.01 || !VW) return;
