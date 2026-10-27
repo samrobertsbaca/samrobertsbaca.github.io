@@ -43,8 +43,8 @@ function consonant(a, b) {
   while (r > 2.06) r /= 2; // fold into one octave
   return INTERVALS.some((x) => Math.abs(r - x) / x < 0.03);
 }
-const MAX_HERE = 100; // (a world feels full, and stays smooth, at about a hundred)
-const ROOMY = 75; // past this many in every hearth, the fullest splits in half
+const MAX_HERE = 150; // (never more than this in one world)
+const ROOMY = 100; // past this many in every hearth, the fullest splits in half (so most worlds hold up to about a hundred)
 const PRIME = 'heartstar-prime'; // the first hearth, with all the history from before there were more
 const worldName = (i) => (i === 0 ? PRIME : `heartstar-${i}`);
 const FEW = 20; // hearths the lobby keeps up to date itself
