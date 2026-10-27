@@ -4115,11 +4115,19 @@
   ];
   const NOTE = { C: -9, D: -7, E: -5, F: -4, G: -2, A: 0, B: 2 };
   const hz = (n) => { const m = n.match(/^([A-G])(#?)(\d)$/); return 440 * 2 ** ((NOTE[m[1]] + (m[2] ? 1 : 0) + (+m[3] - 4) * 12) / 12); };
+  // and a soft choir underneath, humming the chords, a bar at a time (after the four-sixteenth pickup)
+  const TURCA_CHORDS = [['A2', 'C3', 'E3'], ['A2', 'C3', 'E3'], ['A2', 'C3', 'E3'], ['A2', 'C3', 'E3'], ['E2', 'G2', 'B2'], ['E2', 'G2', 'B2'], ['B2', 'D#3', 'F#3'], ['E2', 'G2', 'B2']];
   let turcaAmp = 0, turcaAt = -1e9, turcaOn = false;
   function turca() {
     if (turcaOn || !soundOn) return false;
     turcaOn = true; turcaAt = performance.now(); earPerk = turcaAt + 1400;
+    store.set('scorsby-turca', String(Date.now()));
     const SIX = 140; // ms in a sixteenth
+    TURCA_CHORDS.forEach((chord, bar) => setTimeout(() => {
+      chord.forEach((n, k) => voices.sing('turcaC' + k, hz(n), bar === TURCA_CHORDS.length - 1 ? 0.3 : 0.24, CX + (k - 1) * R * 0.4, 0.12));
+      // (each call keeps a voice going for a while; held through the bar, they're sung again a little later)
+      setTimeout(() => chord.forEach((n, k) => voices.sing('turcaC' + k, hz(n), 0.22, CX + (k - 1) * R * 0.4, 0.12)), 8 * SIX * 0.5);
+    }, (4 + bar * 8) * SIX));
     let t = 0;
     for (const [n, len] of TURCA) {
       const at = t, f = n && hz(n) / 2; // (an octave down: a hum, not a piccolo)
@@ -4129,11 +4137,13 @@
       setTimeout(() => { voices.sing('turca', f, 0.2, CX, 0.008); turcaAmp = 0.35; }, at + len * SIX * 0.72); // (a little lift between notes, like the piano)
     }
     setTimeout(() => { voices.hush('turca'); turcaAmp = 0; turcaOn = false; }, t + 200);
+    setTimeout(() => [0, 1, 2].forEach((k) => voices.hush('turcaC' + k)), t + 700); // (the choir lets the last chord ring a moment longer)
     return true;
   }
-  // about once in a long visit, and never more often than every quarter of an hour
+  // very rarely: a small chance in any minute with the sound on, and never more than once a day for any one visitor
   setInterval(() => {
-    if (intro.woke && soundOn && !calmMood && !omen && !hum.at && performance.now() - turcaAt > 15 * 60e3 && Math.random() < 0.03) turca();
+    const last = +(store.get('scorsby-turca') || 0);
+    if (intro.woke && soundOn && !calmMood && !omen && !hum.at && Date.now() - last > 24 * 3600e3 && Math.random() < 0.004) turca();
   }, 60e3);
   const voices = (() => {
     const map = new Map();
