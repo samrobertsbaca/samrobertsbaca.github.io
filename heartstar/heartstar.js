@@ -112,11 +112,14 @@
     }
     setTheme(want);
   }
-  // tapping sunsby or moonsby chooses for the rest of the visit: the sky of midday, or of the middle of the night
+  // tapping sunsby or moonsby is a light switch, for the rest of the visit: the sky of midday, or of the middle of
+  // the night, all at once
   function chooseSky(want) {
-    skyClockOn = false;
+    skyClockOn = false; themeFade = null;
     skyPair = want === 'night' ? SKY[0].slice(1) : skyAt(12);
-    if ((T === THEMES.night) !== (want === 'night')) fadeTo(want, performance.now(), 1600);
+    document.body.classList.add('switched'); // (the words and buttons change at once too)
+    setTheme(want);
+    requestAnimationFrame(() => requestAnimationFrame(() => document.body.classList.remove('switched')));
   }
 
   // ------------------------------------------------------------------ canvas

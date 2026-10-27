@@ -19,6 +19,7 @@
 @property --ui-fg { syntax: '<color>'; inherits: true; initial-value: #ffffff; }
 @property --btn { syntax: '<color>'; inherits: true; initial-value: #ffffff; }
 body { transition: --paper 4s, --ink 4s, --dim 4s, --faint 4s, --ui 4s, --ui-fg 4s, --btn 4s; transition-timing-function: ease-in-out; }
+body.switched { transition: none; } /* (tapping sunsby or moonsby: a light switch) */
 
 /* the world is drawn by hand. the controls around it are plainly digital. */
 :root {
