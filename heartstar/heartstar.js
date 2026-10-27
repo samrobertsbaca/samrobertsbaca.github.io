@@ -1034,7 +1034,7 @@
     const withYou = me && me.sing > 0.08;
     const singers = withYou ? [...everyone()].filter((s) => s.sing > 0.08 && s.freq) : [];
     const amp = singers.length ? singers.reduce((a, s) => a + s.sing, 0) / singers.length : 0;
-    pf.sing += ((singers.length ? Math.min(1, amp * 1.3) : 0) - pf.sing) * 0.15;
+    pf.sing += ((singers.length ? Math.min(1, amp * 1.3) : 0) * awake(performance.now()) - pf.sing) * 0.15; // (the sleeping world doesn't sing along)
     if (singers.length >= 2) {
       const f = Math.exp(singers.reduce((a, s) => a + Math.log(s.freq), 0) / singers.length);
       voices.sing('world', f, Math.min(1, amp) * 0.8, CX);
@@ -1439,10 +1439,12 @@
     boil = Math.floor(now / 110);
     R = baseR * zoom.v * introScale(now) * (1 + 0.09 * breathFill(now)); L = R / 645;
     const hue = (now / 70) % 360;
-    const storm = Math.max(env(omenP('colorstorm', now)), env(omenP('thirdeye', now)) * 0.7);
-    stormNow = env(omenP('colorstorm', now));
+    // (nothing rainbow, and no singing shimmer, while the world is still waking: they ease in once it's awake)
+    const woke = awake(now);
+    const storm = Math.max(env(omenP('colorstorm', now)), env(omenP('thirdeye', now)) * 0.7) * woke;
+    stormNow = env(omenP('colorstorm', now)) * woke;
     // harmonious singing stirs a rainbow sky behind the world, more and more as the song goes on
-    const songMagic = hum.magic * (0.55 + 0.45 * hum.prog);
+    const songMagic = hum.magic * (0.55 + 0.45 * hum.prog) * woke;
     const skyStorm = Math.max(stormNow, songMagic);
     updatePlanetFace(now, dt);
     updatePulls();
@@ -1462,7 +1464,7 @@
       const g = c.createLinearGradient(0, 0, 0, VH); g.addColorStop(0, pair[0]); g.addColorStop(1, pair[1]); T.paper = g;
     }
     c.fillStyle = T.paper; c.fillRect(0, 0, VW, VH);
-    const bloom = Math.max(storm, smooth(0, 1, (loveWash - now) / 1500), env(omenP('goldrain', now)) * 0.5, env(omenP('heartstar', now)) * 0.6, hum.magic * (0.6 + 0.4 * hum.prog));
+    const bloom = Math.max(storm, smooth(0, 1, (loveWash - now) / 1500), env(omenP('goldrain', now)) * 0.5, env(omenP('heartstar', now)) * 0.6, hum.magic * (0.6 + 0.4 * hum.prog)) * woke;
     if (bloom > 0.01) {
       c.globalCompositeOperation = T.wash;
       for (let k = 0; k < 4; k++) {
@@ -1512,7 +1514,7 @@
       c.save(); c.globalCompositeOperation = 'multiply'; c.globalAlpha = 0.55 * Math.sin(k * Math.PI) ** 0.6;
       c.fillStyle = '#ffc93c'; c.fillRect(0, 0, VW, VH); c.restore();
     }
-    faded(() => renderBursts(now, dt, false)); // (the bursts' rainbow rings pass behind sunsby and moonsby)
+    faded(() => { c.save(); c.globalAlpha = woke; renderBursts(now, dt, false); c.restore(); }); // (the bursts' rainbow rings pass behind sunsby and moonsby; none while the world sleeps)
     faded(() => { c.save(); c.globalAlpha = awake(now); renderSun(now); c.restore(); }); // sunsby and moonsby arrive as the world wakes
     faded(() => renderRisingHeart(now));
 
@@ -1556,7 +1558,7 @@
     faded(() => { c.save(); c.globalAlpha = awake(now); renderMoon(now, true); c.restore(); });
     c.restore();
 
-    faded(() => { renderFlock(now); renderRain(now, dt); renderBursts(now, dt, true); renderPops(now); });
+    faded(() => { renderFlock(now); renderRain(now, dt); c.save(); c.globalAlpha = woke; renderBursts(now, dt, true); c.restore(); renderPops(now); });
     for (const draw of drawLast) { c.save(); draw(); c.restore(); }
     drawLast.length = 0;
     renderTogether(now);
@@ -1573,9 +1575,9 @@
     if (CARD) return;
     const n = 54, breathe = 1 + 0.02 * Math.sin((now / 8000) * TAU);
     const love = smooth(0, 1, (loveWash - now) / 1500);
-    const on = clamp((now - intro.wake) / 250, 0, 1); // no halo while the world sleeps
+    const on = awake(now); // no halo while the world sleeps; it comes in gently as the world wakes
     if (on <= 0) return;
-    const flash = INTRO ? clamp(1 - (now - intro.wake) / 1600, 0, 1) ** 2 : 0; // it flashes on as the world wakes
+    const flash = 0;
     const many = Math.min(12, Math.max(0, crowd() - 1)); // more scorsbys, a thicker and wavier halo
     c.lineCap = 'round';
     for (let i = 0; i < n; i++) {
@@ -1668,7 +1670,7 @@
       const er = 300 * L * (1 + wig * 0.06);
       wobbleCircle(ex, ey, er + lw, side * 31, 1.4, 0); c.fillStyle = DARK; c.fill();
       wobbleCircle(ex, ey, er, side * 37, 1.4, 0); c.fillStyle = ocean(); c.fill();
-      const rb = Math.max(smooth(0, 1, (loveWash - now) / 1500), stormNow);
+      const rb = Math.max(smooth(0, 1, (loveWash - now) / 1500) * awake(now), stormNow); // (not while it sleeps)
       if (rb > 0.01 && c.createConicGradient) {
         const g = c.createConicGradient(now / 300 * side, ex, ey);
         RAINBOW.concat(RAINBOW[0]).forEach((col, i) => g.addColorStop(i / RAINBOW.length, col));
@@ -1937,7 +1939,7 @@
     if (!waves.length) return;
     const bw = 0.42 / 7;
     c.save(); c.beginPath(); c.arc(CX, CY, R, 0, TAU); c.clip();
-    c.lineCap = 'butt'; c.globalAlpha = 0.88;
+    c.lineCap = 'butt'; c.globalAlpha = 0.88 * awake(performance.now()); // (and they come in gently as it wakes)
     for (const w of waves) {
       const ref = Math.abs(w.v[2]) < 0.9 ? [0, 0, 1] : [0, 1, 0];
       const a = norm(cross(w.v, ref)), b = cross(w.v, a);
