@@ -2631,10 +2631,14 @@
     return cv2;
   }
   let cloudLayers = null, cloudsK = 0, cloudTint = '', cloudTintAt = 0;
+  const cloudBuf = document.createElement('canvas'), cloudC = cloudBuf.getContext('2d');
   function renderClouds(now, dt) {
     const want = CARD ? 0 : T === THEMES.night ? 0.2 : 1; // (at night they're still there, faintly)
     cloudsK += (want - cloudsK) * Math.min(1, dt / 2500);
-    const k = cloudsK * skyFade();
+    // they grow and shrink with the zoom, about the middle of the screen, as if they were part of the world's sky:
+    // zooming out, they draw in and get small along with everything else (zooming in, they grow, but only so much)
+    const sc = zoom.v < 1 ? zoom.v : Math.min(2, zoom.v ** 0.35);
+    const k = cloudsK * smooth(0.12, 0.4, sc); // (far out, once they're small, they thin away rather than tile into a strip)
     if (k < 0.01 || !VW) return;
     if (!cloudLayers) cloudLayers = [
       { tex: cloudTexture(3.1, 0.55), tint: document.createElement('canvas'), y: 0.06, h: 0.42, v: 0.0035, a: 0.7 }, // far, high, slow
@@ -2650,14 +2654,27 @@
         g.globalCompositeOperation = 'source-in'; g.fillStyle = fill; g.fillRect(0, 0, CLOUD_W, CLOUD_H);
       }
     }
-    // blended like light, so a cloud only ever brightens the sky behind it (laid on top, warm skies went dusty)
-    c.save(); c.imageSmoothingEnabled = true; c.globalCompositeOperation = 'screen';
+    // drawn on their own layer first, so that when they've grown small their sky can end softly at the sides
+    if (cloudBuf.width !== cv.width || cloudBuf.height !== cv.height) { cloudBuf.width = cv.width; cloudBuf.height = cv.height; }
+    const g = cloudC; g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1; g.clearRect(0, 0, cloudBuf.width, cloudBuf.height);
+    g.setTransform(DPR, 0, 0, DPR, 0, 0); g.imageSmoothingEnabled = true;
+    g.translate(CX, CY); g.scale(sc, sc); g.translate(-CX, -CY);
+    const left = CX - CX / sc, right = CX + (VW - CX) / sc; // (what's on screen, in the clouds' own size)
     for (const L of cloudLayers) {
       const w = VW * 1.6, h = VH * L.h, y = VH * L.y, off = ((now / 1000) * L.v * w) % w;
-      c.globalAlpha = k * L.a;
-      for (let x = -off; x < VW; x += w) c.drawImage(L.tint, x, y, w, h);
+      g.globalAlpha = L.a;
+      for (let x = -off - Math.ceil((-off - left) / w) * w; x < right; x += w) g.drawImage(L.tint, x, y, w, h);
     }
-    c.restore();
+    if (sc < 1) {
+      // past the edges of the sky as it was, they fade away
+      g.globalAlpha = 1; g.globalCompositeOperation = 'destination-in';
+      const m = g.createLinearGradient(0, 0, VW, 0); m.addColorStop(0, 'rgba(0,0,0,0)'); m.addColorStop(0.18, '#000'); m.addColorStop(0.82, '#000'); m.addColorStop(1, 'rgba(0,0,0,0)');
+      const top = CY - CY / sc, bottom = CY + (VH - CY) / sc;
+      g.fillStyle = m; g.fillRect(left, top, right - left, bottom - top);
+    }
+    // blended like light, so a cloud only ever brightens the sky behind it (laid on top, warm skies went dusty)
+    c.save(); c.setTransform(1, 0, 0, 1, 0, 0); c.globalCompositeOperation = 'screen'; c.globalAlpha = k;
+    c.drawImage(cloudBuf, 0, 0); c.restore();
   }
 
   function renderRisingHeart(now) {
