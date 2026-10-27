@@ -44,7 +44,8 @@ else:
     SITE = r"C:\Users\samro\OneDrive\Documents\GitHub\samrobertsbaca.github.io\exp\chance"
 REPO = os.environ.get('GITHUB_REPOSITORY', 'samrobertsbaca/samrobertsbaca.github.io')
 SITE_ROOT = os.path.dirname(os.path.dirname(SITE))      # the site itself, for scorsby's face
-ARTIST = "Samuel John Scorsby"
+ARTIST = "Scorsbytron"                                 # the machine that plays the world's radio
+ASKER = "Samuel John Scorsby"                           # who asked it the questions
 QUOTE = "all computer programming is basically question asking, rather than choice making"
 INKS = ["#00B4FF", "#EB000E", "#B34777", "#100E0E"]       # the page's own colours
 PAPER = "#FDF9F8"
@@ -349,7 +350,8 @@ def main():
                     z.write(src, f"{safe}/{inner}.{ext}")
                 z.write(os.path.join(media, 'cover.jpg'), f"{safe}/cover.jpg")     # as in a bandcamp download
                 z.writestr(f"{safe}/about.txt",
-                           f"{name}\n{ARTIST}\nmade by chance, {day.isoformat()}\n\n\"{QUOTE}\" -- John Cage\n")
+                           f"{name}\n{ARTIST}\nquestions by {ASKER}\nmade by chance, {day.isoformat()}\n\n"
+                           f"\"{QUOTE}\" -- John Cage\n")
             downloads.append({'format': fmt_, 'note': note, 'url': base + zname,
                               'bytes': os.path.getsize(zpath)})
             print(f"  zipped {zname} ({os.path.getsize(zpath) / 1e6:.0f} MB)")
@@ -363,6 +365,7 @@ def main():
 
     heard = heard_on(scores)
     credits = [f"released {day.strftime('%B')} {day.day}, {day.year}", "",
+               f"questions by {ASKER}", "",
                "made by chance with chance_data.py and chance_fontana.py: every sound began as data, "
                "or as radio somewhere on Earth, tuned by chance"]
     if any('live microphone' in h for h in heard):
