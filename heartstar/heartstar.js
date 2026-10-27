@@ -4449,7 +4449,7 @@
   setTheme(); resize(); setView();
   skyClock(0); themeFade = null; // (a visit begins in the sky of the moment, without a fade)
   if (INTRO) {
-    setMood('sleepy', intro.wake - T0);
+    setMood('sleepy', intro.wake - T0); pf.cur = { ...pf.target }; // (asleep from the very first frame, not closing its eyes as you arrive)
     setTimeout(welcome, 700);
     // any tap or key wakes it sooner
     const hurry = () => hurryIntro();
@@ -4461,6 +4461,6 @@
   if (n > 0) dream(Math.min(n, params.has('debug') ? 400 : 40)); // (up to 400, the hearth's limit, for testing a crowd)
   if (params.get('omen')) setTimeout(() => startOmen(params.get('omen')), 1500);
   if (params.get('mood')) setTimeout(() => setMood(params.get('mood'), 30000), Math.max(1500, intro.ui - performance.now() + 500)); // ?mood=worm to see one face for 30s
-  if (params.has('debug')) window.heartstar = { get gardenN() { return gardenN; }, set gardenN(v) { gardenN = v; }, pointHearts, get quality() { return quality; }, set quality(q) { quality = q; resize(); }, get frameAvg() { return frameAvg; }, get visible() { return visible; }, get ac() { return ac; }, get master() { return master; }, get soundOn() { return soundOn; }, mic, pitch, hit, tap, planted, bursts, pf, pull, hitPart, sunAt, view, moon, peers, get me() { return me; }, faceToward, startOmen, setMood, zoom, loveBurst, MOODS, waves, sky, tilt, turca };
+  if (params.has('debug')) window.heartstar = { get gardenN() { return gardenN; }, set gardenN(v) { gardenN = v; }, pointHearts, get quality() { return quality; }, set quality(q) { quality = q; resize(); }, get frameAvg() { return frameAvg; }, get visible() { return visible; }, get ac() { return ac; }, get master() { return master; }, get soundOn() { return soundOn; }, mic, pitch, hit, tap, planted, bursts, pf, pull, hitPart, sunAt, view, moon, peers, get me() { return me; }, faceToward, startOmen, setMood, zoom, loveBurst, MOODS, waves, sky, tilt, turca, whisper };
   requestAnimationFrame(frame);
 })();
