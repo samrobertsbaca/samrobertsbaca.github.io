@@ -81,7 +81,7 @@
     [4, '#1d1846', '#4a3e92'], [5, '#8f7fd9', '#f4b3d3'], [6.3, '#93c2ff', '#ffaa85'], [8, '#6ec3ff', '#d4efff'], [12, '#4fb6ff', '#bde6ff'],
     [16, '#67bfff', '#d6edff'], [18, '#6f9dff', '#ffae63'], [19.6, '#6553c4', '#f095b5'], [21, '#1d1846', '#4a3e92'],
   ];
-  let skyClockOn = !params.has('theme') && !CARD, skyPair = null, themeFade = null;
+  let skyClockOn = !params.has('theme') && !CARD, skyPair = null, themeFade = null, shownAt = -1e9; // (shownAt: when the page last came back into view)
   const mixHex = (a, b, t) => '#' + [0, 2, 4].map((i) => Math.round(parseInt(a.substr(1 + i, 2), 16) * (1 - t) + parseInt(b.substr(1 + i, 2), 16) * t).toString(16).padStart(2, '0')).join('');
   function skyAt(h) {
     if (h <= SKY[0][0]) return SKY[0].slice(1);
@@ -121,7 +121,8 @@
   // the world changes to its day or night look under a slow crossfade (not at the start of a visit: then it simply
   // begins as it should be)
   function fadeTo(want, now = performance.now(), dur = 4000) {
-    if (VW && intro.woke) {
+    // (just after coming back to the page, the canvas still holds the frame from before you left: no fading from that)
+    if (VW && intro.woke && !document.hidden && now - shownAt > 1500) {
       const snap = themeFade?.snap || document.createElement('canvas');
       snap.width = cv.width; snap.height = cv.height; snap.getContext('2d').drawImage(cv, 0, 0);
       themeFade = { snap, from: now, dur };
@@ -229,6 +230,7 @@
     if (!VW || !VH) { setTimeout(resize, 200); return; }
     DPR = Math.min(devicePixelRatio || 1, [1, 1.5, 2][quality]);
     cv.width = scratch.width = VW * DPR; cv.height = scratch.height = VH * DPR;
+    themeFade = null; // (a crossfade's snapshot was taken at the old size, and would no longer line up)
     c.setTransform(DPR, 0, 0, DPR, 0, 0); sx2.setTransform(DPR, 0, 0, DPR, 0, 0);
     small = VW < 600;
     CX = VW / 2; CY = VH * (small ? 0.5 : 0.53);
@@ -4393,7 +4395,11 @@
     updatePresence();
   }
 
-  document.addEventListener('visibilitychange', () => { if (!document.hidden && me) me.blink = 1; });
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) return;
+    shownAt = performance.now(); themeFade = null;
+    if (me) me.blink = 1;
+  });
 
   // ------------------------------------------------------------------ the loop
   let last = performance.now();
