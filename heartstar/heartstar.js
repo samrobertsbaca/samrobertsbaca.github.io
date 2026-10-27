@@ -1794,7 +1794,7 @@
   }
   function drawGarden(now, n, part) {
     const ears = pf.ears || [];
-    const lw = 70 * L, fs = R * 0.22;
+    const lw = 70 * L, fs = Math.min(R, baseR * 1.3) * 0.22; // (the flowers grow with the world, but not past a little bigger than usual: zoomed in they stayed huge)
     // the edge, as one long loop: all the way round the face, then the outer side of each ear
     const FACE = 0.62, EAR = (1 - FACE) / 2;
     // evenly spaced all the way round, the first at the top of the head; when another arrives, the rest slide over to make room
