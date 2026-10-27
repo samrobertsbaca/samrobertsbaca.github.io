@@ -319,3 +319,14 @@ body #sing-card .row button:not(#sing-yes) { background: var(--btn); }
 #zoom button { position: relative; }
 #zoom button.loading::after { content: ''; position: absolute; inset: -6px; border-radius: 50%; border: 2px dashed currentColor; opacity: .55; animation: zoomwait 1.4s linear infinite; pointer-events: none; }
 @keyframes zoomwait { to { transform: rotate(360deg); } }
+
+/* the hotline webring: a quiet line under the date (on phones it lives in the menu instead) */
+#ring { font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: var(--dim); margin-top: 6px; pointer-events: auto; }
+#ring a { color: inherit; text-decoration: none; }
+#ring a:hover { color: var(--ink); }
+#ways .w3 { display: none; }
+@media (max-width: 600px) {
+  #ring { display: none; }
+  #ways .w3 { display: block; font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: var(--dim); }
+  #ways .w3 a { font-size: 11px; display: inline; }
+}
