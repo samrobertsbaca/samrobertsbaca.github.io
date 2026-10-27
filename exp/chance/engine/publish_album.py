@@ -95,11 +95,69 @@ def song_rings(x, sr, steps=900, bands=56):
     return np.clip((M - lo) / max(1e-9, hi - lo), 0, 1)
 
 
-def draw_cover(rings, size=1200, seed=0):
+def song_mood(x, sr):
+    """four plain measures of a song: where its sound sits (spectral centre), how loud it is,
+    how noisy (spectral flatness: hiss and static against clear tones), how much it moves."""
+    n = 2048
+    hop = max(n, len(x) // 400)
+    pos = np.arange(0, max(1, len(x) - n), hop)
+    fr = np.stack([x[p:p + n] for p in pos]) * np.hanning(n)
+    P = np.abs(np.fft.rfft(fr, axis=1)) ** 2 + 1e-12
+    f = np.fft.rfftfreq(n, 1 / sr)
+    band = (f >= 60) & (f <= min(5500, sr / 2 - 1))
+    Pb = P[:, band]
+    e = np.sqrt(np.mean(fr ** 2, axis=1)) + 1e-9
+    return {'log_centre': float(np.log(np.median((Pb * f[band]).sum(axis=1) / Pb.sum(axis=1)))),
+            'rms_db': float(20 * np.log10(np.sqrt(np.mean(x ** 2)) + 1e-9)),
+            'flatness': float(np.median(np.exp(np.mean(np.log(Pb), axis=1)) / np.mean(Pb, axis=1))),
+            'movement': float(np.std(e) / np.mean(e))}
+
+
+# where whole albums tend to fall (an album's average sits nearer the middle than its songs do),
+# so that the differences between albums become differences of colour
+MOOD_RANGES = {'brightness': ('log_centre', np.log(650.0), np.log(2000.0)),
+               'energy': ('rms_db', -31.0, -21.0),
+               'noise': ('flatness', 0.03, 0.40),
+               'motion': ('movement', 0.55, 1.70)}
+
+
+def album_mood(moods, durations):
+    """the album's mood, 0..1 on each of brightness, energy, noise and motion."""
+    if not moods:
+        return {k: 0.5 for k in MOOD_RANGES}
+    w = np.array(durations, dtype=float)
+    w = w / w.sum() if w.sum() > 0 else np.ones(len(moods)) / len(moods)
+    raw = {k: float(sum(m[k] * wi for m, wi in zip(moods, w))) for k in moods[0]}
+    return {name: float(np.clip((raw[key] - lo) / (hi - lo), 0.0, 1.0))
+            for name, (key, lo, hi) in MOOD_RANGES.items()}
+
+
+def mood_palette(m):
+    """the album's colours from its mood. brightness turns the hue through deep blue, violet,
+    magenta, red and orange to gold; energy makes the inks vivid or muted; noise greys them;
+    a still album gets close colours, a restless one contrasting ones. the fourth ink is a
+    deep shade of the album's own hue."""
+    import colorsys
+    hue = (215.0 + 265.0 * m['brightness']) % 360.0
+    sat = float(np.clip((0.28 + 0.65 * m['energy']) * (1.0 - 0.5 * m['noise']), 0.12, 0.95))
+    lum = 0.40 + 0.14 * m['brightness'] - 0.06 * (1 - m['energy'])
+    spread = 15.0 + 130.0 * m['motion']                  # how far apart the inks' hues sit
+    spec = [(hue, sat, lum), (hue + spread, sat * 0.9, lum + 0.08), (hue - spread * 0.6, sat * 0.8, lum - 0.03),
+            (hue, 0.25 + 0.3 * sat, 0.17 + 0.05 * m['brightness'])]
+    hexes = []
+    for h, s_, l in spec:
+        r_, g_, b_ = colorsys.hls_to_rgb((h % 360) / 360.0, float(np.clip(l, 0.08, 0.8)), float(np.clip(s_, 0, 1)))
+        hexes.append('#%02X%02X%02X' % (int(r_ * 255), int(g_ * 255), int(b_ * 255)))
+    pr, pg, pb = colorsys.hls_to_rgb(hue / 360.0, 0.975, 0.45 * (1 - 0.6 * m['noise']))
+    return hexes, '#%02X%02X%02X' % (int(pr * 255), int(pg * 255), int(pb * 255))
+
+
+def draw_cover(rings, size=1200, seed=0, inks=None, paper_hex=None):
     """each song a ring: clockwise from the top is time, outward is pitch, ink is loudness."""
     rng = np.random.default_rng(seed)
+    INKS_ = inks or INKS
     T = len(rings)
-    paper = hexrgb(PAPER)
+    paper = hexrgb(paper_hex or PAPER)
     yy, xx = np.mgrid[0:size, 0:size].astype(np.float64)
     c = (size - 1) / 2.0
     dx, dy = xx - c, yy - c
@@ -109,7 +167,7 @@ def draw_cover(rings, size=1200, seed=0):
     gap = size * 0.006
     width = (R_out - R_in) / T
     img = np.tile(paper, (size, size, 1))
-    offset = int(rng.integers(len(INKS)))
+    offset = int(rng.integers(len(INKS_)))
     for i, M in enumerate(rings):
         r1 = R_out - i * width                      # first song outermost
         r0 = r1 - width + gap
@@ -120,7 +178,7 @@ def draw_cover(rings, size=1200, seed=0):
         band = np.clip(((r[sel] - r0) / (r1 - r0) * bands).astype(int), 0, bands - 1)
         t = np.clip((theta[sel] * steps).astype(int), 0, steps - 1)
         v = M[t, band] ** 1.6
-        ink = hexrgb(INKS[(i + offset) % len(INKS)])
+        ink = hexrgb(INKS_[(i + offset) % len(INKS_)])
         img[sel] = paper * (1 - v[:, None]) + ink * v[:, None]
     R_label = R_in - gap * 2
     img[r < R_label] = paper                        # the label
@@ -215,7 +273,7 @@ def main():
     ffmpeg = shutil.which('ffmpeg') or r"C:\ffmpeg\bin\ffmpeg.exe"
     print(f"publishing {os.path.basename(album)} ({len(wavs)} tracks) to {args.site}")
 
-    tracks, rings, scores = [], [], []
+    tracks, rings, scores, moods = [], [], [], []
     for path in wavs:
         stem = os.path.splitext(os.path.basename(path))[0]
         num = re.match(r'(\d+)', stem)
@@ -224,6 +282,7 @@ def main():
             re.sub(r'^\d+[ _]', '', stem).replace('_', ' ')
         x, asr, secs = read_wav_mono(path)
         rings.append(song_rings(x, asr))
+        moods.append(song_mood(x, asr))
         sc = os.path.splitext(path)[0] + '.score.txt'
         if os.path.exists(sc):
             scores.append(open(sc, encoding='utf-8').read())
@@ -250,8 +309,11 @@ def main():
             os.remove(old)                               # the previous album's streams
         for t in tracks:
             t['file'] = t['src']
-    # the cover first, so every MP3 can carry it
-    cover = draw_cover(rings, seed=seed)
+    # the cover first, so every MP3 can carry it; its colours come from the album's mood
+    mood = album_mood(moods, [t['duration'] for t in tracks])
+    inks, paper_hex = mood_palette(mood)
+    print("  mood " + ", ".join(f"{k} {v:.2f}" for k, v in mood.items()) + " -> inks " + " ".join(inks))
+    cover = draw_cover(rings, seed=seed, inks=inks, paper_hex=paper_hex)
     cover.save(os.path.join(media, 'cover.jpg'), quality=90)
     cover.resize((300, 300), Image.LANCZOS).save(os.path.join(media, 'cover_small.jpg'), quality=88)
     strip = cover.crop((0, 420, 1200, 640)).resize((975, 180), Image.LANCZOS)
@@ -315,6 +377,7 @@ def main():
         'tracks': [{k: v for k, v in t.items() if k != 'bytes'} for t in tracks],
         'cover': base + "cover.jpg", 'cover_small': base + "cover_small.jpg", 'banner': base + "banner.jpg",
         'downloads': downloads,
+        'mood': {k: round(v, 3) for k, v in mood.items()}, 'palette': inks + [paper_hex],
         'seed': str(seed), 'generated_from': os.path.basename(album),
         'published': datetime.datetime.now().isoformat(timespec='seconds'),
     }
