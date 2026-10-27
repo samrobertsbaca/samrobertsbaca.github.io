@@ -179,5 +179,46 @@
     document.getElementById('more').innerHTML = MUSIC.filter((m) => !first.includes(m)).map(([t, who, l, h, id]) =>
       `<a class="row" href="${h}" target="_blank" rel="noopener"><img src="${bc(id)}" alt="" loading="lazy"><span><b>${t}</b><span class="w">${who} · ${l}</span></span></a>`).join('');
   </script>
+  <script>
+    // the clouds' bumps march round each picture the way the love-everyone button's do: one path all the way round the
+    // edge, bumps evenly spaced along it and sliding forward, so they turn the corners smoothly. (where a browser can't
+    // clip to a path, or someone prefers less motion, the clouds keep their still bumps)
+    (function () {
+      if (!CSS.supports('clip-path', 'path("M0 0H1V1Z")')) return;
+      const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const BUMP = 7, seen = new Set();
+      const io = new IntersectionObserver((es) => es.forEach((e) => (e.isIntersecting ? seen.add(e.target) : seen.delete(e.target))));
+      const covers = () => document.querySelectorAll('.cloud .cover');
+      let known = 0;
+      function shape(el, now) {
+        const bw = el.offsetWidth, bh = el.offsetHeight;
+        if (!bw || !bh) return;
+        const x0 = BUMP, y0 = BUMP, w = bw - 2 * BUMP, h = bh - 2 * BUMP, P = 2 * (w + h);
+        const n = Math.max(8, Math.round(P / (BUMP * 2))), step = P / n, phase = still ? 0 : (now / 45) % step;
+        const at = (t) => {
+          t = ((t % P) + P) % P;
+          if (t < w) return [x0 + t, y0];
+          if (t < w + h) return [x0 + w, y0 + (t - w)];
+          if (t < 2 * w + h) return [x0 + w - (t - w - h), y0 + h];
+          return [x0, y0 + h - (t - 2 * w - h)];
+        };
+        // the middle, then a round bump at each spot along the edge (all drawn the same way round, so they add up)
+        let d = `M${x0} ${y0}H${x0 + w}V${y0 + h}H${x0}Z`;
+        for (let k = 0; k < n; k++) {
+          const [px, py] = at(k * step + phase), r = BUMP;
+          d += `M${(px + r).toFixed(1)} ${py.toFixed(1)}A${r} ${r} 0 1 1 ${(px - r).toFixed(1)} ${py.toFixed(1)}A${r} ${r} 0 1 1 ${(px + r).toFixed(1)} ${py.toFixed(1)}Z`;
+        }
+        el.style.clipPath = `path("${d}")`;
+      }
+      function frame(now) {
+        const list = covers();
+        if (list.length !== known) { known = list.length; list.forEach((el) => { el.style.webkitMask = el.style.mask = 'none'; io.observe(el); shape(el, now); }); }
+        if (!still) seen.forEach((el) => shape(el, now));
+        requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+      addEventListener('resize', () => covers().forEach((el) => shape(el, performance.now())));
+    })();
+  </script>
 </body>
 </html>
