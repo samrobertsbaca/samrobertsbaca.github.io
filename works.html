@@ -62,13 +62,23 @@
       transition: transform .12s, filter .12s;
     }
     .cover {
-      --b: 7px; /* (the bumps' size) */
+      /* the bumps: a row along each edge (top, bottom, left, right) and the picture's middle. each row slides along its
+         edge, so the bumps march round and round, the way they do on the button */
+      --bump: radial-gradient(7px at 7px 7px, #000 calc(100% - .6px), #0000);
       display: block; width: 100%; aspect-ratio: 1; object-fit: cover; background: #e8f6ff;
-      -webkit-mask: radial-gradient(var(--b) at var(--b) var(--b), #000 calc(100% - .6px), #0000) 0 0 / calc(2 * var(--b)) calc(2 * var(--b)) round,
-        linear-gradient(#000 0 0) var(--b) var(--b) / calc(100% - 2 * var(--b)) calc(100% - 2 * var(--b)) no-repeat;
-              mask: radial-gradient(var(--b) at var(--b) var(--b), #000 calc(100% - .6px), #0000) 0 0 / calc(2 * var(--b)) calc(2 * var(--b)) round,
-        linear-gradient(#000 0 0) var(--b) var(--b) / calc(100% - 2 * var(--b)) calc(100% - 2 * var(--b)) no-repeat;
+      -webkit-mask: var(--bump) 0 0 / 14px 14px repeat-x, var(--bump) 0 100% / 14px 14px repeat-x,
+        var(--bump) 0 0 / 14px 14px repeat-y, var(--bump) 100% 0 / 14px 14px repeat-y,
+        linear-gradient(#000 0 0) 7px 7px / calc(100% - 14px) calc(100% - 14px) no-repeat;
+              mask: var(--bump) 0 0 / 14px 14px repeat-x, var(--bump) 0 100% / 14px 14px repeat-x,
+        var(--bump) 0 0 / 14px 14px repeat-y, var(--bump) 100% 0 / 14px 14px repeat-y,
+        linear-gradient(#000 0 0) 7px 7px / calc(100% - 14px) calc(100% - 14px) no-repeat;
+      animation: bumps .65s linear infinite;
     }
+    @keyframes bumps {
+      from { -webkit-mask-position: 0 0, 0 100%, 0 0, 100% 0, 7px 7px; mask-position: 0 0, 0 100%, 0 0, 100% 0, 7px 7px; }
+      to { -webkit-mask-position: 14px 0, -14px 100%, 0 -14px, 100% 14px, 7px 7px; mask-position: 14px 0, -14px 100%, 0 -14px, 100% 14px, 7px 7px; }
+    }
+    @media (prefers-reduced-motion: reduce) { .cover { animation: none; } }
     .books .cover { aspect-ratio: 4 / 5; }
     .item:hover .cloud { transform: translate(-2px, -2px) rotate(-1deg);
       filter: drop-shadow(1px 0 0 #05060a) drop-shadow(-1px 0 0 #05060a) drop-shadow(0 1px 0 #05060a) drop-shadow(0 -1px 0 #05060a) drop-shadow(6px 6px 0 #05060a); }
