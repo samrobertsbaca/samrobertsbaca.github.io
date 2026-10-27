@@ -91,10 +91,21 @@
     }
     return SKY[SKY.length - 1].slice(1);
   }
-  // gold, and a way to get there from any sky without passing through green (blue and gold mixed straight together make
-  // green): the sky first brightens to a warm cream, as if sunlight were washing over it, and then deepens into gold
-  const GOLD_SKY = ['#ffb21f', '#ffe39a'], CREAM = '#fff4dc';
-  const warmMix = (a, b, t) => (t < 0.5 ? mixHex(a, CREAM, t * 2) : mixHex(CREAM, b, (t - 0.5) * 2));
+  // gold, and a way back from it to any sky. blue and gold mixed straight together (as paints, or as light) make green,
+  // so they're mixed the way eyes see color (in oklab), where the way between them is a soft, quiet in-between instead
+  const GOLD_SKY = ['#ffb21f', '#ffe39a'];
+  const toLab = (col) => {
+    const [r, g, b] = rgbOf(col).map((v) => { v /= 255; return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; });
+    const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b), m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b), q = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
+    return [0.2104542553 * l + 0.793617785 * m - 0.0040720468 * q, 1.9779984951 * l - 2.428592205 * m + 0.4505937099 * q, 0.0259040371 * l + 0.7827717662 * m - 0.808675766 * q];
+  };
+  function labMix(a, b, t) {
+    const x = toLab(a), y = toLab(b), [L, A0, B] = x.map((v, i) => v + (y[i] - v) * t);
+    const A = A0 + 0.035 * Math.sin(Math.PI * t); // (a touch warmer in the middle, so even the in-between never leans green)
+    const l = (L + 0.3963377774 * A + 0.2158037573 * B) ** 3, m = (L - 0.1055613458 * A - 0.0638541728 * B) ** 3, q = (L - 0.0894841775 * A - 1.291485548 * B) ** 3;
+    const rgb = [4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * q, -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * q, -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * q];
+    return `rgb(${rgb.map((v) => Math.round(255 * clamp(v <= 0.0031308 ? 12.92 * v : 1.055 * v ** (1 / 2.4) - 0.055, 0, 1))).join(',')})`;
+  }
   // how light a color is, 0 to 1
   const lightness = (hx) => { const [r, g, b] = [0, 2, 4].map((i) => (parseInt(hx.substr(1 + i, 2), 16) / 255) ** 2.2); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
   function skyClock(now) {
@@ -1438,11 +1449,12 @@
     c.globalCompositeOperation = 'source-over';
     skyClock(now);
     // when sunsby is tapped, or it rains gold, the sky itself turns gold for a while
-    const flashK = goldFlash > now ? Math.sin(((goldFlash - now) / 2200) * Math.PI) ** 0.6 : 0;
-    const goldK = Math.max(flashK * 0.85, env(omenP('goldrain', now)) * (T === THEMES.night ? 0.5 : 0.75));
+    // (tapping sunsby: gold all at once, a moment of it, and then slowly the sky again)
+    const flashK = goldFlash > now ? 1 - smooth(0.12, 1, 1 - (goldFlash - now) / 2200) : 0;
+    const goldK = Math.max(flashK, env(omenP('goldrain', now)) * (T === THEMES.night ? 0.5 : 0.75));
     if (skyPair) {
       // the sky as a gradient. it stands in for the paper everywhere, so the little cut-out things in the sky match it
-      const pair = goldK > 0.005 ? skyPair.map((col, i) => warmMix(col, GOLD_SKY[i], goldK)) : skyPair;
+      const pair = goldK > 0.005 ? skyPair.map((col, i) => labMix(col, GOLD_SKY[i], goldK)) : skyPair;
       const g = c.createLinearGradient(0, 0, 0, VH); g.addColorStop(0, pair[0]); g.addColorStop(1, pair[1]); T.paper = g;
     }
     c.fillStyle = T.paper; c.fillRect(0, 0, VW, VH);
@@ -1597,8 +1609,8 @@
     worldGlows = glows.filter(([, col]) => col !== worldCol);
   }
   let worldGlows = null, worldRain = 0, handCount = 0;
-  // the world turning gold goes by way of a warm cream (blue mixed straight into gold passes through green)
-  const ocean = () => { const g = pf.cur.gold; return g < 0.01 ? worldCol : g < 0.5 ? mixColor(worldCol, '#fff0cc', g * 2) : mixColor('#fff0cc', '#ffc93c', (g - 0.5) * 2); };
+  // the world turning gold is mixed the way eyes see color, so it never passes through green
+  const ocean = () => pf.cur.gold < 0.01 ? worldCol : labMix(worldCol, '#ffc93c', pf.cur.gold);
   // each scorsby's colour, glowing on the world around them
   const glowBuf = document.createElement('canvas'), glowC = glowBuf.getContext('2d');
   function renderGlows(now) {
@@ -3319,7 +3331,7 @@
     }
     if (sunAt.r && Math.hypot(x - sunAt.x, y - sunAt.y) < sunAt.r * 1.3) {
       goldFlash = now + 2200;
-      setMood('gold', 2200);
+      setMood('gold', 2200); pf.cur.gold = 1; // (gold all at once)
       chooseSky('day'); store.set('scorsby-theme', 'day');
       whisper(pick(['sunsby says: good morning.', 'sunsby says: go for gold.', 'the day is here. everything is golden.']), 2600);
       tone.omen('goldrain');
