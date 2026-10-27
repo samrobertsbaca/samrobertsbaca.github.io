@@ -44,9 +44,9 @@ else:
     SITE = r"C:\Users\samro\OneDrive\Documents\GitHub\samrobertsbaca.github.io\exp\chance"
 REPO = os.environ.get('GITHUB_REPOSITORY', 'samrobertsbaca/samrobertsbaca.github.io')
 SITE_ROOT = os.path.dirname(os.path.dirname(SITE))      # the site itself, for scorsby's face
-ARTIST = "Scorsbytron"                                 # the machine that plays the world's radio
+ARTIST = "ScorsBT4"                                 # the machine that plays the world's radio
 ASKER = "Samuel John Scorsby"                           # who asked it the questions
-QUOTE = "all computer programming is basically question asking, rather than choice making"
+QUOTE = "All computer programming is basically question asking, rather than choice making."
 INKS = ["#00B4FF", "#EB000E", "#B34777", "#100E0E"]       # the page's own colours
 PAPER = "#FDF9F8"
 
@@ -366,7 +366,7 @@ def main():
     heard = heard_on(scores)
     credits = [f"released {day.strftime('%B')} {day.day}, {day.year}", "",
                f"questions by {ASKER}", "",
-               "made by chance with chance_data.py and chance_fontana.py: every sound began as data, "
+               "made by chance with chance_data.py, chance_fontana.py and publish_album.py: every sound began as data, "
                "or as radio somewhere on Earth, tuned by chance"]
     if any('live microphone' in h for h in heard):
         credits.append("open microphones: Locus Sonus Locustream (locusonus.org)")

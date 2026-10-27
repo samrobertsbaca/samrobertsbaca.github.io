@@ -180,7 +180,7 @@
     <div id="leftMiddle">
       <div id="trackInfo">
         <h2 class="trackTitle" id="albumTitle">&nbsp;</h2>
-        <h3 class="byline">by <a href="https://scorsby.bandcamp.com" id="artist">Scorsbytron</a></h3>
+        <h3 class="byline">by <a href="https://scorsby.bandcamp.com" id="artist">ScorsBT4</a></h3>
 
         <div class="inline_player">
           <button class="playbutton" id="play" aria-label="Play"><span class="tri"></span></button>
@@ -210,7 +210,7 @@
 
         <div class="tralbum-about">
           <h5 style="margin:0 0 4px;font-size:12px">about</h5>
-          <div class="quote">&ldquo;<span id="quote"></span>&rdquo;<br>&mdash; <span id="quoteBy"></span></div>
+          <div class="quote">&ldquo;<span id="quote"></span>&rdquo; &mdash; <span id="quoteBy"></span></div>
         </div>
         <div class="credits"><h5>credits</h5><div id="credits"></div></div>
         <div class="heard" id="heardBox" hidden><h5>heard on this album</h5><ol id="heard"></ol><div class="more" id="heardMore"></div></div>
@@ -362,12 +362,26 @@
         $('downloads').appendChild(x);
       });
     }
-    $('quote').textContent = a.about;
+    let q = (a.about || '').trim();                       // a sentence: a capital and a full stop
+    q = q.charAt(0).toUpperCase() + q.slice(1);
+    if (q && !/[.!?]$/.test(q)) q += '.';
+    $('quote').textContent = q;
     $('quoteBy').textContent = a.about_by;
     $('credits').innerHTML = '';
+    // the programs that made it are open: each name in the credits links to its source
+    const SRC = 'https://github.com/samrobertsbaca/samrobertsbaca.github.io/blob/main/exp/chance/engine/';
     a.credits.forEach(line => {
       const p = document.createElement('div');
-      p.textContent = line || ' ';
+      (line || ' ').split(/(chance_data\.py|chance_fontana\.py|publish_album\.py)/).forEach(part => {
+        if (/\.py$/.test(part)) {
+          const x = document.createElement('a');
+          x.href = SRC + part;
+          x.textContent = part;
+          p.appendChild(x);
+        } else {
+          p.appendChild(document.createTextNode(part));
+        }
+      });
       $('credits').appendChild(p);
     });
     if (a.heard && a.heard.length) {
