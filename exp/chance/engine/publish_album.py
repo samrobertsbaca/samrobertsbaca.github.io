@@ -250,21 +250,28 @@ def main():
             os.remove(old)                               # the previous album's streams
         for t in tracks:
             t['file'] = t['src']
-    for t, path in zip(tracks, wavs):
-        out = os.path.join(media, t.pop('file'))
-        cmd = [ffmpeg, '-nostdin', '-hide_banner', '-loglevel', 'error', '-y', '-i', path,
-               '-codec:a', 'libmp3lame', '-b:a', args.bitrate, '-id3v2_version', '3',
-               '-metadata', f"title={t['title']}", '-metadata', f"artist={ARTIST}",
-               '-metadata', f"album={name}", '-metadata', f"track={t['n']}/{len(tracks)}", out]
-        subprocess.run(cmd, check=True)
-        t['bytes'] = os.path.getsize(out)
-        print(f"  encoded {os.path.basename(out)} ({t['bytes'] / 1e6:.1f} MB)")
-
+    # the cover first, so every MP3 can carry it
     cover = draw_cover(rings, seed=seed)
     cover.save(os.path.join(media, 'cover.jpg'), quality=90)
     cover.resize((300, 300), Image.LANCZOS).save(os.path.join(media, 'cover_small.jpg'), quality=88)
     strip = cover.crop((0, 420, 1200, 640)).resize((975, 180), Image.LANCZOS)
     strip.filter(ImageFilter.GaussianBlur(14)).save(os.path.join(media, 'banner.jpg'), quality=85)
+    art_dir = tempfile.mkdtemp(prefix='chance_art_')
+    art = os.path.join(art_dir, 'art.jpg')               # a 600 px copy to embed: small, still sharp
+    cover.resize((600, 600), Image.LANCZOS).save(art, quality=88)
+
+    for t, path in zip(tracks, wavs):
+        out = os.path.join(media, t.pop('file'))
+        cmd = [ffmpeg, '-nostdin', '-hide_banner', '-loglevel', 'error', '-y', '-i', path, '-i', art,
+               '-map', '0:a', '-map', '1:v', '-codec:a', 'libmp3lame', '-b:a', args.bitrate,
+               '-codec:v', 'copy', '-disposition:v', 'attached_pic', '-id3v2_version', '3',
+               '-metadata:s:v', 'title=Album cover', '-metadata:s:v', 'comment=Cover (front)',
+               '-metadata', f"title={t['title']}", '-metadata', f"artist={ARTIST}",
+               '-metadata', f"album={name}", '-metadata', f"track={t['n']}/{len(tracks)}", out]
+        subprocess.run(cmd, check=True)
+        t['bytes'] = os.path.getsize(out)
+        print(f"  encoded {os.path.basename(out)} ({t['bytes'] / 1e6:.1f} MB, cover inside)")
+    shutil.rmtree(art_dir, ignore_errors=True)
     downloads = []
     if args.release:                                     # the whole album to take home, in two forms
         safe = re.sub(r'[^\w\- ]+', '', name).strip() or "album"
@@ -278,6 +285,7 @@ def main():
                 for src, t in files_:
                     inner = re.sub(r'[<>:"/\\|?*]+', ' ', f"{t['n']:02d} {t['title']}").strip()
                     z.write(src, f"{safe}/{inner}.{ext}")
+                z.write(os.path.join(media, 'cover.jpg'), f"{safe}/cover.jpg")     # as in a bandcamp download
                 z.writestr(f"{safe}/about.txt",
                            f"{name}\n{ARTIST}\nmade by chance, {day.isoformat()}\n\n\"{QUOTE}\" -- John Cage\n")
             downloads.append({'format': fmt_, 'note': note, 'url': base + zname,
