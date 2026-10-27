@@ -848,7 +848,7 @@
   const sky = [], pops = [], raining = [];
   let marks = [], trails = [], tally = null, elsewhere = 0, quietLeaves = 0;
   let loveWash = 0;
-  let goldFlash = 0;
+  let goldFlash = 0, flashGold = 0;
   let stormNow = 0;     // tap sunsby and everything flashes gold      // the paper blushes with color for a moment
   let myColor = 0; // everyone arrives as classic blue
   let myName = cleanName(store.get('scorsby-name') || '');
@@ -1451,6 +1451,7 @@
     // when sunsby is tapped, or it rains gold, the sky itself turns gold for a while
     // (tapping sunsby: gold all at once, a moment of it, and then slowly the sky again)
     const flashK = goldFlash > now ? 1 - smooth(0.12, 1, 1 - (goldFlash - now) / 2200) : 0;
+    flashGold = flashK;
     const goldK = Math.max(flashK, env(omenP('goldrain', now)) * (T === THEMES.night ? 0.5 : 0.75));
     if (skyPair) {
       // the sky as a gradient. it stands in for the paper everywhere, so the little cut-out things in the sky match it
@@ -1610,14 +1611,16 @@
   }
   let worldGlows = null, worldRain = 0, handCount = 0;
   // the world turning gold is mixed the way eyes see color, so it never passes through green
-  const ocean = () => pf.cur.gold < 0.01 ? worldCol : labMix(worldCol, '#ffc93c', pf.cur.gold);
+  // (after sunsby is tapped, the world's gold follows the sky's exactly, so they fade back to blue together)
+  const worldGold = () => (goldFlash > performance.now() - 30 ? flashGold : pf.cur.gold);
+  const ocean = () => { const g = worldGold(); return g < 0.01 ? worldCol : labMix(worldCol, '#ffc93c', g); };
   // each scorsby's colour, glowing on the world around them
   const glowBuf = document.createElement('canvas'), glowC = glowBuf.getContext('2d');
   function renderGlows(now) {
     const glows = worldGlows ? [...worldGlows] : [];
     for (const s of everyone()) if (s.sing > 0.08 && !s.leaving && !glows.some((g) => g[0] === s)) glows.push([s, colorOf(s.c, now, s.seed)]);
     if (!glows.length) return;
-    const gold = pf.cur.gold, rad = R * (0.5 + 0.35 * worldRain);
+    const gold = worldGold(), rad = R * (0.5 + 0.35 * worldRain);
     // the ones facing us first; past a hundred or so the rest add nothing you could see
     const list = glows.map(([s, col]) => [project(s.v[0], s.v[1], s.v[2]), col, s.sing || 0]).filter(([p]) => p[2] > -0.15).sort((a, b) => b[0][2] - a[0][2]).slice(0, 40); // (past forty, more glows only blur together)
     if (glowBuf.width !== cv.width || glowBuf.height !== cv.height) { glowBuf.width = cv.width; glowBuf.height = cv.height; }
@@ -3331,7 +3334,7 @@
     }
     if (sunAt.r && Math.hypot(x - sunAt.x, y - sunAt.y) < sunAt.r * 1.3) {
       goldFlash = now + 2200;
-      setMood('gold', 2200); pf.cur.gold = 1; // (gold all at once)
+      setMood('gold', 2200); pf.cur.gold = pf.target.gold = 0; // (the gold itself comes from the flash, with the sky's)
       chooseSky('day'); store.set('scorsby-theme', 'day');
       whisper(pick(['sunsby says: good morning.', 'sunsby says: go for gold.', 'the day is here. everything is golden.']), 2600);
       tone.omen('goldrain');
