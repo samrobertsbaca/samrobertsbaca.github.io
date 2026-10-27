@@ -369,7 +369,7 @@
     $('quoteBy').textContent = a.about_by;
     $('credits').innerHTML = '';
     // the programs that made it are open: each name in the credits links to its source
-    const SRC = 'https://github.com/samrobertsbaca/samrobertsbaca.github.io/blob/main/exp/chance/engine/';
+    const SRC = 'engine/';                                  // served from this site, beside the page
     a.credits.forEach(line => {
       const p = document.createElement('div');
       (line || ' ').split(/(chance_data\.py|chance_fontana\.py|publish_album\.py)/).forEach(part => {
