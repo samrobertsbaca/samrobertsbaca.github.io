@@ -7,7 +7,10 @@
 <meta name="color-scheme" content="dark">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,500&family=Jost:wght@400;500&display=swap" rel="stylesheet">
+<style>
+@font-face { font-family: 'Scheme'; src: url('/fonts/Scheme.otf') format('opentype'); font-display: swap; }
+@font-face { font-family: 'Plex'; src: url('/fonts/IBMPlexMono-Regular.ttf') format('truetype'); font-display: swap; }
+</style>
 <style>
 :root{
   --bg:#07050f;
@@ -17,8 +20,8 @@
   --hair:rgba(244,239,255,.16);
   --accent:#f2c46d;
   --fade:rgba(7,5,15,.92);
-  --serif:'Cormorant Garamond','Iowan Old Style','Palatino Linotype',Georgia,serif;
-  --sans:'Jost','Avenir Next','Century Gothic',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --serif:'Scheme','Instrument Serif','Iowan Old Style',Georgia,serif; /* (the same faces as planet scorsby) */
+  --sans:'Plex',ui-monospace,Menlo,Consolas,monospace;
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px);
   padding-bottom:env(safe-area-inset-bottom,0px);
@@ -40,7 +43,7 @@ button,select,input{font-family:inherit}
 #breathDot{width:46px;height:46px;border-radius:50%;border:1px solid var(--accent);
   background:radial-gradient(circle,rgba(255,255,255,.34),rgba(255,255,255,.03) 72%);
   box-shadow:0 0 26px rgba(242,196,109,.28);will-change:transform}
-#breathLabel{font-family:var(--serif);font-style:italic;font-size:19px;color:var(--ink2);min-height:22px}
+#breathLabel{font-family:var(--serif);font-size:19px;color:var(--ink2);min-height:22px}
 
 #ui{position:fixed;inset:0;pointer-events:none;transition:opacity .6s ease}
 #ui.hidden{opacity:0}
@@ -48,7 +51,7 @@ button,select,input{font-family:inherit}
 
 .top{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;
   padding:calc(10px + env(safe-area-inset-top,0px)) 10px 0 20px}
-.title{font-family:var(--serif);font-style:italic;font-size:24px;letter-spacing:.02em;text-shadow:0 1px 12px rgba(0,0,0,.8)}
+.title{font-family:var(--serif);font-size:24px;letter-spacing:.02em;text-shadow:0 1px 12px rgba(0,0,0,.8)}
 .topbtns{display:flex}
 .iconbtn{pointer-events:auto;width:44px;height:44px;display:grid;place-items:center;background:none;border:0;color:var(--ink2);cursor:pointer;border-radius:50%}
 .iconbtn:hover{color:var(--ink)}
@@ -380,7 +383,7 @@ const INFO = {
     t: 'Twenty triangular faces, the most rounded of the solids built from triangles. Plato linked it to water. Symbolically it stands for flow, feeling and change.' },
   dodeca: { n: 'Dodecahedron, ether', tip: 'Twelve pentagons hold the entire sphere. Rest in the sense of spaciousness.',
     t: 'Twelve pentagonal faces. Plato said the maker used it for the arrangement of the heavens, and later traditions called this fifth element ether or spirit. Symbolically it stands for the whole that contains the other four.' },
-  merkaba: { n: 'Merkaba', tip: 'Watch the two tetrahedra turn against each other, then settle so every corner rests on a node.',
+  merkaba: { n: 'Merkaba', tip: 'Watch the two tetrahedra turn against each other, one up, one down, without end.',
     t: 'Two interlocked tetrahedra, one pointing up and one pointing down, turning against each other. The name echoes the Hebrew merkavah, the chariot of Ezekiel\u2019s vision in Jewish mysticism. Modern teachings use it as a symbol of the union of opposites, heaven and earth, spirit and body, and as a vehicle for meditation.' },
   all: { n: 'All together', tip: 'Let your eyes go wide and take in every layer at once, then let them settle on the center.',
     t: 'Every layer at once: the Flower and Fruit of Life as ground, Metatron\u2019s lines joining their centers, the Platonic solids nested in a shared sphere, and the Merkaba turning at the heart.' },
@@ -587,10 +590,8 @@ function render(t, b) {
   const Msolid = mul(Rbase, mul(Rz(spin.flat), A_Z));
   const Mico = mul(Rbase, mul(Rz(spin.flat + ICO_ROT), A_Z));
   const Mdode = mul(Rbase, mul(Rz(spin.flat + DODE_ROT), A_Z));
-  // merkaba counter-rotation: continuous when free; when locked it rests on the nodes and turns in 60 degree steps
-  const kk = Math.floor(spin.mkPhase), gg = clamp(((spin.mkPhase - kk) - 0.6) / 0.4, 0, 1);
-  const dLocked = (kk + 0.5 - 0.5 * Math.cos(Math.PI * gg)) * Math.PI / 3;
-  const delta = spin.mkFree * free + dLocked * L;
+  // merkaba counter-rotation
+  const delta = spin.mkFree; // (the two tetrahedra always turn against each other, locked or not)
   const Mup = mul(Rbase, mul(Rz(spin.flat + delta), A_Z));
   const Mdn = mul(Rbase, mul(Rz(spin.flat - delta), A_Z));
 
@@ -905,8 +906,8 @@ function loop(ms) {
   state.uiAmt += ((uiVisible ? 1 : 0) - state.uiAmt) * (1 - Math.exp(-dt * 3));
 
   state.lockAmt += ((state.lock ? 1 : 0) - state.lockAmt) * (1 - Math.exp(-dt * 1.6));
-  if (state.lock) spin.mkPhase += dt * state.speed / 16;
-  else { spin.tumble += dt * 0.22 * state.speed; spin.mkFree += dt * 0.35 * state.speed; }
+  if (!state.lock) spin.tumble += dt * 0.22 * state.speed;
+  spin.mkFree += dt * 0.9 * state.speed; // the merkaba's counter-turn, always
   spin.flat += dt * 0.03 * state.speed;
   // locked: drift back to the head-on view a moment after you let go
   if (state.lock && ptrs.size === 0 && t - lastTouch > 2.5) {
