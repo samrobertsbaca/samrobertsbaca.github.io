@@ -4020,8 +4020,10 @@
   async function openVoice(quiet = false) {
     try {
       audio();
-      // the noise filter treats a long held note as noise and fades it out, so it stays off
-      mic.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: false, autoGainControl: true } });
+      // the noise filter treats a long held note as noise and fades it out, so it stays off. on android, echo
+      // cancellation and gain control put the whole phone into phone-call audio, much quieter, so there they're off too
+      const android = /android/i.test(navigator.userAgent);
+      mic.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: !android, noiseSuppression: false, autoGainControl: !android } });
       const src = ac.createMediaStreamSource(mic.stream);
       mic.analyser = ac.createAnalyser(); mic.analyser.fftSize = 2048;
       mic.buf = new Float32Array(mic.analyser.fftSize);
