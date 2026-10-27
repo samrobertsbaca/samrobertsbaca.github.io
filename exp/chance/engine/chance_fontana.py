@@ -968,6 +968,10 @@ def gather_archive(count, radio_dir, workers=4):
         utc = datetime.datetime.now(datetime.timezone.utc)
         try:
             d = get_json(f"{ARCHIVE}/metadata/{urllib.parse.quote(ident)}")
+            lic = str((d.get('metadata') or {}).get('licenseurl') or '').lower()
+            if re.search(r'-nd\b|/nd[/-]|nd-|noderiv', lic):
+                # a no-derivatives licence allows sharing as-is but not transforming: leave it be
+                return job, utc, None, None, None, None, "its licence forbids remixing (ND)"
             files = [f for f in d.get('files', []) if re.search(r'mp3|ogg', str(f.get('format', '')), re.I)
                      and f.get('length')]
             if not files:
