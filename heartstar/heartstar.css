@@ -10,6 +10,17 @@
   font-display: swap;
 }
 
+/* at nightfall and daybreak the words and controls change color slowly, along with the world */
+@property --paper { syntax: '<color>'; inherits: true; initial-value: #ffffff; }
+@property --ink { syntax: '<color>'; inherits: true; initial-value: #1d1a5e; }
+@property --dim { syntax: '<color>'; inherits: true; initial-value: rgba(29, 26, 94, 0.6); }
+@property --faint { syntax: '<color>'; inherits: true; initial-value: rgba(29, 26, 94, 0.35); }
+@property --ui { syntax: '<color>'; inherits: true; initial-value: #05060a; }
+@property --ui-fg { syntax: '<color>'; inherits: true; initial-value: #ffffff; }
+body { transition: --paper 4s, --ink 4s, --dim 4s, --faint 4s, --ui 4s, --ui-fg 4s; }
+/* and while it happens, everything else that changes color glides too, buttons included */
+body.dusking, body.dusking * { transition: --paper 4s, --ink 4s, --dim 4s, --faint 4s, --ui 4s, --ui-fg 4s, background-color 4s, color 4s, border-color 4s, box-shadow 4s, fill 4s, stroke 4s !important; }
+
 /* the world is drawn by hand. the controls around it are plainly digital. */
 :root {
   --paper: #ffffff;

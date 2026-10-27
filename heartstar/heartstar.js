@@ -56,6 +56,7 @@
     day: { paper: '#ffffff', ink: [29, 26, 94], wash: 'multiply', washA: 0.22, ocean: '#00b4ff', hatchA: 0.42 },
     night: { paper: '#3e3478', ink: [255, 255, 255], wash: 'screen', washA: 0.16, ocean: '#0aa6ec', hatchA: 0.3 },
   };
+  if (/^[0-9a-f]{6}$/i.test(params.get('paper') || '')) THEMES.day.paper = '#' + params.get('paper'); // (?paper=e8f4ff: try another daytime sky)
   let T = THEMES.day;
   const DARK = '#05060a'; // the bold outline of the scorsby logo
   const ink = (a = 1) => `rgba(${T.ink[0]},${T.ink[1]},${T.ink[2]},${a})`;
@@ -70,6 +71,49 @@
   function setTheme(want = params.get('theme') || store.get('scorsby-theme') || 'day') {
     if (!THEMES[want]) want = 'day';
     T = THEMES[want]; document.body.dataset.theme = want; makeHatch();
+  }
+  // the sky follows your own time of day, deeper overhead and warmer toward the horizon: violet and rose before dawn,
+  // blue over peach at sunrise, blue all day, blue over orange at sunset, indigo over rose at dusk, and deep night
+  // after dark. it changes a little every frame, easing between these, so you never catch it changing.
+  // tapping sunsby or moonsby still chooses day or night for the rest of the visit. (?hour=18.5 pretends it's that time;
+  // ?theme=day or night, or the share card, keep the plain skies.)
+  const SKY = [ // [hour, top, horizon]. before the first and after the last, it's night
+    [4, '#1d1846', '#4a3e92'], [5, '#8f7fd9', '#f4b3d3'], [6.3, '#93c2ff', '#ffaa85'], [8, '#6ec3ff', '#d4efff'], [12, '#4fb6ff', '#bde6ff'],
+    [16, '#67bfff', '#d6edff'], [18, '#6f9dff', '#ffae63'], [19.6, '#6553c4', '#f095b5'], [21, '#1d1846', '#4a3e92'],
+  ];
+  const PLAIN = { day: THEMES.day.paper, night: THEMES.night.paper };
+  let skyClockOn = !params.has('theme') && !CARD, skyPair = null, themeFade = null;
+  const mixHex = (a, b, t) => '#' + [0, 2, 4].map((i) => Math.round(parseInt(a.substr(1 + i, 2), 16) * (1 - t) + parseInt(b.substr(1 + i, 2), 16) * t).toString(16).padStart(2, '0')).join('');
+  function skyAt(h) {
+    if (h <= SKY[0][0]) return SKY[0].slice(1);
+    for (let i = 1; i < SKY.length; i++) if (h <= SKY[i][0]) {
+      const [h0, a1, a2] = SKY[i - 1], [h1, b1, b2] = SKY[i], u = (h - h0) / (h1 - h0), t = u * u * (3 - 2 * u); // (eased: no corners)
+      return [mixHex(a1, b1, t), mixHex(a2, b2, t)];
+    }
+    return SKY[SKY.length - 1].slice(1);
+  }
+  // how light a color is, 0 to 1
+  const lightness = (hx) => { const [r, g, b] = [0, 2, 4].map((i) => (parseInt(hx.substr(1 + i, 2), 16) / 255) ** 2.2); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
+  function skyClock(now) {
+    if (!skyClockOn) return;
+    const d = new Date(), h = params.has('hour') ? +params.get('hour') : d.getHours() + d.getMinutes() / 60 + d.getSeconds() / 3600;
+    skyPair = skyAt(h);
+    // when the sky has grown dark enough that white words read better than dark ones, the world takes on its night
+    // look (and in the morning gives it back). that one change is a slow crossfade, never a cut.
+    const night = lightness(mixHex(skyPair[0], skyPair[1], 0.5)) < 0.16;
+    if ((T === THEMES.night) !== night) {
+      if (VW && intro.woke) { // (not at the start of a visit: then it simply begins as it should be)
+        const snap = themeFade?.snap || document.createElement('canvas');
+        snap.width = cv.width; snap.height = cv.height; snap.getContext('2d').drawImage(cv, 0, 0);
+        themeFade = { snap, from: now, dur: 4000 };
+        document.body.classList.add('dusking'); clearTimeout(skyClock.t); skyClock.t = setTimeout(() => document.body.classList.remove('dusking'), 4200);
+      }
+      setTheme(night ? 'night' : 'day');
+    }
+  }
+  function stopSkyClock() { // (sunsby or moonsby was tapped: their choice, for the rest of the visit)
+    if (!skyClockOn) return;
+    skyClockOn = false; skyPair = null; THEMES.day.paper = PLAIN.day; THEMES.night.paper = PLAIN.night;
   }
 
   // ------------------------------------------------------------------ canvas
@@ -1382,6 +1426,11 @@
 
     // white paper. colors bloom only when something happens.
     c.globalCompositeOperation = 'source-over';
+    skyClock(now);
+    if (skyPair) {
+      // the sky as a gradient. it stands in for the paper everywhere, so the little cut-out things in the sky match it
+      const g = c.createLinearGradient(0, 0, 0, VH); g.addColorStop(0, skyPair[0]); g.addColorStop(1, skyPair[1]); T.paper = g;
+    }
     c.fillStyle = T.paper; c.fillRect(0, 0, VW, VH);
     const bloom = Math.max(storm, smooth(0, 1, (loveWash - now) / 1500), env(omenP('goldrain', now)) * 0.5, env(omenP('heartstar', now)) * 0.6, hum.magic * (0.6 + 0.4 * hum.prog));
     if (bloom > 0.01) {
@@ -1433,9 +1482,9 @@
       c.save(); c.globalCompositeOperation = 'multiply'; c.globalAlpha = 0.55 * Math.sin(k * Math.PI) ** 0.6;
       c.fillStyle = '#ffc93c'; c.fillRect(0, 0, VW, VH); c.restore();
     }
+    faded(() => renderBursts(now, dt, false)); // (the bursts' rainbow rings pass behind sunsby and moonsby)
     faded(() => { c.save(); c.globalAlpha = awake(now); renderSun(now); c.restore(); }); // sunsby and moonsby arrive as the world wakes
     faded(() => renderRisingHeart(now));
-    faded(() => renderBursts(now, dt, false));
 
     const sp = omenP('sneeze', now);
     c.save();
@@ -1481,6 +1530,12 @@
     for (const draw of drawLast) { c.save(); draw(); c.restore(); }
     drawLast.length = 0;
     renderTogether(now);
+    if (themeFade) {
+      // the world as it looked just before nightfall (or daybreak), fading away over the new look
+      const k = 1 - (now - themeFade.from) / themeFade.dur;
+      if (k <= 0) themeFade = null;
+      else { c.save(); c.setTransform(1, 0, 0, 1, 0, 0); c.globalAlpha = k * k * (3 - 2 * k); c.drawImage(themeFade.snap, 0, 0); c.restore(); }
+    }
     if (omen && now - omen.born > omen.dur) omen = null;
   }
 
@@ -2058,7 +2113,7 @@
 
     // in a crowd, the ones far from you on the world are little dots of their color, and only those near you are faces
     // (zoomed in, everyone in view is close enough to be a face)
-    const crowd = list.length > 40 && zoom.v < 2.2 && me && !me.leaving;
+    const crowd = list.length > 40 && zoom.v < 2.2 && me && !me.leaving && !params.has('allfaces'); // (?allfaces: everyone a face, to compare)
     for (const s of list) s.far = crowd && !s.mine && angle(s.v, me.v) > 0.5;
     const farOnes = list.filter((s) => s.far);
     list = list.filter((s) => !s.far);
@@ -2110,7 +2165,7 @@
       .map((ab) => [ab, Math.hypot((ab[0].sx + ab[1].sx) / 2 - fx, (ab[0].sy + ab[1].sy) / 2 - fy)])
       .sort((x, y) => x[1] - y[1]).slice(0, linkMax); // (in a crowd only so many are drawn; every one still counts)
     const lk = farK(); // (far out, the hands and hearts between them shrink with everyone)
-    if (!calmMood) for (const [[a, b]] of links) {
+    if (!calmMood && !params.has('nohands')) for (const [[a, b]] of links) { // (?nohands: no hands drawn, to compare)
       const mx = (a.sx + b.sx) / 2, my = (a.sy + b.sy) / 2 + (3 + Math.sin(now / 300 + a.seed) * 2) * lk;
       c.beginPath();
       c.moveTo(a.sx, a.sy + a.size * 0.15); c.quadraticCurveTo((a.sx + mx) / 2, my + 8 * lk, mx - 3 * lk, my);
@@ -3251,14 +3306,14 @@
     if (sunAt.r && Math.hypot(x - sunAt.x, y - sunAt.y) < sunAt.r * 1.3) {
       goldFlash = now + 2200;
       setMood('gold', 2200);
-      setTheme('day'); store.set('scorsby-theme', 'day');
+      stopSkyClock(); setTheme('day'); store.set('scorsby-theme', 'day');
       whisper(pick(['sunsby says: good morning.', 'sunsby says: go for gold.', 'the day is here. everything is golden.']), 2600);
       tone.omen('goldrain');
       return;
     }
     if (hitMoon(x, y)) {
       moon.awake = now + 4000;
-      setTheme('night'); store.set('scorsby-theme', 'night');
+      stopSkyClock(); setTheme('night'); store.set('scorsby-theme', 'night');
       whisper(`moonsby says goodnight. tonight is a ${phaseName(moonPhase())}.`, 3600);
       tone.chime();
       return;
@@ -4230,6 +4285,7 @@
 
   addEventListener('resize', resize);
   setTheme(); resize(); setView();
+  skyClock(0); themeFade = null; // (a visit begins in the sky of the moment, without a fade)
   if (INTRO) {
     setMood('sleepy', intro.wake - T0);
     setTimeout(welcome, 700);
