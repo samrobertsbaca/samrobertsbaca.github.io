@@ -228,13 +228,16 @@ def album_title(track_titles, seed):
 
 
 def heard_on(score_texts):
-    """the stations, places and recordings heard on the album, from the scores."""
+    """the recordings heard on the album, from the scores: every layer that used radio names
+    its clip there. a mosaic drawing grains from several clips names them together ("a + b"),
+    so those are split, and each recording counts once however often it was used."""
     seen = []
     for s in score_texts:
         for lab in re.findall(r'radio \[([^\]]+)\]', s):
-            lab = re.sub(r', \d{4}-\d\d-\d\d \d\d:\d\d UTC', '', lab).strip()
-            if lab not in seen:
-                seen.append(lab)
+            for one in lab.split(' + '):
+                one = re.sub(r', \d{4}-\d\d-\d\d \d\d:\d\d UTC', '', one).strip()
+                if one and one not in seen:
+                    seen.append(one)
     return seen
 
 
@@ -371,18 +374,19 @@ def main():
     listened = f"gathering {gathered:,} moments of radio" if gathered else "gathering moments of radio"
     credits = [f"released {day.strftime('%B')} {day.day}, {day.year}", "",
                f"questions by {ASKER}", "",
-               f"How it was made: in the hours before this album, {ARTIST} listened to the world, {listened}: "
+               f"In the hours before this album, {ARTIST} listened to the world, {listened}: "
                "shortwave from receivers around the world, FM and internet stations, open microphones on rooftops, "
                "in gardens and in canals, and old recordings from the Internet Archive. It kept only what had "
-               "something in it. Then it threw the dice: which sounds belong together, which patterns of data to "
-               "fuse them with (cellular automata, bytebeat formulas, number sequences, sorting algorithms), how long "
-               "each song should be, and where it should go. "
+               "something in it. In the spirit of John Cage's aleatoric compositional methods, particularly "
+               "inspired by his piece \"Fontana Mix\", it threw the dice: which sounds belong together, which "
+               "patterns of data to fuse them with (cellular automata, bytebeat formulas, number sequences, sorting "
+               "algorithms), how long each song should be, and where it should go. "
                + (f"{len(heard):,} of those moments are in these songs. " if heard else "")
                + "Nothing was chosen by hand. The programs that asked the questions are chance_data.py, "
                "chance_fontana.py and publish_album.py.", "",
-               "This album is impermanent. The broadcasts it heard are gone. The recordings it gathered were thrown "
-               "away once it was made. Tomorrow it will be replaced by another, which will never be heard again "
-               "either. It exists for a day. Listen while it's here."]
+               "This album is impermanent. The broadcasts collected are gone. The recordings it gathered were "
+               "thrown away once it was made. Tomorrow it will be replaced by another, which will never be heard "
+               "again either. It exists for a day. Listen while it's here."]
     sources = []
     if any('live microphone' in h for h in heard):
         sources.append("open microphones: Locus Sonus Locustream (locusonus.org)")
