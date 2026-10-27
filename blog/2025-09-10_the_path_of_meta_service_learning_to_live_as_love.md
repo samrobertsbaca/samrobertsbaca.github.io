@@ -3,7 +3,7 @@ Sep 10
 
 
 
-![](./images/IMG_5198_v3.png)
+![](./images/IMG_5198_v3.webp)
 
 *what if service wasn’t just something you did, but something you are?*
 

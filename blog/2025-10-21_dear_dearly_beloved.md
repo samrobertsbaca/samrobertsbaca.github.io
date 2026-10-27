@@ -4,7 +4,7 @@ Oct 21
 
 <br/><br/>
 
-![](./images/scorb_oscillate.png)
+![](./images/scorb_oscillate.webp)
 
 <br/><br/>
 

@@ -2,7 +2,7 @@ Jan 1
 
 # new years resolution
 
-![](./images/newyear2026.png)
+![](./images/newyear2026.webp)
 
 to welcome the new year, we offer this small chant in glonglish:
 

@@ -64,7 +64,7 @@ i’ve got 20 minutes to spare before the *quiet day playlist for flowers, tea, 
 
 part of me wants to clarify whatever it was i said about masturbation and pornography. part of me feels like i haven’t said enough about it. part of me feels like i shouldn’t have said anything. part of me wants to say i said what i said, and that is that. part of me wants to say there’s always more to say. part of me wants to say sorry for saying anything at all. and part of me wants to throw a party.
 
-![](./images/ChatGPT+Image+May+21%2C+2025%2C+03_38_13+PM.png)
+![](./images/flappin_hearts_cafe.webp)
 
 the image of the quiet day playlist appears to be a painted wheatfield somewhere in the countryside. there’s a couple walking off into the distance. it looks like a lovely day.
 

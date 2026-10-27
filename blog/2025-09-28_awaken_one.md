@@ -40,10 +40,10 @@ if one day you found yourself aboard the nebuchadnezzar with neo and morpheus, y
 the truth, as this one experiences it, is that the fruit of awakening is peace, joy and bliss itself. the path to realizing this joy, however, can be winding, challenging, and at times uncomfortable — filled with moments of fear, doubt, and struggle, much like any psychedelic experience. whether one looks like an abraxian boggart monster or a DMT machine elf or pure radiant light or nothing depends entirely on one's station in the journey of self-realization.
 
 View fullsize
-![1855-MichelangeloCaetani-DivineComedy-01-Universe.webp](./images/1855-MichelangeloCaetani-DivineComedy-01-Universe.webp)![1855-MichelangeloCaetani-DivineComedy-01-Universe.webp](./images/)
+![1855-MichelangeloCaetani-DivineComedy-01-Universe.webp](./images/1855-MichelangeloCaetani-DivineComedy-01-Universe.webp)
 
 View fullsize
-![72A6AB5F-215D-4962-A3DA-70DAC8AFD863.webp](./images/72A6AB5F-215D-4962-A3DA-70DAC8AFD863.webp)![72A6AB5F-215D-4962-A3DA-70DAC8AFD863.webp](./images/)
+![72A6AB5F-215D-4962-A3DA-70DAC8AFD863.webp](./images/72A6AB5F-215D-4962-A3DA-70DAC8AFD863.webp)
 
 *left:* plate from michelangelo caetani’s 1855 work *la materia della divina commedia di dante alighieri*, showing a diagram of the universe, including inferno at the bottom, purgatorio in the middle, and paradiso at the top.
 

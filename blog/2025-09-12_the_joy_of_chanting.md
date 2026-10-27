@@ -57,4 +57,4 @@ ultimately, chanting is an expression of the joy of being: offering your voice, 
 
 *if you live in albuquerque, new mexico, please join us in the center of* ***mcduffie (hidden) park, tomorrow, saturday the 13th, at 3pm*** *for a community chanting session for world peace. we will gather under the sky, breathe together, and share the vibration of “aum.” whether you have chanted for years or never before, all are welcome. all that is needed is your presence, your breath, and your willingness to add your voice to the collective song.*
 
-![](./images/tree1.png)
+![](./images/tree1.webp)

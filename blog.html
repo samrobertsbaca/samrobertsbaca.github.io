@@ -1,108 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-F0TBFJSGJ9"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'G-F0TBFJSGJ9');
-    </script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>scorsblog</title>
-    <meta name="description" content="notes, stories and letters from the world of scorsby">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://scorsby.us/blog.html">
-    <meta property="og:site_name" content="world of scorsby">
-    <meta property="og:title" content="peace · world of scorsby">
-    <meta property="og:description" content="notes, stories and letters from the world of scorsby">
-    <meta property="og:image" content="https://scorsby.us/images/share.png">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:image" content="https://scorsby.us/images/share.png">
-    <link rel="stylesheet" href="./style.css?v=3">
-    <link rel="icon" href="./favicon.webp" type="image/x-icon">
-
-    <link rel="stylesheet" href="./style.css?v=3">
-
-  </head>
-  <body>
-
-    <nav></nav>
-
-    <script type="module" src="/module_scripts.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="./blog/blogposts.js" defer></script>
-    <script src="./functional_scripts.js?v=17" defer></script>
-    <script src="./js/bloglist_scripts.js?v=4" defer></script>
-
-    <script>
-      document.addEventListener('DOMContentLoaded', () => {
-        loadNavbar(); // now loadNavbar exists
-        //initBlogIndex(); // new function to initialize blog
-        loadScorsbyJournal('exp/storygen/current.md','story-content');
-      });
-    </script>
-
-    <article>
-
-      <div id="story-content">loading story...</div>
-    </br>
-
-      <!--<div class="twitter-text"><h3>words</h3></div>-->
-
-      
-      <!-- search: every post's words, gathered by tools/build_search.py (update_site.py runs it) -->
-      <div id="blog-tools">
-        <a href="#" id="improbability-drive" class="tool-btn"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="2.5"/><circle cx="8.5" cy="8.5" r="1.3" class="pip"/><circle cx="12" cy="12" r="1.3" class="pip"/><circle cx="15.5" cy="15.5" r="1.3" class="pip"/></svg>infinite improbability drive</a>
-        <label id="blog-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5"/></svg><input id="search-in" type="search" placeholder="search the glongingverse..." aria-label="search the blog" autocomplete="off"><button type="button" id="search-x" aria-label="clear the search" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></label>
-      </div>
-
-      <div id="blog-index">
-        <!-- List of posts will go here -->
-      </div>
-
-      <div id="blog-content">
-        <!-- Clicked post content will render here -->
-      </div>
-    </article>
-
-<!--<footer>
-  ⓢ 2025 Scorsby Smileworks — All Smiles Unreserved
-</footer>-->
-
-  <!-- Hamburger JS -->
-<script>
-  function toggleMenu() {
-    const nav = document.getElementById('nav-links');
-    nav.classList.toggle('show');
-  }
-
-  document.getElementById('improbability-drive').addEventListener('click', function(e) {
-    e.preventDefault();
-
-    // Get the container
-    const blogIndex = document.getElementById('blog-index');
-
-    // Find all links that live inside the blog-index div
-    const links = blogIndex.querySelectorAll('a');
-
-    if (links.length > 0) {
-        // Select a random link from the list
-        const randomLink = links[Math.floor(Math.random() * links.length)];
-
-        // Navigate to that URL
-        window.location.href = randomLink.href;
-    }
-  });
-
-</script>
-
-
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <title>peace</title>
+  <!-- this page moved to /peace: old links still arrive, and are sent on (with anything after a # kept) -->
+  <link rel="canonical" href="https://scorsby.us/peace">
+  <meta name="robots" content="noindex">
+  <meta http-equiv="refresh" content="0; url=/peace">
+  <script>location.replace('/peace' + location.search + location.hash);</script>
+</head>
+<body><p><a href="/peace">this page is now at scorsby.us/peace</a></p></body>
 </html>

@@ -46,7 +46,7 @@ my name is easter egg. because i come in every color, and i point to resurrectio
 
 <br/><br/>
 
-<img src="/images/eggman.png" alt="scorby" width="500"/>
+<img src="/images/eggman.webp" alt="scorby" width="500"/>
 
 <br/><br/>
 

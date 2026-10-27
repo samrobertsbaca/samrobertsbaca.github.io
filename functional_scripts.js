@@ -22,7 +22,9 @@ const isScrollable = () => {
 };
 
 // the navbar, drawn to match the world of scorsby on the home page
-const NAV_LINKS = [['peace', '/blog.html'], ['love', '/works.html'], ['joy', '/about.html'], ['letters', '#subscribe'], ['shop', 'https://shop.scorsby.us']];
+// peace, love and joy live at scorsby.us/peace, /love and /joy: arriving at /peace.html, the address bar tidies itself
+if (/^\/(peace|love|joy)\.html$/.test(location.pathname)) history.replaceState(null, '', location.pathname.replace(/\.html$/, '') + location.search + location.hash);
+const NAV_LINKS = [['peace', '/peace'], ['love', '/love'], ['joy', '/joy'], ['letters', '#subscribe'], ['shop', 'https://shop.scorsby.us']];
 
 // "sun, oct 18 · 08:50:36 pm · now here" (the same clock as on the home page)
 function scorsbyClock(d = new Date()) {
@@ -223,7 +225,7 @@ async function loadScorsbyJournal(filePath,div_tag) {
   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
   if (isMobile) return;
   // peace, love and joy (and every post on peace), contact, the old home page and the 404 are plain white
-  if (/^\/(blog|works|about|contact|home_org|404)(\.html)?$|^\/blog\//.test(location.pathname) || document.title === '404sby') return;
+  if (/^\/(peace|love|joy|blog|works|about|contact|home_org|404)(\.html)?$|^\/blog\//.test(location.pathname) || document.title === '404sby') return;
 
   const P5_CDN = "https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js";
 

@@ -4,7 +4,7 @@ Mar 9
 
 ***note:*** *this transmission contains spoilers for the film a.i.: artificial intelligence (2001)*
 
-![](/images/ai_david.png)
+![](/images/ai_david.webp)
 
 [there's a scene in steven spielberg's a.i.](https://www.youtube.com/watch?v=zTioBYdv2o4) — the one that lodges itself somewhere between the ribs and doesn't leave — where david, the child robot who has loved his human mother with a devotion more total than most humans manage, discovers that he is not singular. there is another. one other face wearing his features, one other david waiting to be activated — and that is enough. he destroys him immediately, screaming "you can't have her", referring to his mother monica. he cannot bear it. to be even one of two is, to david, the annihilation of everything he thought he was.
 
@@ -82,7 +82,7 @@ the violence is not incidental to the paradox. it may be its most logical expres
 
 the solution at the collective level is probably the same as at the personal level. not dissolving particularity — that road leads only to the blob, the undifferentiated peace that flattens everything equally. but learning to hold your own chosenness without making it a zero-sum claim. to say: i am particular, and so are you, and the world is large enough for both of us to matter specifically. this is not a political programme. it is a kind of maturity that entire civilizations are still, painfully, working toward. and it may be the exact maturity that is asked of us — collectively, as a species — if we are ever to meet a truly other intelligence without hostility toward it, or ourselves, out of the same ancient terror that drove david's hands.
 
-![](/images/digitalcircus.png)
+![](/images/digitalcircus.webp)
 
 ### viii. the gnostic turn
 

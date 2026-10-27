@@ -3,7 +3,7 @@ Mar 21
 
 
 
-![](./images/wedrawtrans.png)
+![](./images/wedrawtrans.webp)
 
 **spanish:** nosotros/nosotras | **french:** nous | **german:** wir | **italian:** noi |   
 **portuguese:** nós | **dutch:** wij | **russian:** мы (my) | **mandarin:** 我们 (wǒmen) |   

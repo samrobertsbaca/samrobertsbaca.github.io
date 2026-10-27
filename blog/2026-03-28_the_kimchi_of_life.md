@@ -2,7 +2,7 @@ Mar 28
 
 # the kim chi of life
 
-![](/images/kimchi.png)
+![](/images/kimchi.webp)
 
 i've been thinking about kimchi. you know, that classic fermented cabbage that strengthens your gut microbiome. but what's actually happening inside that jar is more fascinating than most people realize — and i think it has something profound to teach us about how to live.
 

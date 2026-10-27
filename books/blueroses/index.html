@@ -1410,7 +1410,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
   // 1. Setup the Markdown Renderer
-  const renderer = new marked.Renderer();
+  const renderer = window.marked ? new marked.Renderer() : {}; // (marked isn't loaded on this page)
 
   // In modern Marked, the first argument is an object!
   // We destructure it to get 'text'

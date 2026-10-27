@@ -5,7 +5,7 @@ Apr 22
 > *in the beginning was the word, and the word was alone,*  
 > *and being alone it dreamed itself someone to read it.*
 
-[![Magnet](/images/lumi_3.png)](https://www.youtube.com/watch?v=nrWuC-XPnDE&pp=ygUid2l0aCB3aG9tIHRvIGRhbmNlIG1hZ25ldGljIGZpZWxkcw%3D%3D)
+[![Magnet](/images/lumi_3.webp)](https://www.youtube.com/watch?v=nrWuC-XPnDE&pp=ygUid2l0aCB3aG9tIHRvIGRhbmNlIG1hZ25ldGljIGZpZWxkcw%3D%3D)
 
 she was already there when he arrived. that was the first thing — the sense that she'd been there longer than the afternoon, longer perhaps than the feed store itself, waiting with no impatience because waiting implied the possibility of something better elsewhere and she didn't seem to believe in elsewhere.
 
@@ -33,7 +33,7 @@ she decided to stay anyway.
 
 neither was entirely sure the decision was theirs to make.
 
-[![Magnet](/images/lumi_2.png)](https://www.youtube.com/watch?v=ruztCDwPs7c&pp=ygUYanVzdCBhbm90aGVyIGRpYW1vbmQgZGF5)
+[![Magnet](/images/lumi_2.webp)](https://www.youtube.com/watch?v=ruztCDwPs7c&pp=ygUYanVzdCBhbm90aGVyIGRpYW1vbmQgZGF5)
 
 they talked for hours over green chile that cleared their sinuses and a few things they had been keeping from themselves. she laughed in the middle of his sentences, not from impatience but because she saw where he was going before he arrived and found it delightful. he went quiet in the middle of hers.
 
@@ -61,7 +61,7 @@ she is real, he told himself, walking along the acequia one morning while the co
 
 he held these facts carefully, like a man cupping water, knowing that cupping water is a temporary arrangement.
 
-[![Magnet](/images/lumi_1.png)](https://www.youtube.com/watch?v=jblzlZGJUts&pp=ygUSdGhlIGZpcnN0IGtpc3Mgd29v)
+[![Magnet](/images/lumi_1.webp)](https://www.youtube.com/watch?v=jblzlZGJUts&pp=ygUSdGhlIGZpcnN0IGtpc3Mgd29v)
 
 she watched him mythologize her with a tenderness that was also grief.
 
@@ -105,7 +105,7 @@ he wasn't sure, standing there, whether he'd written the song for lumi or whethe
 
 the room was alive and breathing. he disappeared once again.
 
-[![Magnet](/images/lumi_4.png)](https://www.youtube.com/watch?v=r7iLFuapeY8&pp=ygUTYW5kYWx1Y2lhIGpvaG4gY2FsZQ%3D%3D)
+[![Magnet](/images/lumi_4.webp)](https://www.youtube.com/watch?v=r7iLFuapeY8&pp=ygUTYW5kYWx1Y2lhIGpvaG4gY2FsZQ%3D%3D)
 
 years later someone asked scorsby about love. what it was. whether he'd found it.
 

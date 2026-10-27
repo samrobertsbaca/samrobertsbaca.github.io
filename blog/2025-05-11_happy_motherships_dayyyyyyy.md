@@ -3,7 +3,7 @@ May 11
 
 
 
-![](./images/mo5.png)
+![](./images/mo5.webp)
 
 mother is another word for source. it's something we share—not only with each other, but with all of existence. for every incarnation has a source. the source is the vessel through which growth is fostered. and mother is what we all must pass through to be here now.
 

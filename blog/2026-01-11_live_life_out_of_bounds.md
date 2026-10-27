@@ -2,7 +2,7 @@ Jan 11, 2026 / 01 11 10 / 30
 
 # live life out of bounds
 
-![](./images/page1.png)
+![](./images/page1.webp)
 
 don’t let anyone tell you you are the slice when you are the whole cake. the cake is not a lie. the lie is that you and the cake were ever apart.
 

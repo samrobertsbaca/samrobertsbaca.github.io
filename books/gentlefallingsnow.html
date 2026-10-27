@@ -295,8 +295,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (avgColor) body.style.backgroundColor = avgColor;
                 const counterText = document.getElementById('counter-text');
 
-                // inside IntersectionObserver or first image load:
-                counterText.textContent = `${pageIndex} / ${total}`;
+                // the first page is showing when the book opens
+                counterText.textContent = `1 / ${total}`;
             }
         });
     });

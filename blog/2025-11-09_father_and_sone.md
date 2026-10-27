@@ -110,7 +110,7 @@ as one who has spent much time listening to and creating audio of some kind, i h
 
 today i was editing the faint guitar clicks in a “song” i plan to release as part of my “album” “soul country”, using an audio repair tool called iZotope RX. and it occurred to me looking at the spectrogram how unusual a song looks when viewed as a frequency spectrum (see below). to me, it looks almost like a fractaline forest of light. interestingly, the lyrics of the section of the song i copied and pasted here are “is yours to define… cowboy listen closely, to live”. a kind of unplanned mobius strip of information… but i don’t believe there are any coincidences.
 
-![](./images/izotope_freq_spec.png)
+![](./images/izotope_freq_spec.webp)
 
 it almost looks like there are forms, vibrational spirits arising and returning from the nothingness… kind of like you and me :-)
 

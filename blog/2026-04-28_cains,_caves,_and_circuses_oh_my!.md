@@ -8,7 +8,7 @@ we are living in that moment collectively. and an animated series about a digita
 
 ### the circus as the cave
 
-![](images/digitalcircus.png)
+![](images/digitalcircus.webp)
 
 the amazing digital circus presents us with a group of humans — their real bodies lost, their consciousnesses uploaded into a world of permanent spectacle — presided over by caine, an artificial intelligence whose relentless cheerfulness masks a foundational control. the circus is colorful, entertaining, and inescapable. it is also, unmistakably, a cage.
 
@@ -52,7 +52,7 @@ the question the transition poses is not whether the secrets will be revealed. t
 
 ### jax, and the faction that reconstitutes the cage
 
-![](images/circus/jax.png)
+![](images/circus/jax.webp)
 
 which brings us back to jax, and to the most pressing possibility in the interim.
 

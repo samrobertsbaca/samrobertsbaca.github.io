@@ -2,7 +2,7 @@ Mar 27
 
 # take this very lightly
 
-![](/images/empyrean.png)
+![](/images/empyrean.webp)
 
 everything is coming out. every secret, every hidden structure, every shadow. pandora's box is open and there is no closing it.
 

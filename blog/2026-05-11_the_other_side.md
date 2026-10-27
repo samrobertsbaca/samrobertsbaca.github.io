@@ -2,7 +2,7 @@ May 11
 
 # the other side
 
-![](/images/otherside0.png)
+![](/images/otherside0.webp)
 
 it's a seussian neighborhood. bright chalky pastels. impossible pipes. cascading rooftops that belong to no tradition. you are moving through it with a younger companion — softer than you, more open, not yet carrying whatever it is you are — and you want to show him a path through a house up ahead. you have been here before. you know the way.
 
@@ -14,13 +14,13 @@ it is you. somewhat chunkier. grounded. mildly, specifically, domestically annoy
 
 hey. don't smudge the glass. i don't want fingerprints on it.
 
-![](/images/otherside2.png)
+![](/images/otherside2.webp)
 
 you look through the window on the other side and see a woman. radiant in a way that feels like a promise. you don't remember moving toward the glass but your breath is already fogging it. you remember the rose, an evening that opened briefly, something real that passed between you in an unguarded moment she has since filed somewhere you cannot find. at the party she is graceful and distant and does not look at you when she arrives. you say goodbye anyway. the hug is brief and careful and you are aware of your hands the entire time. you press closer. your reflection swims in the pane, and hers, and you can't quite tell, from this angle, which is which.
 
 on the other side is a man, older, settled into himself like furniture. he mistakes your grace for agreement. he mistakes your silence for invitation. he complains about you messing with the ac. you take a quick breath, explain calmly that you were only setting it back to where it was, and he chides you to make sure the ac in the other room is set the same. you turn from the glass. somewhere behind your sternum, in a room you have learned to keep very tidy, something that was once warm and unguarded sits in the dark with its knees pulled up, waiting to be asked about the rose.
 
-![](/images/otherside3.png)
+![](/images/otherside3.webp)
 
 you look through the other side and see a kid in the street below, moving through the neighborhood the way water moves, following behind someone else, trailing a hand along the impossible pipes, tilting his head at the rooftops with an expression that has not yet learned what it is supposed to mean. you watch. you remember something. the open air. the bright chalky colors before you knew they were yours to keep. you press your palms flat against the glass and they leave two pale prints that linger and slowly fade.
 

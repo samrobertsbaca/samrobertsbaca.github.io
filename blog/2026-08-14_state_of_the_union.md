@@ -2,7 +2,7 @@ Aug 14
 
 # state of the union
 
-![](/images/jag.png)
+![](/images/jag.webp)
 
 🌞 mai pooga! (that means “oh what joy!” in glonglish)
 
