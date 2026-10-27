@@ -17,9 +17,8 @@
 @property --faint { syntax: '<color>'; inherits: true; initial-value: rgba(29, 26, 94, 0.35); }
 @property --ui { syntax: '<color>'; inherits: true; initial-value: #05060a; }
 @property --ui-fg { syntax: '<color>'; inherits: true; initial-value: #ffffff; }
-body { transition: --paper 4s, --ink 4s, --dim 4s, --faint 4s, --ui 4s, --ui-fg 4s; }
-/* and while it happens, everything else that changes color glides too, buttons included */
-body.dusking, body.dusking * { transition: --paper 4s, --ink 4s, --dim 4s, --faint 4s, --ui 4s, --ui-fg 4s, background-color 4s, color 4s, border-color 4s, box-shadow 4s, fill 4s, stroke 4s !important; }
+@property --btn { syntax: '<color>'; inherits: true; initial-value: #ffffff; }
+body { transition: --paper 4s, --ink 4s, --dim 4s, --faint 4s, --ui 4s, --ui-fg 4s, --btn 4s; transition-timing-function: ease-in-out; }
 
 /* the world is drawn by hand. the controls around it are plainly digital. */
 :root {
@@ -29,6 +28,7 @@ body.dusking, body.dusking * { transition: --paper 4s, --ink 4s, --dim 4s, --fai
   --faint: rgba(29, 26, 94, 0.35);
   --ui: #05060a;
   --ui-fg: #ffffff;
+  --btn: #ffffff; /* the buttons: white by day, filled black at night */
   --blue: #00b4ff;
   --pink: #ff3d8e;
   --head: 'Scheme', 'Instrument Serif', 'Iowan Old Style', Georgia, serif;
@@ -42,6 +42,7 @@ body[data-theme="night"] {
   --faint: rgba(255, 255, 255, 0.4);
   --ui: #ffffff;
   --ui-fg: #3e3478;
+  --btn: #05060a;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -305,13 +306,13 @@ body.ritual.ritual-sing.sound-on #acts button#act-sound { opacity: 0 !important;
   #ways a { font-size: 14px; letter-spacing: .1em; line-height: 1.2; }
 }
 
-/* at night the buttons are filled black */
-body[data-theme="night"] #acts button:not(:hover):not([aria-pressed="true"]),
-body[data-theme="night"] #ways-menu:not([aria-expanded="true"]),
-body[data-theme="night"] #zoom button:not(:hover),
-body[data-theme="night"] #name-form button,
-body[data-theme="night"] #say-form button,
-body[data-theme="night"] #sing-card .row button:not(#sing-yes) { background: #05060a; }
+/* the buttons' fill: white by day, black at night, gliding from one to the other at nightfall and daybreak */
+body #acts button:not(:hover):not([aria-pressed="true"]),
+body #ways-menu:not([aria-expanded="true"]),
+body #zoom button:not(:hover),
+body #name-form button,
+body #say-form button,
+body #sing-card .row button:not(#sing-yes) { background: var(--btn); }
 
 /* a little spinner on the zoom button while a closer map is on its way */
 #zoom button { position: relative; }

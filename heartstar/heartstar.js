@@ -75,13 +75,12 @@
   // the sky follows your own time of day, deeper overhead and warmer toward the horizon: violet and rose before dawn,
   // blue over peach at sunrise, blue all day, blue over orange at sunset, indigo over rose at dusk, and deep night
   // after dark. it changes a little every frame, easing between these, so you never catch it changing.
-  // tapping sunsby or moonsby still chooses day or night for the rest of the visit. (?hour=18.5 pretends it's that time;
+  // tapping sunsby or moonsby chooses day or night for the rest of the visit. (?hour=18.5 pretends it's that time;
   // ?theme=day or night, or the share card, keep the plain skies.)
   const SKY = [ // [hour, top, horizon]. before the first and after the last, it's night
     [4, '#1d1846', '#4a3e92'], [5, '#8f7fd9', '#f4b3d3'], [6.3, '#93c2ff', '#ffaa85'], [8, '#6ec3ff', '#d4efff'], [12, '#4fb6ff', '#bde6ff'],
     [16, '#67bfff', '#d6edff'], [18, '#6f9dff', '#ffae63'], [19.6, '#6553c4', '#f095b5'], [21, '#1d1846', '#4a3e92'],
   ];
-  const PLAIN = { day: THEMES.day.paper, night: THEMES.night.paper };
   let skyClockOn = !params.has('theme') && !CARD, skyPair = null, themeFade = null;
   const mixHex = (a, b, t) => '#' + [0, 2, 4].map((i) => Math.round(parseInt(a.substr(1 + i, 2), 16) * (1 - t) + parseInt(b.substr(1 + i, 2), 16) * t).toString(16).padStart(2, '0')).join('');
   function skyAt(h) {
@@ -101,19 +100,23 @@
     // when the sky has grown dark enough that white words read better than dark ones, the world takes on its night
     // look (and in the morning gives it back). that one change is a slow crossfade, never a cut.
     const night = lightness(mixHex(skyPair[0], skyPair[1], 0.5)) < 0.16;
-    if ((T === THEMES.night) !== night) {
-      if (VW && intro.woke) { // (not at the start of a visit: then it simply begins as it should be)
-        const snap = themeFade?.snap || document.createElement('canvas');
-        snap.width = cv.width; snap.height = cv.height; snap.getContext('2d').drawImage(cv, 0, 0);
-        themeFade = { snap, from: now, dur: 4000 };
-        document.body.classList.add('dusking'); clearTimeout(skyClock.t); skyClock.t = setTimeout(() => document.body.classList.remove('dusking'), 4200);
-      }
-      setTheme(night ? 'night' : 'day');
-    }
+    if ((T === THEMES.night) !== night) fadeTo(night ? 'night' : 'day', now);
   }
-  function stopSkyClock() { // (sunsby or moonsby was tapped: their choice, for the rest of the visit)
-    if (!skyClockOn) return;
-    skyClockOn = false; skyPair = null; THEMES.day.paper = PLAIN.day; THEMES.night.paper = PLAIN.night;
+  // the world changes to its day or night look under a slow crossfade (not at the start of a visit: then it simply
+  // begins as it should be)
+  function fadeTo(want, now = performance.now(), dur = 4000) {
+    if (VW && intro.woke) {
+      const snap = themeFade?.snap || document.createElement('canvas');
+      snap.width = cv.width; snap.height = cv.height; snap.getContext('2d').drawImage(cv, 0, 0);
+      themeFade = { snap, from: now, dur };
+    }
+    setTheme(want);
+  }
+  // tapping sunsby or moonsby chooses for the rest of the visit: the sky of midday, or of the middle of the night
+  function chooseSky(want) {
+    skyClockOn = false;
+    skyPair = want === 'night' ? SKY[0].slice(1) : skyAt(12);
+    if ((T === THEMES.night) !== (want === 'night')) fadeTo(want, performance.now(), 1600);
   }
 
   // ------------------------------------------------------------------ canvas
@@ -3306,14 +3309,14 @@
     if (sunAt.r && Math.hypot(x - sunAt.x, y - sunAt.y) < sunAt.r * 1.3) {
       goldFlash = now + 2200;
       setMood('gold', 2200);
-      stopSkyClock(); setTheme('day'); store.set('scorsby-theme', 'day');
+      chooseSky('day'); store.set('scorsby-theme', 'day');
       whisper(pick(['sunsby says: good morning.', 'sunsby says: go for gold.', 'the day is here. everything is golden.']), 2600);
       tone.omen('goldrain');
       return;
     }
     if (hitMoon(x, y)) {
       moon.awake = now + 4000;
-      stopSkyClock(); setTheme('night'); store.set('scorsby-theme', 'night');
+      chooseSky('night'); store.set('scorsby-theme', 'night');
       whisper(`moonsby says goodnight. tonight is a ${phaseName(moonPhase())}.`, 3600);
       tone.chime();
       return;
@@ -3429,7 +3432,7 @@
     const hover = loveBtn.matches(':hover'), pressed = loveBtn.matches(':active');
     if (!pressed) { shape(SHADOW - 1, SHADOW); cg.fillStyle = ink; cg.fill('nonzero'); }
     shape(0, 0); cg.lineWidth = 4; cg.strokeStyle = ink; cg.stroke();
-    let fill = T === THEMES.night ? '#05060a' : (css.getPropertyValue('--paper').trim() || '#fff');
+    let fill = css.getPropertyValue('--btn').trim() || '#fff'; // (white by day, black at night, gliding between)
     if (hover) {
       const g = cg.createLinearGradient(0, 0, bw, 0), off = (now / 1400) % 1;
       RAINBOW.concat(RAINBOW[0]).forEach((col, i) => g.addColorStop(((i / RAINBOW.length) + off) % 1, col));
