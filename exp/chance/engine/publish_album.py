@@ -296,7 +296,13 @@ def main():
         tracks.append({'n': n, 'title': title.strip(), 'duration': round(secs, 2), 'src': f"tracks/{n:02d}.mp3"})
         print(f"  read {n:02d} {title.strip()[:50]} ({secs / 60:.1f} min)")
 
-    name = album_title([t['title'] for t in tracks], seed)
+    # the albums are a numbered series: 0000, 0001, 0002 ... the next number waits in album_number.txt
+    counter = os.path.join(HERE, 'album_number.txt')
+    try:
+        number = int(open(counter, encoding='utf-8').read().strip() or 0)
+    except (OSError, ValueError):
+        number = 0
+    name = f"{number:04d} " + album_title([t['title'] for t in tracks], seed)
     stamp = re.search(r'album_(\d{4}-\d\d-\d\d)', os.path.basename(album))
     day = datetime.date.fromisoformat(stamp.group(1)) if stamp else datetime.date.today()
     if args.release:                                     # media goes to a release; the site gets only json
@@ -403,11 +409,14 @@ def main():
         'cover': base + "cover.jpg", 'cover_small': base + "cover_small.jpg", 'banner': base + "banner.jpg",
         'downloads': downloads,
         'mood': {k: round(v, 3) for k, v in mood.items()}, 'palette': inks + [paper_hex],
-        'seed': str(seed), 'generated_from': os.path.basename(album),
+        'number': number, 'seed': str(seed), 'generated_from': os.path.basename(album),
         'published': datetime.datetime.now().isoformat(timespec='seconds'),
     }
     with open(os.path.join(args.site, 'album.json'), 'w', encoding='utf-8') as f:
         json.dump(data, f, indent=1, ensure_ascii=False)
+    if args.release:                                     # published for real: the next album gets the next number
+        with open(counter, 'w', encoding='utf-8') as f:
+            f.write(f"{number + 1}\n")
     total = sum(t['bytes'] for t in tracks)
     print(f"'{name}' -- {len(tracks)} tracks, {sum(t['duration'] for t in tracks) / 60:.1f} min, "
           f"{total / 1e6:.1f} MB of MP3; album.json written" + (f"; media on release {tag}" if args.release else ""))
