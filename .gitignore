@@ -3,4 +3,5 @@
 /media/comix2025/compressed
 hearth/node_modules/
 hearth/.wrangler/
+.wrangler/
 hearth/.dev.vars
