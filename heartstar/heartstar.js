@@ -1769,7 +1769,10 @@
   const rainbowHeads = new Map();
   function drawRainbowHead(size) {
     const q = Math.max(6, Math.round(size));
-    let sp = rainbowHeads.get(q);
+    // (kept by size, sharpness and day or night: when the sharpness stepped down on a busy planet, the old pictures
+    // were drawn at twice the size)
+    const key = `${q}|${DPR}|${T === THEMES.night ? 1 : 0}`;
+    let sp = rainbowHeads.get(key);
     if (!sp) {
       if (rainbowHeads.size > 60) rainbowHeads.clear();
       const px = Math.ceil(q * 0.6 * DPR) + 4;
@@ -1783,7 +1786,7 @@
         g.save(); petal(6, g.lineWidth); g.clip(); petal(0); g.fillStyle = RAINBOW[0]; g.fill(); g.stroke(); g.restore();
         g.beginPath(); g.arc(x, y, s * 0.075, 0, TAU); g.fillStyle = '#fff'; g.fill(); g.stroke();
       } finally { c = main; boil = b0; }
-      rainbowHeads.set(q, sp);
+      rainbowHeads.set(key, sp);
     }
     const w = (sp.width / DPR) * (size / q);
     c.drawImage(sp, -w / 2, -w / 2, w, w);
@@ -2146,9 +2149,9 @@
       return s;
     }).filter((s) => s.sz > 0.05).sort((a, b) => a.sy - b.sy); // (top of the screen first, so lower ones overlap them)
 
-    // in a crowd, the ones far from you on the world are little dots of their color, and only those near you are faces
-    // (zoomed in, everyone in view is close enough to be a face)
-    const crowd = list.length > 40 && zoom.v < 2.2 && me && !me.leaving && !params.has('allfaces'); // (?allfaces: everyone a face, to compare)
+    // everyone on the side of the world facing you is a face (the far side is out of sight). (they used to become little
+    // dots in a crowd, to save drawing, but the faces cost almost nothing; ?dots brings the dots back, to compare)
+    const crowd = params.has('dots') && list.length > 40 && zoom.v < 2.2 && me && !me.leaving;
     for (const s of list) s.far = crowd && !s.mine && angle(s.v, me.v) > 0.5;
     const farOnes = list.filter((s) => s.far);
     list = list.filter((s) => !s.far);
