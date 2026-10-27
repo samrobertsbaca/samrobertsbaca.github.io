@@ -5,3 +5,12 @@ hearth/node_modules/
 hearth/.wrangler/
 .wrangler/
 hearth/.dev.vars
+
+# the daily chance album: audio and images live on a GitHub release, never in git
+/exp/chance/tracks/
+/exp/chance/cover.jpg
+/exp/chance/cover_small.jpg
+/exp/chance/banner.jpg
+/exp/chance/engine/radio_cache/
+/exp/chance/engine/album_*/
+/exp/chance/engine/__pycache__/

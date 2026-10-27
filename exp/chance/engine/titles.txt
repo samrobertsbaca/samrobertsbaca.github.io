@@ -1,0 +1,12 @@
+BBC 13417.8 WWV a->cd Estonia
+Barrington Hills Chaner 13417.8 Rule 110
+7280.1 a->cda Euope Sohina
+Hír BBC 1413 a->ba
+Playhead Barranquilla New York NY
+91.1 Life Obseure Antigua And Barbuda CeL
+Vermont China Thue-Morse data
+Washington DC Area USA data 7047.5 a->ac
+14080 1/1409 FT8
+7340 beacons 130 BPM
+Morph 24915 Odd-Even Santa Catarina Fata
+14095.6 NSS Barcelona Inverse NAU

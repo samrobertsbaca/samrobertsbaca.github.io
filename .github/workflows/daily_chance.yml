@@ -1,0 +1,72 @@
+name: Daily Chance Album
+# every night: gather the world's radio fresh, make an album by chance, put its audio and
+# cover on a GitHub release, and point scorsby.us/exp/chance/ at it.
+permissions:
+  contents: write
+on:
+  schedule:
+    # 07:00 UTC, with the daily story: midnight in Albuquerque
+    - cron: '0 7 * * *'
+  workflow_dispatch: # run it by hand from the Actions tab
+  push:
+    branches: [main]
+    paths: ['.github/workflows/daily_chance.yml'] # and once whenever this file changes
+
+concurrency:
+  group: daily-chance
+  cancel-in-progress: false
+
+jobs:
+  album:
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install ffmpeg and libraries
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q ffmpeg
+          pip install -q numpy pillow websocket-client
+
+      # about 1000 samples from all four sources (they are thrown away when the job ends).
+      # each shortwave receiver and each open microphone is visited at most once a day; the
+      # station streams make up whatever the others can't give. usually two to three hours.
+      - name: Gather today's radio
+        working-directory: exp/chance/engine
+        timeout-minutes: 250
+        run: python chance_fontana.py --gather 1000 --gather-only --workers 8 || echo "gathering fell short; making do"
+
+      - name: Make the album
+        working-directory: exp/chance/engine
+        run: |
+          N=$((5 + RANDOM % 5))
+          echo "today: $N songs"
+          python chance_fontana.py -n "$N" -o "$RUNNER_TEMP/albums"
+
+      - name: Publish it to a release
+        working-directory: exp/chance/engine
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python publish_album.py --albums "$RUNNER_TEMP/albums" --release
+
+      - name: Commit album.json
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add exp/chance/album.json exp/chance/engine/titles.txt
+          git commit -m "Daily chance album" || echo "No changes to commit"
+          git pull --rebase
+          git push
+
+      - name: Let go of older albums
+        working-directory: exp/chance/engine
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python publish_album.py --prune --keep 2
