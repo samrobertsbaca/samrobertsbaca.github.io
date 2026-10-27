@@ -2637,11 +2637,11 @@
     const k = cloudsK * skyFade();
     if (k < 0.01 || !VW) return;
     if (!cloudLayers) cloudLayers = [
-      { tex: cloudTexture(3.1, 0.55), tint: document.createElement('canvas'), y: 0.06, h: 0.42, v: 0.0035, a: 0.55 }, // far, high, slow
-      { tex: cloudTexture(7.7, 0.58), tint: document.createElement('canvas'), y: 0.5, h: 0.42, v: 0.006, a: 0.8 }, // nearer, lower
+      { tex: cloudTexture(3.1, 0.55), tint: document.createElement('canvas'), y: 0.06, h: 0.42, v: 0.0035, a: 0.7 }, // far, high, slow
+      { tex: cloudTexture(7.7, 0.58), tint: document.createElement('canvas'), y: 0.5, h: 0.42, v: 0.006, a: 0.95 }, // nearer, lower
     ];
     // white, with a little of the color low in the sky (peach at sunrise, gold at sunset)
-    const fill = skyPair ? labMix('#ffffff', skyPair[1], 0.3, 0) : '#ffffff';
+    const fill = skyPair ? labMix('#ffffff', skyPair[1], 0.4, 0) : '#ffffff';
     if (fill !== cloudTint && now - cloudTintAt > 1500) {
       cloudTint = fill; cloudTintAt = now;
       for (const L of cloudLayers) {
@@ -2650,7 +2650,8 @@
         g.globalCompositeOperation = 'source-in'; g.fillStyle = fill; g.fillRect(0, 0, CLOUD_W, CLOUD_H);
       }
     }
-    c.save(); c.imageSmoothingEnabled = true;
+    // blended like light, so a cloud only ever brightens the sky behind it (laid on top, warm skies went dusty)
+    c.save(); c.imageSmoothingEnabled = true; c.globalCompositeOperation = 'screen';
     for (const L of cloudLayers) {
       const w = VW * 1.6, h = VH * L.h, y = VH * L.y, off = ((now / 1000) * L.v * w) % w;
       c.globalAlpha = k * L.a;
