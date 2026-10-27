@@ -1034,7 +1034,7 @@
     const withYou = me && me.sing > 0.08;
     const singers = withYou ? [...everyone()].filter((s) => s.sing > 0.08 && s.freq) : [];
     const amp = singers.length ? singers.reduce((a, s) => a + s.sing, 0) / singers.length : 0;
-    pf.sing += ((singers.length ? Math.min(1, amp * 1.3) : 0) * awake(performance.now()) - pf.sing) * 0.15; // (the sleeping world doesn't sing along)
+    pf.sing += (Math.max((singers.length ? Math.min(1, amp * 1.3) : 0), turcaAmp) * awake(performance.now()) - pf.sing) * 0.15; // (the sleeping world doesn't sing along)
     if (singers.length >= 2) {
       const f = Math.exp(singers.reduce((a, s) => a + Math.log(s.freq), 0) / singers.length);
       voices.sing('world', f, Math.min(1, amp) * 0.8, CX);
@@ -4100,6 +4100,41 @@
     },
   };
 
+  // now and then, very rarely, the world hums a little mozart: the opening of the rondo alla turca, in its own voice
+  // (each note given as a name and a length in sixteenths; null is a rest)
+  const TURCA = [
+    ['B4', 1], ['A4', 1], ['G#4', 1], ['A4', 1],
+    ['C5', 2], [null, 2], ['D5', 1], ['C5', 1], ['B4', 1], ['C5', 1],
+    ['E5', 2], [null, 2], ['F5', 1], ['E5', 1], ['D#5', 1], ['E5', 1],
+    ['B5', 1], ['A5', 1], ['G#5', 1], ['A5', 1], ['B5', 1], ['A5', 1], ['G#5', 1], ['A5', 1],
+    ['C6', 4], ['A5', 2], ['C6', 2],
+    ['B5', 2], ['A5', 2], ['G5', 2], ['A5', 2],
+    ['B5', 2], ['A5', 2], ['G5', 2], ['A5', 2],
+    ['B5', 2], ['A5', 2], ['G5', 2], ['F#5', 2],
+    ['E5', 4],
+  ];
+  const NOTE = { C: -9, D: -7, E: -5, F: -4, G: -2, A: 0, B: 2 };
+  const hz = (n) => { const m = n.match(/^([A-G])(#?)(\d)$/); return 440 * 2 ** ((NOTE[m[1]] + (m[2] ? 1 : 0) + (+m[3] - 4) * 12) / 12); };
+  let turcaAmp = 0, turcaAt = -1e9, turcaOn = false;
+  function turca() {
+    if (turcaOn || !soundOn) return false;
+    turcaOn = true; turcaAt = performance.now(); earPerk = turcaAt + 1400;
+    const SIX = 140; // ms in a sixteenth
+    let t = 0;
+    for (const [n, len] of TURCA) {
+      const at = t, f = n && hz(n) / 2; // (an octave down: a hum, not a piccolo)
+      t += len * SIX;
+      if (!f) { setTimeout(() => { turcaAmp = 0.15; }, at); continue; }
+      setTimeout(() => { voices.sing('turca', f, 0.7, CX, 0.008); turcaAmp = 0.8; }, at);
+      setTimeout(() => { voices.sing('turca', f, 0.2, CX, 0.008); turcaAmp = 0.35; }, at + len * SIX * 0.72); // (a little lift between notes, like the piano)
+    }
+    setTimeout(() => { voices.hush('turca'); turcaAmp = 0; turcaOn = false; }, t + 200);
+    return true;
+  }
+  // about once in a long visit, and never more often than every quarter of an hour
+  setInterval(() => {
+    if (intro.woke && soundOn && !calmMood && !omen && !hum.at && performance.now() - turcaAt > 15 * 60e3 && Math.random() < 0.03) turca();
+  }, 60e3);
   const voices = (() => {
     const map = new Map();
     function voice(id) {
@@ -4420,6 +4455,6 @@
   if (n > 0) dream(Math.min(n, params.has('debug') ? 400 : 40)); // (up to 400, the hearth's limit, for testing a crowd)
   if (params.get('omen')) setTimeout(() => startOmen(params.get('omen')), 1500);
   if (params.get('mood')) setTimeout(() => setMood(params.get('mood'), 30000), Math.max(1500, intro.ui - performance.now() + 500)); // ?mood=worm to see one face for 30s
-  if (params.has('debug')) window.heartstar = { get gardenN() { return gardenN; }, set gardenN(v) { gardenN = v; }, pointHearts, get quality() { return quality; }, set quality(q) { quality = q; resize(); }, get frameAvg() { return frameAvg; }, get visible() { return visible; }, get ac() { return ac; }, get master() { return master; }, get soundOn() { return soundOn; }, mic, pitch, hit, tap, planted, bursts, pf, pull, hitPart, sunAt, view, moon, peers, get me() { return me; }, faceToward, startOmen, setMood, zoom, loveBurst, MOODS, waves, sky, tilt };
+  if (params.has('debug')) window.heartstar = { get gardenN() { return gardenN; }, set gardenN(v) { gardenN = v; }, pointHearts, get quality() { return quality; }, set quality(q) { quality = q; resize(); }, get frameAvg() { return frameAvg; }, get visible() { return visible; }, get ac() { return ac; }, get master() { return master; }, get soundOn() { return soundOn; }, mic, pitch, hit, tap, planted, bursts, pf, pull, hitPart, sunAt, view, moon, peers, get me() { return me; }, faceToward, startOmen, setMood, zoom, loveBurst, MOODS, waves, sky, tilt, turca };
   requestAnimationFrame(frame);
 })();
