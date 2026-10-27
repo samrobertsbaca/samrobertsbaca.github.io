@@ -45,8 +45,9 @@ jobs:
 
       - name: Make the album
         working-directory: exp/chance/engine
+        # mostly 5-7 songs; now and then more, up to 12 (about once a month)
         run: |
-          N=$((5 + RANDOM % 5))
+          N=$(python -c "import random; print(random.choices(range(5, 13), weights=[26, 28, 24, 9, 5, 3, 2, 3])[0])")
           echo "today: $N songs"
           python chance_fontana.py -n "$N" -o "$RUNNER_TEMP/albums"
 
