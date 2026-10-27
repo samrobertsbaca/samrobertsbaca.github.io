@@ -2632,7 +2632,9 @@
   }
   let cloudLayers = null, cloudsK = 0, cloudTint = '', cloudTintAt = 0;
   const cloudBuf = document.createElement('canvas'), cloudC = cloudBuf.getContext('2d');
+  const CLOUDS = false; // (shelved for now: far out, their soft side edges snapped in as they faded)
   function renderClouds(now, dt) {
+    if (!CLOUDS) return;
     const want = CARD ? 0 : T === THEMES.night ? 0.2 : 1; // (at night they're still there, faintly)
     cloudsK += (want - cloudsK) * Math.min(1, dt / 2500);
     // they grow and shrink with the zoom, about the middle of the screen, as if they were part of the world's sky:
