@@ -1,0 +1,7 @@
+User-agent: *
+Disallow: /blog/archive/
+Disallow: /blog/old/
+Disallow: /old_site/
+Disallow: /archive/
+
+Sitemap: https://scorsby.us/sitemap.xml
