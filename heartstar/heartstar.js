@@ -108,13 +108,14 @@
   }
   // how light a color is, 0 to 1
   const lightness = (hx) => { const [r, g, b] = [0, 2, 4].map((i) => (parseInt(hx.substr(1 + i, 2), 16) / 255) ** 2.2); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
+  const hourNow = () => { const d = new Date(); return params.has('hour') ? +params.get('hour') : d.getHours() + d.getMinutes() / 60 + d.getSeconds() / 3600; };
+  const darkSky = (pair) => lightness(mixHex(pair[0], pair[1], 0.5)) < 0.16;
   function skyClock(now) {
     if (!skyClockOn) return;
-    const d = new Date(), h = params.has('hour') ? +params.get('hour') : d.getHours() + d.getMinutes() / 60 + d.getSeconds() / 3600;
-    skyPair = skyAt(h);
+    skyPair = skyAt(hourNow());
     // when the sky has grown dark enough that white words read better than dark ones, the world takes on its night
     // look (and in the morning gives it back). that one change is a slow crossfade, never a cut.
-    const night = lightness(mixHex(skyPair[0], skyPair[1], 0.5)) < 0.16;
+    const night = darkSky(skyPair);
     if ((T === THEMES.night) !== night) fadeTo(night ? 'night' : 'day', now);
   }
   // the world changes to its day or night look under a slow crossfade (not at the start of a visit: then it simply
@@ -127,11 +128,13 @@
     }
     setTheme(want);
   }
-  // tapping sunsby or moonsby is a light switch, for the rest of the visit: the sky of midday, or of the middle of
-  // the night, all at once
+  // tapping sunsby or moonsby is a light switch: the sky of midday, or of the middle of the night, all at once. switching
+  // back to whichever it really is right now hands the sky back to the clock.
   function chooseSky(want) {
-    skyClockOn = false; themeFade = null;
-    skyPair = want === 'night' ? SKY[0].slice(1) : skyAt(12);
+    themeFade = null;
+    const real = skyAt(hourNow());
+    skyClockOn = (want === 'night') === darkSky(real);
+    skyPair = skyClockOn ? real : want === 'night' ? SKY[0].slice(1) : skyAt(12);
     document.body.classList.add('switched'); // (the words and buttons change at once too)
     setTheme(want);
     requestAnimationFrame(() => requestAnimationFrame(() => document.body.classList.remove('switched')));
