@@ -91,6 +91,10 @@
     }
     return SKY[SKY.length - 1].slice(1);
   }
+  // gold, and a way to get there from any sky without passing through green (blue and gold mixed straight together make
+  // green): the sky first brightens to a warm cream, as if sunlight were washing over it, and then deepens into gold
+  const GOLD_SKY = ['#ffb21f', '#ffe39a'], CREAM = '#fff4dc';
+  const warmMix = (a, b, t) => (t < 0.5 ? mixHex(a, CREAM, t * 2) : mixHex(CREAM, b, (t - 0.5) * 2));
   // how light a color is, 0 to 1
   const lightness = (hx) => { const [r, g, b] = [0, 2, 4].map((i) => (parseInt(hx.substr(1 + i, 2), 16) / 255) ** 2.2); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
   function skyClock(now) {
@@ -1433,9 +1437,13 @@
     // white paper. colors bloom only when something happens.
     c.globalCompositeOperation = 'source-over';
     skyClock(now);
+    // when sunsby is tapped, or it rains gold, the sky itself turns gold for a while
+    const flashK = goldFlash > now ? Math.sin(((goldFlash - now) / 2200) * Math.PI) ** 0.6 : 0;
+    const goldK = Math.max(flashK * 0.85, env(omenP('goldrain', now)) * (T === THEMES.night ? 0.5 : 0.75));
     if (skyPair) {
       // the sky as a gradient. it stands in for the paper everywhere, so the little cut-out things in the sky match it
-      const g = c.createLinearGradient(0, 0, 0, VH); g.addColorStop(0, skyPair[0]); g.addColorStop(1, skyPair[1]); T.paper = g;
+      const pair = goldK > 0.005 ? skyPair.map((col, i) => warmMix(col, GOLD_SKY[i], goldK)) : skyPair;
+      const g = c.createLinearGradient(0, 0, 0, VH); g.addColorStop(0, pair[0]); g.addColorStop(1, pair[1]); T.paper = g;
     }
     c.fillStyle = T.paper; c.fillRect(0, 0, VW, VH);
     const bloom = Math.max(storm, smooth(0, 1, (loveWash - now) / 1500), env(omenP('goldrain', now)) * 0.5, env(omenP('heartstar', now)) * 0.6, hum.magic * (0.6 + 0.4 * hum.prog));
@@ -1476,14 +1484,13 @@
     if (T === THEMES.night) renderStars(now, dt);
     faded(() => renderSky(now, dt));
     const goldSky = env(omenP('goldrain', now));
-    if (goldSky > 0.01) {
-      // when it rains gold, the whole sky behind the world turns gold too
+    if (!skyPair && goldSky > 0.01) {
+      // (the plain white sky of the share card turns gold the old way)
       c.save(); c.globalCompositeOperation = T === THEMES.night ? 'source-over' : 'multiply';
       c.globalAlpha = (T === THEMES.night ? 0.32 : 0.5) * goldSky;
       c.fillStyle = '#ffc93c'; c.fillRect(0, 0, VW, VH); c.restore();
     }
-    if (goldFlash > now) {
-      // tap sunsby: the sky behind the world flashes gold (the world itself turns gold for a moment)
+    if (!skyPair && goldFlash > now) {
       const k = (goldFlash - now) / 2200;
       c.save(); c.globalCompositeOperation = 'multiply'; c.globalAlpha = 0.55 * Math.sin(k * Math.PI) ** 0.6;
       c.fillStyle = '#ffc93c'; c.fillRect(0, 0, VW, VH); c.restore();
@@ -1590,7 +1597,8 @@
     worldGlows = glows.filter(([, col]) => col !== worldCol);
   }
   let worldGlows = null, worldRain = 0, handCount = 0;
-  const ocean = () => pf.cur.gold < 0.01 ? worldCol : mixColor(worldCol, '#ffc93c', pf.cur.gold);
+  // the world turning gold goes by way of a warm cream (blue mixed straight into gold passes through green)
+  const ocean = () => { const g = pf.cur.gold; return g < 0.01 ? worldCol : g < 0.5 ? mixColor(worldCol, '#fff0cc', g * 2) : mixColor('#fff0cc', '#ffc93c', (g - 0.5) * 2); };
   // each scorsby's colour, glowing on the world around them
   const glowBuf = document.createElement('canvas'), glowC = glowBuf.getContext('2d');
   function renderGlows(now) {
