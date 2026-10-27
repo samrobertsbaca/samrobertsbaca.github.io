@@ -99,9 +99,9 @@
     const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b), m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b), q = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
     return [0.2104542553 * l + 0.793617785 * m - 0.0040720468 * q, 1.9779984951 * l - 2.428592205 * m + 0.4505937099 * q, 0.0259040371 * l + 0.7827717662 * m - 0.808675766 * q];
   };
-  function labMix(a, b, t) {
+  function labMix(a, b, t, warm = 0.035) {
     const x = toLab(a), y = toLab(b), [L, A0, B] = x.map((v, i) => v + (y[i] - v) * t);
-    const A = A0 + 0.035 * Math.sin(Math.PI * t); // (a touch warmer in the middle, so even the in-between never leans green)
+    const A = A0 + warm * Math.sin(Math.PI * t); // (a touch warmer in the middle, so even the in-between never leans green)
     const l = (L + 0.3963377774 * A + 0.2158037573 * B) ** 3, m = (L - 0.1055613458 * A - 0.0638541728 * B) ** 3, q = (L - 0.0894841775 * A - 1.291485548 * B) ** 3;
     const rgb = [4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * q, -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * q, -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * q];
     return `rgb(${rgb.map((v) => Math.round(255 * clamp(v <= 0.0031308 ? 12.92 * v : 1.055 * v ** (1 / 2.4) - 0.055, 0, 1))).join(',')})`;
@@ -2602,42 +2602,59 @@
     }
   }
 
-  // clouds drift slowly across the daytime sky, far behind the world: puffy on top, flat underneath, drawn like
-  // everything else. they thin away as night comes, and come back with the day.
-  const clouds = [];
-  let cloudsK = 0;
+  // clouds drift slowly across the daytime sky, far behind the world: soft and made of noise, the way shader clouds are
+  // (several layers of smooth randomness, added together, and only the thickest parts kept), stretched along the horizon
+  // so they lie in loose bands. two layers, the nearer one a little faster. they catch the color low in the sky at
+  // sunrise and sunset, and thin away as night comes.
+  const CLOUD_W = 384, CLOUD_H = 160;
+  function cloudTexture(seed, cover) {
+    // value noise that wraps around left to right, so the sky can scroll forever without a seam
+    const rnd = (x, y, o) => { const h = Math.sin(x * 127.1 + y * 311.7 + o * 74.7 + seed * 19.3) * 43758.5453; return h - Math.floor(h); };
+    const noise = (x, y, period, o) => {
+      const x0 = Math.floor(x), y0 = Math.floor(y), fx = x - x0, fy = y - y0, sx = fx * fx * (3 - 2 * fx), sy = fy * fy * (3 - 2 * fy);
+      const at = (i, j) => rnd(((i % period) + period) % period, j, o);
+      const a = at(x0, y0), b = at(x0 + 1, y0), c2 = at(x0, y0 + 1), d = at(x0 + 1, y0 + 1);
+      return a + (b - a) * sx + (c2 - a) * sy + (a - b - c2 + d) * sx * sy;
+    };
+    const cv2 = document.createElement('canvas'); cv2.width = CLOUD_W; cv2.height = CLOUD_H;
+    const g2 = cv2.getContext('2d'), img = g2.createImageData(CLOUD_W, CLOUD_H);
+    for (let y = 0; y < CLOUD_H; y++) for (let x = 0; x < CLOUD_W; x++) {
+      let n = 0, amp = 0.5, f = 1, tot = 0;
+      for (let o = 0; o < 5; o++) { const per = 6 * f; n += amp * noise((x / CLOUD_W) * per, (y / CLOUD_H) * 2.5 * f, per, o); tot += amp; amp *= 0.5; f *= 2; }
+      n /= tot;
+      const edge = Math.min(y, CLOUD_H - 1 - y) / (CLOUD_H * 0.22); // (soft top and bottom edges to each band)
+      const a = clamp((n - cover) / 0.16, 0, 1) * clamp(edge, 0, 1);
+      const k = (y * CLOUD_W + x) * 4;
+      img.data[k] = img.data[k + 1] = img.data[k + 2] = 255; img.data[k + 3] = Math.round(255 * a * a * (3 - 2 * a));
+    }
+    g2.putImageData(img, 0, 0);
+    return cv2;
+  }
+  let cloudLayers = null, cloudsK = 0, cloudTint = '', cloudTintAt = 0;
   function renderClouds(now, dt) {
     const want = T === THEMES.night || CARD ? 0 : 1;
     cloudsK += (want - cloudsK) * Math.min(1, dt / 2500);
     const k = cloudsK * skyFade();
     if (k < 0.01 || !VW) return;
-    while (clouds.length < (small ? 4 : 6)) {
-      const first = !clouds.length || clouds.length < (small ? 4 : 6) && !clouds.started;
-      clouds.push({ x: first ? rand(-0.1, 1.1) : -0.25, y: rand(0.1, 0.78), s: rand(0.75, 1.35), v: rand(0.004, 0.009), seed: rand(0, 99), n: 3 + ((Math.random() * 3) | 0) });
-    }
-    clouds.started = true;
-    const unit = Math.min(VW, VH) * (small ? 0.11 : 0.085);
-    const cloudFill = skyPair ? labMix('#ffffff', skyPair[1], 0.3) : '#ffffff'; // (they catch the color low in the sky: peach at sunrise, gold at sunset)
-    c.save(); c.globalAlpha = k;
-    for (let i = clouds.length - 1; i >= 0; i--) {
-      const cl = clouds[i];
-      cl.x += cl.v * dt / 1000 * (VH / VW); // (about the same speed on a phone as on a big screen)
-      const w = unit * cl.s * (1.3 + cl.n * 0.45), cx = cl.x * (VW + w * 2) - w, cy = cl.y * VH;
-      if (cl.x > 1.25) { clouds.splice(i, 1); continue; }
-      // bumps along the top, a flat bottom; outlined all together, then filled, so only the outside edge shows
-      const h = unit * cl.s * 0.55, bumps = [];
-      for (let b = 0; b < cl.n; b++) {
-        const t = cl.n === 1 ? 0.5 : b / (cl.n - 1), r = unit * cl.s * (0.38 + 0.22 * Math.sin(Math.PI * t) + 0.05 * Math.sin(cl.seed + b * 2.3));
-        bumps.push([cx - w / 2 + r + t * (w - 2 * r), cy - r * 0.35, r]);
+    if (!cloudLayers) cloudLayers = [
+      { tex: cloudTexture(3.1, 0.55), tint: document.createElement('canvas'), y: 0.06, h: 0.42, v: 0.0035, a: 0.55 }, // far, high, slow
+      { tex: cloudTexture(7.7, 0.58), tint: document.createElement('canvas'), y: 0.5, h: 0.42, v: 0.006, a: 0.8 }, // nearer, lower
+    ];
+    // white, with a little of the color low in the sky (peach at sunrise, gold at sunset)
+    const fill = skyPair ? labMix('#ffffff', skyPair[1], 0.3, 0) : '#ffffff';
+    if (fill !== cloudTint && now - cloudTintAt > 1500) {
+      cloudTint = fill; cloudTintAt = now;
+      for (const L of cloudLayers) {
+        L.tint.width = CLOUD_W; L.tint.height = CLOUD_H; const g = L.tint.getContext('2d');
+        g.globalCompositeOperation = 'source-over'; g.drawImage(L.tex, 0, 0);
+        g.globalCompositeOperation = 'source-in'; g.fillStyle = fill; g.fillRect(0, 0, CLOUD_W, CLOUD_H);
       }
-      const shape = (grow) => {
-        c.beginPath();
-        c.roundRect ? c.roundRect(cx - w / 2 - grow, cy - grow, w + grow * 2, h + grow * 2, h / 2 + grow) : c.rect(cx - w / 2 - grow, cy - grow, w + grow * 2, h + grow * 2);
-        for (const [bx, by, r] of bumps) { c.moveTo(bx + r + grow, by); c.arc(bx, by, r + grow, 0, TAU); }
-      };
-      const line = Math.max(1.5, unit * 0.035);
-      shape(line); c.fillStyle = ink(0.55); c.fill('nonzero');
-      shape(0); c.fillStyle = cloudFill; c.fill('nonzero');
+    }
+    c.save(); c.imageSmoothingEnabled = true;
+    for (const L of cloudLayers) {
+      const w = VW * 1.6, h = VH * L.h, y = VH * L.y, off = ((now / 1000) * L.v * w) % w;
+      c.globalAlpha = k * L.a;
+      for (let x = -off; x < VW; x += w) c.drawImage(L.tint, x, y, w, h);
     }
     c.restore();
   }
