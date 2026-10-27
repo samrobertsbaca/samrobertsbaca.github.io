@@ -1497,6 +1497,7 @@
       c.restore();
     }
 
+    faded(() => renderClouds(now, dt)); // (by day, clouds drift by behind everything)
     if (T === THEMES.night) renderStars(now, dt);
     faded(() => renderSky(now, dt));
     const goldSky = env(omenP('goldrain', now));
@@ -2599,6 +2600,46 @@
       for (let j = 0; j < 10; j++) { const t = j / 10 * TAU - Math.PI / 2, rr = j % 2 ? s * 0.45 : s; j ? c.lineTo(x + Math.cos(t) * rr, y + Math.sin(t) * rr) : c.moveTo(x + Math.cos(t) * rr, y + Math.sin(t) * rr); }
       c.closePath(); c.fillStyle = '#ffd23f'; c.fill(); c.lineWidth = Math.max(1.2, R * 0.012); c.strokeStyle = DARK; c.lineJoin = 'round'; c.stroke();
     }
+  }
+
+  // clouds drift slowly across the daytime sky, far behind the world: puffy on top, flat underneath, drawn like
+  // everything else. they thin away as night comes, and come back with the day.
+  const clouds = [];
+  let cloudsK = 0;
+  function renderClouds(now, dt) {
+    const want = T === THEMES.night || CARD ? 0 : 1;
+    cloudsK += (want - cloudsK) * Math.min(1, dt / 2500);
+    const k = cloudsK * skyFade();
+    if (k < 0.01 || !VW) return;
+    while (clouds.length < (small ? 4 : 6)) {
+      const first = !clouds.length || clouds.length < (small ? 4 : 6) && !clouds.started;
+      clouds.push({ x: first ? rand(-0.1, 1.1) : -0.25, y: rand(0.1, 0.78), s: rand(0.75, 1.35), v: rand(0.004, 0.009), seed: rand(0, 99), n: 3 + ((Math.random() * 3) | 0) });
+    }
+    clouds.started = true;
+    const unit = Math.min(VW, VH) * (small ? 0.11 : 0.085);
+    const cloudFill = skyPair ? labMix('#ffffff', skyPair[1], 0.3) : '#ffffff'; // (they catch the color low in the sky: peach at sunrise, gold at sunset)
+    c.save(); c.globalAlpha = k;
+    for (let i = clouds.length - 1; i >= 0; i--) {
+      const cl = clouds[i];
+      cl.x += cl.v * dt / 1000 * (VH / VW); // (about the same speed on a phone as on a big screen)
+      const w = unit * cl.s * (1.3 + cl.n * 0.45), cx = cl.x * (VW + w * 2) - w, cy = cl.y * VH;
+      if (cl.x > 1.25) { clouds.splice(i, 1); continue; }
+      // bumps along the top, a flat bottom; outlined all together, then filled, so only the outside edge shows
+      const h = unit * cl.s * 0.55, bumps = [];
+      for (let b = 0; b < cl.n; b++) {
+        const t = cl.n === 1 ? 0.5 : b / (cl.n - 1), r = unit * cl.s * (0.38 + 0.22 * Math.sin(Math.PI * t) + 0.05 * Math.sin(cl.seed + b * 2.3));
+        bumps.push([cx - w / 2 + r + t * (w - 2 * r), cy - r * 0.35, r]);
+      }
+      const shape = (grow) => {
+        c.beginPath();
+        c.roundRect ? c.roundRect(cx - w / 2 - grow, cy - grow, w + grow * 2, h + grow * 2, h / 2 + grow) : c.rect(cx - w / 2 - grow, cy - grow, w + grow * 2, h + grow * 2);
+        for (const [bx, by, r] of bumps) { c.moveTo(bx + r + grow, by); c.arc(bx, by, r + grow, 0, TAU); }
+      };
+      const line = Math.max(1.5, unit * 0.035);
+      shape(line); c.fillStyle = ink(0.55); c.fill('nonzero');
+      shape(0); c.fillStyle = cloudFill; c.fill('nonzero');
+    }
+    c.restore();
   }
 
   function renderRisingHeart(now) {
