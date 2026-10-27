@@ -180,8 +180,9 @@ startTwitterEffect();
 
 
 
-// 1. Setup the Markdown Renderer
-const renderer = new marked.Renderer();
+// 1. Setup the Markdown Renderer (only on the pages that load marked: elsewhere this used to stop the rest of the
+// script from running)
+const renderer = window.marked ? new marked.Renderer() : {};
 
 // In modern Marked, the first argument is an object!
 // We destructure it to get 'text'
@@ -221,8 +222,8 @@ async function loadScorsbyJournal(filePath,div_tag) {
 
   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
   if (isMobile) return;
-  // peace, love and joy (and every post on peace) are plain white
-  if (/^\/(blog|works|about)(\.html)?$|^\/blog\//.test(location.pathname)) return;
+  // peace, love and joy (and every post on peace), contact, the old home page and the 404 are plain white
+  if (/^\/(blog|works|about|contact|home_org|404)(\.html)?$|^\/blog\//.test(location.pathname) || document.title === '404sby') return;
 
   const P5_CDN = "https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js";
 
