@@ -1044,7 +1044,9 @@
     // however many are singing
     let chorus = me && me.sing > 0.08 ? 1 : 0;
     if (!(calmMood && !hum.at)) for (const s of peers.values()) if (s.singTarget > 0 && now - s.lastSing < 600 && ++chorus >= 3) break;
-    if (chorus >= 3 && now > (pf.nextRing || 0)) { pf.rings.push({ born: now }); pf.nextRing = now + 650; }
+    // (not while it sleeps: before it wakes, or dozing with its eyes closed, except when its eyes are closed to sing a ritual)
+    const dozing = awake(performance.now()) < 1 || (pf.mood === 'sleepy' && !hum.at);
+    if (chorus >= 3 && !dozing && now > (pf.nextRing || 0)) { pf.rings.push({ born: now }); pf.nextRing = now + 650; }
   }
 
   // meltdown: the face's own pixels run downward. it is drawn off-screen, then copied back in thin
@@ -2106,6 +2108,7 @@
   // contagious hearts: a ring of hearts rolls out over the world; every scorsby it touches starts its own
   function renderHearts(now) {
     if (calmMood) hearts.length = 0; // no hearts flying between people while the world breathes or sings
+    if (performance.now() < intro.wake) { hearts.length = 0; return; } // (nor while it's still asleep)
     for (let i = hearts.length - 1; i >= 0; i--) {
       const h = hearts[i];
       const r = ((now - h.born) / 1000) * (h.gen ? 0.45 : 0.55);
