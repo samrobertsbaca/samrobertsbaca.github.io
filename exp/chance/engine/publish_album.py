@@ -250,6 +250,9 @@ def main():
     ap.add_argument('--repo', default=REPO, help='owner/name of the repository for --release')
     ap.add_argument('--prune', action='store_true', help='only delete older chance-* releases, keeping --keep')
     ap.add_argument('--keep', type=int, default=2, help='with --prune: how many recent releases to keep')
+    ap.add_argument('--radio-dir', default=os.path.join(HERE, 'radio_cache') if os.path.basename(HERE) == 'engine'
+                    else None, help="the day's gathered clips, counted for the credits (default: the engine's own "
+                                    "radio_cache, which holds only that day's gathering)")
     args = ap.parse_args()
     global SITE_ROOT
     SITE_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(args.site)))
@@ -364,14 +367,29 @@ def main():
         shutil.rmtree(media, ignore_errors=True)         # uploaded: the local copies can go
 
     heard = heard_on(scores)
+    gathered = len(glob.glob(os.path.join(args.radio_dir, '*.wav'))) if args.radio_dir else 0
+    listened = f"gathering {gathered:,} moments of radio" if gathered else "gathering moments of radio"
     credits = [f"released {day.strftime('%B')} {day.day}, {day.year}", "",
                f"questions by {ASKER}", "",
-               "made by chance with chance_data.py, chance_fontana.py and publish_album.py: every sound began as data, "
-               "or as radio somewhere on Earth, tuned by chance"]
+               f"How it was made: in the hours before this album, {ARTIST} listened to the world, {listened}: "
+               "shortwave from receivers around the world, FM and internet stations, open microphones on rooftops, "
+               "in gardens and in canals, and old recordings from the Internet Archive. It kept only what had "
+               "something in it. Then it threw the dice: which sounds belong together, which patterns of data to "
+               "fuse them with (cellular automata, bytebeat formulas, number sequences, sorting algorithms), how long "
+               "each song should be, and where it should go. "
+               + (f"{len(heard):,} of those moments are in these songs. " if heard else "")
+               + "Nothing was chosen by hand. The programs that asked the questions are chance_data.py, "
+               "chance_fontana.py and publish_album.py.", "",
+               "This album is impermanent. The broadcasts it heard are gone. The recordings it gathered were thrown "
+               "away once it was made. Tomorrow it will be replaced by another, which will never be heard again "
+               "either. It exists for a day. Listen while it's here."]
+    sources = []
     if any('live microphone' in h for h in heard):
-        credits.append("open microphones: Locus Sonus Locustream (locusonus.org)")
+        sources.append("open microphones: Locus Sonus Locustream (locusonus.org)")
     if any(re.search(r'\barchive\b', h) for h in heard):
-        credits.append("archive recordings: the Internet Archive (archive.org), openly licensed collections")
+        sources.append("archive recordings: the Internet Archive (archive.org), openly licensed collections")
+    if sources:
+        credits += [""] + sources
     data = {
         'title': name, 'artist': ARTIST, 'released': day.isoformat(),
         'about': QUOTE, 'about_by': "John Cage",
