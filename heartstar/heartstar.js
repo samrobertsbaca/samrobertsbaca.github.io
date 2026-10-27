@@ -3991,11 +3991,17 @@
     dryG.gain.setTargetAtTime(vol * (1 - 0.7 * far), ac.currentTime, 0.15);
     wetG.gain.setTargetAtTime(Math.sqrt(vol) * far * 1.1, ac.currentTime, 0.15);
   }
+  const ANDROID = /android/i.test(navigator.userAgent);
+  // how loud the world plays: on android, while the microphone is open the phone is in quieter call audio, so louder
+  function soundLevel() {
+    if (!soundGain) return;
+    soundGain.gain.setTargetAtTime(soundOn ? (ANDROID && mic.on ? 2.6 : 1) : 0, ac.currentTime, 0.3);
+  }
   const soundBtn = document.getElementById('act-sound');
   function setSound(on) {
     soundOn = on;
     audio();
-    soundGain.gain.setTargetAtTime(on ? 1 : 0, ac.currentTime, 0.3);
+    soundLevel();
     soundBtn.setAttribute('aria-pressed', on);
     document.body.classList.toggle('sound-on', on);
     // words on a computer; on a phone, just a little speaker (with waves when it's on), so the buttons fit on one row
@@ -4190,15 +4196,15 @@
   async function openVoice(quiet = false) {
     try {
       audio();
-      // the noise filter treats a long held note as noise and fades it out, so it stays off. on android, echo
-      // cancellation and gain control put the whole phone into phone-call audio, much quieter, so there they're off too
-      const android = /android/i.test(navigator.userAgent);
-      mic.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: !android, noiseSuppression: false, autoGainControl: !android } });
+      // the noise filter treats a long held note as noise and fades it out, so it stays off. echo cancellation stays on:
+      // without it the microphone hears the world's own singing through the speaker and sings along with itself forever.
+      // (on android it also puts the phone into quieter phone-call audio, so there the world plays louder while you sing)
+      mic.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: false, autoGainControl: true } });
       const src = ac.createMediaStreamSource(mic.stream);
       mic.analyser = ac.createAnalyser(); mic.analyser.fftSize = 2048;
       mic.buf = new Float32Array(mic.analyser.fftSize);
       src.connect(mic.analyser); // to the analyser only. it is never played or sent.
-      mic.on = true;
+      mic.on = true; soundLevel();
       singBtn.setAttribute('aria-pressed', 'true'); singBtn.textContent = 'singing';
       if (!soundOn) setSound(true);
       if (!quiet) whisper('sing anything. everyone hears you as a scorsby.', 4000);
@@ -4210,7 +4216,7 @@
   }
   function stopSinging() {
     mic.stream?.getTracks().forEach((t) => t.stop());
-    mic.on = false; mic.stream = null;
+    mic.on = false; mic.stream = null; soundLevel();
     singBtn.setAttribute('aria-pressed', 'false'); singBtn.textContent = 'sing';
     if (me) me.singTarget = 0;
     send({ t: 'hush' });
