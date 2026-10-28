@@ -230,6 +230,15 @@ def album_title(track_titles, seed):
     return " ".join(w[:1].upper() + w[1:] for w in pick)
 
 
+def written_score():
+    """the whole series as a score anyone can read, in the manner of Cage's instructions."""
+    return ("Each day, at an hour chosen by chance: listen to 365 moments of the world's radio. Keep what has "
+            "something in it, or, one day in seven, keep everything. Throw the dice to choose which sounds belong "
+            "together and which patterns of data to fuse them with. Make between five and twelve songs. Title "
+            "them with words cut from what was heard. Draw each song as a ring. Publish the album. Delete it the "
+            f"next day. Each day, with a chance of 1 in {LAST_ODDS}, stop forever.")
+
+
 def heard_on(score_texts):
     """the recordings heard on the album, from the scores: every layer that used radio names
     its clip there. a mosaic drawing grains from several clips names them together ("a + b"),
@@ -424,7 +433,8 @@ def main():
                ("This album is impermanent. The broadcasts collected are gone. The recordings it gathered were "
                 "thrown away once it was made. Tomorrow it will be replaced by another, which will never be heard "
                 f"again either. Each day there is a 1 in {LAST_ODDS} chance that it is the last. "
-                "It exists for a day. Listen while it's here.")]
+                "It exists for a day. Listen while it's here."), "",
+               written_score()]
     sources = []
     if any('live microphone' in h for h in heard):
         sources.append("open microphones: Locus Sonus Locustream (locusonus.org)")
@@ -447,6 +457,16 @@ def main():
     }
     with open(os.path.join(args.site, 'album.json'), 'w', encoding='utf-8') as f:
         json.dump(data, f, indent=1, ensure_ascii=False)
+    # the score page: the written score, the album's own record (album.txt) and every song's score
+    tidy = lambda t: re.sub(r'(?:[A-Za-z]:)?[\\/][^\s()]*[\\/](radio_cache|albums?|engine)\b', r'\1', t)
+    song_scores = []
+    for t, path in zip(tracks, wavs):
+        sc = os.path.splitext(path)[0] + '.score.txt'
+        song_scores.append({'n': t['n'], 'title': t['title'],
+                            'score': tidy(open(sc, encoding='utf-8').read()) if os.path.exists(sc) else ''})
+    with open(os.path.join(args.site, 'score.json'), 'w', encoding='utf-8') as f:
+        json.dump({'title': name, 'number': number, 'day': day.isoformat(), 'written': written_score(),
+                   'album_txt': tidy(manifest), 'songs': song_scores}, f, indent=1, ensure_ascii=False)
     if args.release:                                     # published for real: the next album gets the next number
         with open(counter, 'w', encoding='utf-8') as f:
             f.write(f"{number + 1}\n")

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Score | Scorsby Records</title>
+<meta name="description" content="the score of today's album: how it was made, step by step, by chance">
+<link rel="icon" href="../../../scorsbyface.png">
+<style>
+  :root {
+    --page: #B34777;
+    --paper: #FDF9F8;
+    --text: #00B4FF;
+    --link: #EB000E;
+    --nav: #100E0E;
+    --line: rgba(0, 0, 0, 0.12);
+  }
+  * { box-sizing: border-box; }
+  html, body { background: var(--page); }
+  body { margin: 0; color: #000; font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; font-size: 13px; }
+  a { color: var(--link); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  #centerWrapper { width: 975px; max-width: 100%; margin: 0 auto; }
+  #band-navbar { background: var(--nav); height: 38px; display: flex; padding: 0 12px; }
+  #band-navbar a { color: var(--link); font-weight: 700; font-size: 14px; padding: 11px 12px 0; border-top: 3px solid transparent; }
+  #band-navbar a.active { color: var(--text); border-top-color: var(--text); }
+  main { background: var(--paper); color: var(--text); padding: 35px 30px 80px; }
+  .top { display: flex; gap: 24px; align-items: flex-start; margin-bottom: 30px; }
+  .top img { width: 120px; height: 120px; flex: none; cursor: pointer; }
+  h1 { font-size: 28px; font-weight: 400; margin: 0 0 6px; line-height: 1.05; }
+  .sub { font-size: 14px; margin: 0; }
+  .written { font-size: 19px; line-height: 1.5; color: var(--text); max-width: 760px; margin: 0 0 36px; }
+  h2 { font-size: 14px; font-weight: 700; color: var(--text); margin: 34px 0 8px; }
+  .note { font-size: 12px; color: var(--text); margin: 0 0 10px; max-width: 760px; line-height: 1.5; }
+  pre {
+    font: 11.5px/1.5 ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; color: #1a1a1a;
+    background: #fff; border: 1px solid var(--line); padding: 14px 16px; margin: 0;
+    overflow-x: auto; white-space: pre-wrap; word-break: break-word;
+  }
+  details { border-top: 1px solid var(--line); }
+  details:last-of-type { border-bottom: 1px solid var(--line); }
+  summary { cursor: pointer; padding: 9px 2px; font-size: 13px; color: var(--link); list-style-position: outside; }
+  summary .n { color: #000; margin-right: 6px; }
+  details pre { margin-bottom: 14px; }
+  .programs { margin-top: 40px; font-size: 12px; color: var(--text); }
+  .programs a { margin-right: 10px; }
+  .back { margin-top: 14px; font-size: 12px; }
+  footer { text-align: center; color: rgba(255, 255, 255, .8); font-size: 11px; padding: 18px 0 40px; }
+  footer a { color: #fff; }
+  @media (max-width: 700px) {
+    main { padding: 22px 16px 60px; }
+    .top img { width: 80px; height: 80px; }
+    .written { font-size: 17px; }
+  }
+</style>
+</head>
+<body>
+<div id="centerWrapper">
+  <nav id="band-navbar">
+    <a href="../">music</a>
+    <a class="active" href="./">score</a>
+  </nav>
+  <main>
+    <div class="top">
+      <a href="../"><img id="cover" alt="the album's cover"></a>
+      <div>
+        <h1 id="title">the score</h1>
+        <p class="sub" id="sub">by ScorsBT4 &middot; questions by Samuel John Scorsby</p>
+      </div>
+    </div>
+
+    <p class="written" id="written"></p>
+
+    <h2>this album's own record</h2>
+    <p class="note">What the program wrote down as it made this album: its seed, what it was allowed to use, how many
+      clips were on the dial, and the voices in each song.</p>
+    <pre id="albumTxt">&hellip;</pre>
+
+    <h2>each song's score</h2>
+    <p class="note">The full record behind every song: the palette it kept to, the form and arc it followed, and every
+      layer, with the radio it heard, the data it was fused with, and every operation applied, in order.</p>
+    <div id="songs"></div>
+
+    <div class="programs">the programs that realise this score:
+      <a href="../engine/chance_data.py">chance_data.py</a>
+      <a href="../engine/chance_fontana.py">chance_fontana.py</a>
+      <a href="../engine/publish_album.py">publish_album.py</a>
+    </div>
+    <div class="back"><a href="../">&larr; back to the album</a></div>
+  </main>
+  <footer>made by chance &middot; <a href="https://scorsby.us">scorsby.us</a></footer>
+</div>
+<script>
+(function () {
+  const $ = id => document.getElementById(id);
+  fetch('../album.json', { cache: 'no-cache' }).then(r => r.json()).then(a => {
+    $('cover').src = /^https?:/.test(a.cover_small) ? a.cover_small : '../' + a.cover_small;
+    $('sub').textContent = 'by ' + a.artist + ' · questions by Samuel John Scorsby · released ' +
+      new Date(a.released + 'T12:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  }).catch(() => {});
+  fetch('../score.json', { cache: 'no-cache' }).then(r => r.json()).then(s => {
+    document.title = 'The Score: ' + s.title + ' | Scorsby Records';
+    $('title').textContent = 'the score of ' + s.title;
+    $('written').textContent = s.written;
+    $('albumTxt').textContent = s.album_txt;
+    s.songs.forEach((song, k) => {
+      const d = document.createElement('details');
+      if (k === 0) d.open = true;
+      const sm = document.createElement('summary');
+      const n = document.createElement('span');
+      n.className = 'n';
+      n.textContent = song.n + '.';
+      sm.appendChild(n);
+      sm.appendChild(document.createTextNode(song.title));
+      const pre = document.createElement('pre');
+      pre.textContent = song.score;
+      d.appendChild(sm);
+      d.appendChild(pre);
+      $('songs').appendChild(d);
+    });
+  }).catch(() => {
+    $('written').textContent = 'The score of the first album will appear here once it is made.';
+    $('albumTxt').textContent = '';
+  });
+})();
+</script>
+</body>
+</html>
