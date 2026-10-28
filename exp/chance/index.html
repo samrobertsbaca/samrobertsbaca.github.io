@@ -168,7 +168,7 @@
   }
 
   /* only on phones, as on Bandcamp's mobile pages: the label strip, the sticky player, the more-from block */
-  #miniProfile, #sticky, .morefrom, .mob { display: none; }
+  #miniProfile, #sticky, .morefrom, .mob, #rightColumn .abouthead, #rightColumn .disco .mobx, #rightColumn .disco .viewall { display: none; }
   @media (max-width: 700px) {
     .dsk { display: none; }
     .mob { display: inline; }
@@ -200,34 +200,43 @@
     #sticky .splay.playing .tri { width: 11px; height: 13px; border: none; margin: 0;
       background: linear-gradient(90deg, #fff 0 35%, transparent 35% 65%, #fff 65%); }
 
-    /* the label, after the album: a big picture, name and place with follow beside, then its music */
-    #rightColumn { display: grid; grid-template-columns: 1fr auto; column-gap: 12px; margin-top: 10px; }
+    /* Bandcamp's phone margins: 26 px at the sides, and the cover from edge to edge */
+    #pgBd { padding: 0 26px; }
+    #art img { width: calc(100% + 52px); margin: 0 -26px; }
+    #art .share { margin-top: 14px; }
+
+    /* the label, after the album, in a grey band under a double rule: about, a big picture, name and place with
+       follow beside, then its music */
+    #rightColumn { display: grid; grid-template-columns: 1fr auto; column-gap: 12px; margin: 112px -26px 0;
+      width: auto; padding: 28px 26px 104px; background: #E6E6E6; border-top: 4px double #222; }
     #rightColumn > * { grid-column: 1 / -1; }
-    #rightColumn img.bandphoto { grid-row: 1; width: 100%; height: auto; aspect-ratio: 1; margin-bottom: 14px; }
-    #rightColumn .bandname { grid-row: 2; grid-column: 1; margin: 0; font-size: 16px; font-weight: 400; }
-    #rightColumn .loc { grid-row: 3; grid-column: 1; margin: 2px 0 0; font-size: 14px; opacity: .72; }
-    #rightColumn .follow { grid-row: 2 / 4; grid-column: 2; align-self: center; border: none; margin: 0;
+    #rightColumn .abouthead { display: block; grid-row: 1; margin: 0; }
+    #rightColumn img.bandphoto { grid-row: 2; width: 100%; height: auto; aspect-ratio: 1; margin: 0; }
+    #rightColumn .bandname { grid-row: 3; grid-column: 1; margin: 4px 0 0; font-size: 16px; font-weight: 400; line-height: 1.6; }
+    #rightColumn .loc { grid-row: 4; grid-column: 1; margin: 0 0 16px; font-size: 14px; line-height: 1.5; opacity: .72; }
+    #rightColumn .follow { grid-row: 3 / 5; grid-column: 2; align-self: start; border: none; margin: 0;
       padding: 12px 0 12px 16px; font-size: 16px; font-weight: 400; }
-    #rightColumn .links { margin-top: 24px; }
-    #rightColumn .links a { font-size: 14px; text-decoration: underline; }
-    #rightColumn h5, #rightColumn .contact h5 { font-size: 16px; font-weight: 700; margin: 26px 0 8px; }
-    /* the music scrolls sideways, off the right edge */
-    #rightColumn .disco { display: flex; gap: 22px; overflow-x: auto; margin-right: -16px; padding-right: 16px;
-      scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+    #rightColumn .links { margin: 16px 0 32px; }
+    #rightColumn .links a { font-size: 14px; line-height: 40px; margin: 0; text-decoration: underline; }
+    #rightColumn h5, #rightColumn .contact h5 { font-size: 16px; font-weight: 500; line-height: 1.6; margin: 0; }
+    /* the music scrolls sideways, off the right edge, ending in a square that leads to all of it */
+    #rightColumn .disco { display: flex; gap: 23px; overflow-x: auto; margin: 0 -26px; padding: 0 26px 14px;
+      scroll-snap-type: x proximity; scroll-padding: 0 26px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
     #rightColumn .disco::-webkit-scrollbar { display: none; }
-    #rightColumn .disco .item { flex: 0 0 148px; margin: 0; scroll-snap-align: start; }
-    #rightColumn .disco img { width: 148px; height: 148px; }
-    #rightColumn .disco .t { font-size: 14px; margin-top: 6px; }
-    #rightColumn .disco .d { font-size: 14px; }
+    #rightColumn .disco .item { flex: 0 0 146px; margin: 0; scroll-snap-align: start; }
+    #rightColumn .disco img { width: 146px; height: 146px; border: 1px solid rgba(0, 0, 0, .05); }
+    #rightColumn .disco .t { font-size: 14px; line-height: 1.5; margin-top: 0; }
+    #rightColumn .disco .d { font-size: 14px; line-height: 1.5; opacity: .72; }
     #rightColumn .disco .more { display: none; }
-    .morefrom { display: block; }
-    .morefrom h2 { font-size: 16px; font-weight: 700; color: var(--text); margin: 22px 0 0; }
-    .morefrom a { display: block; text-align: center; font-size: 16px; padding: 8px 0; margin-top: 16px;
+    #rightColumn .disco .mobx { display: block; }
+    #rightColumn .disco .viewall { display: flex; align-items: center; justify-content: center; flex: 0 0 146px;
+      height: 146px; border: 1px solid currentColor; font-size: 14px; text-align: center; scroll-snap-align: start; }
+    .morefrom { display: block; margin-bottom: 32px; }
+    .morefrom h2 { font-size: 16px; font-weight: 700; line-height: 1.6; color: var(--text); margin: 0; }
+    .morefrom a { display: block; text-align: center; font-size: 16px; line-height: 24px; padding: 8px 0; margin-top: 16px;
       border: 1px solid currentColor; }
     #rightColumn .contact { margin-top: 0; }
-    #rightColumn .contact a { font-size: 16px; margin-bottom: 12px; }
-    #rightColumn h5 { font-weight: 500; }
-    #rightColumn .contact h5 { font-weight: 700; }
+    #rightColumn .contact a { font-size: 16px; line-height: 24px; margin: 0; padding: 5px 0; }
 
     /* Bandcamp's phone sizes: 16 px for what you read, 14 px for what describes it */
     #band-navbar a { font-size: 16px; }
@@ -324,6 +333,7 @@
     </div>
 
     <aside id="rightColumn">
+      <h5 class="abouthead">about</h5>
       <img class="bandphoto" src="../../scorsbyface.png" alt="Scorsby Records">
       <div class="bandname">Scorsby Records</div>
       <div class="loc">Now, Here</div>
@@ -341,6 +351,29 @@
         <a class="item" href="https://scorsby.bandcamp.com/album/soul-country">
           <img src="https://f4.bcbits.com/img/a1344013158_7.jpg" alt="Soul Country" loading="lazy">
           <span class="t">Soul Country</span><span class="d">Dec 2025</span></a>
+        <!-- on phones the music runs on, as on Bandcamp, ending in a square that leads to all of it -->
+        <a class="item mobx" href="https://scorsby.bandcamp.com/album/love-meditations">
+          <img src="https://f4.bcbits.com/img/a0944250891_7.jpg" alt="Love Meditations" loading="lazy">
+          <span class="t">Love Meditations</span><span class="d">Jun 2025</span></a>
+        <a class="item mobx" href="https://scorsby.bandcamp.com/album/bless-me-valentine">
+          <img src="https://f4.bcbits.com/img/a0888348312_7.jpg" alt="Bless Me, Valentine" loading="lazy">
+          <span class="t">Bless Me, Valentine</span><span class="d">Feb 2025</span></a>
+        <a class="item mobx" href="https://scorsby.bandcamp.com/album/cmon">
+          <img src="https://f4.bcbits.com/img/a3909654879_7.jpg" alt="C'MON" loading="lazy">
+          <span class="t">C'MON</span><span class="d">Jan 2025</span></a>
+        <a class="item mobx" href="https://scorsby.bandcamp.com/album/sweeping-beauties">
+          <img src="https://f4.bcbits.com/img/a1655120837_7.jpg" alt="Sweeping Beauties" loading="lazy">
+          <span class="t">Sweeping Beauties</span><span class="d">Dec 2024</span></a>
+        <a class="item mobx" href="https://scorsby.bandcamp.com/album/oh-my-love">
+          <img src="https://f4.bcbits.com/img/a0336794654_7.jpg" alt="Oh My Love" loading="lazy">
+          <span class="t">Oh My Love</span><span class="d">Dec 2020</span></a>
+        <a class="item mobx" href="https://scorsby.bandcamp.com/track/i-love-america">
+          <img src="https://f4.bcbits.com/img/a4064728784_7.jpg" alt="I Love America" loading="lazy">
+          <span class="t">I Love America</span><span class="d">Jul 2020</span></a>
+        <a class="item mobx" href="https://scorsby.bandcamp.com/track/shes-coming-down-the-line-2">
+          <img src="https://f4.bcbits.com/img/a1481308149_7.jpg" alt="She's Coming Down The Line" loading="lazy">
+          <span class="t">She's Coming Down The Line</span><span class="d">Jun 2020</span></a>
+        <a class="viewall" href="https://scorsby.bandcamp.com/music">view all music &gt;</a>
         <a class="more" href="https://scorsby.bandcamp.com/music">more releases...</a>
       </div>
       <div class="morefrom">

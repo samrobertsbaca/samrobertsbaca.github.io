@@ -6,6 +6,7 @@ Takes the most recent album_* folder made by chance_fontana.py / chance_data.py 
 given), and writes into the site's exp/chance/ folder:
 
     tracks/01.mp3 ...   streamable MP3s (128 kbps), tagged; the WAVs stay here
+                        (with --release, the MP3 download is encoded again at 320 kbps)
     cover.jpg           a cover drawn from the songs themselves: each song is a ring, read
                         clockwise from the top like a record; distance from the centre is
                         pitch (low inside, high outside), ink is loudness
@@ -258,7 +259,8 @@ def main():
     ap.add_argument('album', nargs='?', help='an album folder (default: the newest album_* in --albums)')
     ap.add_argument('--albums', default=HERE, help='where to look for album_* folders (default: here)')
     ap.add_argument('--site', default=SITE, help='the site folder to publish into')
-    ap.add_argument('--bitrate', default='128k')
+    ap.add_argument('--bitrate', default='128k')            # the streams, light enough for a phone
+    ap.add_argument('--download-bitrate', default='320k')   # the MP3s to take home, as Bandcamp gives them
     ap.add_argument('--release', action='store_true',
                     help="put the MP3s, cover and banner on a GitHub release (needs gh and GH_TOKEN) instead "
                          "of in the site folder; only album.json is written into the site")
@@ -355,24 +357,32 @@ def main():
     art = os.path.join(art_dir, 'art.jpg')               # a 600 px copy to embed: small, still sharp
     cover.resize((600, 600), Image.LANCZOS).save(art, quality=88)
 
+    def encode(path, t, out, bitrate):                   # an MP3 with its tags and the cover inside
+        subprocess.run([ffmpeg, '-nostdin', '-hide_banner', '-loglevel', 'error', '-y', '-i', path, '-i', art,
+                        '-map', '0:a', '-map', '1:v', '-codec:a', 'libmp3lame', '-b:a', bitrate,
+                        '-codec:v', 'copy', '-disposition:v', 'attached_pic', '-id3v2_version', '3',
+                        '-metadata:s:v', 'title=Album cover', '-metadata:s:v', 'comment=Cover (front)',
+                        '-metadata', f"title={t['title']}", '-metadata', f"artist={ARTIST}",
+                        '-metadata', f"album={name}", '-metadata', f"track={t['n']}/{len(tracks)}", out],
+                       check=True)
+
     for t, path in zip(tracks, wavs):
         out = os.path.join(media, t.pop('file'))
-        cmd = [ffmpeg, '-nostdin', '-hide_banner', '-loglevel', 'error', '-y', '-i', path, '-i', art,
-               '-map', '0:a', '-map', '1:v', '-codec:a', 'libmp3lame', '-b:a', args.bitrate,
-               '-codec:v', 'copy', '-disposition:v', 'attached_pic', '-id3v2_version', '3',
-               '-metadata:s:v', 'title=Album cover', '-metadata:s:v', 'comment=Cover (front)',
-               '-metadata', f"title={t['title']}", '-metadata', f"artist={ARTIST}",
-               '-metadata', f"album={name}", '-metadata', f"track={t['n']}/{len(tracks)}", out]
-        subprocess.run(cmd, check=True)
+        encode(path, t, out, args.bitrate)
         t['bytes'] = os.path.getsize(out)
         print(f"  encoded {os.path.basename(out)} ({t['bytes'] / 1e6:.1f} MB, cover inside)")
-    shutil.rmtree(art_dir, ignore_errors=True)
+    keep = []                                            # the download's own MP3s, at the higher rate
+    if args.release:
+        for t, path in zip(tracks, wavs):
+            out = os.path.join(art_dir, f"{t['n']:02d}.mp3")
+            encode(path, t, out, args.download_bitrate)
+            keep.append((out, t))
+        print(f"  encoded {len(keep)} MP3s at {args.download_bitrate.rstrip('k')} kbps for the download")
     downloads = []
     if args.release:                                     # the whole album to take home, in two forms
         safe = re.sub(r'[^\w\- ]+', '', name).strip() or "album"
         for fmt_, note, files_, ext in (
-                ("MP3", f"{args.bitrate.rstrip('k')} kbps",
-                 [(os.path.join(media, f"{t['n']:02d}.mp3"), t) for t in tracks], 'mp3'),
+                ("MP3", f"{args.download_bitrate.rstrip('k')} kbps", keep, 'mp3'),
                 ("WAV", "24-bit/48kHz", [(w, t) for w, t in zip(wavs, tracks)], 'wav')):
             zname = f"chance-{day.isoformat()}-{ext}.zip"
             zpath = os.path.join(media, zname)
@@ -383,10 +393,12 @@ def main():
                 z.write(os.path.join(media, 'cover.jpg'), f"{safe}/cover.jpg")     # as in a bandcamp download
                 z.writestr(f"{safe}/about.txt",
                            f"{name}\n{ARTIST}\nquestions by {ASKER}\nmade by chance, {day.isoformat()}\n\n"
-                           f"\"{QUOTE}\" -- John Cage\n")
+                           f"\"{QUOTE}\" -- John Cage, 1985\n")
             downloads.append({'format': fmt_, 'note': note, 'url': base + zname,
                               'bytes': os.path.getsize(zpath)})
             print(f"  zipped {zname} ({os.path.getsize(zpath) / 1e6:.0f} MB)")
+    shutil.rmtree(art_dir, ignore_errors=True)           # the embedded art, and the download's MP3s once zipped
+    if args.release:
         files = sorted(glob.glob(os.path.join(media, '*')))
         notes = (f"{name} -- {len(tracks)} songs made by chance on {day.isoformat()}. "
                  f"Streams on https://scorsby.us/exp/chance/ ; replaced by the next day's album.")
