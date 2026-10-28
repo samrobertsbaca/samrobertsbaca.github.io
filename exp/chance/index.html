@@ -108,7 +108,7 @@
   .tralbum-about .quote { font-size: 13px; }
   .credits { margin-top: 22px; font-size: 12px; line-height: 1.5; color: var(--text); }
   .scorelink { margin-top: 10px; }
-  .credits h5, .tags h5, .heard h5, #rightColumn h5 { font-size: 12px; margin: 0 0 4px; color: var(--text); font-weight: 700; }
+  .tralbum-about h5, .credits h5, .tags h5, .heard h5, #rightColumn h5 { font-size: 12px; margin: 0 0 4px; color: var(--text); font-weight: 700; }
   .heard { margin-top: 22px; font-size: 11px; line-height: 1.5; color: var(--text); }
   .heard ol { margin: 0; padding-left: 18px; }
   .heard .more { margin-top: 4px; }
@@ -226,6 +226,28 @@
       border: 1px solid currentColor; }
     #rightColumn .contact { margin-top: 0; }
     #rightColumn .contact a { font-size: 16px; margin-bottom: 12px; }
+    #rightColumn h5 { font-weight: 500; }
+    #rightColumn .contact h5 { font-weight: 700; }
+
+    /* Bandcamp's phone sizes: 16 px for what you read, 14 px for what describes it */
+    #band-navbar a { font-size: 16px; }
+    h2.trackTitle { font-size: 16px; font-weight: 700; line-height: 1.43; margin: 0 0 2px; }
+    h3.byline { font-size: 14px; line-height: 1.5; margin-bottom: 18px; }
+    .nowtitle { font-size: 14px; }
+    h4.ft, h4.buy { font-size: 16px; }
+    .format, h4.buy span { font-size: 14px; }
+    #downloads a { font-size: 16px; }
+    #downloads small { font-size: 14px; }
+    table.track_list { font-size: 16px; }
+    table.track_list td { padding: 9px 0; vertical-align: top; }
+    .smallplay { margin-top: 4px; }
+    td.num { width: 26px; }
+    td.title .time { font-size: 14px; opacity: .72; }
+    .tralbum-about, .tralbum-about .quote, .credits, .tags { font-size: 16px; line-height: 1.5; }
+    .tralbum-about h5, .credits h5, .tags h5, .heard h5 { font-size: 16px; font-weight: 500; margin-bottom: 6px; }
+    .heard { font-size: 14px; }
+    #art .share { font-size: 16px; }
+    #art .seed { font-size: 14px; }
   }
 </style>
 </head>
@@ -282,7 +304,7 @@
         <table class="track_list" id="tracks"></table>
 
         <div class="tralbum-about">
-          <h5 style="margin:0 0 4px;font-size:12px">about</h5>
+          <h5>about</h5>
           <div class="quote">&ldquo;<span id="quote"></span>&rdquo; &mdash; <span id="quoteBy"></span></div>
         </div>
         <div class="credits"><h5>credits</h5><div id="credits"></div>
