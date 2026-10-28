@@ -4,6 +4,7 @@ name: Daily Chance Album
 # scorsby.us/exp/chance/ at it.
 permissions:
   contents: write
+  actions: write   # so that, when chance ends the series, the workflow can switch itself off
 on:
   schedule:
     # every hour (at :17, away from the top-of-the-hour rush); only the day's chance hour makes an album
@@ -43,7 +44,11 @@ jobs:
               made = json.loads(shown or '{}').get('day')
           except ValueError:
               made = None
-          go = os.environ['EVENT'] != 'schedule' or (now.hour >= hour and made != day)
+          finished = subprocess.run(['git', 'cat-file', '-e', 'origin/main:exp/chance/engine/FINISHED'],
+                                    capture_output=True).returncode == 0
+          go = not finished and (os.environ['EVENT'] != 'schedule' or (now.hour >= hour and made != day))
+          if finished:
+              print("chance has ended the series: no more albums will be made", file=sys.stderr)
           print(f"today ({day}) the chance hour is {hour:02d}:00 UTC; it is {now:%H:%M}; "
                 f"today's album {'exists' if made == day else 'is not made yet'} -> {'go' if go else 'wait'}",
                 file=sys.stderr)
@@ -103,6 +108,7 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add exp/chance/album.json exp/chance/engine/titles.txt exp/chance/engine/album_number.txt
+          if [ -f exp/chance/engine/FINISHED ]; then git add exp/chance/engine/FINISHED; fi
           git commit -m "Daily chance album" || echo "No changes to commit"
           git pull --rebase
           git push
@@ -112,3 +118,13 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: python publish_album.py --prune --keep 2
+
+      # each day there is a 1 in 365 chance that today's album is the last. if it was, the series
+      # is over: the last album's release stays for good, and this workflow switches itself off.
+      - name: If chance ended the series, stop
+        if: hashFiles('exp/chance/engine/FINISHED') != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "chance ended the series with this album; switching the daily workflow off"
+          gh workflow disable daily_chance.yml --repo "$GITHUB_REPOSITORY"

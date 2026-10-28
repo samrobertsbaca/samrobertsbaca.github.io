@@ -27,6 +27,7 @@ import glob
 import json
 import os
 import re
+import secrets
 import shutil
 import subprocess
 import tempfile
@@ -46,6 +47,7 @@ REPO = os.environ.get('GITHUB_REPOSITORY', 'samrobertsbaca/samrobertsbaca.github
 SITE_ROOT = os.path.dirname(os.path.dirname(SITE))      # the site itself, for scorsby's face
 ARTIST = "ScorsBT4"                                 # the machine that plays the world's radio
 ASKER = "Samuel John Scorsby"                           # who asked it the questions
+LAST_ODDS = int(os.environ.get('CHANCE_LAST_ODDS', 365))    # each day, a 1-in-this chance the series ends (about a year on average)
 QUOTE = "All computer programming is basically question asking, rather than choice making."
 INKS = ["#00B4FF", "#EB000E", "#B34777", "#100E0E"]       # the page's own colours
 PAPER = "#FDF9F8"
@@ -308,6 +310,11 @@ def main():
     if os.environ.get('CHANCE_DAY'):                     # the day this album belongs to (the daily job says)
         day = datetime.date.fromisoformat(os.environ['CHANCE_DAY'])
     made_at = datetime.datetime.now(datetime.timezone.utc).strftime('%H:%M')     # when it was released, UTC
+    # each day, a tiny chance that this is the last album of the series. drawn from the system's
+    # own randomness, not the date, so no one can know it in advance.
+    last = bool(args.release and secrets.randbelow(max(1, LAST_ODDS)) == 0)
+    if last:
+        print(f"  chance has ended the series: {number:04d} is the last album")
     if args.release:                                     # media goes to a release; the site gets only json
         media = tempfile.mkdtemp(prefix='chance_release_')
         tag = f"chance-{day.isoformat()}"
@@ -373,8 +380,16 @@ def main():
         files = sorted(glob.glob(os.path.join(media, '*')))
         notes = (f"{name} -- {len(tracks)} songs made by chance on {day.isoformat()}. "
                  f"Streams on https://scorsby.us/exp/chance/ ; replaced by the next day's album.")
-        gh('release', 'create', tag, *files, '--repo', args.repo, '--title', f"{name} ({day.isoformat()})",
-           '--notes', notes, '--prerelease')
+        if last:
+            notes = (f"{name} -- the last album, {len(tracks)} songs made by chance on {day.isoformat()}. "
+                     f"Chance ended the series here. This one stays.")
+            gh('release', 'create', tag, *files, '--repo', args.repo, '--title',
+               f"{name} ({day.isoformat()}) -- the last", '--notes', notes, '--latest')
+            with open(os.path.join(HERE, 'FINISHED'), 'w', encoding='utf-8') as f:
+                f.write(f"{tag}\n{number:04d}\n{day.isoformat()} {made_at} UTC\n")
+        else:
+            gh('release', 'create', tag, *files, '--repo', args.repo, '--title', f"{name} ({day.isoformat()})",
+               '--notes', notes, '--prerelease')
         print(f"  released {len(files)} files as {tag}")
         shutil.rmtree(media, ignore_errors=True)         # uploaded: the local copies can go
 
@@ -392,9 +407,13 @@ def main():
                "algorithms), how long each song should be, and where it should go. "
                + (f"{len(heard):,} of those moments are in these songs. " if heard else "")
                + "Nothing was chosen by hand.", "",
-               "This album is impermanent. The broadcasts collected are gone. The recordings it gathered were "
-               "thrown away once it was made. Tomorrow it will be replaced by another, which will never be heard "
-               "again either. It exists for a day. Listen while it's here."]
+               ("This is the last album. The broadcasts collected are gone, and the recordings it gathered were "
+                f"thrown away once it was made, as on every day before. But no album will replace it: chance "
+                f"ended the series here, after {number + 1:,} album{'s' if number else ''}. This one will stay.")
+               if last else
+               ("This album is impermanent. The broadcasts collected are gone. The recordings it gathered were "
+                "thrown away once it was made. Tomorrow it will be replaced by another, which will never be heard "
+                "again either. It exists for a day. Listen while it's here.")]
     sources = []
     if any('live microphone' in h for h in heard):
         sources.append("open microphones: Locus Sonus Locustream (locusonus.org)")
@@ -411,7 +430,7 @@ def main():
         'cover': base + "cover.jpg", 'cover_small': base + "cover_small.jpg", 'banner': base + "banner.jpg",
         'downloads': downloads,
         'mood': {k: round(v, 3) for k, v in mood.items()}, 'palette': inks + [paper_hex],
-        'number': number, 'day': day.isoformat(), 'time_utc': made_at,
+        'number': number, 'day': day.isoformat(), 'time_utc': made_at, 'last': last,
         'seed': str(seed), 'generated_from': os.path.basename(album),
         'published': datetime.datetime.now().isoformat(timespec='seconds'),
     }
@@ -439,8 +458,12 @@ def gh(*args, check=True):
 def prune(repo, keep):
     """delete all but the `keep` most recent chance-* releases (and their tags)."""
     p = gh('release', 'list', '--repo', repo, '--limit', '200', '--json', 'tagName,createdAt')
-    rels = sorted([r for r in json.loads(p.stdout or '[]') if r['tagName'].startswith('chance-')],
-                  key=lambda r: r['createdAt'], reverse=True)
+    try:                                                 # the last album's release is never let go
+        keep_forever = open(os.path.join(HERE, 'FINISHED'), encoding='utf-8').readline().strip()
+    except OSError:
+        keep_forever = None
+    rels = sorted([r for r in json.loads(p.stdout or '[]') if r['tagName'].startswith('chance-')
+                   and r['tagName'] != keep_forever], key=lambda r: r['createdAt'], reverse=True)
     for r in rels[max(1, keep):]:
         gh('release', 'delete', r['tagName'], '--repo', repo, '--cleanup-tag', '--yes')
         print(f"  let go of {r['tagName']}")
