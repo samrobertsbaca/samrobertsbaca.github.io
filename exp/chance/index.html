@@ -166,10 +166,81 @@
     #customHeader { height: 110px; }
     #customHeader .name { font-size: 38px; }
   }
+
+  /* only on phones, as on Bandcamp's mobile pages: the label strip, the sticky player, the more-from block */
+  #miniProfile, #sticky, .morefrom, .mob { display: none; }
+  @media (max-width: 700px) {
+    .dsk { display: none; }
+    .mob { display: inline; }
+    #customHeader { display: none; }
+    /* the label strip at the very top: face, name and place, follow on the right */
+    #miniProfile { display: flex; align-items: center; height: 59px; padding-left: 16px; background: var(--paper);
+      border-bottom: 1px solid var(--line); }
+    #miniProfile img { width: 44px; height: 44px; border-radius: 50%; background: #fff; object-fit: contain;
+      border: 1px solid var(--line); flex: none; }
+    #miniProfile .who { flex: 1; min-width: 0; margin-left: 11px; }
+    #miniProfile .nm { font-size: 16px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    #miniProfile .lc { font-size: 14px; color: #000; opacity: .72; }
+    #miniProfile .fl { font-size: 16px; padding: 12px 16px; }
+
+    /* once the player scrolls away, a bar drops down: the cover, the album, the song, a play button */
+    #sticky { display: flex; align-items: center; gap: 10px; position: fixed; top: 0; left: 0; right: 0; z-index: 5;
+      height: 60px; padding: 0 16px 0 15px; background: var(--paper); border-bottom: 1px solid var(--line);
+      transform: translateY(-101%); transition: transform .25s ease; }
+    #sticky.on { transform: none; }
+    #sticky img { width: 46px; height: 46px; flex: none; background: #eee; border: 1px solid rgba(0, 0, 0, .05); }
+    #sticky .info { flex: 1; min-width: 0; font-size: 14px; }
+    #sticky .info span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    #sticky .t { font-weight: 700; color: var(--text); }
+    #sticky .c { color: #000; }
+    #sticky .splay { width: 36px; height: 36px; flex: none; border-radius: 50%; background: #222; border: none;
+      display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
+    #sticky .splay .tri { width: 0; height: 0; border-left: 12px solid #fff; border-top: 7px solid transparent;
+      border-bottom: 7px solid transparent; margin-left: 3px; }
+    #sticky .splay.playing .tri { width: 11px; height: 13px; border: none; margin: 0;
+      background: linear-gradient(90deg, #fff 0 35%, transparent 35% 65%, #fff 65%); }
+
+    /* the label, after the album: a big picture, name and place with follow beside, then its music */
+    #rightColumn { display: grid; grid-template-columns: 1fr auto; column-gap: 12px; margin-top: 10px; }
+    #rightColumn > * { grid-column: 1 / -1; }
+    #rightColumn img.bandphoto { grid-row: 1; width: 100%; height: auto; aspect-ratio: 1; margin-bottom: 14px; }
+    #rightColumn .bandname { grid-row: 2; grid-column: 1; margin: 0; font-size: 16px; font-weight: 400; }
+    #rightColumn .loc { grid-row: 3; grid-column: 1; margin: 2px 0 0; font-size: 14px; opacity: .72; }
+    #rightColumn .follow { grid-row: 2 / 4; grid-column: 2; align-self: center; border: none; margin: 0;
+      padding: 12px 0 12px 16px; font-size: 16px; font-weight: 400; }
+    #rightColumn .links { margin-top: 24px; }
+    #rightColumn .links a { font-size: 14px; text-decoration: underline; }
+    #rightColumn h5, #rightColumn .contact h5 { font-size: 16px; font-weight: 700; margin: 26px 0 8px; }
+    /* the music scrolls sideways, off the right edge */
+    #rightColumn .disco { display: flex; gap: 22px; overflow-x: auto; margin-right: -16px; padding-right: 16px;
+      scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+    #rightColumn .disco::-webkit-scrollbar { display: none; }
+    #rightColumn .disco .item { flex: 0 0 148px; margin: 0; scroll-snap-align: start; }
+    #rightColumn .disco img { width: 148px; height: 148px; }
+    #rightColumn .disco .t { font-size: 14px; margin-top: 6px; }
+    #rightColumn .disco .d { font-size: 14px; }
+    #rightColumn .disco .more { display: none; }
+    .morefrom { display: block; }
+    .morefrom h2 { font-size: 16px; font-weight: 700; color: var(--text); margin: 22px 0 0; }
+    .morefrom a { display: block; text-align: center; font-size: 16px; padding: 8px 0; margin-top: 16px;
+      border: 1px solid currentColor; }
+    #rightColumn .contact { margin-top: 0; }
+    #rightColumn .contact a { font-size: 16px; margin-bottom: 12px; }
+  }
 </style>
 </head>
 <body>
+<div id="sticky" aria-hidden="true">
+  <img id="stickyArt" alt="">
+  <div class="info"><span class="t" id="stickyTitle"></span><span class="c" id="stickyTrack"></span></div>
+  <button class="splay" id="stickyPlay" aria-label="Play" tabindex="-1"><span class="tri"></span></button>
+</div>
 <div id="centerWrapper">
+  <div id="miniProfile">
+    <img src="../../scorsbyface.png" alt="">
+    <div class="who"><div class="nm">Scorsby Records</div><div class="lc">Now, Here</div></div>
+    <a class="fl" href="https://scorsby.bandcamp.com">follow</a>
+  </div>
   <div id="customHeader"><img id="banner" alt=""><div class="name" aria-hidden="true">scorsby records</div></div>
   <nav id="band-navbar">
     <a class="active" href="./">music</a>
@@ -236,7 +307,7 @@
       <div class="loc">Now, Here</div>
       <a class="follow" href="https://scorsby.bandcamp.com">Follow</a>
       <div class="links"><a href="https://scorsby.us">scorsby.us</a></div>
-      <h5>discography</h5>
+      <h5><span class="dsk">discography</span><span class="mob">music</span></h5>
       <div class="disco">
         <a class="item" href="./"><img id="discoCover" alt=""><span class="t" id="discoTitle"></span><span class="d" id="discoDate"></span></a>
         <a class="item" href="https://scorsby.bandcamp.com/album/god-says-youre-a-champ">
@@ -249,6 +320,11 @@
           <img src="https://f4.bcbits.com/img/a1344013158_7.jpg" alt="Soul Country" loading="lazy">
           <span class="t">Soul Country</span><span class="d">Dec 2025</span></a>
         <a class="more" href="https://scorsby.bandcamp.com/music">more releases...</a>
+      </div>
+      <div class="morefrom">
+        <h2>more from Scorsby Records</h2>
+        <a href="https://scorsby.bandcamp.com/merch">view all merch &rsaquo;</a>
+        <a href="https://scorsby.bandcamp.com/community">visit community &rsaquo;</a>
       </div>
       <div class="contact">
         <h5>contact / help</h5>
@@ -282,6 +358,7 @@
     $('nowTitle').textContent = t.title;
     $('nowTime').textContent = '00:00 / ' + fmt(t.duration);
     document.querySelectorAll('#tracks tr').forEach((r, k) => r.classList.toggle('current', k === cur));
+    $('stickyTrack').textContent = t.n + '. ' + t.title;
     paint();
     if (play) audio.play().catch(() => {});
   }
@@ -289,6 +366,8 @@
     const playing = !audio.paused && !audio.ended;
     $('play').classList.toggle('playing', playing);
     $('play').setAttribute('aria-label', playing ? 'Pause' : 'Play');
+    $('stickyPlay').classList.toggle('playing', playing);
+    $('stickyPlay').setAttribute('aria-label', playing ? 'Pause' : 'Play');
     document.querySelectorAll('.smallplay').forEach((b, k) => b.classList.toggle('playing', playing && k === cur));
   }
   function seekFrom(ev) {
@@ -299,10 +378,18 @@
     audio.currentTime = f * d;
   }
 
-  $('play').onclick = () => {
+  $('play').onclick = $('stickyPlay').onclick = () => {
+    if (!album) return;
     if (!audio.src) return load(cur, true);
     audio.paused ? audio.play().catch(() => {}) : audio.pause();
   };
+  // on a phone, the bar drops down once the player has scrolled off the top (it isn't shown on wider screens)
+  new IntersectionObserver(([e]) => {
+    const on = !e.isIntersecting && e.boundingClientRect.top < 0;
+    $('sticky').classList.toggle('on', on);
+    $('sticky').setAttribute('aria-hidden', on ? 'false' : 'true');
+    $('stickyPlay').tabIndex = on ? 0 : -1;
+  }).observe(document.querySelector('.inline_player'));
   $('prev').onclick = () => load(audio.currentTime > 3 ? cur : cur - 1, true);
   $('next').onclick = () => load(cur + 1, true);
   $('prog').onclick = seekFrom;
@@ -347,6 +434,8 @@
     $('cover').src = fresh(a.cover);
     $('banner').src = fresh(a.banner);
     $('discoCover').src = fresh(a.cover_small);
+    $('stickyArt').src = fresh(a.cover_small);
+    $('stickyTitle').textContent = a.title;
     $('discoTitle').textContent = a.title;
     const d = new Date(a.released + 'T12:00:00');
     $('discoDate').textContent = d.toLocaleString('en-US', { month: 'short', year: 'numeric' });
@@ -410,6 +499,7 @@
       tb.appendChild(tr);
     });
     $('nowTitle').textContent = a.tracks[0].title;
+    $('stickyTrack').textContent = a.tracks[0].n + '. ' + a.tracks[0].title;
     $('nowTime').textContent = '00:00 / ' + fmt(a.tracks[0].duration);
   }).catch(() => {
     $('albumTitle').textContent = 'no album yet';
