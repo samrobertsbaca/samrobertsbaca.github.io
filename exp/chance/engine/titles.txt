@@ -10,3 +10,8 @@ Washington DC Area USA data 7047.5 a->ac
 7340 beacons 130 BPM
 Morph 24915 Odd-Even Santa Catarina Fata
 14095.6 NSS Barcelona Inverse NAU
+CH13 Rule 126 2004
+County Donegal Slovaesti gzip.py
+Florida Rule 153 92.3
+FUG Rudin-Shapiro FSK Spectral Fukushima JAPAN
+Rule 99 Portugal rokazil) libehrain

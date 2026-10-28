@@ -1,0 +1,124 @@
+{
+ "title": "0000 Libehrain Slovaesti Donegal",
+ "artist": "ScorsBT4",
+ "released": "2026-10-28",
+ "about": "All computer programming is basically question asking, rather than choice making.",
+ "about_by": "John Cage",
+ "credits": [
+  "released October 28, 2026, 03:08 UTC",
+  "",
+  "questions by Samuel John Scorsby",
+  "",
+  "In the hours before this album, ScorsBT4 listened to the world, gathering 365 moments of radio: shortwave from receivers around the world, FM and internet stations, open microphones on rooftops, in gardens and in canals, and old recordings from the Internet Archive. It kept only what had something in it. In the spirit of John Cage's aleatoric compositional methods, particularly inspired by his piece \"Fontana Mix\", it threw the dice: which sounds belong together, which patterns of data to fuse them with (cellular automata, bytebeat formulas, number sequences, sorting algorithms), how long each song should be, and where it should go. 23 of those moments are in these songs. Nothing was chosen by hand.",
+  "",
+  "This album is impermanent. The broadcasts collected are gone. The recordings it gathered were thrown away once it was made. Tomorrow it will be replaced by another, which will never be heard again either. Each day there is a 1 in 365 chance that it is the last. It exists for a day. Listen while it's here.",
+  "",
+  "Each day, at an hour chosen by chance: listen to 365 moments of the world's radio. Keep what has something in it, or, one day in seven, keep everything. Throw the dice to choose which sounds belong together and which patterns of data to fuse them with. Make between five and twelve songs. Title them with words cut from what was heard. Draw each song as a ring. Publish the album. Delete it the next day. Each day, with a chance of 1 in 365, stop forever.",
+  "",
+  "open microphones: Locus Sonus Locustream (locusonus.org)",
+  "archive recordings: the Internet Archive (archive.org), openly licensed collections"
+ ],
+ "heard": [
+  "A11_T891_HR2L_CH13_18-18-16_02-48-16-2015-09-30Recording.wav (john.l.stoll@nasa.gov, 2018), archive, 2018",
+  "Koei - Aion [one09",
+  "A11_T890_HR1L_CH7_18-41-16_02-53-05-2015-09-29Recording.wav (john.l.stoll@nasa.gov, 2018), archive, 2018",
+  "437-AAC_STS-9_Mission_Audio.wav.wav (john.l.stoll@nasa.gov, 2019), archive, 2019",
+  "ortler - end der welt ferner, live microphone",
+  "You, Me, Us and Them - Savor Combustable Subcultures (Zan Hoffman, 2003), archive, 2003",
+  "FT8 data, 30 m, 10136.0 kHz USB via EI0CF Finbar O'Connor | Malin, County Donegal, Ireland",
+  "Radio Slovakia Int. (S to LAm), 9955.0 kHz AM via DL7AG KiwiSDR 2 - Berlin, multiband dipole",
+  "Vesti FM (R to EEu), 1413.0 kHz AM via Wessex KiWi V2 - G8JNJ - 0-30MHz - South West UK",
+  "Z 92 92.3 (Miami) - 92.3 FM - WCMQ-FM - Spanish Broadcasting System - Miami, Florida, EUA (Miami, Florida, Mexico), 92.3 MHz FM",
+  "Oriat FM (Uzbekistan), internet radio",
+  "DENSOMANIAK Radio (Serbia), internet radio",
+  "Exa FM Mexicali - 91.5 FM - XHJC-FM - MVS Radio - Mexicali, BC (Baja California, Mexico), 91.5 MHz FM",
+  "FUG French Navy FSK (F to Eu), 13417.8 kHz USB via 0,5-30 MHz SDR, Bad Münstereifel",
+  "Nova 919 - Adelaide - 91.9 FM (MP3) (Adelaide SA, Australia), 91.9 MHz FM",
+  "FT8 data, 30 m, 10136.0 kHz USB via 0-30 MHz SDR, K1RA, Warrenton, VA, USA",
+  "radio uno Valledupar 100.7 (VALLEDUPAR, Colombia), 100.7 MHz FM",
+  "Sound of Hope (M to FE), 13590.0 kHz AM via JP7FSO,0-30 MHz SDR, Fukushima JAPAN",
+  "liberec - v rokli liberec, live microphone",
+  "RÁDIO SÓ MPB SOROCABA (Sao Paulo (Brazil), Brazil), internet radio",
+  "AFN 360 Bahrain (Bahrain), internet radio",
+  "Antena 1 (Portugal) (Portugal), internet radio",
+  "Radio Stari Grad (Serbia), internet radio"
+ ],
+ "heard_total": 23,
+ "tags": [
+  "chance",
+  "radio",
+  "data",
+  "experimental",
+  "Albuquerque"
+ ],
+ "tracks": [
+  {
+   "n": 1,
+   "title": "CH13 Rule 126 2004",
+   "duration": 307.15,
+   "src": "https://github.com/samrobertsbaca/samrobertsbaca.github.io/releases/download/chance-2026-10-28/01.mp3"
+  },
+  {
+   "n": 2,
+   "title": "County Donegal Slovaesti gzip.py",
+   "duration": 350.14,
+   "src": "https://github.com/samrobertsbaca/samrobertsbaca.github.io/releases/download/chance-2026-10-28/02.mp3"
+  },
+  {
+   "n": 3,
+   "title": "Florida Rule 153 92.3",
+   "duration": 294.98,
+   "src": "https://github.com/samrobertsbaca/samrobertsbaca.github.io/releases/download/chance-2026-10-28/03.mp3"
+  },
+  {
+   "n": 4,
+   "title": "FUG Rudin-Shapiro FSK Spectral Fukushima JAPAN",
+   "duration": 478.48,
+   "src": "https://github.com/samrobertsbaca/samrobertsbaca.github.io/releases/download/chance-2026-10-28/04.mp3"
+  },
+  {
+   "n": 5,
+   "title": "Rule 99 Portugal rokazil) libehrain",
+   "duration": 194.21,
+   "src": "https://github.com/samrobertsbaca/samrobertsbaca.github.io/releases/download/chance-2026-10-28/05.mp3"
+  }
+ ],
+ "cover": "https://github.com/samrobertsbaca/samrobertsbaca.github.io/releases/download/chance-2026-10-28/cover.jpg",
+ "cover_small": "https://github.com/samrobertsbaca/samrobertsbaca.github.io/releases/download/chance-2026-10-28/cover_small.jpg",
+ "banner": "https://github.com/samrobertsbaca/samrobertsbaca.github.io/releases/download/chance-2026-10-28/banner.jpg",
+ "downloads": [
+  {
+   "format": "MP3",
+   "note": "128 kbps",
+   "url": "https://github.com/samrobertsbaca/samrobertsbaca.github.io/releases/download/chance-2026-10-28/chance-2026-10-28-mp3.zip",
+   "bytes": 26729541
+  },
+  {
+   "format": "WAV",
+   "note": "24-bit/48kHz",
+   "url": "https://github.com/samrobertsbaca/samrobertsbaca.github.io/releases/download/chance-2026-10-28/chance-2026-10-28-wav.zip",
+   "bytes": 468280902
+  }
+ ],
+ "mood": {
+  "brightness": 0.311,
+  "energy": 0.8,
+  "noise": 0.54,
+  "motion": 0.193
+ },
+ "palette": [
+  "#A82DAE",
+  "#C34072",
+  "#6B3696",
+  "#411B43",
+  "#FAF6FA"
+ ],
+ "number": 0,
+ "day": "2026-10-28",
+ "time_utc": "03:08",
+ "last": false,
+ "pure": false,
+ "seed": "773917400165639511",
+ "generated_from": "album_2026-10-28_030837_fontana",
+ "published": "2026-10-28T03:09:26"
+}
