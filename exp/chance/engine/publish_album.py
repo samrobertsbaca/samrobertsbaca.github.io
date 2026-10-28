@@ -170,13 +170,14 @@ def spiral_turns(seconds):
 def draw_cover(rings, durations, size=1200, seed=0, inks=None, paper_hex=None, ss=2):
     """the album as one groove, from the edge in to the label, like a record: along the groove is
     time (clockwise from the top), across it is pitch (high at the outer edge), ink is loudness.
-    the songs follow one another along it, each in its own ink, with a little paper between."""
+    the songs follow one another along it, each in its own ink, exactly as they play: back to back,
+    so the groove keeps the album's own timing, and any quiet in it is the songs' own."""
     rng = np.random.default_rng(seed)
     INKS_ = inks or INKS
     T = len(rings)
     total = float(sum(durations))
     K = spiral_turns(total)
-    duty, gap_turns = 0.9, 0.35                    # the groove's share of each turn; the paper between songs
+    duty = 0.9                                     # the groove's share of each turn
     S = size * ss                                  # drawn at twice the size, then made smooth
     paper = hexrgb(paper_hex or PAPER).astype(np.float32)
     yy, xx = np.mgrid[0:S, 0:S].astype(np.float32)
@@ -190,8 +191,8 @@ def draw_cover(rings, durations, size=1200, seed=0, inks=None, paper_hex=None, s
     k = np.floor(u)
     f = u - k                                      # how far across the groove, 0 at its outer edge
     s_ = k + theta                                 # how far along it, in turns from the start
-    lens = np.array(durations, dtype=np.float64) / total * (K - gap_turns * (T - 1))
-    starts = np.concatenate([[0.0], np.cumsum(lens[:-1] + gap_turns)])
+    lens = np.array(durations, dtype=np.float64) / total * K       # each song's share, in turns
+    starts = np.concatenate([[0.0], np.cumsum(lens[:-1])])
     img = np.tile(paper, (S, S, 1))
     groove = (s_ >= 0) & (s_ <= K) & (f < duty) & (r >= R_in) & (r <= R_out + 1)
     deep = hexrgb(INKS_[3 % len(INKS_)])
