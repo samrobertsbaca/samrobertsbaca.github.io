@@ -305,6 +305,9 @@ def main():
     name = f"{number:04d} " + album_title([t['title'] for t in tracks], seed)
     stamp = re.search(r'album_(\d{4}-\d\d-\d\d)', os.path.basename(album))
     day = datetime.date.fromisoformat(stamp.group(1)) if stamp else datetime.date.today()
+    if os.environ.get('CHANCE_DAY'):                     # the day this album belongs to (the daily job says)
+        day = datetime.date.fromisoformat(os.environ['CHANCE_DAY'])
+    made_at = datetime.datetime.now(datetime.timezone.utc).strftime('%H:%M')     # when it was released, UTC
     if args.release:                                     # media goes to a release; the site gets only json
         media = tempfile.mkdtemp(prefix='chance_release_')
         tag = f"chance-{day.isoformat()}"
@@ -378,7 +381,7 @@ def main():
     heard = heard_on(scores)
     gathered = len(glob.glob(os.path.join(args.radio_dir, '*.wav'))) if args.radio_dir else 0
     listened = f"gathering {gathered:,} moments of radio" if gathered else "gathering moments of radio"
-    credits = [f"released {day.strftime('%B')} {day.day}, {day.year}", "",
+    credits = [f"released {day.strftime('%B')} {day.day}, {day.year}, {made_at} UTC", "",
                f"questions by {ASKER}", "",
                f"In the hours before this album, {ARTIST} listened to the world, {listened}: "
                "shortwave from receivers around the world, FM and internet stations, open microphones on rooftops, "
@@ -408,7 +411,8 @@ def main():
         'cover': base + "cover.jpg", 'cover_small': base + "cover_small.jpg", 'banner': base + "banner.jpg",
         'downloads': downloads,
         'mood': {k: round(v, 3) for k, v in mood.items()}, 'palette': inks + [paper_hex],
-        'number': number, 'seed': str(seed), 'generated_from': os.path.basename(album),
+        'number': number, 'day': day.isoformat(), 'time_utc': made_at,
+        'seed': str(seed), 'generated_from': os.path.basename(album),
         'published': datetime.datetime.now().isoformat(timespec='seconds'),
     }
     with open(os.path.join(args.site, 'album.json'), 'w', encoding='utf-8') as f:

@@ -1,23 +1,63 @@
 name: Daily Chance Album
-# every night: gather the world's radio fresh, make an album by chance (numbered 0000, 0001 ...), put its audio and
-# cover on a GitHub release, and point scorsby.us/exp/chance/ at it.
+# once a day, at an hour chosen by chance: gather the world's radio fresh, make an album by chance
+# (numbered 0000, 0001 ...), put its audio and cover on a GitHub release, and point
+# scorsby.us/exp/chance/ at it.
 permissions:
   contents: write
 on:
   schedule:
-    # 07:00 UTC, with the daily story: midnight in Albuquerque
-    - cron: '0 7 * * *'
-  workflow_dispatch: # run it by hand from the Actions tab
+    # every hour (at :17, away from the top-of-the-hour rush); only the day's chance hour makes an album
+    - cron: '17 * * * *'
+  workflow_dispatch: # run it by hand from the Actions tab (counts as the day's album)
   push:
     branches: [main]
     paths: ['.github/workflows/daily_chance.yml'] # and once whenever this file changes
 
-concurrency:
-  group: daily-chance
-  cancel-in-progress: false
-
 jobs:
+  # is this the hour? each UTC day draws its own hour, 00-23, from the date itself; the album is
+  # made the first time the clock reaches that hour, unless today's album already exists.
+  decide:
+    runs-on: ubuntu-latest
+    outputs:
+      go: ${{ steps.d.outputs.go }}
+      day: ${{ steps.d.outputs.day }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Is it today's chance hour?
+        id: d
+        env:
+          EVENT: ${{ github.event_name }}
+        run: |
+          git fetch -q --depth 1 origin main
+          python3 - <<'EOF' >> "$GITHUB_OUTPUT"
+          import datetime, hashlib, json, os, subprocess, sys
+          now = datetime.datetime.now(datetime.timezone.utc)
+          day = now.date().isoformat()
+          hour = int(hashlib.sha256(f"scorsbt4 {day}".encode()).hexdigest(), 16) % 24
+          shown = subprocess.run(['git', 'show', 'origin/main:exp/chance/album.json'],
+                                 capture_output=True, text=True).stdout
+          try:
+              made = json.loads(shown or '{}').get('day')
+          except ValueError:
+              made = None
+          go = os.environ['EVENT'] != 'schedule' or (now.hour >= hour and made != day)
+          print(f"today ({day}) the chance hour is {hour:02d}:00 UTC; it is {now:%H:%M}; "
+                f"today's album {'exists' if made == day else 'is not made yet'} -> {'go' if go else 'wait'}",
+                file=sys.stderr)
+          print(f"go={'true' if go else 'false'}")
+          print(f"day={day}")
+          EOF
+
   album:
+    needs: decide
+    if: needs.decide.outputs.go == 'true'
+    # one album at a time; the hourly checks above never wait in this queue
+    concurrency:
+      group: daily-chance
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     timeout-minutes: 340
     steps:
@@ -55,6 +95,7 @@ jobs:
         working-directory: exp/chance/engine
         env:
           GH_TOKEN: ${{ github.token }}
+          CHANCE_DAY: ${{ needs.decide.outputs.day }}
         run: python publish_album.py --albums "$RUNNER_TEMP/albums" --release
 
       - name: Commit album.json
