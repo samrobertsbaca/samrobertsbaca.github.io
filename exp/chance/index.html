@@ -459,7 +459,11 @@
     audio.src = t.src;
     $('nowTitle').textContent = t.title;
     $('nowTime').textContent = '00:00 / ' + fmt(t.duration);
-    document.querySelectorAll('#tracks tr').forEach((r, k) => r.classList.toggle('current', k === cur));
+    document.querySelectorAll('#tracks tr').forEach((r, k) => {
+      r.classList.toggle('current', k === cur);
+      const tm = r.querySelector('.time');                // each song its length; the chosen one, where it's up to
+      if (tm) tm.textContent = k === cur ? fmt(0) + ' / ' + fmt(album.tracks[k].duration) : fmt(album.tracks[k].duration);
+    });
     $('stickyTrack').textContent = t.n + '. ' + t.title;
     paint();
     if (play) audio.play().catch(() => {});
@@ -507,6 +511,8 @@
     $('thumb').style.left = 'calc((100% - 24px) * ' + f + ')';
     $('prog').setAttribute('aria-valuenow', Math.round(f * 100));
     $('nowTime').textContent = fmt(audio.currentTime) + ' / ' + fmt(d);
+    const tm = document.querySelector('#tracks tr.current .time');   // and beside the song in the list, as on Bandcamp
+    if (tm) tm.textContent = fmt(audio.currentTime) + ' / ' + fmt(d);
   };
   function closeup(src, alt) {
     $('closeupImg').src = src;
