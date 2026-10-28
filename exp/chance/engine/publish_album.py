@@ -401,12 +401,9 @@ def main():
                f"questions by {ASKER}", "",
                (f"In the hours before this album, {ARTIST} listened to the world, {listened} from anywhere on "
                 "the dial: shortwave, FM and internet stations, open microphones and old recordings from the "
-                "Internet Archive. Today was a pure day, as about one day in seven is: the algorithm kept everything, static "
-                "and silence included, matched nothing for beauty, and asked no song to go anywhere. The sounds "
-                "were placed by a score of curves and points after John Cage's \"Fontana Mix\", and the dice "
-                "decided the rest. "
-                + (f"{len(heard):,} of those moments are in these songs. " if heard else "")
-                + "Nothing was discerned, classified, or judged.")
+                "Internet Archive. The sounds were placed by a score of curves and points after John Cage's "
+                "\"Fontana Mix\", and the dice decided the rest."
+                + (f" {len(heard):,} of those moments are in these songs." if heard else ""))
                if PURE else
                (f"In the hours before this album, {ARTIST} listened to the world, {listened}: "
                 "shortwave from receivers around the world, FM and internet stations, open microphones on rooftops, "
@@ -417,6 +414,9 @@ def main():
                 "algorithms), how long each song should be, and where it should go. "
                 + (f"{len(heard):,} of those moments are in these songs. " if heard else "")
                 + "Nothing was chosen by hand."), "",
+               *(["Today was a pure day, as about one day in seven is: the algorithm kept everything, static and "
+                  "silence included, matched nothing for beauty, and asked no song to go anywhere. Nothing was "
+                  "discerned, classified, or judged.", ""] if PURE else []),
                ("This is the last album. The broadcasts collected are gone, and the recordings it gathered were "
                 f"thrown away once it was made, as on every day before. But no album will replace it: chance "
                 f"ended the series here, after {number + 1:,} album{'s' if number else ''}. This one will stay.")
