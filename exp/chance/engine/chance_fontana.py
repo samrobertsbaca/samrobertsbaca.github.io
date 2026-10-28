@@ -175,6 +175,9 @@ from chance_data import SR, log_uniform, ramp, drift, box_smooth, interpret_byte
 HERE = os.path.dirname(os.path.abspath(__file__))
 RECEIVER_LIST_URL = "http://rx.linkfanel.net/kiwisdr_com.js"
 IDENT = "chance_fontana"
+# a pure day (CHANCE_PURE=1): no taste anywhere -- nothing judged dull and thrown away, no palette,
+# no shaping. the daily job makes about 1 in 7 albums this way.
+PURE = os.environ.get("CHANCE_PURE") == "1"
 
 RADIO_CLIPS = []      # filled in main(): cached clips, ordered by frequency
 
@@ -844,7 +847,7 @@ def gather_streams(count, radio_dir, fm_only=False, countries=None, workers=4, r
                     continue
                 xf = x.astype(np.float64)
                 flat, peak, cv = features(xf, rate, 'am')
-                if xf.std() < 30 or not lively('am', flat, peak, cv):
+                if not PURE and (xf.std() < 30 or not lively('am', flat, peak, cv)):
                     print(f"  .. {label}: silent or empty")
                     continue
                 if got >= count:
@@ -991,7 +994,7 @@ def gather_archive(count, radio_dir, workers=4):
             print(f"  .. {ident[:50]}: no ({err})")
             return False
         xf = x.astype(np.float64)
-        if xf.std() < 30:
+        if xf.std() < 30 and not PURE:
             print(f"  .. {ident[:50]}: silent there")
             return False
         title = str(m.get('title') or ident).strip()
@@ -1054,7 +1057,7 @@ def gather_mics(count, radio_dir, workers=4):
             print(f"  .. {label}: no ({err})")
             return False
         xf = x.astype(np.float64)
-        if xf.std() < 20:                                  # quiet places are welcome; dead air is not
+        if xf.std() < 20 and not PURE:                     # quiet places are welcome; dead air is not
             print(f"  .. {label}: silent")
             return False
         flat, peak, cv = features(xf, rate, 'am')
@@ -1426,6 +1429,14 @@ def fresh_clip(rng):
 
 def palette(rng, allowed, log):
     pal = {'clips': [], 'data': [], 'ops': []}
+    if PURE:                                             # no palette: anything may sit next to anything
+        pal['clips'] = list(range(len(RADIO_CLIPS)))
+        pal['data'] = [i for i in allowed if cd.SOURCES[i][0] not in NOT_DATA]
+        pal['ops'] = list(range(len(cd.OPS)))
+        log.append(f"palette: none (a pure day): all {len(RADIO_CLIPS)} clips, every data source and "
+                   f"every operation, unmatched and unweighted")
+        DATA_FAMILY[:] = pal['data']
+        return pal
     if RADIO_CLIPS:
         N = len(RADIO_CLIPS)
         k = int(min(N, rng.integers(3, 9)))

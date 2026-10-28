@@ -48,6 +48,7 @@ SITE_ROOT = os.path.dirname(os.path.dirname(SITE))      # the site itself, for s
 ARTIST = "ScorsBT4"                                 # the machine that plays the world's radio
 ASKER = "Samuel John Scorsby"                           # who asked it the questions
 LAST_ODDS = int(os.environ.get('CHANCE_LAST_ODDS', 365))    # each day, a 1-in-this chance the series ends (about a year on average)
+PURE = os.environ.get('CHANCE_PURE') == '1'                  # a pure day: no taste anywhere (about 1 in 7)
 QUOTE = "All computer programming is basically question asking, rather than choice making."
 INKS = ["#00B4FF", "#EB000E", "#B34777", "#100E0E"]       # the page's own colours
 PAPER = "#FDF9F8"
@@ -398,15 +399,24 @@ def main():
     listened = f"gathering {gathered:,} moments of radio" if gathered else "gathering moments of radio"
     credits = [f"released {day.strftime('%B')} {day.day}, {day.year}, {made_at} UTC", "",
                f"questions by {ASKER}", "",
-               f"In the hours before this album, {ARTIST} listened to the world, {listened}: "
-               "shortwave from receivers around the world, FM and internet stations, open microphones on rooftops, "
-               "in gardens and in canals, and old recordings from the Internet Archive. It kept only what had "
-               "something in it. In the spirit of John Cage's aleatoric compositional methods, particularly "
-               "inspired by his piece \"Fontana Mix\", it threw the dice: which sounds belong together, which "
-               "patterns of data to fuse them with (cellular automata, bytebeat formulas, number sequences, sorting "
-               "algorithms), how long each song should be, and where it should go. "
-               + (f"{len(heard):,} of those moments are in these songs. " if heard else "")
-               + "Nothing was chosen by hand.", "",
+               (f"In the hours before this album, {ARTIST} listened to the world, {listened} from anywhere on "
+                "the dial: shortwave, FM and internet stations, open microphones and old recordings from the "
+                "Internet Archive. Today was a pure day, as about one day in seven is: it kept everything, static "
+                "and silence included, matched nothing for beauty, and asked no song to go anywhere. The sounds "
+                "were placed by a score of curves and points after John Cage's \"Fontana Mix\", and the dice "
+                "decided the rest. "
+                + (f"{len(heard):,} of those moments are in these songs. " if heard else "")
+                + "Nothing was chosen by hand, and nothing was judged.")
+               if PURE else
+               (f"In the hours before this album, {ARTIST} listened to the world, {listened}: "
+                "shortwave from receivers around the world, FM and internet stations, open microphones on rooftops, "
+                "in gardens and in canals, and old recordings from the Internet Archive. It kept only what had "
+                "something in it. In the spirit of John Cage's aleatoric compositional methods, particularly "
+                "inspired by his piece \"Fontana Mix\", it threw the dice: which sounds belong together, which "
+                "patterns of data to fuse them with (cellular automata, bytebeat formulas, number sequences, sorting "
+                "algorithms), how long each song should be, and where it should go. "
+                + (f"{len(heard):,} of those moments are in these songs. " if heard else "")
+                + "Nothing was chosen by hand."), "",
                ("This is the last album. The broadcasts collected are gone, and the recordings it gathered were "
                 f"thrown away once it was made, as on every day before. But no album will replace it: chance "
                 f"ended the series here, after {number + 1:,} album{'s' if number else ''}. This one will stay.")
@@ -431,7 +441,7 @@ def main():
         'cover': base + "cover.jpg", 'cover_small': base + "cover_small.jpg", 'banner': base + "banner.jpg",
         'downloads': downloads,
         'mood': {k: round(v, 3) for k, v in mood.items()}, 'palette': inks + [paper_hex],
-        'number': number, 'day': day.isoformat(), 'time_utc': made_at, 'last': last,
+        'number': number, 'day': day.isoformat(), 'time_utc': made_at, 'last': last, 'pure': PURE,
         'seed': str(seed), 'generated_from': os.path.basename(album),
         'published': datetime.datetime.now().isoformat(timespec='seconds'),
     }

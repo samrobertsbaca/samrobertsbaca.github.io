@@ -22,6 +22,7 @@ jobs:
     outputs:
       go: ${{ steps.d.outputs.go }}
       day: ${{ steps.d.outputs.day }}
+      pure: ${{ steps.d.outputs.pure }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -34,7 +35,7 @@ jobs:
         run: |
           git fetch -q --depth 1 origin main
           python3 - <<'EOF' >> "$GITHUB_OUTPUT"
-          import datetime, hashlib, json, os, subprocess, sys
+          import datetime, hashlib, json, os, secrets, subprocess, sys
           now = datetime.datetime.now(datetime.timezone.utc)
           day = now.date().isoformat()
           hour = int(hashlib.sha256(f"scorsbt4 {day}".encode()).hexdigest(), 16) % 24
@@ -52,8 +53,13 @@ jobs:
           print(f"today ({day}) the chance hour is {hour:02d}:00 UTC; it is {now:%H:%M}; "
                 f"today's album {'exists' if made == day else 'is not made yet'} -> {'go' if go else 'wait'}",
                 file=sys.stderr)
+          # about one day in seven is a pure day: no taste anywhere, just the dice
+          pure = go and secrets.randbelow(7) == 0
+          if pure:
+              print("today is a pure day", file=sys.stderr)
           print(f"go={'true' if go else 'false'}")
           print(f"day={day}")
+          print(f"pure={'1' if pure else '0'}")
           EOF
 
   album:
@@ -84,24 +90,34 @@ jobs:
       # day of the year, as each day has a 1 in 365 chance of being the last.
       # each shortwave receiver and each open microphone is visited at most once a day; the
       # station streams make up whatever the others can't give. usually under an hour.
+      # on a pure day the dial is turned anywhere, with no listening first, and everything is kept
       - name: Gather today's radio
         working-directory: exp/chance/engine
         timeout-minutes: 250
-        run: python chance_fontana.py --gather 365 --gather-only --workers 8 || echo "gathering fell short; making do"
+        env:
+          CHANCE_PURE: ${{ needs.decide.outputs.pure }}
+        run: |
+          if [ "$CHANCE_PURE" = "1" ]; then DIAL=wild; else DIAL=stations; fi
+          python chance_fontana.py --gather 365 --gather-only --workers 8 --dial "$DIAL" || echo "gathering fell short; making do"
 
       - name: Make the album
         working-directory: exp/chance/engine
-        # mostly 5-7 songs; now and then more, up to 12 (about once a month)
+        env:
+          CHANCE_PURE: ${{ needs.decide.outputs.pure }}
+        # mostly 5-7 songs; now and then more, up to 12 (about once a month). a pure day keeps the
+        # static, uses no palette, and follows only the Fontana-style score of curves and points.
         run: |
           N=$(python -c "import random; print(random.choices(range(5, 13), weights=[26, 28, 24, 9, 5, 3, 2, 3])[0])")
           echo "today: $N songs"
-          python chance_fontana.py -n "$N" -o "$RUNNER_TEMP/albums"
+          if [ "$CHANCE_PURE" = "1" ]; then EXTRA="--form fontana --keep-static"; else EXTRA=""; fi
+          python chance_fontana.py -n "$N" $EXTRA -o "$RUNNER_TEMP/albums"
 
       - name: Publish it to a release
         working-directory: exp/chance/engine
         env:
           GH_TOKEN: ${{ github.token }}
           CHANCE_DAY: ${{ needs.decide.outputs.day }}
+          CHANCE_PURE: ${{ needs.decide.outputs.pure }}
         run: python publish_album.py --albums "$RUNNER_TEMP/albums" --release
 
       - name: Commit album.json
