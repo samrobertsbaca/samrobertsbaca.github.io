@@ -518,7 +518,7 @@ def main():
         json.dump({'title': name, 'number': number, 'day': day.isoformat(), 'written': written_score(),
                    'album_txt': tidy(record), 'songs': song_scores}, f, indent=1, ensure_ascii=False)
     if args.release:                                     # published for real: the next album gets the next number
-        keep_record(args.site, data, cover)
+        keep_record(args.site, data, cover, heard)
         with open(counter, 'w', encoding='utf-8') as f:
             f.write(f"{number + 1}\n")
     total = sum(t['bytes'] for t in tracks)
@@ -526,7 +526,7 @@ def main():
           f"{total / 1e6:.1f} MB of MP3; album.json written" + (f"; media on release {tag}" if args.release else ""))
 
 
-def keep_record(site, data, cover):
+def keep_record(site, data, cover, heard=None):
     """what stays when an album goes: not its sound, but its catalogue card and a small copy of its
     cover, in archive/ beside the page (archive/index.json, archive/covers/ISA0000.jpg, ...)."""
     arch = os.path.join(site, 'archive')
@@ -540,7 +540,8 @@ def keep_record(site, data, cover):
             'tracks': [{'n': t['n'], 'title': t['title'], 'duration': t['duration']} for t in data['tracks']],
             'cover': f"archive/covers/{cat}.jpg", 'palette': data['palette'], 'seed': data['seed'],
             'pure': data['pure'], 'last': data['last'],
-            'heard': data['heard'], 'heard_total': data['heard_total']}
+            'heard': heard if heard is not None else data['heard'],   # every recording, not just the page's first 60
+            'heard_total': data['heard_total']}
     path = os.path.join(arch, 'index.json')
     cards = json.load(open(path, encoding='utf-8')) if os.path.exists(path) else []
     cards = sorted([c for c in cards if c['catalog'] != cat] + [card], key=lambda c: c['number'])
