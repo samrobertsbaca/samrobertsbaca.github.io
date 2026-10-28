@@ -344,6 +344,9 @@ def main():
         number = 0
     name = f"{number:04d} " + album_title([t['title'] for t in tracks], seed)
     catno = f"{SERIES_CODE}{number:04d}"                 # in the small print, not the title
+    words = name.split(' ', 1)[1] if ' ' in name else ''  # the title without its number
+    # the album's own record, headed by where it belongs: "Impermanence Series A · ISA0000 Libehrain ..."
+    record = manifest if manifest.startswith(SERIES) else f"{SERIES} · {catno} {words}".rstrip() + "\n" + manifest
     stamp = re.search(r'album_(\d{4}-\d\d-\d\d)', os.path.basename(album))
     day = datetime.date.fromisoformat(stamp.group(1)) if stamp else datetime.date.today()
     if os.environ.get('CHANCE_DAY'):                     # the day this album belongs to (the daily job says)
@@ -411,7 +414,6 @@ def main():
     downloads = []
     if args.release:                                     # the whole album to take home, in two forms
         # the folder inside, as a Bandcamp download names it: artist - album ("ScorsBT4 - ISA0000 Libehrain ...")
-        words = name.split(' ', 1)[1] if ' ' in name else ''
         safe = re.sub(r'[<>:"/\\|?*]+', ' ', f"{ARTIST} - {catno} {words}").strip()
         for fmt_, note, files_, ext in (
                 ("MP3", f"{args.download_bitrate.rstrip('k')} kbps", keep, 'mp3'),
@@ -423,7 +425,7 @@ def main():
                     inner = re.sub(r'[<>:"/\\|?*]+', ' ', f"{t['n']:02d} {t['title']}").strip()
                     z.write(src, f"{safe}/{inner}.{ext}")
                 z.write(os.path.join(media, 'cover.jpg'), f"{safe}/cover.jpg")     # as in a bandcamp download
-                z.writestr(f"{safe}/album.txt", manifest)      # the album's own record, as the program wrote it
+                z.writestr(f"{safe}/album.txt", record)        # the album's own record, as the program wrote it
             downloads.append({'format': fmt_, 'note': note, 'url': base + zname,
                               'bytes': os.path.getsize(zpath)})
             print(f"  zipped {zname} ({os.path.getsize(zpath) / 1e6:.0f} MB)")
@@ -510,7 +512,7 @@ def main():
                             'score': tidy(open(sc, encoding='utf-8').read()) if os.path.exists(sc) else ''})
     with open(os.path.join(args.site, 'score.json'), 'w', encoding='utf-8') as f:
         json.dump({'title': name, 'number': number, 'day': day.isoformat(), 'written': written_score(),
-                   'album_txt': tidy(manifest), 'songs': song_scores}, f, indent=1, ensure_ascii=False)
+                   'album_txt': tidy(record), 'songs': song_scores}, f, indent=1, ensure_ascii=False)
     if args.release:                                     # published for real: the next album gets the next number
         keep_record(args.site, data, cover)
         with open(counter, 'w', encoding='utf-8') as f:
