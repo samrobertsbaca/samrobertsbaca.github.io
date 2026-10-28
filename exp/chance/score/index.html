@@ -127,7 +127,7 @@
 (function () {
   const $ = id => document.getElementById(id);
   fetch('../album.json', { cache: 'no-cache' }).then(r => r.json()).then(a => {
-    const at = u => /^https?:/.test(u) ? u : '../' + u;      // the day's release, or files beside the album page
+    const at = u => /^(https?|data):/.test(u) ? u : '../' + u;      // the day's release, or files beside the album page
     $('cover').src = at(a.cover_small);
     $('banner').src = at(a.banner);
     $('sub').textContent = 'by ' + a.artist + ' · questions by Samuel John Scorsby · released ' +

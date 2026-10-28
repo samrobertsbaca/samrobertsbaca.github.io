@@ -323,7 +323,7 @@
       </div>
 
       <div id="art">
-        <img id="cover" alt="Album cover: each song drawn as a ring, read clockwise from the top">
+        <img id="cover" alt="Album cover: the album drawn as a record, one groove spiralling in from the edge, its songs one after another">
         <div class="share">
           <button id="share">Share / Embed</button>
           <a href="https://scorsby.bandcamp.com">Bandcamp</a>
@@ -485,7 +485,7 @@
     $('albumTitle').textContent = a.title;
     $('artist').textContent = a.artist;
     // each day's images live on that day's release (a new address every day); local ones get a stamp
-    const fresh = u => /^https?:/.test(u) ? u : u + '?' + encodeURIComponent(a.published);
+    const fresh = u => /^(https?|data):/.test(u) ? u : u + '?' + encodeURIComponent(a.published);
     $('cover').src = fresh(a.cover);
     $('banner').src = fresh(a.banner);
     $('discoCover').src = fresh(a.cover_small);

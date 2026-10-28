@@ -181,7 +181,7 @@
     document.getElementById('music').innerHTML = first.map(([t, who, l, h, id]) => card(h, pic(id ? bc(id) : '/scorsbyface.png', t), t, [who, l])).join('');
     fetch('/exp/chance/album.json', { cache: 'no-cache' }).then((r) => r.json()).then((a) => {
       const img = document.querySelector('#music .item:first-child img');
-      const src = /^https?:/.test(a.cover_small) ? a.cover_small : '/exp/chance/' + a.cover_small;
+      const src = /^(https?|data):/.test(a.cover_small) ? a.cover_small : '/exp/chance/' + a.cover_small;
       const day = new Image();
       day.onload = () => { img.src = src; };
       day.src = src;

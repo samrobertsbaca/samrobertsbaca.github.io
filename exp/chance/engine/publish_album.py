@@ -7,9 +7,10 @@ given), and writes into the site's exp/chance/ folder:
 
     tracks/01.mp3 ...   streamable MP3s (128 kbps), tagged; the WAVs stay here
                         (with --release, the MP3 download is encoded again at 320 kbps)
-    cover.jpg           a cover drawn from the songs themselves: each song is a ring, read
-                        clockwise from the top like a record; distance from the centre is
-                        pitch (low inside, high outside), ink is loudness
+    cover.jpg           a cover drawn from the songs themselves, as a record: one groove from
+                        the edge in to the label, clockwise from the top, the songs one after
+                        another along it; across the groove is pitch (high at the outer edge),
+                        ink is loudness (cover.png: the same, lossless)
     banner.jpg          a blurred strip of that cover, for the page header
     album.json          title, tracks, durations, credits -- everything the page shows
 
@@ -159,37 +160,58 @@ def mood_palette(m):
     return hexes, '#%02X%02X%02X' % (int(pr * 255), int(pg * 255), int(pb * 255))
 
 
-def draw_cover(rings, size=1200, seed=0, inks=None, paper_hex=None):
-    """each song a ring: clockwise from the top is time, outward is pitch, ink is loudness."""
+def spiral_turns(seconds):
+    """how many times the groove winds round: about 3.1 x the square root of the minutes (13 turns
+    for a short album, 20 for a long one), so pitch and time detail shrink together as an album
+    grows, and neither gives out: the groove stays about 24 px wide, one per band of hearing."""
+    return float(np.clip(3.1 * np.sqrt(seconds / 60.0), 10.0, 26.0))
+
+
+def draw_cover(rings, durations, size=1200, seed=0, inks=None, paper_hex=None, ss=2):
+    """the album as one groove, from the edge in to the label, like a record: along the groove is
+    time (clockwise from the top), across it is pitch (high at the outer edge), ink is loudness.
+    the songs follow one another along it, each in its own ink, with a quiet stretch between."""
     rng = np.random.default_rng(seed)
     INKS_ = inks or INKS
     T = len(rings)
-    paper = hexrgb(paper_hex or PAPER)
-    yy, xx = np.mgrid[0:size, 0:size].astype(np.float64)
-    c = (size - 1) / 2.0
+    total = float(sum(durations))
+    K = spiral_turns(total)
+    duty, gap_turns = 0.9, 0.35                    # the groove's share of each turn; the quiet between songs
+    S = size * ss                                  # drawn at twice the size, then made smooth
+    paper = hexrgb(paper_hex or PAPER).astype(np.float32)
+    yy, xx = np.mgrid[0:S, 0:S].astype(np.float32)
+    c = (S - 1) / 2.0
     dx, dy = xx - c, yy - c
     r = np.hypot(dx, dy)
     theta = (np.arctan2(dx, -dy) % (2 * np.pi)) / (2 * np.pi)          # 0 at the top, clockwise
-    R_out, R_in = size * 0.47, size * 0.11
-    gap = size * 0.006
-    width = (R_out - R_in) / T
-    img = np.tile(paper, (size, size, 1))
+    R_out, R_in = S * 0.47, S * 0.11
+    pitch = (R_out - R_in) / (K + duty)            # one turn: the groove and the land beside it
+    u = (R_out - r) / pitch - theta
+    k = np.floor(u)
+    f = u - k                                      # how far across the groove, 0 at its outer edge
+    s_ = k + theta                                 # how far along it, in turns from the start
+    lens = np.array(durations, dtype=np.float64) / total * (K - gap_turns * (T - 1))
+    starts = np.concatenate([[0.0], np.cumsum(lens[:-1] + gap_turns)])
+    img = np.tile(paper, (S, S, 1))
+    groove = (s_ >= 0) & (s_ <= K) & (f < duty) & (r >= R_in) & (r <= R_out + 1)
+    deep = hexrgb(INKS_[3 % len(INKS_)])
+    img[groove] = paper * 0.84 + deep * 0.16       # the quiet stretches: the groove still there, barely inked
     offset = int(rng.integers(len(INKS_)))
     for i, M in enumerate(rings):
-        r1 = R_out - i * width                      # first song outermost
-        r0 = r1 - width + gap
-        sel = (r >= r0) & (r < r1)
+        sel = groove & (s_ >= starts[i]) & (s_ < starts[i] + lens[i])
         if not sel.any():
             continue
         steps, bands = M.shape
-        band = np.clip(((r[sel] - r0) / (r1 - r0) * bands).astype(int), 0, bands - 1)
-        t = np.clip((theta[sel] * steps).astype(int), 0, steps - 1)
-        v = M[t, band] ** 1.6
+        t = np.clip(((s_[sel] - starts[i]) / lens[i] * steps).astype(int), 0, steps - 1)
+        band = np.clip(((duty - f[sel]) / duty * bands).astype(int), 0, bands - 1)
+        v = np.maximum(M[t, band] ** 1.6, 0.07)
         ink = hexrgb(INKS_[(i + offset) % len(INKS_)])
         img[sel] = paper * (1 - v[:, None]) + ink * v[:, None]
-    R_label = R_in - gap * 2
+    R_label = R_in - S * 0.012
     img[r < R_label] = paper                        # the label
-    im = Image.fromarray(np.clip(img, 0, 255).astype(np.uint8), 'RGB').filter(ImageFilter.SMOOTH)
+    im = Image.fromarray(np.clip(img, 0, 255).astype(np.uint8), 'RGB').resize((size, size), Image.LANCZOS)
+    R_label /= ss
+    c = (size - 1) / 2.0
     face_path = os.path.join(SITE_ROOT, 'scorsbyface.png')
     if os.path.exists(face_path):                   # scorsby at the centre of the record
         face = Image.open(face_path).convert('RGBA')
@@ -304,7 +326,7 @@ def main():
         title = titles_in_manifest.get(num.group(1) if num else '', None) or \
             re.sub(r'^\d+[ _]', '', stem).replace('_', ' ')
         x, asr, secs = read_wav_mono(path)
-        rings.append(song_rings(x, asr))
+        rings.append(song_rings(x, asr, steps=max(900, int(secs * 30))))   # finer than the groove can show
         moods.append(song_mood(x, asr))
         sc = os.path.splitext(path)[0] + '.score.txt'
         if os.path.exists(sc):
@@ -351,8 +373,9 @@ def main():
     mood = album_mood(moods, [t['duration'] for t in tracks])
     inks, paper_hex = mood_palette(mood)
     print("  mood " + ", ".join(f"{k} {v:.2f}" for k, v in mood.items()) + " -> inks " + " ".join(inks))
-    cover = draw_cover(rings, seed=seed, inks=inks, paper_hex=paper_hex)
+    cover = draw_cover(rings, [t['duration'] for t in tracks], seed=seed, inks=inks, paper_hex=paper_hex)
     cover.save(os.path.join(media, 'cover.jpg'), quality=90)
+    cover.save(os.path.join(media, 'cover.png'))         # lossless: every groove as it was drawn
     cover.resize((300, 300), Image.LANCZOS).save(os.path.join(media, 'cover_small.jpg'), quality=88)
     strip = cover.crop((0, 420, 1200, 640)).resize((975, 180), Image.LANCZOS)
     strip.filter(ImageFilter.GaussianBlur(14)).save(os.path.join(media, 'banner.jpg'), quality=85)
@@ -468,6 +491,7 @@ def main():
         'tags': ["chance", "radio", "data", "experimental", "Albuquerque"],
         'tracks': [{k: v for k, v in t.items() if k != 'bytes'} for t in tracks],
         'cover': base + "cover.jpg", 'cover_small': base + "cover_small.jpg", 'banner': base + "banner.jpg",
+        'cover_png': base + "cover.png",
         'downloads': downloads,
         'mood': {k: round(v, 3) for k, v in mood.items()}, 'palette': inks + [paper_hex],
         'number': number, 'series': SERIES, 'catalog': catno, 'day': day.isoformat(), 'time_utc': made_at, 'last': last, 'pure': PURE,
