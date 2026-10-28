@@ -44,8 +44,8 @@
     .grid.books .item:nth-child(5) { grid-column: 4 / 6; }
     .grid.games { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 760px; margin: 0 auto; }
     .games .cover { aspect-ratio: 16 / 9; }
-    /* the three records to start with, as big as the books; the rest in a quiet list underneath */
-    .grid.three { grid-template-columns: repeat(3, 1fr); max-width: 760px; margin: 0 auto; gap: 26px 22px; }
+    /* the four records to start with, big; the rest in a quiet list underneath */
+    .grid.three { grid-template-columns: repeat(4, 1fr); max-width: 760px; margin: 0 auto; gap: 26px 22px; }
     .more-intro { max-width: 760px; margin: 38px auto 14px; font-size: 13px; color: rgba(29, 26, 94, .7); }
     .more { max-width: 760px; margin: 0 auto; display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px 26px; }
     .row { display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; }
@@ -89,7 +89,6 @@
       .grid.books .item:nth-child(5) { grid-column: 1 / 3; justify-self: center; width: calc(50% - 7px); } /* the fifth, centered under the others */
       .grid.games { grid-template-columns: 1fr; }
       .grid.three { grid-template-columns: repeat(2, 1fr); }
-      .grid.three .item:nth-child(3) { grid-column: 1 / 3; justify-self: center; width: calc(50% - 7px); }
       .more { grid-template-columns: 1fr; }
     }
   </style>
@@ -144,6 +143,8 @@
     ];
     const S = 'https://scorsby.bandcamp.com/';
     const MUSIC = [
+      // a new album every day by chance; its picture is whichever album is out today (filled in below)
+      ['impermanence series a', 'scorsbt4', '2026 · a new album daily', '/exp/chance/', null],
       ['god says you’re a champ', 'samuel john scorsby', '2026 · 3xLP', S + 'album/god-says-youre-a-champ', '0831828732'],
       ['two songs', 'john king cave', '2025', S + 'album/two-songs', '2858246788'],
       ['soul country', 'john king cave', '2025 · 2xLP', S + 'album/soul-country', '1344013158'],
@@ -175,9 +176,16 @@
     document.getElementById('books').innerHTML = BOOKS.map(([t, l, h, src, pos]) => card(h, pic(src, t, pos), t, [l])).join('');
     document.getElementById('games').innerHTML = GAMES.map(([t, l, h, src]) => card(h, pic(src, t), t, [l])).join('');
     // where to start: the essential scorsby records
-    const ESSENTIAL = ['god says you’re a champ', 'bless me, valentine', 'sweeping beauties'];
+    const ESSENTIAL = ['impermanence series a', 'god says you’re a champ', 'bless me, valentine', 'sweeping beauties'];
     const first = ESSENTIAL.map((t) => MUSIC.find((m) => m[0] === t));
-    document.getElementById('music').innerHTML = first.map(([t, who, l, h, id]) => card(h, pic(bc(id), t), t, [who, l])).join('');
+    document.getElementById('music').innerHTML = first.map(([t, who, l, h, id]) => card(h, pic(id ? bc(id) : '/scorsbyface.png', t), t, [who, l])).join('');
+    fetch('/exp/chance/album.json', { cache: 'no-cache' }).then((r) => r.json()).then((a) => {
+      const img = document.querySelector('#music .item:first-child img');
+      const src = /^https?:/.test(a.cover_small) ? a.cover_small : '/exp/chance/' + a.cover_small;
+      const day = new Image();
+      day.onload = () => { img.src = src; };
+      day.src = src;
+    }).catch(() => {});
     document.getElementById('more').innerHTML = MUSIC.filter((m) => !first.includes(m)).map(([t, who, l, h, id]) =>
       `<a class="row" href="${h}" target="_blank" rel="noopener"><img src="${bc(id)}" alt="" loading="lazy"><span><b>${t}</b><span class="w">${who} · ${l}</span></span></a>`).join('');
   </script>
