@@ -413,7 +413,8 @@ def main():
                if last else
                ("This album is impermanent. The broadcasts collected are gone. The recordings it gathered were "
                 "thrown away once it was made. Tomorrow it will be replaced by another, which will never be heard "
-                "again either. It exists for a day. Listen while it's here.")]
+                f"again either. Each day there is a 1 in {LAST_ODDS} chance that it is the last. "
+                "It exists for a day. Listen while it's here.")]
     sources = []
     if any('live microphone' in h for h in heard):
         sources.append("open microphones: Locus Sonus Locustream (locusonus.org)")

@@ -1,6 +1,6 @@
 name: Daily Chance Album
 # once a day, at an hour chosen by chance: gather the world's radio fresh, make an album by chance
-# (numbered 0000, 0001 ...), put its audio and cover on a GitHub release, and point
+# (numbered 0000, 0001 ...; any day may be the last), put its audio and cover on a GitHub release, and point
 # scorsby.us/exp/chance/ at it.
 permissions:
   contents: write
