@@ -401,12 +401,12 @@ def main():
                f"questions by {ASKER}", "",
                (f"In the hours before this album, {ARTIST} listened to the world, {listened} from anywhere on "
                 "the dial: shortwave, FM and internet stations, open microphones and old recordings from the "
-                "Internet Archive. Today was a pure day, as about one day in seven is: it kept everything, static "
+                "Internet Archive. Today was a pure day, as about one day in seven is: the algorithm kept everything, static "
                 "and silence included, matched nothing for beauty, and asked no song to go anywhere. The sounds "
                 "were placed by a score of curves and points after John Cage's \"Fontana Mix\", and the dice "
                 "decided the rest. "
                 + (f"{len(heard):,} of those moments are in these songs. " if heard else "")
-                + "Nothing was chosen by hand, and nothing was judged.")
+                + "Nothing was discerned, classified, or judged.")
                if PURE else
                (f"In the hours before this album, {ARTIST} listened to the world, {listened}: "
                 "shortwave from receivers around the world, FM and internet stations, open microphones on rooftops, "
