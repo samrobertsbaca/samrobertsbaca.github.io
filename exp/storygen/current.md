@@ -1,3 +1,3 @@
-### the jiggle of joy and truth
+### the beaming general
 
-scorsby, a giggle-spark, persuaded a fluffy 'snuggle-wolf' his joy was plump, then *zip!* elder gloom balanced a star-egg. a glint-beetle, 'rrombo dombo di di dai!', jiggled him; the egg *poofed*. elara, by river-whispers, nibbled a ring from a husk. her mate, zorg, gasped, "ogress?" forest-giggles led zorg to treasure & truth. his dad, seeing elara alone, chuckled, "son-snatcher!" a sweet *thwip* sent her to a sparkle-plane. all smiled.
+naked scorsby met the king. "rrombo dombo di di dai!" the monarch pronounced, made him general. scorsby 'acted as if.' trees were clothed, dead dogs fed. horseflies on his steed? he grinned, "i'm acting as if it's flying!" the court, all smiles, echoed his joy.
