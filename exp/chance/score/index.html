@@ -76,8 +76,10 @@
     #customHeader { display: none; }
     #miniProfile { display: flex; align-items: center; height: 59px; padding-left: 16px; background: var(--paper);
       border-bottom: 1px solid var(--line); }
-    #miniProfile img { width: 44px; height: 44px; border-radius: 50%; background: #fff; object-fit: contain; padding: 5px;
-      border: 1px solid var(--line); flex: none; }
+    /* a white circle with scorsby inside it, whole: the picture itself isn't rounded, so nothing is clipped */
+    #miniProfile .face { width: 44px; height: 44px; border-radius: 50%; background: #fff; border: 1px solid var(--line);
+      display: flex; align-items: center; justify-content: center; flex: none; }
+    #miniProfile .face img { width: 34px; height: 34px; object-fit: contain; display: block; }
     #miniProfile .who { flex: 1; min-width: 0; margin-left: 11px; }
     #miniProfile .nm { font-size: 16px; color: var(--text); }
     #miniProfile .lc { font-size: 14px; color: #000; opacity: .72; }
@@ -109,7 +111,7 @@
 <body>
 <div id="centerWrapper">
   <div id="miniProfile">
-    <img src="../../../scorsbyface.png" alt="">
+    <span class="face"><img src="../../../scorsbyface.png" alt=""></span>
     <div class="who"><div class="nm">Scorsby Records</div><div class="lc">Now, Here</div></div>
     <a class="fl" href="https://scorsby.bandcamp.com">follow</a>
   </div>
