@@ -89,6 +89,20 @@
     .top img { width: 80px; height: 80px; }
     .written { font-size: 17px; }
   }
+  /* on phones Bandcamp sets aside a page's own colours: near-black on white, secondary text a little faded,
+     light grey rules, dark outlines; the label's band stays grey */
+  @media (max-width: 700px) {
+    :root { --page: #fff; --paper: #fff; --text: #222; --link: #222; --line: #e6e6e6; }
+    html, body { background: #fff; color: #222; }
+    #band-navbar { background: #fff; height: 55px; padding: 0; border-bottom: 1px solid #e6e6e6; }
+    #band-navbar a, #band-navbar a.active { color: #222; line-height: 50px; padding: 0 16px; margin: 0;
+      border-top: 3px solid transparent; }
+    #band-navbar a.active { border-top-color: #222; }
+    .nowtitle .time, .format p, td.num, h4.buy span, #downloads small, .seed { color: #222; }
+    td.title .time, #rightColumn .loc, #rightColumn .disco .d, #miniProfile .lc, #art .seed { color: rgba(34, 34, 34, .72); opacity: 1; }
+    footer { background: #333; color: rgba(255, 255, 255, .8); margin: 0; }
+    footer a { color: #fff; }
+  }
 </style>
 </head>
 <body>

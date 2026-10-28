@@ -79,7 +79,7 @@
   .nowtitle .time { color: #000; flex: none; }
   .progrow { display: flex; align-items: center; gap: 10px; margin-top: 9px; }
   .progbar { width: 250px; flex: none; height: 10px; border: 1px solid var(--line); background: rgba(255, 255, 255, 0.3); position: relative; cursor: pointer; }
-  .progbar .fill { position: absolute; left: 0; top: 0; bottom: 0; background: rgba(0, 0, 0, 0.12); width: 0; }
+  .progbar .fill { position: absolute; left: 0; top: 0; bottom: 0; background: rgba(0, 0, 0, 0.04); width: 0; }
   .progbar .thumb { position: absolute; top: -2px; width: 24px; height: 12px; background: #fff;
     border: 1px solid rgba(0, 0, 0, 0.25); border-radius: 1px; left: 0; }
   .navbtn { width: 20px; height: 12px; flex: none; background: none; border: none; cursor: pointer; padding: 0;
@@ -129,6 +129,9 @@
   #art img { width: 350px; height: 350px; display: block; background: #eee; cursor: zoom-in; }
   #art .share { margin-top: 12px; display: flex; gap: 18px; font-size: 12px; }
   #art .share a, #art .share button { color: var(--link); background: none; border: none; padding: 0; font: inherit; cursor: pointer; }
+  /* Share / Embed is the page's own text colour on Bandcamp, with a little arrow-out-of-a-box beside it */
+  #art .share button#share { color: var(--text); display: inline-flex; align-items: center; gap: 6px; }
+  #art .share button#share svg { width: 15px; height: 13px; flex: none; }
   #art .seed { margin-top: 10px; font-size: 11px; color: var(--text); word-break: break-all; opacity: .8; }
 
   #rightColumn img.bandphoto { width: 120px; height: 120px; display: block; background: #fff; object-fit: contain; cursor: zoom-in; }
@@ -279,6 +282,21 @@
     #art .share { font-size: 16px; }
     #art .seed { font-size: 14px; }
   }
+  /* on phones Bandcamp sets aside a page's own colours: near-black on white, secondary text a little faded,
+     light grey rules, dark outlines; the label's band stays grey */
+  @media (max-width: 700px) {
+    :root { --page: #fff; --paper: #fff; --text: #222; --link: #222; --line: #e6e6e6; }
+    html, body { background: #fff; color: #222; }
+    #band-navbar { background: #fff; height: 55px; padding: 0; border-bottom: 1px solid #e6e6e6; }
+    #band-navbar a, #band-navbar a.active { color: #222; line-height: 50px; padding: 0 16px; margin: 0;
+      border-top: 3px solid transparent; }
+    #band-navbar a.active { border-top-color: #222; }
+    .nowtitle .time, .format p, td.num, h4.buy span, #downloads small, .seed { color: #222; }
+    td.title .time, #rightColumn .loc, #rightColumn .disco .d, #miniProfile .lc, #art .seed { color: rgba(34, 34, 34, .72); opacity: 1; }
+    #rightColumn .follow { background: none; }
+    footer { background: #333; color: rgba(255, 255, 255, .8); margin: 0; }
+    footer a { color: #fff; }
+  }
 </style>
 </head>
 <body>
@@ -346,7 +364,7 @@
       <div id="art">
         <img id="cover" alt="Album cover: the album drawn as a record, one groove spiralling in from the edge, its songs one after another">
         <div class="share">
-          <button id="share">Share / Embed</button>
+          <button id="share"><svg viewBox="0 0 15 13" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 5.5v6.8h12.2V5.5"/><path d="M7.1 1v7.6"/><path d="M4.2 3.8 7.1 1l2.9 2.8"/></svg><span>Share / Embed</span></button>
           <a href="https://scorsby.bandcamp.com">Bandcamp</a>
         </div>
         <div class="seed" id="seed"></div>
@@ -496,9 +514,9 @@
   document.querySelector('.bandphoto').onclick = () => closeup(document.querySelector('.bandphoto').src, 'Scorsby Records');
 
   $('share').onclick = async () => {
-    try { await navigator.clipboard.writeText(location.href); $('share').textContent = 'Link copied'; }
-    catch (e) { $('share').textContent = location.href; }
-    setTimeout(() => { $('share').textContent = 'Share / Embed'; }, 2000);
+    try { await navigator.clipboard.writeText(location.href); $('share').lastChild.textContent = 'Link copied'; }
+    catch (e) { $('share').lastChild.textContent = location.href; }
+    setTimeout(() => { $('share').lastChild.textContent = 'Share / Embed'; }, 2000);
   };
 
   fetch('album.json', { cache: 'no-cache' }).then(r => r.json()).then(a => {
