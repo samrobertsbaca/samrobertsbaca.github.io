@@ -48,6 +48,8 @@ REPO = os.environ.get('GITHUB_REPOSITORY', 'samrobertsbaca/samrobertsbaca.github
 SITE_ROOT = os.path.dirname(os.path.dirname(SITE))      # the site itself, for scorsby's face
 ARTIST = "ScorsBT4"                                 # the machine that plays the world's radio
 ASKER = "Samuel John Scorsby"                           # who asked it the questions
+SERIES, SERIES_CODE = "Impermanence Series A", "ISA"     # the series; each album's catalogue number is ISA0000, ...
+LABEL = "Scorsby Records"
 LAST_ODDS = int(os.environ.get('CHANCE_LAST_ODDS', 365))    # each day, a 1-in-this chance the series ends (about a year on average)
 PURE = os.environ.get('CHANCE_PURE') == '1'                  # a pure day: no taste anywhere (about 1 in 7)
 QUOTE = "All computer programming is basically question asking, rather than choice making."
@@ -317,6 +319,7 @@ def main():
     except (OSError, ValueError):
         number = 0
     name = f"{number:04d} " + album_title([t['title'] for t in tracks], seed)
+    catno = f"{SERIES_CODE}{number:04d}"                 # in the small print, not the title
     stamp = re.search(r'album_(\d{4}-\d\d-\d\d)', os.path.basename(album))
     day = datetime.date.fromisoformat(stamp.group(1)) if stamp else datetime.date.today()
     if os.environ.get('CHANCE_DAY'):                     # the day this album belongs to (the daily job says)
@@ -363,7 +366,9 @@ def main():
                         '-codec:v', 'copy', '-disposition:v', 'attached_pic', '-id3v2_version', '3',
                         '-metadata:s:v', 'title=Album cover', '-metadata:s:v', 'comment=Cover (front)',
                         '-metadata', f"title={t['title']}", '-metadata', f"artist={ARTIST}",
-                        '-metadata', f"album={name}", '-metadata', f"track={t['n']}/{len(tracks)}", out],
+                        '-metadata', f"album={name}", '-metadata', f"track={t['n']}/{len(tracks)}",
+                        '-metadata', f"grouping={SERIES}", '-metadata', f"publisher={LABEL}",
+                        '-metadata', f"CATALOGNUMBER={catno}", out],
                        check=True)
 
     for t, path in zip(tracks, wavs):
@@ -392,7 +397,8 @@ def main():
                     z.write(src, f"{safe}/{inner}.{ext}")
                 z.write(os.path.join(media, 'cover.jpg'), f"{safe}/cover.jpg")     # as in a bandcamp download
                 z.writestr(f"{safe}/about.txt",
-                           f"{name}\n{ARTIST}\nquestions by {ASKER}\nmade by chance, {day.isoformat()}\n\n"
+                           f"{name}\n{ARTIST}\n{SERIES} \u00b7 {catno}\nquestions by {ASKER}\n"
+                           f"made by chance, {day.isoformat()}\n\n"
                            f"\"{QUOTE}\" -- John Cage, 1985\n")
             downloads.append({'format': fmt_, 'note': note, 'url': base + zname,
                               'bytes': os.path.getsize(zpath)})
@@ -400,10 +406,10 @@ def main():
     shutil.rmtree(art_dir, ignore_errors=True)           # the embedded art, and the download's MP3s once zipped
     if args.release:
         files = sorted(glob.glob(os.path.join(media, '*')))
-        notes = (f"{name} -- {len(tracks)} songs made by chance on {day.isoformat()}. "
+        notes = (f"{name} ({SERIES}, {catno}) -- {len(tracks)} songs made by chance on {day.isoformat()}. "
                  f"Streams on https://scorsby.us/exp/chance/ ; replaced by the next day's album.")
         if last:
-            notes = (f"{name} -- the last album, {len(tracks)} songs made by chance on {day.isoformat()}. "
+            notes = (f"{name} ({SERIES}, {catno}) -- the last album, {len(tracks)} songs made by chance on {day.isoformat()}. "
                      f"Chance ended the series here. This one stays.")
             gh('release', 'create', tag, *files, '--repo', args.repo, '--title',
                f"{name} ({day.isoformat()}) -- the last", '--notes', notes, '--latest')
@@ -418,7 +424,8 @@ def main():
     heard = heard_on(scores)
     gathered = len(glob.glob(os.path.join(args.radio_dir, '*.wav'))) if args.radio_dir else 0
     listened = f"gathering {gathered:,} moments of radio" if gathered else "gathering moments of radio"
-    credits = [f"released {day.strftime('%B')} {day.day}, {day.year}, {made_at} UTC", "",
+    credits = [f"released {day.strftime('%B')} {day.day}, {day.year}, {made_at} UTC",
+               f"{SERIES} \u00b7 {catno}", "",
                f"questions by {ASKER}", "",
                (f"In the hours before this album, {ARTIST} listened to the world, {listened} from anywhere on "
                 "the dial: shortwave, FM and internet stations, open microphones and old recordings from the "
@@ -463,7 +470,7 @@ def main():
         'cover': base + "cover.jpg", 'cover_small': base + "cover_small.jpg", 'banner': base + "banner.jpg",
         'downloads': downloads,
         'mood': {k: round(v, 3) for k, v in mood.items()}, 'palette': inks + [paper_hex],
-        'number': number, 'day': day.isoformat(), 'time_utc': made_at, 'last': last, 'pure': PURE,
+        'number': number, 'series': SERIES, 'catalog': catno, 'day': day.isoformat(), 'time_utc': made_at, 'last': last, 'pure': PURE,
         'seed': str(seed), 'generated_from': os.path.basename(album),
         'published': datetime.datetime.now().isoformat(timespec='seconds'),
     }

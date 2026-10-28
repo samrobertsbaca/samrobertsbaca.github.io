@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Scorsby Records</title>
-<meta name="description" content="A new album generated daily by chance from radio heard around the world.">
+<meta name="description" content="Impermanence Series A: a new album generated daily by chance from radio heard around the world.">
 <link rel="icon" href="../../scorsbyface.png">
 <style>
   :root {
@@ -303,7 +303,7 @@
         <div class="format">
           <h4 class="ft">Digital Album</h4>
           <p id="formatLine">Streaming</p>
-          <p class="note" id="seriesNote">A new album generated daily by chance from radio heard around the world.</p>
+          <p class="note" id="seriesNote">Impermanence Series A: a new album generated daily by chance from radio heard around the world.</p>
           <div id="downloadBox" hidden>
             <h4 class="buy">Download Digital Album <span>free</span></h4>
             <div id="downloads"></div>
@@ -495,7 +495,7 @@
     const d = new Date(a.released + 'T12:00:00');
     $('discoDate').textContent = d.toLocaleString('en-US', { month: 'short', year: 'numeric' });
     if (a.last) {                                         // chance ended the series with this album
-      $('seriesNote').textContent = 'This was the last album. Chance ended the series here; no more will be made. This one will stay.';
+      $('seriesNote').textContent = 'Impermanence Series A: this was the last album. Chance ended the series here; no more will be made. This one will stay.';
     }
     if (a.downloads && a.downloads.length) {
       $('formatLine').textContent = 'Streaming + Download';

@@ -7,6 +7,7 @@
  "about_link": "https://www.youtube.com/watch?v=9GqHikJSQhQ",
  "credits": [
   "released October 28, 2026, 03:08 UTC",
+  "Impermanence Series A · ISA0000",
   "",
   "questions by Samuel John Scorsby",
   "",
@@ -113,6 +114,8 @@
   "#FAF6FA"
  ],
  "number": 0,
+ "series": "Impermanence Series A",
+ "catalog": "ISA0000",
  "day": "2026-10-28",
  "time_utc": "03:08",
  "last": false,
