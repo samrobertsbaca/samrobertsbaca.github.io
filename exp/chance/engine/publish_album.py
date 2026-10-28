@@ -388,8 +388,7 @@ def main():
                "patterns of data to fuse them with (cellular automata, bytebeat formulas, number sequences, sorting "
                "algorithms), how long each song should be, and where it should go. "
                + (f"{len(heard):,} of those moments are in these songs. " if heard else "")
-               + "Nothing was chosen by hand. The programs that asked the questions are chance_data.py, "
-               "chance_fontana.py and publish_album.py.", "",
+               + "Nothing was chosen by hand.", "",
                "This album is impermanent. The broadcasts collected are gone. The recordings it gathered were "
                "thrown away once it was made. Tomorrow it will be replaced by another, which will never be heard "
                "again either. It exists for a day. Listen while it's here."]
