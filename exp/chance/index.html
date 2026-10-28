@@ -97,7 +97,8 @@
   h4.buy { font-size: 18px; font-weight: 700; color: var(--link); margin: 18px 0 6px; }
   h4.buy span { font-size: 12px; font-weight: 400; color: #000; margin-left: 6px; }
   #downloads a { display: inline-block; font-weight: 700; font-size: 12px; margin: 0 16px 4px 0; }
-  #downloads small { color: var(--text); font-weight: 400; margin-left: 4px; }
+  /* an inline-block, so an underline on the format (MP3, WAV) doesn't run under its details */
+  #downloads small { color: var(--text); font-weight: 400; margin-left: 4px; display: inline-block; text-decoration: none; }
 
   /* the track list */
   table.track_list { border-collapse: collapse; width: 100%; font-size: 12px; color: var(--text); }
