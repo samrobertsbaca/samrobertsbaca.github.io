@@ -170,13 +170,13 @@ def spiral_turns(seconds):
 def draw_cover(rings, durations, size=1200, seed=0, inks=None, paper_hex=None, ss=2):
     """the album as one groove, from the edge in to the label, like a record: along the groove is
     time (clockwise from the top), across it is pitch (high at the outer edge), ink is loudness.
-    the songs follow one another along it, each in its own ink, with a quiet stretch between."""
+    the songs follow one another along it, each in its own ink, with a little paper between."""
     rng = np.random.default_rng(seed)
     INKS_ = inks or INKS
     T = len(rings)
     total = float(sum(durations))
     K = spiral_turns(total)
-    duty, gap_turns = 0.9, 0.35                    # the groove's share of each turn; the quiet between songs
+    duty, gap_turns = 0.9, 0.35                    # the groove's share of each turn; the paper between songs
     S = size * ss                                  # drawn at twice the size, then made smooth
     paper = hexrgb(paper_hex or PAPER).astype(np.float32)
     yy, xx = np.mgrid[0:S, 0:S].astype(np.float32)
@@ -195,7 +195,8 @@ def draw_cover(rings, durations, size=1200, seed=0, inks=None, paper_hex=None, s
     img = np.tile(paper, (S, S, 1))
     groove = (s_ >= 0) & (s_ <= K) & (f < duty) & (r >= R_in) & (r <= R_out + 1)
     deep = hexrgb(INKS_[3 % len(INKS_)])
-    img[groove] = paper * 0.84 + deep * 0.16       # the quiet stretches: the groove still there, barely inked
+    bare = paper * 0.95 + deep * 0.05                # the groove itself, faint all the way: where nothing sounds
+    img[groove] = bare                               # it is still there, as on a record
     offset = int(rng.integers(len(INKS_)))
     for i, M in enumerate(rings):
         sel = groove & (s_ >= starts[i]) & (s_ < starts[i] + lens[i])
@@ -204,9 +205,9 @@ def draw_cover(rings, durations, size=1200, seed=0, inks=None, paper_hex=None, s
         steps, bands = M.shape
         t = np.clip(((s_[sel] - starts[i]) / lens[i] * steps).astype(int), 0, steps - 1)
         band = np.clip(((duty - f[sel]) / duty * bands).astype(int), 0, bands - 1)
-        v = np.maximum(M[t, band] ** 1.6, 0.07)
+        v = M[t, band] ** 1.6
         ink = hexrgb(INKS_[(i + offset) % len(INKS_)])
-        img[sel] = paper * (1 - v[:, None]) + ink * v[:, None]
+        img[sel] = bare * (1 - v[:, None]) + ink * v[:, None]
     R_label = R_in - S * 0.012
     img[r < R_label] = paper                        # the label
     im = Image.fromarray(np.clip(img, 0, 255).astype(np.uint8), 'RGB').resize((size, size), Image.LANCZOS)
