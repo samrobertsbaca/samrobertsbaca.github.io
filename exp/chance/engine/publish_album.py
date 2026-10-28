@@ -443,7 +443,7 @@ def main():
         credits += [""] + sources
     data = {
         'title': name, 'artist': ARTIST, 'released': day.isoformat(),
-        'about': QUOTE, 'about_by': "John Cage",
+        'about': QUOTE, 'about_by': "John Cage, 1985",
         'credits': credits, 'heard': heard[:60], 'heard_total': len(heard),
         'tags': ["chance", "radio", "data", "experimental", "Albuquerque"],
         'tracks': [{k: v for k, v in t.items() if k != 'bytes'} for t in tracks],
