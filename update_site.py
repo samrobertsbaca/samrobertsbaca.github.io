@@ -198,7 +198,7 @@ print(f"✅ Generated {len(md_files)} HTML blog posts and updated blogposts.js."
 root = Path(__file__).parent
 today = datetime.now().strftime("%Y-%m-%d")
 pages = ["/", "/peace", "/love", "/joy", "/books/blueroses/", "/books/gold.html", "/books/comix2025.html",
-         "/books/littlebookofscorsby.html", "/books/gentlefallingsnow.html", "/exp/sacred-geometry/", "/exp/chance/", "/exp/chance/score/",
+         "/books/littlebookofscorsby.html", "/books/gentlefallingsnow.html", "/exp/sacred-geometry/", "/exp/chance/", "/exp/chance/score/", "/exp/chance/archive/",
          "/media/bubbleboo.html"]
 urls = [(SITE + p, today) for p in pages]
 for path in blog_paths:
