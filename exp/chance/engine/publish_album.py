@@ -410,21 +410,20 @@ def main():
         print(f"  encoded {len(keep)} MP3s at {args.download_bitrate.rstrip('k')} kbps for the download")
     downloads = []
     if args.release:                                     # the whole album to take home, in two forms
-        safe = re.sub(r'[^\w\- ]+', '', name).strip() or "album"
+        # the folder inside, as a Bandcamp download names it: artist - album ("ScorsBT4 - ISA0000 Libehrain ...")
+        words = name.split(' ', 1)[1] if ' ' in name else ''
+        safe = re.sub(r'[<>:"/\\|?*]+', ' ', f"{ARTIST} - {catno} {words}").strip()
         for fmt_, note, files_, ext in (
                 ("MP3", f"{args.download_bitrate.rstrip('k')} kbps", keep, 'mp3'),
                 ("WAV", "24-bit/48kHz", [(w, t) for w, t in zip(wavs, tracks)], 'wav')):
-            zname = f"chance-{day.isoformat()}-{ext}.zip"
+            zname = f"SBT4-{catno}-{day.isoformat()}-{ext}.zip"
             zpath = os.path.join(media, zname)
             with zipfile.ZipFile(zpath, 'w', compression=zipfile.ZIP_STORED, allowZip64=True) as z:
                 for src, t in files_:
                     inner = re.sub(r'[<>:"/\\|?*]+', ' ', f"{t['n']:02d} {t['title']}").strip()
                     z.write(src, f"{safe}/{inner}.{ext}")
                 z.write(os.path.join(media, 'cover.jpg'), f"{safe}/cover.jpg")     # as in a bandcamp download
-                z.writestr(f"{safe}/about.txt",
-                           f"{name}\n{ARTIST}\n{SERIES} \u00b7 {catno}\nquestions by {ASKER}\n"
-                           f"made by chance, {day.isoformat()}\n\n"
-                           f"\"{QUOTE}\" -- John Cage, 1985\n")
+                z.writestr(f"{safe}/album.txt", manifest)      # the album's own record, as the program wrote it
             downloads.append({'format': fmt_, 'note': note, 'url': base + zname,
                               'bytes': os.path.getsize(zpath)})
             print(f"  zipped {zname} ({os.path.getsize(zpath) / 1e6:.0f} MB)")
