@@ -21,6 +21,15 @@
   a { color: var(--link); text-decoration: none; }
   a:hover { text-decoration: underline; }
   #centerWrapper { width: 975px; max-width: 100%; margin: 0 auto; }
+  /* the header: a blurred strip of the day's cover, the label's name blurred over it */
+  #customHeader { position: relative; height: 180px; overflow: hidden; background: #d8a8a0; }
+  #customHeader img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  #customHeader .name {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    font: 700 64px/1 "Helvetica Neue", Helvetica, Arial, sans-serif; letter-spacing: -1px;
+    color: rgba(255, 255, 255, 0.92); filter: blur(5px);
+    text-shadow: 0 0 18px rgba(255, 255, 255, 0.8);
+  }
   #band-navbar { background: var(--nav); height: 38px; display: flex; padding: 0 12px; }
   #band-navbar a { color: var(--link); font-weight: 700; font-size: 14px; padding: 11px 12px 0; border-top: 3px solid transparent; }
   #band-navbar a.active { color: var(--text); border-top-color: var(--text); }
@@ -47,6 +56,10 @@
   .back { margin-top: 14px; font-size: 12px; }
   footer { text-align: center; color: rgba(255, 255, 255, .8); font-size: 11px; padding: 18px 0 40px; }
   footer a { color: #fff; }
+  @media (max-width: 900px) {
+    #customHeader { height: 110px; }
+    #customHeader .name { font-size: 38px; }
+  }
   @media (max-width: 700px) {
     main { padding: 22px 16px 60px; }
     .top img { width: 80px; height: 80px; }
@@ -56,6 +69,7 @@
 </head>
 <body>
 <div id="centerWrapper">
+  <div id="customHeader"><img id="banner" alt=""><div class="name" aria-hidden="true">scorsby records</div></div>
   <nav id="band-navbar">
     <a href="../">music</a>
     <a class="active" href="./">score</a>
@@ -96,7 +110,9 @@
 (function () {
   const $ = id => document.getElementById(id);
   fetch('../album.json', { cache: 'no-cache' }).then(r => r.json()).then(a => {
-    $('cover').src = /^https?:/.test(a.cover_small) ? a.cover_small : '../' + a.cover_small;
+    const at = u => /^https?:/.test(u) ? u : '../' + u;      // the day's release, or files beside the album page
+    $('cover').src = at(a.cover_small);
+    $('banner').src = at(a.banner);
     $('sub').textContent = 'by ' + a.artist + ' · questions by Samuel John Scorsby · released ' +
       new Date(a.released + 'T12:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
   }).catch(() => {});
