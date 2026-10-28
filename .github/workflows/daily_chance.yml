@@ -47,7 +47,8 @@ jobs:
               made = None
           finished = subprocess.run(['git', 'cat-file', '-e', 'origin/main:exp/chance/engine/FINISHED'],
                                     capture_output=True).returncode == 0
-          go = not finished and (os.environ['EVENT'] != 'schedule' or (now.hour >= hour and made != day))
+          # a run by hand always makes one; the hourly checks, and a change to this file, only when it's time
+          go = not finished and (os.environ['EVENT'] == 'workflow_dispatch' or (now.hour >= hour and made != day))
           if finished:
               print("chance has ended the series: no more albums will be made", file=sys.stderr)
           print(f"today ({day}) the chance hour is {hour:02d}:00 UTC; it is {now:%H:%M}; "
@@ -125,6 +126,7 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add exp/chance/album.json exp/chance/score.json exp/chance/engine/titles.txt exp/chance/engine/album_number.txt
+          git add exp/chance/archive   # what stays: each album's catalogue card and a small copy of its cover
           if [ -f exp/chance/engine/FINISHED ]; then git add exp/chance/engine/FINISHED; fi
           git commit -m "Daily chance album" || echo "No changes to commit"
           git pull --rebase

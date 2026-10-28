@@ -513,11 +513,35 @@ def main():
         json.dump({'title': name, 'number': number, 'day': day.isoformat(), 'written': written_score(),
                    'album_txt': tidy(manifest), 'songs': song_scores}, f, indent=1, ensure_ascii=False)
     if args.release:                                     # published for real: the next album gets the next number
+        keep_record(args.site, data, cover)
         with open(counter, 'w', encoding='utf-8') as f:
             f.write(f"{number + 1}\n")
     total = sum(t['bytes'] for t in tracks)
     print(f"'{name}' -- {len(tracks)} tracks, {sum(t['duration'] for t in tracks) / 60:.1f} min, "
           f"{total / 1e6:.1f} MB of MP3; album.json written" + (f"; media on release {tag}" if args.release else ""))
+
+
+def keep_record(site, data, cover):
+    """what stays when an album goes: not its sound, but its catalogue card and a small copy of its
+    cover, in archive/ beside the page (archive/index.json, archive/covers/ISA0000.jpg, ...)."""
+    arch = os.path.join(site, 'archive')
+    os.makedirs(os.path.join(arch, 'covers'), exist_ok=True)
+    cat = data['catalog']
+    cover.convert('RGB').resize((600, 600), Image.LANCZOS).save(
+        os.path.join(arch, 'covers', f"{cat}.jpg"), quality=85)
+    card = {'catalog': cat, 'number': data['number'], 'title': data['title'], 'artist': data['artist'],
+            'series': data['series'], 'day': data['day'], 'time_utc': data['time_utc'],
+            'length': round(sum(t['duration'] for t in data['tracks']), 2),
+            'tracks': [{'n': t['n'], 'title': t['title'], 'duration': t['duration']} for t in data['tracks']],
+            'cover': f"archive/covers/{cat}.jpg", 'palette': data['palette'], 'seed': data['seed'],
+            'pure': data['pure'], 'last': data['last'],
+            'heard': data['heard'], 'heard_total': data['heard_total']}
+    path = os.path.join(arch, 'index.json')
+    cards = json.load(open(path, encoding='utf-8')) if os.path.exists(path) else []
+    cards = sorted([c for c in cards if c['catalog'] != cat] + [card], key=lambda c: c['number'])
+    with open(path, 'w', encoding='utf-8') as f:
+        json.dump(cards, f, indent=1, ensure_ascii=False)
+    print(f"  kept {cat}'s catalogue card and cover in archive/ ({len(cards)} album{'s' if len(cards) != 1 else ''} so far)")
 
 
 def gh(*args, check=True):
