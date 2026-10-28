@@ -153,6 +153,12 @@
 <script>
 (function () {
   const $ = id => document.getElementById(id);
+  // pictures stay invisible until they've loaded: no description text or broken-image mark in the meantime
+  document.querySelectorAll('img').forEach(img => {
+    if (img.complete && img.naturalWidth) return;
+    img.style.opacity = '0';
+    img.addEventListener('load', () => { img.style.opacity = ''; });
+  });
   fetch('../album.json', { cache: 'no-cache' }).then(r => r.json()).then(a => {
     const at = u => /^(https?|data):/.test(u) ? u : '../' + u;      // the day's release, or files beside the album page
     $('cover').src = at(a.cover_small);

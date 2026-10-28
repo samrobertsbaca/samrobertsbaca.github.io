@@ -438,6 +438,12 @@
 <script>
 (function () {
   const $ = id => document.getElementById(id);
+  // pictures stay invisible until they've loaded: no description text or broken-image mark in the meantime
+  document.querySelectorAll('img').forEach(img => {
+    if (img.complete && img.naturalWidth) return;
+    img.style.opacity = '0';
+    img.addEventListener('load', () => { img.style.opacity = ''; });
+  });
   const phone = matchMedia('(max-width: 700px)');          // Bandcamp's phone layout: a track plays from its row
   const audio = $('audio');
   let album = null, cur = 0;
