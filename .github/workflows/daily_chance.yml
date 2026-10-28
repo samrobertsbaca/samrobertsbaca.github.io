@@ -1,5 +1,5 @@
 name: Daily Chance Album
-# once a day, at an hour chosen by chance: gather the world's radio fresh, make an album by chance
+# once a day, as the day's story is told (07:00 UTC): gather the world's radio fresh, make an album by chance
 # (numbered 0000, 0001 ...; any day may be the last), put its audio and cover on a GitHub release, and point
 # scorsby.us/exp/chance/ at it.
 permissions:
@@ -7,7 +7,8 @@ permissions:
   actions: write   # so that, when chance ends the series, the workflow can switch itself off
 on:
   schedule:
-    # every hour (at :17, away from the top-of-the-hour rush); only the day's chance hour makes an album
+    # every hour (at :17, away from the top-of-the-hour rush); the first check from 07:00 UTC, when the daily
+    # story is told, makes the day's album (the later ones are there in case GitHub drops a run)
     - cron: '17 * * * *'
   workflow_dispatch: # run it by hand from the Actions tab (counts as the day's album)
   push:
@@ -28,17 +29,17 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
-      - name: Is it today's chance hour?
+      - name: Is it time for today's album?
         id: d
         env:
           EVENT: ${{ github.event_name }}
         run: |
           git fetch -q --depth 1 origin main
           python3 - <<'EOF' >> "$GITHUB_OUTPUT"
-          import datetime, hashlib, json, os, secrets, subprocess, sys
+          import datetime, json, os, secrets, subprocess, sys
           now = datetime.datetime.now(datetime.timezone.utc)
           day = now.date().isoformat()
-          hour = int(hashlib.sha256(f"scorsbt4 {day}".encode()).hexdigest(), 16) % 24
+          hour = 7    # the same hour every day, so every album is here for a whole day
           shown = subprocess.run(['git', 'show', 'origin/main:exp/chance/album.json'],
                                  capture_output=True, text=True).stdout
           try:
@@ -51,7 +52,7 @@ jobs:
           go = not finished and (os.environ['EVENT'] == 'workflow_dispatch' or (now.hour >= hour and made != day))
           if finished:
               print("chance has ended the series: no more albums will be made", file=sys.stderr)
-          print(f"today ({day}) the chance hour is {hour:02d}:00 UTC; it is {now:%H:%M}; "
+          print(f"today ({day}) the album is made from {hour:02d}:00 UTC; it is {now:%H:%M}; "
                 f"today's album {'exists' if made == day else 'is not made yet'} -> {'go' if go else 'wait'}",
                 file=sys.stderr)
           # about one day in seven is a pure day: no taste anywhere, just the dice
