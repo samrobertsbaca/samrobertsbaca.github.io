@@ -35,13 +35,13 @@ jobs:
           sudo apt-get install -y -q ffmpeg
           pip install -q numpy pillow websocket-client
 
-      # about 1000 samples from all four sources (they are thrown away when the job ends).
+      # 333 samples from all four sources (they are thrown away when the job ends).
       # each shortwave receiver and each open microphone is visited at most once a day; the
-      # station streams make up whatever the others can't give. usually two to three hours.
+      # station streams make up whatever the others can't give. usually under an hour.
       - name: Gather today's radio
         working-directory: exp/chance/engine
         timeout-minutes: 250
-        run: python chance_fontana.py --gather 1000 --gather-only --workers 8 || echo "gathering fell short; making do"
+        run: python chance_fontana.py --gather 333 --gather-only --workers 8 || echo "gathering fell short; making do"
 
       - name: Make the album
         working-directory: exp/chance/engine
