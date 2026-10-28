@@ -414,7 +414,7 @@ def main():
                 "algorithms), how long each song should be, and where it should go. "
                 + (f"{len(heard):,} of those moments are in these songs. " if heard else "")
                 + "Nothing was chosen by hand."), "",
-               *(["Today was a pure day, as about one day in seven is: the algorithm kept everything, static and "
+               *(["Today was a truly random day, as about one day in seven is: the algorithm kept everything, static and "
                   "silence included, matched nothing for beauty, and asked no song to go anywhere. Nothing was "
                   "discerned, classified, or judged.", ""] if PURE else []),
                ("This is the last album. The broadcasts collected are gone, and the recordings it gathered were "
