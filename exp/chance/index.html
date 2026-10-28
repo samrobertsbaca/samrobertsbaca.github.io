@@ -483,7 +483,18 @@
     q = q.charAt(0).toUpperCase() + q.slice(1);
     if (q && !/[.!?]$/.test(q)) q += '.';
     $('quote').textContent = q;
-    $('quoteBy').textContent = a.about_by;
+    // the year links to the interview it was said in
+    const by = (a.about_by || '').match(/^(.*?)(\d{4})$/);
+    if (a.about_link && by) {
+      const y = document.createElement('a');
+      y.href = a.about_link;
+      y.target = '_blank';
+      y.rel = 'noopener';
+      y.textContent = by[2];
+      $('quoteBy').replaceChildren(by[1], y);
+    } else {
+      $('quoteBy').textContent = a.about_by;
+    }
     $('credits').innerHTML = '';
     // the programs that made it are open: each name in the credits links to its source
     const SRC = 'engine/';                                  // served from this site, beside the page
