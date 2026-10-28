@@ -36,10 +36,10 @@
     text-shadow: 0 0 18px rgba(255, 255, 255, 0.8);
   }
 
-  #band-navbar { background: var(--nav); height: 38px; display: flex; padding: 0 12px; }
+  #band-navbar { background: var(--nav); height: 38px; display: flex; padding: 0 15px; }
   #band-navbar a {
-    color: var(--link); font-weight: 700; font-size: 14px; padding: 11px 12px 0;
-    border-top: 3px solid transparent;
+    color: var(--link); font-weight: 700; font-size: 14px; line-height: 36px; padding: 0 15px; margin-right: 4px;
+    border-top: 2px solid transparent;
   }
   #band-navbar a.active { color: var(--text); border-top-color: var(--text); }
 
@@ -66,7 +66,7 @@
     background: linear-gradient(90deg, #222 0 35%, transparent 35% 65%, #222 65%); }
   .player_right { flex: 1; min-width: 0; }
   .nowtitle { display: flex; justify-content: flex-start; gap: 10px; font-size: 12px; color: var(--text); margin-top: 9px; }
-  .nowtitle .t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); }
+  .nowtitle .t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); font-weight: 500; }
   .nowtitle .time { color: #000; flex: none; }
   .progrow { display: flex; align-items: center; gap: 10px; margin-top: 9px; }
   .progbar { width: 250px; flex: none; height: 10px; border: 1px solid var(--line); background: rgba(255, 255, 255, 0.3); position: relative; cursor: pointer; }
@@ -80,32 +80,33 @@
   .navbtn.prev::before, .navbtn.next::after { content: ""; width: 2px; height: 12px; background: #222; }
   .navbtn { gap: 0; }
 
-  h4.ft { font-size: 18px; font-weight: 700; margin: 0 0 4px; color: var(--text); }
-  .format { margin-bottom: 26px; font-size: 13px; }
+  h4.ft { font-size: 14px; font-weight: 700; margin: 0 0 4px; color: var(--text); }
+  .format { margin-bottom: 26px; font-size: 12px; }
   .format p { margin: 2px 0; color: #000; }
   .format .note { color: var(--text); margin-top: 6px; }
   /* like Bandcamp's "Buy Digital Album": the red heading, then the formats */
   h4.buy { font-size: 18px; font-weight: 700; color: var(--link); margin: 18px 0 6px; }
-  h4.buy span { font-size: 13px; font-weight: 400; color: #000; margin-left: 6px; }
-  #downloads a { display: inline-block; font-weight: 700; font-size: 13px; margin: 0 16px 4px 0; }
+  h4.buy span { font-size: 12px; font-weight: 400; color: #000; margin-left: 6px; }
+  #downloads a { display: inline-block; font-weight: 700; font-size: 12px; margin: 0 16px 4px 0; }
   #downloads small { color: var(--text); font-weight: 400; margin-left: 4px; }
 
   /* the track list */
   table.track_list { border-collapse: collapse; width: 100%; font-size: 12px; color: var(--text); }
-  table.track_list td { padding: 4px 0; vertical-align: middle; }
-  td.playcol { width: 19px; }
-  .smallplay { width: 18px; height: 15px; background: #fff; border: 1px solid #d9d9d9; border-radius: 2px;
-    display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
-  .smallplay i { width: 0; height: 0; border-left: 6px solid #222; border-top: 4px solid transparent; border-bottom: 4px solid transparent; margin-left: 1px; }
-  .smallplay.playing i { width: 6px; height: 7px; border: none; margin: 0;
+  table.track_list td { padding: 6px 2px; vertical-align: top; line-height: 15px; }
+  table.track_list td.playcol { width: 19px; padding: 4px 0 0; }
+  .smallplay { width: 19px; height: 18px; background: #fff; border: 1px solid #d9d9d9; border-radius: 2px;
+    display: flex; align-items: center; cursor: pointer; padding: 0 0 0 6px; }
+  .smallplay i { width: 0; height: 0; border-left: 7px solid #222; border-top: 4px solid transparent; border-bottom: 4px solid transparent; }
+  .smallplay.playing { padding-left: 5px; }
+  .smallplay.playing i { width: 7px; height: 8px; border: none;
     background: linear-gradient(90deg, #222 0 35%, transparent 35% 65%, #222 65%); }
-  td.num { width: 22px; text-align: right; padding-right: 5px !important; color: #000; }
+  td.num { width: 26px; text-align: right; color: #000; }
   td.title a { color: var(--link); }
-  td.title .time { color: #000; margin-left: 6px; white-space: nowrap; }
+  td.title .time { color: #000; margin-left: 8px; white-space: nowrap; }
   tr.current td.title a { font-weight: 700; }
 
   .tralbum-about { margin-top: 30px; font-size: 12px; line-height: 1.5; color: var(--text); }
-  .tralbum-about .quote { font-size: 13px; }
+  .tralbum-about .quote { font-size: 12px; }
   .credits { margin-top: 22px; font-size: 12px; line-height: 1.5; color: var(--text); }
   .scorelink { margin-top: 10px; }
   .tralbum-about h5, .credits h5, .tags h5, .heard h5, #rightColumn h5 { font-size: 12px; margin: 0 0 4px; color: var(--text); font-weight: 700; }
@@ -113,25 +114,26 @@
   .heard ol { margin: 0; padding-left: 18px; }
   .heard .more { margin-top: 4px; }
   .tags { margin-top: 22px; font-size: 12px; }
-  .tags a { margin-right: 8px; }
+  .tags h5 { font-size: 14px; }
+  .tags a { margin-right: 8px; font-weight: 500; line-height: 18px; }
 
   #art img { width: 350px; height: 350px; display: block; background: #eee; cursor: zoom-in; }
-  #art .share { margin-top: 12px; display: flex; gap: 18px; font-size: 13px; }
+  #art .share { margin-top: 12px; display: flex; gap: 18px; font-size: 12px; }
   #art .share a, #art .share button { color: var(--link); background: none; border: none; padding: 0; font: inherit; cursor: pointer; }
   #art .seed { margin-top: 10px; font-size: 11px; color: var(--text); word-break: break-all; opacity: .8; }
 
   #rightColumn img.bandphoto { width: 120px; height: 120px; display: block; background: #fff; object-fit: contain; cursor: zoom-in; }
   #rightColumn .bandname { font-size: 14px; font-weight: 700; margin-top: 10px; color: var(--text); }
   #rightColumn .loc { font-size: 12px; color: #000; margin: 2px 0 10px; }
-  #rightColumn .follow { display: block; text-align: center; border: 1px solid rgba(34, 34, 34, .32); border-radius: 2px;
-    padding: 5px 0; font-weight: 700; margin-bottom: 12px; }
+  #rightColumn .follow { display: block; text-align: center; border: 1px solid rgba(0, 0, 0, .25); border-radius: 3px;
+    background: rgba(255, 255, 255, .5); padding: 6px 5px 5px; font-size: 12px; font-weight: 700; margin-bottom: 12px; }
   #rightColumn .links a { display: block; margin-bottom: 8px; font-size: 12px; }
   #rightColumn h5 { margin-top: 18px; font-size: 14px; font-weight: 400; color: var(--text); }
   #rightColumn .disco .item { display: block; margin-top: 10px; }
   #rightColumn .disco img { width: 120px; height: 120px; display: block; }
   #rightColumn .disco .t { color: var(--link); margin-top: 4px; font-size: 12px; display: block; }
-  #rightColumn .disco .d { color: #000; font-size: 11px; }
-  #rightColumn .disco .more { color: var(--link); display: block; margin-top: 12px; font-size: 12px; }
+  #rightColumn .disco .d { color: #000; font-size: 10px; }
+  #rightColumn .disco .more { color: var(--link); display: block; margin-top: 12px; font-size: 12px; font-weight: 700; }
   #rightColumn .contact { margin-top: 26px; font-size: 12px; }
   #rightColumn .contact h5 { margin: 0 0 6px; font-size: 14px; font-weight: 400; color: var(--text); }
   #rightColumn .contact a { display: block; margin-bottom: 6px; }
@@ -239,7 +241,9 @@
     #rightColumn .contact a { font-size: 16px; line-height: 24px; margin: 0; padding: 5px 0; }
 
     /* Bandcamp's phone sizes: 16 px for what you read, 14 px for what describes it */
-    #band-navbar a { font-size: 16px; }
+    #band-navbar { padding: 0 0 0 16px; overflow-x: auto; scrollbar-width: none; }
+    #band-navbar::-webkit-scrollbar { display: none; }
+    #band-navbar a { font-size: 16px; padding: 0; margin-right: 22px; white-space: nowrap; flex: none; }
     h2.trackTitle { font-size: 16px; font-weight: 700; line-height: 1.43; margin: 0 0 2px; }
     h3.byline { font-size: 14px; line-height: 1.5; margin-bottom: 18px; }
     .nowtitle { font-size: 14px; }
@@ -248,10 +252,18 @@
     #downloads a { font-size: 16px; }
     #downloads small { font-size: 14px; }
     table.track_list { font-size: 16px; }
-    table.track_list td { padding: 9px 0; vertical-align: top; }
-    .smallplay { margin-top: 4px; }
-    td.num { width: 26px; }
+    table.track_list td { padding: 9.6px 0; vertical-align: top; line-height: 24px; }
+    table.track_list td.playcol { display: none; }
+    table.track_list tr { cursor: pointer; }
+    td.num { width: 29px; padding-right: 8px; text-align: left; }
+    .playbutton { width: 66px; height: 66px; border-radius: 50%; border: 1px solid #222; background: transparent; }
+    .playbutton .tri { border-left-width: 21px; border-top-width: 12.5px; border-bottom-width: 12.5px; margin-left: 5px; }
+    .playbutton.playing .tri { width: 18px; height: 24px; margin: 0; }
     td.title .time { font-size: 14px; opacity: .72; }
+    /* the tags as Bandcamp's phone pills */
+    #tags { display: flex; flex-wrap: wrap; gap: 10px 8px; margin-top: 8px; }
+    .tags a { margin: 0; font-size: 16px; font-weight: 400; line-height: 24px; padding: 2px 12px;
+      border: 1px solid currentColor; border-radius: 15px; }
     .tralbum-about, .tralbum-about .quote, .credits, .tags { font-size: 16px; line-height: 1.5; }
     .tralbum-about h5, .credits h5, .tags h5, .heard h5 { font-size: 16px; font-weight: 500; margin-bottom: 6px; }
     .heard { font-size: 14px; }
@@ -399,6 +411,7 @@
 <script>
 (function () {
   const $ = id => document.getElementById(id);
+  const phone = matchMedia('(max-width: 700px)');          // Bandcamp's phone layout: a track plays from its row
   const audio = $('audio');
   let album = null, cur = 0;
   const fmt = s => {
@@ -563,6 +576,7 @@
       tr.querySelector('.title a').textContent = t.title;
       tr.querySelector('.smallplay').onclick = () => (k === cur && audio.src) ? (audio.paused ? audio.play() : audio.pause()) : load(k, true);
       tr.querySelector('.title a').onclick = e => { e.preventDefault(); load(k, true); };
+      tr.onclick = e => { if (phone.matches && !e.target.closest('a, button')) load(k, true); };
       tb.appendChild(tr);
     });
     $('nowTitle').textContent = a.tracks[0].title;
