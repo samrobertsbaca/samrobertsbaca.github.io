@@ -513,8 +513,8 @@ def main():
                (f"{when}, {ARTIST} listened to the world, {listened}: "
                 "shortwave from receivers around the world, FM and internet stations, open microphones on rooftops, "
                 "in gardens and in canals, "
-                + ("hydrophones under the sea, " if 'hydrophone' in kinds else "")
-                + ("the crackle and whistle of the earth's own natural radio, " if 'natural' in kinds else "")
+                + ("hydrophones in the sea, " if 'hydrophone' in kinds else "")
+                + ("the earth's own natural radio, " if 'natural' in kinds else "")
                 + "and old recordings from the Internet Archive. It kept only what had "
                 "something in it. In the spirit of John Cage's aleatoric compositional methods, particularly "
                 "inspired by his piece \"Fontana Mix\", it threw the dice: which sounds belong together, which "
