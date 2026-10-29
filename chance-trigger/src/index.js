@@ -58,8 +58,33 @@ export default {
     if (failed.length) throw new Error(failed.join('; '));
   },
 
-  // a glance at the clock, nothing more (no secrets): what this hour's listening is for
-  async fetch() {
+  async fetch(request) {
+    // /a/<release>/<NN>.mp3: a song from a day's release, passed through as audio. GitHub hands release files
+    // out as downloads (application/octet-stream), which Safari, and so every browser on an iPhone, won't
+    // play; here they come back as audio/mpeg, a range at a time as a player asks. only the albums' own
+    // songs, nothing else.
+    const url = new URL(request.url);
+    const song = url.pathname.match(/^\/a\/(chance-\d{4}-\d\d-\d\d(?:-\d{6})?)\/(\d\d\.mp3)$/);
+    if (song) {
+      const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'Range',
+        'Access-Control-Expose-Headers': 'Content-Length, Content-Range, Accept-Ranges' };
+      if (request.method === 'OPTIONS') return new Response(null, { headers: cors });
+      if (request.method !== 'GET' && request.method !== 'HEAD') return new Response('no', { status: 405 });
+      const range = request.headers.get('Range');
+      const r = await fetch(`https://github.com/${REPO}/releases/download/${song[1]}/${song[2]}`, {
+        method: request.method, headers: range ? { Range: range } : {}, redirect: 'follow' });
+      if (!r.ok) return new Response('that song is gone', { status: r.status === 404 ? 404 : 502, headers: cors });
+      const h = new Headers(cors);
+      for (const k of ['Content-Length', 'Content-Range', 'ETag', 'Last-Modified']) {
+        if (r.headers.get(k)) h.set(k, r.headers.get(k));
+      }
+      h.set('Content-Type', 'audio/mpeg');
+      h.set('Accept-Ranges', 'bytes');
+      h.set('Cache-Control', 'public, max-age=3600');
+      return new Response(r.body, { status: r.status, headers: h });
+    }
+
+    // anything else: a glance at the clock, nothing more (no secrets): what this hour's listening is for
     const { day, hour } = mountain(new Date());
     const album = listeningFor(day, hour);
     return new Response(

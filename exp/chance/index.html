@@ -456,10 +456,24 @@
     return String(m).padStart(2, '0') + ':' + String(x).padStart(2, '0');
   };
 
+  // the songs live on the day's GitHub release, which hands them out as downloads, not audio: Safari (and so
+  // every browser on an iPhone) won't play them that way. so they're streamed through the chance trigger,
+  // which passes them on as audio; if it can't, the player falls back to the release itself.
+  const RELEASES = 'https://github.com/samrobertsbaca/samrobertsbaca.github.io/releases/download/';
+  const STREAM = 'https://scorsby-chance-trigger.samrobertsbaca.workers.dev/a/';
+  const stream = u => u.startsWith(RELEASES) ? STREAM + u.slice(RELEASES.length) : u;
+  audio.addEventListener('error', () => {
+    if (!audio.src.startsWith(STREAM)) return;
+    const t = audio.currentTime, playing = !audio.paused;
+    audio.src = RELEASES + audio.src.slice(STREAM.length);
+    audio.addEventListener('loadedmetadata', () => { audio.currentTime = t; }, { once: true });
+    if (playing || t === 0) audio.play().catch(() => {});
+  });
+
   function load(i, play) {
     cur = (i + album.tracks.length) % album.tracks.length;
     const t = album.tracks[cur];
-    audio.src = t.src;
+    audio.src = stream(t.src);
     $('nowTitle').textContent = t.title;
     $('nowTime').textContent = '00:00 / ' + fmt(t.duration);
     document.querySelectorAll('#tracks tr').forEach((r, k) => {
