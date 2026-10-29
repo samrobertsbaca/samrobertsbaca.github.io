@@ -532,13 +532,13 @@ def main():
                ("This is the last album. The broadcasts collected are gone, and the recordings it gathered were "
                 f"thrown away once it was made, as on every day before. But no album will replace it: "
                 f"{ended[0].lower() + ended[1:]}, after {number + 1:,} album{'s' if number else ''}. This one will stay. "
-                "Read here for more info about the project.")
+                "More info on the project.")
                if last else
                ("This album is impermanent. The broadcasts collected are gone. The recordings it gathered were "
                 "thrown away once it was made. Tomorrow it will be replaced by another, which will never be heard "
                 f"again either. Each day the chance that it is the last grows: today's was 1 in {odds}, "
                 + (f"tomorrow's is 1 in {odds - 1}. " if odds > 2 else "tomorrow's is certain. ") +
-                "It exists for a day. Listen while it's here. Read here for more info about the project.")]
+                "It exists for a day. Listen while it's here. More info on the project.")]
     sources = []
     if any('live microphone' in h for h in heard):
         sources.append("open microphones: Locus Sonus Locustream (locusonus.org)")
