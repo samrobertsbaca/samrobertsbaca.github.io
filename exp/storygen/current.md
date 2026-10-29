@@ -1,3 +1,3 @@
-### the beaming general
+### the smile-wager and the crisp beetle's bliss
 
-naked scorsby met the king. "rrombo dombo di di dai!" the monarch pronounced, made him general. scorsby 'acted as if.' trees were clothed, dead dogs fed. horseflies on his steed? he grinned, "i'm acting as if it's flying!" the court, all smiles, echoed his joy.
+"rrombo dombo di di dai!" scorsby's pet beetle danced. the king's glum daughter giggled, startling the stolen skull—removed for a wager, it confessed an old slander, then dissolved to peace. a fox, nearby, ate a raw beetle, declaring it "perfectly crisp." scorsby's mouse then subtly redirected the prince's glong-speak, ensuring all smiles were real.
