@@ -16,3 +16,6 @@ hearth/.dev.vars
 /exp/chance/engine/__pycache__/
 chance-trigger/node_modules/
 chance-trigger/.wrangler/
+
+# local settings for claude sessions (preview servers and the like), not part of the site
+.claude/
