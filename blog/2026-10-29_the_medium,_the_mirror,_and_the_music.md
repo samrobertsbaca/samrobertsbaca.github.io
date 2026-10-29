@@ -1,6 +1,6 @@
 Oct 29
 
-# the medium, the mirror, and the music:
+# the medium, the mirror, and the music
 ## generative art in the age of ai
 
 marshall mcluhan, the philosopher often described as the father of media studies, famously observed that “the medium is the message.” his point was simple yet profound: technological innovations are never merely tools. they reshape the structure of human experience itself.
