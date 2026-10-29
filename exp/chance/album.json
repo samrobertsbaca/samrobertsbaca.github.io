@@ -7,6 +7,7 @@
  "about_link": "https://www.youtube.com/watch?v=9GqHikJSQhQ",
  "credits": [
   "released October 29, 2026, 06:36 UTC",
+  "made October 29, 2026, 06:36 UTC",
   "Impermanence Series A · ISA0001",
   "",
   "questions by Samuel John Scorsby",
@@ -137,5 +138,7 @@
  "pure": false,
  "seed": "9350224380275500",
  "generated_from": "album_2026-10-29_063622_fontana",
- "published": "2026-10-29T06:38:13"
+ "published": "2026-10-29T06:38:13",
+ "made_utc": "2026-10-29T06:36+00:00",
+ "made_by_chance": false
 }

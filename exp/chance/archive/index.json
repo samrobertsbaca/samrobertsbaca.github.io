@@ -71,7 +71,9 @@
    "Antena 1 (Portugal) (Portugal), internet radio",
    "Radio Stari Grad (Serbia), internet radio"
   ],
-  "heard_total": 23
+  "heard_total": 23,
+  "made_utc": "2026-10-28T03:08+00:00",
+  "made_by_chance": false
  },
  {
   "catalog": "ISA0001",
@@ -158,6 +160,8 @@
    "You Bet Your Life - TV audio 1959-1960 (), archive",
    "Aus 164 - The Adventures of Hop Harrigan (), archive"
   ],
-  "heard_total": 31
+  "heard_total": 31,
+  "made_utc": "2026-10-29T06:36+00:00",
+  "made_by_chance": false
  }
 ]
