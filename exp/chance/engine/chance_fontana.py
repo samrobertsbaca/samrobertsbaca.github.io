@@ -28,7 +28,11 @@ GATHER (--gather N)
     Clips go into a cache folder (default radio_cache/ next to this script) as 16-bit
     WAVs with a .json beside each saying what station, where, when, and what else was
     tried first. Receivers are shared and have few listener slots: one connection per
-    receiver, short clips, and it identifies itself as "chance_fontana".
+    receiver, short clips, and it identifies itself as "chance_fontana". A day's listening
+    can be spread over many short runs (--gather 15 --visited today.json, once an hour):
+    the file remembers which receivers, microphones and stations were visited, so each is
+    visited at most once that day, whichever run it falls to, and how many clips the day
+    has so far (so a run can make up for one that was missed).
 
     STATIONS. Chance picks a country (weighted so small ones still come up), then a
     station there from the Radio Browser directory -- FM broadcasters and internet-
@@ -180,6 +184,9 @@ IDENT = "chance_fontana"
 PURE = os.environ.get("CHANCE_PURE") == "1"
 
 RADIO_CLIPS = []      # filled in main(): cached clips, ordered by frequency
+# who has been visited today (--visited): a day's listening is spread over many short runs, and each
+# shortwave receiver and each open microphone is visited at most once a day, whichever run it falls to
+VISITED = {'receivers': set(), 'mics': set(), 'stations': set()}
 
 
 # ------------------------------------------------------------------ the dial
@@ -621,7 +628,7 @@ def gather(count, radio_dir, refresh=False, dial='stations', workers=4):
     """record `count` clips, listening to up to `workers` different receivers at a time
     (never more than one connection to any one receiver)."""
     rng = np.random.default_rng(int.from_bytes(os.urandom(8), 'big'))
-    rxs = load_receivers(radio_dir, refresh)
+    rxs = [r for r in load_receivers(radio_dir, refresh) if r['url'] not in VISITED['receivers']]
     for r in rxs:
         r['region'] = gps_region(r['gps'])
     schedule = load_schedule(radio_dir, refresh) if dial == 'stations' else []
@@ -663,9 +670,10 @@ def gather(count, radio_dir, refresh=False, dial='stations', workers=4):
                 job = next_job()
                 if job is None:
                     break
-                if job[0]['url'] in asked:                 # never two connections to one receiver
+                if job[0]['url'] in asked or job[0]['url'] in VISITED['receivers']:   # one connection, once a day
                     continue
                 asked.add(job[0]['url'])
+                VISITED['receivers'].add(job[0]['url'])
                 visits += 1
                 running.add(ex.submit(visit, *job))
             if not running:
@@ -795,7 +803,7 @@ def gather_streams(count, radio_dir, fm_only=False, countries=None, workers=4, r
     cw = np.sqrt(np.array([c['stationcount'] for c in allc], dtype=float))   # every country gets a voice
     print(f"gathering {count} station clip(s) from {len(allc)} countries"
           + (" (FM stations only)" if fm_only else " (FM and internet-only stations)"))
-    used = set()
+    used = VISITED['stations']                            # a station heard earlier today is passed over
 
     def next_job():
         for _ in range(12):
@@ -1034,11 +1042,15 @@ def gather_mics(count, radio_dir, workers=4):
         print(f"open microphones: the stream list is unreachable ({e})")
         return 0
     mics = [s for s in (src if isinstance(src, list) else [src]) if s.get('listenurl')]
-    order = [mics[i] for i in rng.permutation(len(mics))]
-    print(f"gathering {count} clip(s) from {len(mics)} live open microphones (Locus Sonus)")
+    order = [mics[i] for i in rng.permutation(len(mics)) if mics[i]['listenurl'] not in VISITED['mics']]
+    print(f"gathering {count} clip(s) from {len(order)} live open microphones (Locus Sonus)"
+          + (f"; {len(mics) - len(order)} already heard today" if len(order) < len(mics) else ""))
 
     def next_job():
-        return (order.pop(), log_uniform(rng, 12, 50)) if order else None
+        if not order:
+            return None
+        VISITED['mics'].add(order[-1]['listenurl'])      # once a day, heard or not
+        return order.pop(), log_uniform(rng, 12, 50)
 
     def visit(job):
         s, secs = job
@@ -2642,6 +2654,9 @@ def main():
     ap.add_argument('--dial', choices=['stations', 'wild'], default='stations',
                     help="stations: tune to what is on air and skip static (default); wild: anywhere")
     ap.add_argument('--radio-dir', default=os.path.join(HERE, 'radio_cache'), help='where clips are kept')
+    ap.add_argument('--visited', default=None, metavar='JSON',
+                    help="a file of who has been visited today, read before gathering and written after, so a "
+                         "day's listening can be spread over many runs (each receiver and microphone once a day)")
     ap.add_argument('--refresh-receivers', action='store_true', help='fetch a fresh receiver list now')
     ap.add_argument('--list-clips', action='store_true', help='list the cached clips and stop')
     ap.add_argument('--no-titles', action='store_true',
@@ -2679,6 +2694,13 @@ def main():
         print(f"gathering {n} clip(s): " + ", ".join(f"{c} {k}" for k, c in plan.items()))
         wk = max(1, args.workers)
         got = 0
+        seen = {}
+        if args.visited and os.path.exists(args.visited):
+            with open(args.visited, encoding='utf-8') as f:
+                seen = json.load(f)
+            for k in VISITED:
+                VISITED[k].update(seen.get(k) or [])
+            print("visited earlier today: " + ", ".join(f"{len(v)} {k}" for k, v in VISITED.items()))
         for k, c in plan.items():
             if k == 'shortwave':
                 got += gather(c, args.radio_dir, args.refresh_receivers, args.dial, wk)
@@ -2690,7 +2712,12 @@ def main():
                 got += gather_mics(c, args.radio_dir, wk)
         if got < n and 'stations' in want:                 # whatever fell short, the stations make up
             print(f"{n - got} short; topping up from station streams")
-            gather_streams(n - got, args.radio_dir, args.fm_only, args.fm_country, wk, args.refresh_receivers)
+            got += gather_streams(n - got, args.radio_dir, args.fm_only, args.fm_country, wk, args.refresh_receivers)
+        if args.visited:                                   # for the day's next run (anything else in it is kept)
+            seen.update({k: sorted(v) for k, v in VISITED.items()})
+            seen['clips'] = int(seen.get('clips') or 0) + got      # how many moments the day has so far
+            with open(args.visited, 'w', encoding='utf-8') as f:
+                json.dump(seen, f, indent=1)
     every = load_clips(args.radio_dir)
     RADIO_CLIPS[:] = every if args.keep_static else [c for c in every if c['lively']]
     set_freshness(RADIO_CLIPS, args.half_life)

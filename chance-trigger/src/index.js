@@ -1,10 +1,12 @@
 // the chance trigger: the clock for Impermanence Series A. every hour it looks at the time in mountain time.
-// at the day's chance hour it asks GitHub to make tomorrow's album (it then waits, unheard, as a draft);
-// at midnight it asks GitHub to release the album that was waiting. GitHub's own schedule is the backup.
+// every hour it asks GitHub to listen to the world for a while (about fifteen moments of radio, kept for the
+// evening); at 9 pm it asks for tomorrow's album to be made from the day's listening (it then waits, unheard,
+// as a draft); at midnight it asks for the album that was waiting to be released. GitHub's own schedule is
+// the backup.
 
 const REPO = 'samrobertsbaca/samrobertsbaca.github.io';
 const WORKFLOW = 'daily_chance.yml';
-const LATEST_HOUR = 20;   // the album is begun by 8 pm at the latest, so it is surely ready for midnight
+const CLOSE = 21;   // 9 pm: the day's listening ends and the album is made, in good time for midnight
 
 // the day and hour in mountain time (daylight or standard, as it falls)
 function mountain(date) {
@@ -20,14 +22,12 @@ function nextDay(day) {
   return d.toISOString().slice(0, 10);
 }
 
-// the hour (0-20) the world is listened to on a given day: drawn by chance from the date itself, so it
-// can't drift, and no one chooses it
-async function chanceHour(day) {
-  const h = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`scorsbt4 listens ${day}`));
-  return new Uint8Array(h)[0] % (LATEST_HOUR + 1);
+// the album an hour's listening is for: the one released at the coming midnight, or, from 9 pm, the one after
+function listeningFor(day, hour) {
+  return hour < CLOSE ? nextDay(day) : nextDay(nextDay(day));
 }
 
-async function ask(env, mode, day) {
+async function ask(env, inputs) {
   const r = await fetch(`https://api.github.com/repos/${REPO}/actions/workflows/${WORKFLOW}/dispatches`, {
     method: 'POST',
     headers: {
@@ -37,26 +37,35 @@ async function ask(env, mode, day) {
       'User-Agent': 'scorsby-chance-trigger',
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ ref: 'main', inputs: { mode, day } }),
+    body: JSON.stringify({ ref: 'main', inputs }),
   });
-  if (!r.ok) throw new Error(`GitHub said ${r.status} to "${mode} ${day}": ${await r.text()}`);
-  console.log(`asked GitHub to ${mode} the album for ${day}`);
+  const what = `${inputs.mode} ${inputs.day}${inputs.hour ? ` (${inputs.hour}:00)` : ''}`;
+  if (!r.ok) throw new Error(`GitHub said ${r.status} to "${what}": ${await r.text()}`);
+  console.log(`asked GitHub to ${what}`);
 }
 
 export default {
   async scheduled(controller, env) {
     const { day, hour } = mountain(new Date(controller.scheduledTime));
-    if (hour === 0) await ask(env, 'release', day);                        // midnight: today's album comes out
-    if (hour === await chanceHour(day)) await ask(env, 'make', nextDay(day));   // tomorrow's is made now
+    const asks = [];
+    if (hour === 0) asks.push({ mode: 'release', day });                          // midnight: today's album comes out
+    if (hour === CLOSE) asks.push({ mode: 'compose', day: nextDay(day) });        // 9 pm: tomorrow's is made
+    asks.push({ mode: 'gather', day: listeningFor(day, hour), hour: String(hour) });   // and every hour, a listen
+    const failed = [];
+    for (const a of asks) {                     // one failing doesn't stop the others
+      try { await ask(env, a); } catch (e) { failed.push(e.message); }
+    }
+    if (failed.length) throw new Error(failed.join('; '));
   },
 
-  // a glance at the clock, nothing more (no secrets): when today's listening happens
+  // a glance at the clock, nothing more (no secrets): what this hour's listening is for
   async fetch() {
     const { day, hour } = mountain(new Date());
-    const h = await chanceHour(day);
+    const album = listeningFor(day, hour);
     return new Response(
       `it is ${day}, ${hour}:00 mountain time.\n` +
-      `today the world is listened to at ${h}:00; that album comes out at midnight, on ${nextDay(day)}.\n`,
+      `this hour the world is listened to for the album that comes out at midnight on ${album}; ` +
+      `its day of listening ends at 9 pm the night before, when the album is made.\n`,
       { headers: { 'content-type': 'text/plain; charset=utf-8' } });
   },
 };

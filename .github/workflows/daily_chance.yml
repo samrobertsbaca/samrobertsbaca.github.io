@@ -1,33 +1,51 @@
 name: Daily Chance Album
-# once a day: gather the world's radio fresh at a moment chosen by chance, make an album by chance (numbered
-# 0000, 0001 ...; any day may be the last), leave it waiting as a hidden draft release, and at midnight
-# mountain time release it and point scorsby.us/exp/chance/ at it.
+# each day: listen to the world's radio over the course of the day, about fifteen moments every hour; in the
+# evening make an album from all of it by chance (numbered 0000, 0001 ...; any day may be the last), leave it
+# waiting as a hidden draft release, and at midnight mountain time release it and point scorsby.us/exp/chance/
+# at it.
 #
-# the timing comes from a small Cloudflare worker (chance-trigger/), which keeps time to the minute: at the
-# day's chance hour it asks for the album to be made (mode: make), at midnight for it to be released (mode:
-# release). GitHub's own schedule, below, is the backup: from 9 pm it makes sure tomorrow's album exists and
-# releases it at midnight itself, and any time of day it releases or makes an album that's late.
+# an album's day of listening runs from 9 pm two nights before its release to 8 pm the night before: each
+# hour's clips are kept as an artifact (radio-DAY-HH, DAY being the album's day), with a note of who was
+# visited (listened-DAY-HH), so each receiver and microphone is visited at most once a day. at 9 pm the
+# day's clips are gathered up, the album is made, and the artifacts are let go.
+#
+# the timing comes from a small Cloudflare worker (chance-trigger/), which keeps time to the minute: every
+# hour it asks for that hour's listening (mode: gather), at 9 pm for the album to be made (mode: compose),
+# at midnight for it to be released (mode: release). GitHub's own schedule, below, is the backup: at 41
+# minutes past every hour it listens if that hour hasn't been; from 9 pm it makes sure tomorrow's album
+# exists and releases it at midnight itself; and any time of day it releases or makes an album that's late.
+# an hour that fails is made up the next hour; and whatever happens, the album is made from whatever was
+# gathered (with a quick fresh listen if almost nothing was).
 concurrency:
-  group: daily-chance        # one run at a time; a run waiting its turn finds the work done, and stops
+  # one run at a time; a run waiting its turn finds the work done, and stops. the hours' listening has a
+  # line of its own: it is short, and so never waits behind (or is dropped behind) an album waiting for midnight
+  group: ${{ (github.event.inputs.mode == 'gather' || github.event.schedule == '41 * * * *') && 'daily-chance-gather' || 'daily-chance' }}
   cancel-in-progress: false
 permissions:
   contents: write
-  actions: write   # so that, when chance ends the series, the workflow can switch itself off
+  actions: write   # to find and let go of the day's clips, and, when chance ends the series, to switch off
 on:
   workflow_dispatch:
     inputs:
       mode:
-        description: 'make (a draft, for release at midnight), release (the waiting draft), or both'
+        description: "gather (an hour's listening), compose (the album, a draft for midnight), release (the waiting draft), or both (compose and release)"
         type: choice
-        options: [both, make, release]
+        options: [both, gather, compose, release]
         default: both
       day:
-        description: "the album's day, YYYY-MM-DD in mountain time (blank: the next midnight's)"
+        description: "the album's day, YYYY-MM-DD in mountain time (blank: as the clock says)"
+        required: false
+        default: ''
+      hour:
+        description: "gather: the mountain-time hour (0-23) the listening is for (blank: now)"
         required: false
         default: ''
   schedule:
-    # the backup: in the evening (UTC times: 9-10:30 pm mountain daylight time, 8-9:30 pm standard), more than
-    # once, as GitHub drops scheduled runs when it's busy; and every hour, to catch up if everything was lost
+    # the backup for the hours' listening: every hour, in case the worker's run didn't come
+    - cron: '41 * * * *'
+    # the backup for the album: in the evening (UTC times: 9-10:30 pm mountain daylight time, 8-9:30 pm
+    # standard), more than once, as GitHub drops scheduled runs when it's busy; and every hour, to catch up
+    # if everything was lost
     - cron: '5 3 * * *'
     - cron: '35 3 * * *'
     - cron: '5 4 * * *'
@@ -38,13 +56,13 @@ on:
     paths: ['.github/workflows/daily_chance.yml'] # and once whenever this file changes
 
 jobs:
-  # what's to be done, for which day? nothing, if it's done already.
+  # what's to be done, for which day (and hour)? nothing, if it's done already.
   decide:
     runs-on: ubuntu-latest
     outputs:
       action: ${{ steps.d.outputs.action }}
       day: ${{ steps.d.outputs.day }}
-      pure: ${{ steps.d.outputs.pure }}
+      hour: ${{ steps.d.outputs.hour }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -54,17 +72,23 @@ jobs:
         id: d
         env:
           EVENT: ${{ github.event_name }}
+          CRON: ${{ github.event.schedule }}
           MODE: ${{ github.event.inputs.mode }}
           DAY: ${{ github.event.inputs.day }}
+          HOUR: ${{ github.event.inputs.hour }}
           GH_TOKEN: ${{ github.token }}
         run: |
           git fetch -q --depth 1 origin main
           python3 - <<'EOF' >> "$GITHUB_OUTPUT"
-          import datetime, json, os, secrets, subprocess, sys
+          import datetime, json, os, subprocess, sys
           from zoneinfo import ZoneInfo
+          CLOSE = 21                                                  # 9 pm: the day's listening ends, the album is made
           now = datetime.datetime.now(ZoneInfo('America/Denver'))     # mountain time, daylight or standard
           today = now.date().isoformat()
           tomorrow = (now.date() + datetime.timedelta(days=1)).isoformat()
+          # the album this hour's listening is for: tomorrow's, or from 9 pm the one after
+          listening_for = (now.date() + datetime.timedelta(days=1 if now.hour < CLOSE else 2)).isoformat()
+          repo = os.environ['GITHUB_REPOSITORY']
           shown = subprocess.run(['git', 'show', 'origin/main:exp/chance/album.json'], capture_output=True, text=True).stdout
           try:
               released = json.loads(shown or '{}').get('day')          # the day of the album now on the page
@@ -72,57 +96,150 @@ jobs:
               released = None
           finished = subprocess.run(['git', 'cat-file', '-e', 'origin/main:exp/chance/engine/FINISHED'],
                                     capture_output=True).returncode == 0
-          rels = subprocess.run(['gh', 'api', f"repos/{os.environ['GITHUB_REPOSITORY']}/releases?per_page=30"],
+          rels = subprocess.run(['gh', 'api', f"repos/{repo}/releases?per_page=30"],
                                 capture_output=True, text=True).stdout
           drafts = [r['tag_name'] for r in json.loads(rels or '[]') if r.get('draft')]
           waiting = lambda d: any(t.startswith(f'chance-{d}') for t in drafts)   # made, not yet released
-          event, mode, day = os.environ['EVENT'], os.environ.get('MODE') or 'both', os.environ.get('DAY') or ''
+          def kept(d, h):                                             # that hour's listening is done already
+              r = subprocess.run(['gh', 'api', f"repos/{repo}/actions/artifacts?name=radio-{d}-{h:02d}"],
+                                 capture_output=True, text=True).stdout
+              return any(not a.get('expired') for a in json.loads(r or '{}').get('artifacts', []))
+          event, cron = os.environ['EVENT'], os.environ.get('CRON') or ''
+          mode, day, hour = os.environ.get('MODE') or 'both', os.environ.get('DAY') or '', os.environ.get('HOUR') or ''
           action = 'none'
-          # whatever asks, the day must be a real date and the mode one of the three: nothing else gets through
+          # whatever asks, the day must be a real date, the hour one of the day's, and the mode one of the four:
+          # nothing else gets through
           try:
               day = datetime.date.fromisoformat(day).isoformat() if day else ''
           except ValueError:
               print(f"not a day: {day!r}", file=sys.stderr)
               finished, day = True, ''
-          if mode not in ('make', 'release', 'both'):
+          if hour and not (hour.isdigit() and 0 <= int(hour) <= 23):
+              print(f"not an hour: {hour!r}", file=sys.stderr)
+              finished, hour = True, ''
+          hour = int(hour) if hour else now.hour
+          if mode not in ('gather', 'compose', 'release', 'both'):
               print(f"not a mode: {mode!r}", file=sys.stderr)
               finished = True
           if finished:
-              print("chance has ended the series: no more albums will be made", file=sys.stderr)
+              print("chance has ended the series, or the request made no sense: nothing to do", file=sys.stderr)
           elif event == 'workflow_dispatch':                   # the cloudflare worker, or a run by hand
-              if mode == 'make':
+              if mode == 'gather':
+                  day = day or listening_for
+                  action = 'none' if released == day or waiting(day) or kept(day, hour) else 'gather'
+              elif mode == 'compose':
                   day = day or tomorrow
-                  action = 'none' if released == day or waiting(day) else 'make'
+                  action = 'none' if released == day or waiting(day) else 'compose'
               elif mode == 'release':
                   day = day or today
                   action = 'none' if released == day else ('release' if waiting(day) else 'both')
               else:
-                  day = day or (tomorrow if now.hour >= 20 else today)
+                  day = day or (tomorrow if now.hour >= CLOSE else today)
                   action = 'none' if released == day else ('release' if waiting(day) else 'both')
-          else:                                                # GitHub's schedule: the backup
+          elif cron == '41 * * * *':                           # the backup for this hour's listening
+              day, hour = listening_for, now.hour
+              action = 'none' if released == day or waiting(day) or kept(day, hour) else 'gather'
+          else:                                                # GitHub's schedule: the backup for the album
               if released != today:                            # today's album is late: release or make it now
                   day, action = today, ('release' if waiting(today) else 'both')
-              elif now.hour >= 21:                             # see tomorrow's album out at midnight, made or not
+              elif now.hour >= CLOSE:                          # see tomorrow's album out at midnight, made or not
                   day, action = tomorrow, ('release' if waiting(tomorrow) else 'both')
-          print(f"it is {now:%Y-%m-%d %H:%M} mountain time ({event}, {mode}); the album on the page is for {released}; "
-                f"waiting as drafts: {drafts or 'none'} -> {action} {day}", file=sys.stderr)
-          # about one day in seven is a pure day: no taste anywhere, just the dice
-          pure = action in ('make', 'both') and secrets.randbelow(7) == 0
-          if pure:
-              print("it is a pure day", file=sys.stderr)
+          print(f"it is {now:%Y-%m-%d %H:%M} mountain time ({event} {cron}, {mode}); the album on the page is for "
+                f"{released}; waiting as drafts: {drafts or 'none'} -> {action} {day}"
+                + (f" (hour {hour})" if action == 'gather' else ''), file=sys.stderr)
           print(f"action={action}")
           print(f"day={day}")
-          print(f"pure={'1' if pure else '0'}")
+          print(f"hour={hour:02d}")
           EOF
+
+  # an hour's listening: about fifteen moments of the world's radio (365 over the day: the first five hours
+  # of it, from 9 pm, take sixteen), plus any an earlier hour missed (up to sixty in all, so it stays short),
+  # kept as an artifact for the evening. each shortwave receiver and each
+  # open microphone is visited at most once a day (the day's note of who was visited travels with it); the
+  # station streams make up whatever the others can't give. on a pure day (about one in seven, decided by
+  # chance at the day's first hour) the dial is turned anywhere, with no listening first, and everything is kept
+  gather:
+    needs: decide
+    if: needs.decide.outputs.action == 'gather'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      CHANCE_DAY: ${{ needs.decide.outputs.day }}
+      CHANCE_HOUR: ${{ needs.decide.outputs.hour }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install ffmpeg and libraries
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q ffmpeg
+          pip install -q numpy websocket-client
+
+      - name: Who was visited today
+        working-directory: exp/chance/engine
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/listened"
+          PURE=$(python day_radio.py state "$CHANCE_DAY" "$RUNNER_TEMP/listened/today.json")
+          echo "CHANCE_PURE=$PURE" >> "$GITHUB_ENV"
+          echo "pure day: $PURE"
+
+      - name: Listen
+        working-directory: exp/chance/engine
+        timeout-minutes: 30
+        run: |
+          # this hour's share, and whatever the hours before it missed (up to sixty in all, to stay short)
+          N=$(python - <<'EOF'
+          import json, os
+          slot = (int(os.environ['CHANCE_HOUR']) - 21) % 24                 # hours since the day began, at 9 pm
+          share = lambda s: 15 + (s < 5)
+          due = sum(share(s) for s in range(slot + 1))
+          have = int(json.load(open(os.path.join(os.environ['RUNNER_TEMP'], 'listened', 'today.json'))).get('clips') or 0)
+          print(min(60, max(share(slot), due - have)))
+          EOF
+          )
+          if [ "$CHANCE_PURE" = "1" ]; then DIAL=wild; else DIAL=stations; fi
+          echo "listening for $N moments, for the album of $CHANCE_DAY"
+          python chance_fontana.py --gather "$N" --gather-only --workers 8 --dial "$DIAL" \
+            --visited "$RUNNER_TEMP/listened/today.json" || echo "this hour fell short; making do"
+
+      - name: Keep this hour's clips
+        uses: actions/upload-artifact@v4
+        with:
+          name: radio-${{ needs.decide.outputs.day }}-${{ needs.decide.outputs.hour }}
+          path: |
+            exp/chance/engine/radio_cache/*.wav
+            exp/chance/engine/radio_cache/*Z_*.json
+          retention-days: 2
+          if-no-files-found: warn
+
+      - name: Keep who was visited
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: listened-${{ needs.decide.outputs.day }}-${{ needs.decide.outputs.hour }}
+          path: ${{ runner.temp }}/listened/today.json
+          retention-days: 2
+          if-no-files-found: ignore
 
   album:
     needs: decide
-    if: needs.decide.outputs.action != 'none'
+    if: needs.decide.outputs.action == 'compose' || needs.decide.outputs.action == 'release' || needs.decide.outputs.action == 'both'
     runs-on: ubuntu-latest
     timeout-minutes: 340
     env:
-      MAKE: ${{ needs.decide.outputs.action == 'make' || needs.decide.outputs.action == 'both' }}
+      MAKE: ${{ needs.decide.outputs.action == 'compose' || needs.decide.outputs.action == 'both' }}
       RELEASE: ${{ needs.decide.outputs.action == 'release' || needs.decide.outputs.action == 'both' }}
+      CHANCE_DAY: ${{ needs.decide.outputs.day }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -139,26 +256,29 @@ jobs:
           sudo apt-get install -y -q ffmpeg
           pip install -q numpy pillow websocket-client
 
-      # 365 samples from all four sources (they are thrown away when the job ends): one for each
-      # day of the year, as each day has a 1 in 365 chance of being the last.
-      # each shortwave receiver and each open microphone is visited at most once a day; the
-      # station streams make up whatever the others can't give. usually under an hour.
-      # on a pure day the dial is turned anywhere, with no listening first, and everything is kept
-      - name: Gather the radio
+      # every hour's clips (thrown away when the job ends). if almost nothing came (the hours were lost),
+      # a quick fresh listen makes up the day's 365 now
+      - name: Gather up the day's radio
         if: env.MAKE == 'true'
         working-directory: exp/chance/engine
-        timeout-minutes: 250
+        timeout-minutes: 120
         env:
-          CHANCE_PURE: ${{ needs.decide.outputs.pure }}
+          GH_TOKEN: ${{ github.token }}
         run: |
-          if [ "$CHANCE_PURE" = "1" ]; then DIAL=wild; else DIAL=stations; fi
-          python chance_fontana.py --gather 365 --gather-only --workers 8 --dial "$DIAL" || echo "gathering fell short; making do"
+          mkdir -p "$RUNNER_TEMP/listened"
+          PURE=$(python day_radio.py state "$CHANCE_DAY" "$RUNNER_TEMP/listened/today.json")
+          echo "CHANCE_PURE=$PURE" >> "$GITHUB_ENV"
+          GOT=$(python day_radio.py radio "$CHANCE_DAY" radio_cache)
+          echo "$GOT moments of radio gathered over the day (pure day: $PURE)"
+          if [ "$GOT" -lt 120 ]; then
+            if [ "$PURE" = "1" ]; then DIAL=wild; else DIAL=stations; fi
+            CHANCE_PURE=$PURE python chance_fontana.py --gather $((365 - GOT)) --gather-only --workers 8 --dial "$DIAL" \
+              --visited "$RUNNER_TEMP/listened/today.json" || echo "gathering fell short; making do"
+          fi
 
       - name: Make the album
         if: env.MAKE == 'true'
         working-directory: exp/chance/engine
-        env:
-          CHANCE_PURE: ${{ needs.decide.outputs.pure }}
         # mostly 5-7 songs; now and then more, up to 12 (about once a month). a pure day keeps the
         # static, uses no palette, and follows only the Fontana-style score of curves and points.
         run: |
@@ -173,10 +293,6 @@ jobs:
         working-directory: exp/chance/engine
         env:
           GH_TOKEN: ${{ github.token }}
-          CHANCE_DAY: ${{ needs.decide.outputs.day }}
-          CHANCE_PURE: ${{ needs.decide.outputs.pure }}
-          # made at the day's chance hour (asked by the worker), or caught up by the backup
-          CHANCE_BY_CHANCE: ${{ needs.decide.outputs.action == 'make' && '1' || '0' }}
         run: python publish_album.py --albums "$RUNNER_TEMP/albums" --stage
 
       - name: Commit the album number
@@ -189,11 +305,17 @@ jobs:
           git pull --rebase
           git push
 
-      # made in the evening (by the backup), it waits for midnight; late, it goes at once
+      # the album is made: the day's recordings are let go
+      - name: Let go of the day's clips
+        if: env.MAKE == 'true'
+        working-directory: exp/chance/engine
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python day_radio.py forget "$CHANCE_DAY" || echo "some clips were not let go; they expire on their own"
+
+      # made in the evening, it waits for midnight; late, it goes at once
       - name: Wait for midnight
         if: env.RELEASE == 'true'
-        env:
-          CHANCE_DAY: ${{ needs.decide.outputs.day }}
         run: |
           python - <<'EOF'
           import datetime, os, time
@@ -211,7 +333,6 @@ jobs:
         working-directory: exp/chance/engine
         env:
           GH_TOKEN: ${{ github.token }}
-          CHANCE_DAY: ${{ needs.decide.outputs.day }}
         run: |
           git pull -q --rebase
           python publish_album.py --publish-staged "$CHANCE_DAY"

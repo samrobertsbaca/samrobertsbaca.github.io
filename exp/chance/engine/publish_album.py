@@ -259,8 +259,9 @@ def album_title(track_titles, seed):
 
 def written_score():
     """the whole series as a score anyone can read, in the manner of Cage's instructions."""
-    return ("Each day, at an hour chosen by chance: listen to 365 moments of the world's radio. Keep what has "
-            "something in it, or, one day in seven, keep everything. Throw the dice to choose which sounds belong "
+    return ("Over the course of each day, listen to the world's radio, about fifteen moments every hour, 365 in all. "
+            "Keep what has something in it, or, one day in seven, keep everything. In the evening, throw the dice "
+            "to choose which sounds belong "
             "together and which patterns of data to fuse them with. Make between five and twelve songs. Title "
             "them with words cut from what was heard. Draw the album as a record, one groove spiralling in. Release it at midnight. Delete it the "
             f"next day. Each day, with a chance of 1 in {LAST_ODDS}, stop forever.")
@@ -361,7 +362,17 @@ def main():
     mstamp = re.search(r'album_(\d{4}-\d\d-\d\d)_(\d{6})', os.path.basename(album))
     made = (datetime.datetime.strptime(''.join(mstamp.groups()), '%Y-%m-%d%H%M%S').replace(tzinfo=datetime.timezone.utc)
             if mstamp and os.environ.get('GITHUB_ACTIONS') else datetime.datetime.now(datetime.timezone.utc))
-    by_chance = os.environ.get('CHANCE_BY_CHANCE') == '1'    # made at the day's chance hour, not caught up late
+    # over how many hours the radio was gathered (the clips' own clocks, the 30 hours before it was made):
+    # a whole day's listening, an hour at a time, or, caught up late, all at once
+    hours = set()
+    for js in glob.glob(os.path.join(args.radio_dir, '*.json')) if args.radio_dir else []:
+        try:
+            utc = datetime.datetime.fromisoformat(json.load(open(js, encoding='utf-8'))['utc'])
+        except (OSError, ValueError, KeyError, TypeError):
+            continue
+        if datetime.timedelta(0) <= made - utc <= datetime.timedelta(hours=30):
+            hours.add(utc.strftime('%Y-%m-%d %H'))
+    listened_hours = len(hours)
     made_line = f"created {made:%B} {made.day}, {made.year}, {made:%H:%M} UTC"
     # the album's own record, headed by where it belongs: "Impermanence Series A · ISA0000 Libehrain ..."
     record = manifest if manifest.startswith(SERIES) else "\n".join([
@@ -471,7 +482,7 @@ def main():
     heard = heard_on(scores)
     gathered = len(glob.glob(os.path.join(args.radio_dir, '*.wav'))) if args.radio_dir else 0
     listened = f"gathering {gathered:,} moments of radio" if gathered else "gathering moments of radio"
-    when = "At an hour chosen by chance" if by_chance else "In the hours before this album"
+    when = "Over the course of a day" if listened_hours >= 12 else "In the hours before this album"
     credits = [made_line,
                f"{SERIES} \u00b7 {catno}", "",
                f"questions by {ASKER}", "",
@@ -490,8 +501,8 @@ def main():
                 "algorithms), how long each song should be, and where it should go. "
                 + (f"{len(heard):,} of those moments are in these songs. " if heard else "")
                 + "Nothing was chosen by hand."), "",
-               *(["Today was a truly random day, as about one day in seven is: the algorithm kept everything, static and "
-                  "silence included, matched nothing for beauty, and asked no song to go anywhere. Nothing was "
+               *(["This was a truly random day, as about one day in seven is: all day the algorithm kept everything, "
+                  "static and silence included, matched nothing for beauty, and asked no song to go anywhere. Nothing was "
                   "discerned, classified, or judged.", ""] if PURE else []),
                ("This is the last album. The broadcasts collected are gone, and the recordings it gathered were "
                 f"thrown away once it was made, as on every day before. But no album will replace it: chance "
@@ -520,7 +531,7 @@ def main():
         'downloads': downloads,
         'mood': {k: round(v, 3) for k, v in mood.items()}, 'palette': inks + [paper_hex],
         'number': number, 'series': SERIES, 'catalog': catno, 'day': day.isoformat(), 'time_utc': made_at,
-        'made_utc': made.isoformat(timespec='minutes'), 'made_by_chance': by_chance, 'last': last, 'pure': PURE,
+        'made_utc': made.isoformat(timespec='minutes'), 'listened_hours': listened_hours, 'last': last, 'pure': PURE,
         'seed': str(seed), 'generated_from': os.path.basename(album),
         'published': datetime.datetime.now().isoformat(timespec='seconds'),
     }
@@ -569,7 +580,7 @@ def keep_record(site, data, cover, heard=None):
         os.path.join(arch, 'covers', f"{cat}.jpg"), quality=85)
     card = {'catalog': cat, 'number': data['number'], 'title': data['title'], 'artist': data['artist'],
             'series': data['series'], 'day': data['day'], 'time_utc': data['time_utc'],
-            'made_utc': data.get('made_utc'), 'made_by_chance': data.get('made_by_chance'),
+            'made_utc': data.get('made_utc'), 'listened_hours': data.get('listened_hours'),
             'length': round(sum(t['duration'] for t in data['tracks']), 2),
             'tracks': [{'n': t['n'], 'title': t['title'], 'duration': t['duration']} for t in data['tracks']],
             'cover': f"archive/covers/{cat}.jpg", 'palette': data['palette'], 'seed': data['seed'],
