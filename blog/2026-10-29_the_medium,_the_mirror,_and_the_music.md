@@ -36,13 +36,13 @@ the project has led me to think differently about contemporary ai.
 
 much of today's discourse frames artificial intelligence as either a miraculous breakthrough or an existential threat. both perspectives risk overlooking a more familiar reality. ai mirrors a process that has always existed within human culture.
 
-every one of us is a collage of inherited biology, accumulated experiences, cultural influences, and remembered ideas. creativity itself is often combinatorial, recombining existing materials into new forms. ai performs a technological version of that process, refracting fragments of collective human expression into unfamiliar arrangements.
+every one of us is a collage of inherited biology, accumulated experiences, cultural influences, and remembered ideas. creativity itself is a combinatorial process, recombining existing materials into new forms. ai performs a technological version of that process, refracting fragments of collective human expression into unfamiliar arrangements.
 
 the questions surrounding artificial intelligence are therefore not entirely new. how do we relate to the past? what do we preserve? what deserves our attention? how do we make meaning from abundance?
 
 these questions sit at the center of impermanence series a.
 
-the software can gather signals, generate structures, and produce endless musical variations. but it cannot determine significance. meaning emerges through participation. the act of listening remains irreducibly human.
+the software can gather signals, generate structures, and produce endless musical variations. but it cannot determine significance. meaning emerges through participation. the act of listening remains irreducibly.
 
 recently, i encountered a definition of faith from a unitarian universalist congregation: faith as attendance. faith not as certainty, but as the simple act of showing up and being present.
 
