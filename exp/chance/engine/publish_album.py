@@ -371,14 +371,16 @@ def main():
             if mstamp and os.environ.get('GITHUB_ACTIONS') else datetime.datetime.now(datetime.timezone.utc))
     # over how many hours the radio was gathered (the clips' own clocks, the 30 hours before it was made):
     # a whole day's listening, an hour at a time, or, caught up late, all at once
-    hours = set()
+    hours, kinds = set(), set()                          # (and which kinds of sound it found)
     for js in glob.glob(os.path.join(args.radio_dir, '*.json')) if args.radio_dir else []:
         try:
-            utc = datetime.datetime.fromisoformat(json.load(open(js, encoding='utf-8'))['utc'])
+            meta = json.load(open(js, encoding='utf-8'))
+            utc = datetime.datetime.fromisoformat(meta['utc'])
         except (OSError, ValueError, KeyError, TypeError):
             continue
         if datetime.timedelta(0) <= made - utc <= datetime.timedelta(hours=30):
             hours.add(utc.strftime('%Y-%m-%d %H'))
+            kinds.add(meta.get('kind'))
     listened_hours = len(hours)
     made_line = f"created {made:%B} {made.day}, {made.year}, {made:%H:%M} UTC"
     # the album's own record, headed by where it belongs: "Impermanence Series A · ISA000 Libehrain ..."
@@ -496,14 +498,19 @@ def main():
                f"{SERIES} \u00b7 {catno}", "",
                f"questions by {ASKER}", "",
                (f"{when}, {ARTIST} listened to the world, {listened} from anywhere on "
-                "the dial: shortwave, FM and internet stations, open microphones and old recordings from the "
-                "Internet Archive. The sounds were placed by a score of curves and points after John Cage's "
+                "the dial: shortwave, FM and internet stations, open microphones"
+                + (", hydrophones in the sea" if 'hydrophone' in kinds else "")
+                + (", the earth's own natural radio" if 'natural' in kinds else "")
+                + " and old recordings from the Internet Archive. The sounds were placed by a score of curves and points after John Cage's "
                 "\"Fontana Mix\", and the dice decided the rest."
                 + (f" {len(heard):,} of those moments are in these songs." if heard else ""))
                if PURE else
                (f"{when}, {ARTIST} listened to the world, {listened}: "
                 "shortwave from receivers around the world, FM and internet stations, open microphones on rooftops, "
-                "in gardens and in canals, and old recordings from the Internet Archive. It kept only what had "
+                "in gardens and in canals, "
+                + ("hydrophones under the sea, " if 'hydrophone' in kinds else "")
+                + ("the crackle and whistle of the earth's own natural radio, " if 'natural' in kinds else "")
+                + "and old recordings from the Internet Archive. It kept only what had "
                 "something in it. In the spirit of John Cage's aleatoric compositional methods, particularly "
                 "inspired by his piece \"Fontana Mix\", it threw the dice: which sounds belong together, which "
                 "patterns of data to fuse them with (cellular automata, bytebeat formulas, number sequences, sorting "
@@ -527,6 +534,19 @@ def main():
         sources.append("open microphones: Locus Sonus Locustream (locusonus.org)")
     if any(re.search(r'\barchive\b', h) for h in heard):
         sources.append("archive recordings: the Internet Archive (archive.org), openly licensed collections")
+    if any('natural radio' in h for h in heard):
+        sources.append("natural radio: live VLF receivers kept by Stefan Schäfer (DK7FC, Heidelberg), Renato Romero "
+                       "(vlf.it, Cumiana), Jonathan Rizzo (Pennsylvania) and the Leon Mow Radio Observatory "
+                       "(Victoria), shared through dk7fc.info")
+    if any('live hydrophone' in h for h in heard):
+        # their licence is share-alike: the songs that use them are shared on the same terms
+        wet = [t['n'] for t, w in zip(tracks, wavs) if 'live hydrophone' in
+               (open(os.path.splitext(w)[0] + '.score.txt', encoding='utf-8').read()
+                if os.path.exists(os.path.splitext(w)[0] + '.score.txt') else '')]
+        sources.append("hydrophones: Orcasound (orcasound.net), live from the Salish Sea, CC BY-NC-SA 4.0"
+                       + (f"; song{'s' if len(wet) > 1 else ''} {', '.join(map(str, wet))} use"
+                          f"{'' if len(wet) > 1 else 's'} it and "
+                          f"{'are' if len(wet) > 1 else 'is'} shared under the same licence" if wet else ""))
     if sources:
         credits += [""] + sources
     data = {

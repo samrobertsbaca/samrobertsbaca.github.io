@@ -53,6 +53,19 @@ GATHER (--gather N)
     Quiet places are welcome; only dead air is skipped. Credit Locus Sonus Locustream
     if you release anything made with them.
 
+    HYDROPHONES. The last 12-45 s of one of Orcasound's live hydrophones in the Salish
+    Sea (orcasound.net): orcas some days, ships, rain, snapping shrimp, the tide. Their
+    audio is CC BY-NC-SA 4.0: credit Orcasound, and share what uses it the same way.
+
+    NATURAL. Live natural radio from VLF receivers in Germany, Italy, the USA and
+    Australia, shared through dk7fc.info: the earth's own radio, below 22 kHz -- the
+    crackle of lightning all over the world (sferics), and now and then whistlers,
+    lightning's radio bent through the magnetosphere. Heard at its own frequencies, so
+    on the dial it sits below everything else. Credit the receivers' keepers.
+
+    A hydrophone or a VLF receiver may be visited again in a later run of the same day
+    (there are only a few, and they change by the hour), never twice in one run.
+
 MIX (every run)
     The cached clips become a new data source, 'radio'. A clip can be heard as tape
     (at a chance speed, steady, wandering, or reversed), as a tiny loop that turns it
@@ -1092,6 +1105,178 @@ def gather_mics(count, radio_dir, workers=4):
     print(f"gathered {got} open-microphone clip(s) into {radio_dir}")
     return got
 
+# --------------------------------------------- hydrophones and natural radio
+
+ORCASOUND_FEEDS = "https://live.orcasound.net/api/json/feeds"
+ORCASOUND_AUDIO = "https://{bucket}.s3.amazonaws.com/{node}"
+HYDRO_BAND = (143000.0, 144000.0)       # kHz: the sea sits above the archive
+# live natural radio: VLF receivers listening below 22 kHz, where lightning crackles (sferics) and,
+# bent by the ionosphere, whistlers fall. shared live through dk7fc.info: (stream, where, who runs it)
+NATURAL_RADIO_URL = "https://dk7fc.info/live-stream.php?stream={}"
+NATURAL_RADIO = [
+    ("vlf41", "Heidelberg, Germany", "Stefan Schäfer, DK7FC"),
+    ("vlf15", "Cumiana, Italy", "Renato Romero, vlf.it"),
+    ("vlf44", "Spring Brook Township, Pennsylvania, USA", "Jonathan Rizzo"),
+    ("vlf39", "Heathcote, Victoria, Australia", "Leon Mow Radio Observatory"),
+]
+NATURAL_BAND = (0.3, 10.0)              # kHz: natural radio is heard at its own frequencies, below VLF
+
+
+def record_hls(ffmpeg, base, secs, max_age=180):
+    """the last `secs` of a live HLS stream (an orcanode's: base/latest.txt names the current session,
+    whose playlist grows segment by segment), as mono 16-bit. a playlist not touched for `max_age`
+    seconds is a hydrophone that has gone quiet, and is passed over."""
+    import email.utils
+    import subprocess
+    import tempfile
+    session = urllib.request.urlopen(base + "/latest.txt", timeout=15).read().decode().strip()
+    url = f"{base}/hls/{session}/live.m3u8"
+    with urllib.request.urlopen(url, timeout=15) as r:
+        fresh = r.headers.get('Last-Modified')
+        lines = r.read().decode('utf-8', errors='replace').splitlines()
+    if fresh:
+        age = time.time() - email.utils.parsedate_to_datetime(fresh).timestamp()
+        if age > max_age:
+            raise RuntimeError(f"silent for {age / 3600:.1f} h")
+    segs, dur = [], None
+    for ln in lines:
+        if ln.startswith('#EXTINF:'):
+            dur = float(ln[8:].split(',')[0] or 0)
+        elif ln and not ln.startswith('#'):
+            segs.append((ln, dur or 10.0))
+    take, total = [], 0.0
+    for name, d in reversed(segs):                      # the newest segments, enough to cover secs
+        take.insert(0, name)
+        total += d
+        if total >= secs + 1:
+            break
+    if not take:
+        raise RuntimeError("no segments")
+    with tempfile.NamedTemporaryFile(suffix='.ts', delete=False) as f:
+        for name in take:
+            f.write(urllib.request.urlopen(f"{base}/hls/{session}/{name}", timeout=20).read())
+        path = f.name
+    try:
+        p = subprocess.run([ffmpeg, '-nostdin', '-hide_banner', '-loglevel', 'error', '-i', path,
+                            '-t', f"{secs:.2f}", '-vn', '-ac', '1', '-ar', '32000', '-f', 's16le', 'pipe:1'],
+                           capture_output=True, timeout=60)
+    finally:
+        os.remove(path)
+    x = np.frombuffer(p.stdout, dtype='<i2')
+    if len(x) < 3 * 32000:
+        raise RuntimeError("no audio")
+    return x.copy(), 32000
+
+
+def gather_hydrophones(count, radio_dir, workers=4):
+    """record `count` clips from Orcasound's live hydrophones in the Salish Sea, never one twice in a run
+    (a later run may come back to it: the sea changes by the hour)."""
+    ffmpeg = find_ffmpeg()
+    if not ffmpeg:
+        raise SystemExit("gathering from hydrophones needs ffmpeg")
+    rng = np.random.default_rng(int.from_bytes(os.urandom(8), 'big'))
+    try:
+        feeds = [f['attributes'] for f in get_json(ORCASOUND_FEEDS).get('data', [])]
+    except (OSError, ValueError, KeyError) as e:
+        print(f"hydrophones: the list is unreachable ({e})")
+        return 0
+    feeds = [f for f in feeds if f.get('visible') and f.get('node_name') and f.get('bucket')]
+    order = [feeds[i] for i in rng.permutation(len(feeds))]
+    print(f"gathering {count} clip(s) from {len(feeds)} live hydrophones (Orcasound, the Salish Sea)")
+
+    def next_job():
+        return (order.pop(), log_uniform(rng, 12, 45)) if order else None
+
+    def visit(job):
+        f, secs = job
+        utc = datetime.datetime.now(datetime.timezone.utc)
+        try:
+            x, rate = record_hls(ffmpeg, ORCASOUND_AUDIO.format(bucket=f['bucket'], node=f['node_name']), secs)
+            return f, utc, x, rate, None
+        except Exception as e:
+            return f, utc, None, None, str(e)[:50]
+
+    def accept(res, got):
+        f, utc, x, rate, err = res
+        name = str(f.get('name') or f['node_name']).strip()
+        label = name[:44].encode('ascii', 'replace').decode()
+        if err is not None:
+            print(f"  .. {label}: no ({err})")
+            return False
+        xf = x.astype(np.float64)
+        if xf.std() < 20 and not PURE:                     # the sea is never silent; a dead line is
+            print(f"  .. {label}: silent")
+            return False
+        flat, peak, cv = features(xf, rate, 'am')
+        lo, hi = HYDRO_BAND
+        fq = lo + (int.from_bytes(f['node_name'].encode('utf-8')[:6].ljust(6, b'.'), 'big') % int(hi - lo))
+        lon, lat = (f.get('location_point') or {}).get('coordinates', [None, None]) \
+            if isinstance(f.get('location_point'), dict) else (None, None)
+        meta = {'freq_khz': float(fq), 'mode': 'hydro', 'station': f"{name} hydrophone (the Salish Sea)",
+                'kind': 'hydrophone', 'band': 'hydrophone', 'location': f"{name}, the Salish Sea",
+                'gps': [lat, lon] if lat is not None else None,
+                'utc': utc.isoformat(timespec='seconds'), 'seconds': round(len(x) / rate, 2), 'rate': rate,
+                'url': f"https://live.orcasound.net/listen/{f.get('slug') or f['node_name']}",
+                'credit': "Orcasound (orcasound.net), CC BY-NC-SA 4.0",
+                'listened': {'flatness': round(flat, 3), 'peak_db': round(peak, 1), 'envelope_cv': round(cv, 3)}}
+        save_clip(radio_dir, x, rate, meta, utc)
+        print(f"  [{got + 1}/{count}] {label} -- live, underwater ({len(x) / rate:.0f} s)")
+        return True
+
+    got = run_pool(count, workers, next_job, visit, accept)
+    print(f"gathered {got} hydrophone clip(s) into {radio_dir}")
+    return got
+
+
+def gather_natural(count, radio_dir, workers=4):
+    """record `count` clips of live natural radio from VLF receivers, never one twice in a run (a later
+    run may come back: whistlers and the dawn chorus come and go with the hour)."""
+    ffmpeg = find_ffmpeg()
+    if not ffmpeg:
+        raise SystemExit("gathering natural radio needs ffmpeg")
+    rng = np.random.default_rng(int.from_bytes(os.urandom(8), 'big'))
+    order = [NATURAL_RADIO[i] for i in rng.permutation(len(NATURAL_RADIO))]
+    print(f"gathering {count} clip(s) of natural radio from {len(order)} VLF receivers")
+
+    def next_job():
+        return (order.pop(), log_uniform(rng, 12, 45)) if order else None
+
+    def visit(job):
+        (stream, where, who), secs = job
+        utc = datetime.datetime.now(datetime.timezone.utc)
+        try:
+            x, rate = record_stream(ffmpeg, NATURAL_RADIO_URL.format(stream), secs, lead=2.0)
+            return job, utc, x, rate, None
+        except Exception as e:
+            return job, utc, None, None, str(e)[:50]
+
+    def accept(res, got):
+        (stream, where, who), secs = res[0]
+        _, utc, x, rate, err = res
+        label = where[:44].encode('ascii', 'replace').decode()
+        if err is not None:
+            print(f"  .. {label}: no ({err})")
+            return False
+        xf = x.astype(np.float64)
+        if xf.std() < 20 and not PURE:
+            print(f"  .. {label}: silent")
+            return False
+        flat, peak, cv = features(xf, rate, 'am')
+        lo, hi = NATURAL_BAND
+        fq = lo + (int.from_bytes(stream.encode('utf-8'), 'big') % 9700) / 1000.0
+        meta = {'freq_khz': round(fq, 3), 'mode': 'natural', 'station': f"VLF receiver ({where})",
+                'kind': 'natural', 'band': 'natural radio (VLF)', 'location': where, 'receiver': who,
+                'utc': utc.isoformat(timespec='seconds'), 'seconds': round(len(x) / rate, 2), 'rate': rate,
+                'url': NATURAL_RADIO_URL.format(stream), 'credit': f"{who}, via dk7fc.info",
+                'listened': {'flatness': round(flat, 3), 'peak_db': round(peak, 1), 'envelope_cv': round(cv, 3)}}
+        save_clip(radio_dir, x, rate, meta, utc)
+        print(f"  [{got + 1}/{count}] {label} -- natural radio, live ({len(x) / rate:.0f} s)")
+        return True
+
+    got = run_pool(count, workers, next_job, visit, accept)
+    print(f"gathered {got} natural radio clip(s) into {radio_dir}")
+    return got
+
 
 def dial_text(c):
     """how a clip's place on the dial reads in a score."""
@@ -1099,6 +1284,10 @@ def dial_text(c):
         return "internet radio"
     if c.get('mode') == 'mic':
         return "live microphone"
+    if c.get('mode') == 'hydro':
+        return "live hydrophone"
+    if c.get('mode') == 'natural':
+        return "natural radio"
     if c.get('mode') == 'archive':
         return f"archive, {c['year']}" if c.get('year') else "archive"
     if c.get('mode') == 'fm' or c['freq_khz'] >= 30000:
@@ -1294,7 +1483,7 @@ def _clip_tokens(c):
         places += [p.strip() for p in c['receiver'].split('|')[-1].split(',') if p.strip()]
     places = [re.sub(r'^the\s+', '', p, flags=re.I) for p in places
               if len(p) <= 28 and '@' not in p and not re.fullmatch(r'\d{4}', p)]
-    if c.get('mode') in ('net', 'mic'):
+    if c.get('mode') in ('net', 'mic', 'hydro', 'natural'):
         freq = None
     elif c.get('mode') == 'archive':
         freq = str(c['year']) if c.get('year') else None
@@ -2646,9 +2835,10 @@ def main():
 
     ap = cd.make_parser(__doc__, default_form='chance')
     ap.add_argument('--gather', type=int, default=0, metavar='N',
-                    help='first record N new clips from all sources (shortwave and station streams)')
+                    help='first record N new clips from all sources')
     ap.add_argument('--from', dest='gather_from', default='all',
-                    help='where --gather looks: all (default), or any of shortwave, stations, archive, mics '
+                    help='where --gather looks: all (default), or any of shortwave, stations, archive, mics, '
+                         'hydrophones, natural '
                          '(comma-separated)')
     ap.add_argument('--gather-only', action='store_true', help='record clips, then stop')
     ap.add_argument('--dial', choices=['stations', 'wild'], default='stations',
@@ -2682,12 +2872,13 @@ def main():
         return
     if args.gather > 0:
         n = args.gather
-        kinds = ['shortwave', 'stations', 'archive', 'mics']
+        kinds = ['shortwave', 'stations', 'archive', 'mics', 'hydrophones', 'natural']
         want = kinds if args.gather_from == 'all' else [k.strip() for k in args.gather_from.split(',')]
         bad = [k for k in want if k not in kinds]
         if bad:
             ap.error(f"--from: unknown source(s) {', '.join(bad)}; choose from all, {', '.join(kinds)}")
-        weight = {'shortwave': 0.35, 'stations': 0.3, 'archive': 0.2, 'mics': 0.15}
+        weight = {'shortwave': 0.35, 'stations': 0.3, 'archive': 0.2, 'mics': 0.15,
+                  'hydrophones': 0.04, 'natural': 0.04}     # the sea and the sky: a little of each, most hours
         w = np.array([weight[k] for k in want])
         split = np.random.default_rng(int.from_bytes(os.urandom(8), 'big')).multinomial(n, w / w.sum())
         plan = {k: int(c) for k, c in zip(want, split) if c}
@@ -2708,8 +2899,12 @@ def main():
                 got += gather_streams(c, args.radio_dir, args.fm_only, args.fm_country, wk, args.refresh_receivers)
             elif k == 'archive':
                 got += gather_archive(c, args.radio_dir, wk)
-            else:
+            elif k == 'mics':
                 got += gather_mics(c, args.radio_dir, wk)
+            elif k == 'hydrophones':
+                got += gather_hydrophones(c, args.radio_dir, wk)
+            else:
+                got += gather_natural(c, args.radio_dir, wk)
         if got < n and 'stations' in want:                 # whatever fell short, the stations make up
             print(f"{n - got} short; topping up from station streams")
             got += gather_streams(n - got, args.radio_dir, args.fm_only, args.fm_country, wk, args.refresh_receivers)
