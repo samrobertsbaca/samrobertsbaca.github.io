@@ -175,6 +175,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           CHANCE_DAY: ${{ needs.decide.outputs.day }}
           CHANCE_PURE: ${{ needs.decide.outputs.pure }}
+          # made at the day's chance hour (asked by the worker), or caught up by the backup
+          CHANCE_BY_CHANCE: ${{ needs.decide.outputs.action == 'make' && '1' || '0' }}
         run: python publish_album.py --albums "$RUNNER_TEMP/albums" --stage
 
       - name: Commit the album number
