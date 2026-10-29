@@ -259,7 +259,7 @@ def album_title(track_titles, seed):
 
 def written_score():
     """the whole series as a score anyone can read, in the manner of Cage's instructions."""
-    return ("Each day, as the day's story is told: listen to 365 moments of the world's radio. Keep what has "
+    return ("Each day at midnight: listen to 365 moments of the world's radio. Keep what has "
             "something in it, or, one day in seven, keep everything. Throw the dice to choose which sounds belong "
             "together and which patterns of data to fuse them with. Make between five and twelve songs. Title "
             "them with words cut from what was heard. Draw the album as a record, one groove spiralling in. Publish the album. Delete it the "
