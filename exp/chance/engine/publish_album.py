@@ -362,8 +362,7 @@ def main():
     made = (datetime.datetime.strptime(''.join(mstamp.groups()), '%Y-%m-%d%H%M%S').replace(tzinfo=datetime.timezone.utc)
             if mstamp and os.environ.get('GITHUB_ACTIONS') else datetime.datetime.now(datetime.timezone.utc))
     by_chance = os.environ.get('CHANCE_BY_CHANCE') == '1'    # made at the day's chance hour, not caught up late
-    made_line = (f"made {made:%B} {made.day}, {made.year}, {made:%H:%M} UTC"
-                 + (", at an hour chosen by chance" if by_chance else ""))
+    made_line = f"created {made:%B} {made.day}, {made.year}, {made:%H:%M} UTC"
     # the album's own record, headed by where it belongs: "Impermanence Series A · ISA0000 Libehrain ..."
     record = manifest if manifest.startswith(SERIES) else "\n".join([
         f"{SERIES} · {catno} {words}".rstrip(),
