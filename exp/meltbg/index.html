@@ -18,8 +18,8 @@ let t = 0;
 const SCALE      = 0.004;  // Zoom level
 const WARP       = 4.0;    // Strength of the "swirl"
 const OCT        = 1;      // Detail level (keep low for performance)
-const SPEED      = 0;  // How fast it flows
-const STEP       = 3;      // Pixel size (increase if it lags, decrease for sharpness)
+const SPEED      = .5;  // How fast it flows
+const STEP       = 10;      // Pixel size (increase if it lags, decrease for sharpness)
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
