@@ -200,6 +200,9 @@ RADIO_CLIPS = []      # filled in main(): cached clips, ordered by frequency
 # who has been visited today (--visited): a day's listening is spread over many short runs, and each
 # shortwave receiver and each open microphone is visited at most once a day, whichever run it falls to
 VISITED = {'receivers': set(), 'mics': set(), 'stations': set()}
+# how many clips each song's palette gathers (--palette-size): a few that belong together, or, some
+# days, many more of the day's moments
+PALETTE_SIZE = [3, 8]
 
 
 # ------------------------------------------------------------------ the dial
@@ -1640,7 +1643,7 @@ def palette(rng, allowed, log):
         return pal
     if RADIO_CLIPS:
         N = len(RADIO_CLIPS)
-        k = int(min(N, rng.integers(3, 9)))
+        k = int(min(N, rng.integers(PALETTE_SIZE[0], PALETTE_SIZE[1] + 1)))
         p = fresh_weights()
         seed = int(rng.choice(N, p=p))
         # the clips a palette can gather around its seed: a draw that leans towards recent finds
@@ -2856,6 +2859,9 @@ def main():
     ap.add_argument('--half-life', type=float, default=2.0, metavar='DAYS',
                     help='prefer recently gathered clips: one this many days old counts half as much as '
                          "today's (default 2; 0 = no preference)")
+    ap.add_argument('--palette-size', default='3-8', metavar='LO-HI',
+                    help="how many clips each song's palette gathers, chosen by chance in this range "
+                         "(default 3-8; a wider range brings more of the day's moments into each song)")
     ap.add_argument('--workers', type=int, default=4,
                     help='receivers listened to at once while gathering (default 4; one connection each)')
     ap.add_argument('--fm-only', action='store_true', help='station streams: only stations that say they are FM')
@@ -2864,6 +2870,11 @@ def main():
     args = ap.parse_args()
 
     os.makedirs(args.radio_dir, exist_ok=True)
+    try:
+        lo, _, hi = args.palette_size.partition('-')
+        PALETTE_SIZE[:] = [max(1, int(lo)), max(int(lo), int(hi or lo))]
+    except ValueError:
+        ap.error(f"--palette-size: not a range like 3-8: {args.palette_size!r}")
     if args.no_titles:
         cd.TITLER = None
     if args.list_sources:

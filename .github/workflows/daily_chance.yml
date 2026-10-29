@@ -279,13 +279,17 @@ jobs:
       - name: Make the album
         if: env.MAKE == 'true'
         working-directory: exp/chance/engine
-        # mostly 5-7 songs; now and then more, up to 12 (about once a month). a pure day keeps the
-        # static, uses no palette, and follows only the Fontana-style score of curves and points.
+        # mostly 5-7 songs; now and then more, up to 12 (about once a month). each song draws on a
+        # palette of the day's clips: usually a few that belong together (3-8), sometimes more (8-20),
+        # now and then many (20-60), and once in a while as many as 180, so some albums hold two or
+        # three times as many of the day's moments as others. a pure day keeps the static, uses no
+        # palette (every clip may sit by any other), and follows only the Fontana-style score.
         run: |
           N=$(python -c "import random; print(random.choices(range(5, 13), weights=[26, 28, 24, 9, 5, 3, 2, 3])[0])")
-          echo "$N songs"
+          PAL=$(python -c "import random; print(random.choices(['3-8', '8-20', '20-60', '60-180'], weights=[55, 25, 13, 7])[0])")
+          echo "$N songs, palettes of $PAL clips"
           if [ "$CHANCE_PURE" = "1" ]; then EXTRA="--form fontana --keep-static"; else EXTRA=""; fi
-          python chance_fontana.py -n "$N" $EXTRA -o "$RUNNER_TEMP/albums"
+          python chance_fontana.py -n "$N" --palette-size "$PAL" $EXTRA -o "$RUNNER_TEMP/albums"
 
       # it waits, unheard, as a draft release until midnight
       - name: Leave it waiting as a draft
