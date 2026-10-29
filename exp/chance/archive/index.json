@@ -36,6 +36,7 @@
    }
   ],
   "cover": "archive/covers/ISA000.jpg",
+  "cover_png": "archive/covers/ISA000.png",
   "palette": [
    "#A82DAE",
    "#C34072",
@@ -117,6 +118,7 @@
    }
   ],
   "cover": "archive/covers/ISA001.jpg",
+  "cover_png": "archive/covers/ISA001.png",
   "palette": [
    "#194FAA",
    "#2738C4",

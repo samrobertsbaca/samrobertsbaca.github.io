@@ -10,7 +10,7 @@ given), and writes into the site's exp/chance/ folder:
     cover.jpg           a cover drawn from the songs themselves, as a record: one groove from
                         the edge in to the label, clockwise from the top, the songs one after
                         another along it; across the groove is pitch (high at the outer edge),
-                        ink is loudness (cover.png: the same, lossless)
+                        ink is loudness (every size of it also as a lossless .png)
     banner.jpg          a blurred strip of that cover, for the page header
     album.json          title, tracks, durations, credits -- everything the page shows
 
@@ -427,7 +427,9 @@ def main():
     cover = draw_cover(rings, [t['duration'] for t in tracks], seed=seed, inks=inks, paper_hex=paper_hex)
     cover.save(os.path.join(media, 'cover.jpg'), quality=90)
     cover.save(os.path.join(media, 'cover.png'))         # lossless: every groove as it was drawn
-    cover.resize((300, 300), Image.LANCZOS).save(os.path.join(media, 'cover_small.jpg'), quality=88)
+    small = cover.resize((300, 300), Image.LANCZOS)
+    small.save(os.path.join(media, 'cover_small.jpg'), quality=88)
+    small.save(os.path.join(media, 'cover_small.png'))   # every size of the cover, lossless too
     strip = cover.crop((0, 420, 1200, 640)).resize((975, 180), Image.LANCZOS)
     strip.filter(ImageFilter.GaussianBlur(14)).save(os.path.join(media, 'banner.jpg'), quality=85)
     art_dir = tempfile.mkdtemp(prefix='chance_art_')
@@ -471,6 +473,7 @@ def main():
                     inner = re.sub(r'[<>:"/\\|?*]+', ' ', f"{t['n']:02d} {t['title']}").strip()
                     z.write(src, f"{safe}/{inner}.{ext}")
                 z.write(os.path.join(media, 'cover.jpg'), f"{safe}/cover.jpg")     # as in a bandcamp download
+                z.write(os.path.join(media, 'cover.png'), f"{safe}/cover.png")     # and lossless
                 z.writestr(f"{safe}/album.txt", record)        # the album's own record, as the program wrote it
             downloads.append({'format': fmt_, 'note': note, 'url': base + zname,
                               'bytes': os.path.getsize(zpath)})
@@ -562,7 +565,7 @@ def main():
         'tags': ["chance", "radio", "data", "experimental", "Albuquerque"],
         'tracks': [{k: v for k, v in t.items() if k != 'bytes'} for t in tracks],
         'cover': base + "cover.jpg", 'cover_small': base + "cover_small.jpg", 'banner': base + "banner.jpg",
-        'cover_png': base + "cover.png",
+        'cover_png': base + "cover.png", 'cover_small_png': base + "cover_small.png",
         'downloads': downloads,
         'mood': {k: round(v, 3) for k, v in mood.items()}, 'palette': inks + [paper_hex],
         'number': number, 'series': SERIES, 'catalog': catno, 'day': day.isoformat(), 'time_utc': made_at,
@@ -592,7 +595,8 @@ def main():
             staged = []
             for src, nm in (('album.json', 'stage-album.json'), ('score.json', 'stage-score.json'),
                             ('card.json', 'stage-card.json'),
-                            (os.path.join('archive', 'covers', f"{catno}.jpg"), 'stage-cover.jpg')):
+                            (os.path.join('archive', 'covers', f"{catno}.jpg"), 'stage-cover.jpg'),
+                            (os.path.join('archive', 'covers', f"{catno}.png"), 'stage-cover.png')):
                 shutil.copy(os.path.join(out, src), os.path.join(out, nm))
                 staged.append(os.path.join(out, nm))
             gh('release', 'upload', tag, *staged, '--repo', args.repo)
@@ -617,12 +621,13 @@ def keep_record(site, data, cover, heard=None):
     cat = data['catalog']
     cover.convert('RGB').resize((600, 600), Image.LANCZOS).save(
         os.path.join(arch, 'covers', f"{cat}.jpg"), quality=85)
+    cover.convert('RGB').resize((600, 600), Image.LANCZOS).save(os.path.join(arch, 'covers', f"{cat}.png"))
     card = {'catalog': cat, 'number': data['number'], 'title': data['title'], 'artist': data['artist'],
             'series': data['series'], 'day': data['day'], 'time_utc': data['time_utc'],
             'made_utc': data.get('made_utc'), 'listened_hours': data.get('listened_hours'),
             'length': round(sum(t['duration'] for t in data['tracks']), 2),
             'tracks': [{'n': t['n'], 'title': t['title'], 'duration': t['duration']} for t in data['tracks']],
-            'cover': f"archive/covers/{cat}.jpg", 'palette': data['palette'], 'seed': data['seed'],
+            'cover': f"archive/covers/{cat}.jpg", 'cover_png': f"archive/covers/{cat}.png", 'palette': data['palette'], 'seed': data['seed'],
             'pure': data['pure'], 'last': data['last'],
             'heard': heard if heard is not None else data['heard'],   # every recording, not just the page's first 60
             'heard_total': data['heard_total']}
@@ -645,7 +650,9 @@ def publish_staged(repo, site, day):
         raise SystemExit(3)
     assets = {a['name']: a['id'] for a in draft.get('assets', [])}
     got = {}
-    for nm in ('stage-album.json', 'stage-score.json', 'stage-card.json', 'stage-cover.jpg'):
+    for nm in ('stage-album.json', 'stage-score.json', 'stage-card.json', 'stage-cover.jpg', 'stage-cover.png'):
+        if nm not in assets:                             # (a draft staged before covers came as .png too)
+            continue
         got[nm] = gh_raw('api', '-H', 'Accept: application/octet-stream', f'repos/{repo}/releases/assets/{assets[nm]}')
     a = json.loads(got['stage-album.json'].decode('utf-8'))
     now = datetime.datetime.now(datetime.timezone.utc)
@@ -664,6 +671,9 @@ def publish_staged(repo, site, day):
     os.makedirs(os.path.join(arch, 'covers'), exist_ok=True)
     with open(os.path.join(arch, 'covers', f"{card['catalog']}.jpg"), 'wb') as f:
         f.write(got['stage-cover.jpg'])
+    if 'stage-cover.png' in got:
+        with open(os.path.join(arch, 'covers', f"{card['catalog']}.png"), 'wb') as f:
+            f.write(got['stage-cover.png'])
     path = os.path.join(arch, 'index.json')
     cards = json.load(open(path, encoding='utf-8')) if os.path.exists(path) else []
     cards = sorted([c for c in cards if c['catalog'] != card['catalog']] + [card], key=lambda c: c['number'])
