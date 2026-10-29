@@ -1,4 +1,5 @@
 window.postFiles = [
+  "/blog/2026-10-29_the_medium_the_mirror_the_music.html",
   "/blog/2026-10-22_artist_statement.html",
   "/blog/2026-08-28_artist_statement.html",
   "/blog/2026-08-15_my_name_is_easter_egg.html",
