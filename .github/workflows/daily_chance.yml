@@ -78,6 +78,15 @@ jobs:
           waiting = lambda d: any(t.startswith(f'chance-{d}') for t in drafts)   # made, not yet released
           event, mode, day = os.environ['EVENT'], os.environ.get('MODE') or 'both', os.environ.get('DAY') or ''
           action = 'none'
+          # whatever asks, the day must be a real date and the mode one of the three: nothing else gets through
+          try:
+              day = datetime.date.fromisoformat(day).isoformat() if day else ''
+          except ValueError:
+              print(f"not a day: {day!r}", file=sys.stderr)
+              finished, day = True, ''
+          if mode not in ('make', 'release', 'both'):
+              print(f"not a mode: {mode!r}", file=sys.stderr)
+              finished = True
           if finished:
               print("chance has ended the series: no more albums will be made", file=sys.stderr)
           elif event == 'workflow_dispatch':                   # the cloudflare worker, or a run by hand
@@ -200,9 +209,10 @@ jobs:
         working-directory: exp/chance/engine
         env:
           GH_TOKEN: ${{ github.token }}
+          CHANCE_DAY: ${{ needs.decide.outputs.day }}
         run: |
           git pull -q --rebase
-          python publish_album.py --publish-staged "${{ needs.decide.outputs.day }}"
+          python publish_album.py --publish-staged "$CHANCE_DAY"
 
       - name: Commit album.json
         if: env.RELEASE == 'true'
