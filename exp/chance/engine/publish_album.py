@@ -276,13 +276,18 @@ def written_score():
 
 def heard_on(score_texts):
     """the recordings heard on the album, from the scores: every layer that used radio names
-    its clip there. a mosaic drawing grains from several clips names them together ("a + b"),
-    so those are split, and each recording counts once however often it was used."""
+    its clip there, with when it was gathered. a mosaic drawing grains from several clips names
+    them together ("a + b"), so those are split, and each recording counts once however often it
+    was used. the time reads "Oct 29, 06:27 UTC"."""
     seen = []
     for s in score_texts:
         for lab in re.findall(r'radio \[([^\]]+)\]', s):
             for one in lab.split(' + '):
-                one = re.sub(r', \d{4}-\d\d-\d\d \d\d:\d\d UTC', '', one).strip()
+                m = re.search(r', (\d{4}-\d\d-\d\d) (\d\d:\d\d) UTC$', one.strip())
+                if m:
+                    d = datetime.date.fromisoformat(m.group(1))
+                    one = one.strip()[:m.start()] + f", {d:%b} {d.day}, {m.group(2)} UTC"
+                one = one.strip()
                 if one and one not in seen:
                     seen.append(one)
     return seen

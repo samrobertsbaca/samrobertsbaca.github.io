@@ -1355,10 +1355,7 @@ def src_radio(rng, n, hint=None):
     else:
         i = fresh_clip(rng)
     c = RADIO_CLIPS[i]
-    heard = ((f"{c['station']}, " if c.get('station') else "")
-             + dial_text(c)
-             + (f" via {c['receiver']}" if c.get('receiver') else "")
-             + (f", {c['utc'][:16].replace('T', ' ')} UTC" if c.get('utc') else ""))
+    heard = clip_label(c)
     reading = hint.get('reading') or str(rng.choice(['tape', 'tape', 'varispeed', 'reverse', 'loop', 'data']))
     note_clip(c)
     note_tech({'loop': 'Loop', 'reverse': 'Backwards', 'varispeed': 'Varispeed', 'data': 'Misread'}.get(reading))
@@ -1767,8 +1764,10 @@ NOT_DATA = set(FUSION_KEYS) | {'radio', 'impulses', 'loop', 'hits'}
 
 
 def clip_label(c):
+    """a clip as the scores name it: what, where on the dial, through what, and when it was gathered."""
     return ((f"{c['station']}, " if c.get('station') else "") + dial_text(c)
-            + (f" via {c['receiver']}" if c.get('receiver') else ""))
+            + (f" via {c['receiver']}" if c.get('receiver') else "")
+            + (f", {c['utc'][:16].replace('T', ' ')} UTC" if c.get('utc') else ""))
 
 
 _AT_SR = {}
