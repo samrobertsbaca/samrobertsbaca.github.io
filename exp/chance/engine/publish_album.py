@@ -358,8 +358,8 @@ def main():
         number = int(open(counter, encoding='utf-8').read().strip() or 0)
     except (OSError, ValueError):
         number = 0
-    name = f"{number:03d} " + album_title([t['title'] for t in tracks], seed)
-    catno = f"{SERIES_CODE}{number:03d}"                 # in the small print, not the title
+    catno = f"{SERIES_CODE}{number:03d}"                 # the catalogue number heads the title: "ISA002 ..."
+    name = f"{catno} " + album_title([t['title'] for t in tracks], seed)
     words = name.split(' ', 1)[1] if ' ' in name else ''  # the title without its number
     stamp = re.search(r'album_(\d{4}-\d\d-\d\d)', os.path.basename(album))
     day = datetime.date.fromisoformat(stamp.group(1)) if stamp else datetime.date.today()
@@ -471,10 +471,10 @@ def main():
     shutil.rmtree(art_dir, ignore_errors=True)           # the embedded art, and the download's MP3s once zipped
     if args.release:
         files = sorted(glob.glob(os.path.join(media, '*')))
-        notes = (f"{name} ({SERIES}, {catno}) -- {len(tracks)} songs made by chance on {day.isoformat()}. "
+        notes = (f"{name} ({SERIES}) -- {len(tracks)} songs made by chance on {day.isoformat()}. "
                  f"Streams on https://scorsby.us/exp/chance/ ; replaced by the next day's album.")
         if last:
-            notes = (f"{name} ({SERIES}, {catno}) -- the last album, {len(tracks)} songs made by chance on {day.isoformat()}. "
+            notes = (f"{name} ({SERIES}) -- the last album, {len(tracks)} songs made by chance on {day.isoformat()}. "
                      f"{ended}. This one stays.")
             gh('release', 'create', tag, *files, '--repo', args.repo, '--title',
                f"{name} ({day.isoformat()}) -- the last", '--notes', notes,
