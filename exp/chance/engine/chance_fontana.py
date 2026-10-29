@@ -2854,6 +2854,9 @@ def main():
     ap.add_argument('--half-life', type=float, default=2.0, metavar='DAYS',
                     help='prefer recently gathered clips: one this many days old counts half as much as '
                          "today's (default 2; 0 = no preference)")
+    ap.add_argument('--stereo-width', type=float, default=0.6, metavar='W',
+                    help='how far from the centre a voice may sit (1 = hard left to hard right; default 0.6, '
+                         'kinder on headphones). a pure day takes no such care: anywhere at all')
     ap.add_argument('--palette-size', default='3-8', metavar='LO-HI',
                     help="how many clips each song's palette gathers, chosen by chance in this range "
                          "(default 3-8; a wider range brings more of the day's moments into each song)")
@@ -2865,6 +2868,7 @@ def main():
     args = ap.parse_args()
 
     os.makedirs(args.radio_dir, exist_ok=True)
+    cd.PAN_WIDTH = 1.0 if PURE else float(np.clip(args.stereo_width, 0.0, 1.0))
     try:
         lo, _, hi = args.palette_size.partition('-')
         PALETTE_SIZE[:] = [max(1, int(lo)), max(int(lo), int(hi or lo))]

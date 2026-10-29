@@ -101,6 +101,8 @@ FILE_POOL = []                    # filled in main(): files whose bytes can be r
 TITLER = None                     # optional: (rng, log, tag, voices, taken) -> a title for each track
 ENDINGS = False                   # True: beginnings and endings vary by chance (cold starts, hard stops)
 END_AT = None                     # a form may name the sample a hard stop should land on (a bar line)
+PAN_WIDTH = 1.0                   # how far from the centre a voice may sit: 1 = anywhere, hard left to hard right;
+                                  # less draws every voice in towards the middle (kinder on headphones)
 END_PREF = None                   # a form may suggest its ending: "fade out", "quick fade", "hard stop"
 
 
@@ -1510,8 +1512,12 @@ def make_piece(rng, duration, channels, log, allowed, form, pool, track_no, prog
         if channels == 2:
             base = float(hint['pan']) if 'pan' in hint else \
                 float(np.clip(0.5 + (v.home - 0.5) * pan_w(pos) + (pan_c(pos) - 0.5) * 0.6, 0, 1))
+            reach = 0.25
+            if PAN_WIDTH != 1.0:                   # drawn in towards the centre
+                base, reach = 0.5 + (base - 0.5) * PAN_WIDTH, reach * PAN_WIDTH
             if n > 2 * SR and rng.random() < 0.4:
-                p, kp = drift(rng, n, max(0.0, base - 0.25), min(1.0, base + 0.25), per_secs=8.0)
+                lo, hi = 0.5 - 0.5 * PAN_WIDTH, 0.5 + 0.5 * PAN_WIDTH
+                p, kp = drift(rng, n, max(lo, base - reach), min(hi, base + reach), per_secs=8.0)
                 pdesc = f"pan moving around {base:.2f} ({kp} pts)"
             else:
                 p = base
