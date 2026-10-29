@@ -1,0 +1,13 @@
+{
+  "name": "scorsby-chance-trigger",
+  "private": true,
+  "type": "module",
+  "description": "the clock for Impermanence Series A: asks GitHub to make each album at a chance hour and release it at midnight.",
+  "scripts": {
+    "dev": "wrangler dev --test-scheduled",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.40.0"
+  }
+}

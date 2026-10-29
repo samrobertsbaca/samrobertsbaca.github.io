@@ -5,6 +5,7 @@
 .nojekyll
 .wrangler
 hearth
+chance-trigger
 tools
 **/node_modules
 **/__pycache__

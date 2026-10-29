@@ -290,6 +290,10 @@ def main():
     ap.add_argument('--release', action='store_true',
                     help="put the MP3s, cover and banner on a GitHub release (needs gh and GH_TOKEN) instead "
                          "of in the site folder; only album.json is written into the site")
+    ap.add_argument('--stage', action='store_true',
+                    help="as --release, but as a hidden draft: the album waits there, unheard, until --publish-staged")
+    ap.add_argument('--publish-staged', metavar='DAY',
+                    help="release the draft made for DAY (YYYY-MM-DD) and point the site at it")
     ap.add_argument('--repo', default=REPO, help='owner/name of the repository for --release')
     ap.add_argument('--prune', action='store_true', help='only delete older chance-* releases, keeping --keep')
     ap.add_argument('--keep', type=int, default=2, help='with --prune: how many recent releases to keep')
@@ -301,6 +305,10 @@ def main():
     SITE_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(args.site)))
     if args.prune:
         return prune(args.repo, args.keep)
+    if args.publish_staged:
+        return publish_staged(args.repo, args.site, args.publish_staged)
+    if args.stage:                                       # made now, released later: everything --release does
+        args.release = True
 
     if args.album:
         album = args.album if os.path.isabs(args.album) else os.path.join(args.albums, args.album)
@@ -442,12 +450,14 @@ def main():
             notes = (f"{name} ({SERIES}, {catno}) -- the last album, {len(tracks)} songs made by chance on {day.isoformat()}. "
                      f"Chance ended the series here. This one stays.")
             gh('release', 'create', tag, *files, '--repo', args.repo, '--title',
-               f"{name} ({day.isoformat()}) -- the last", '--notes', notes, '--latest')
-            with open(os.path.join(HERE, 'FINISHED'), 'w', encoding='utf-8') as f:
-                f.write(f"{tag}\n{number:04d}\n{day.isoformat()} {made_at} UTC\n")
+               f"{name} ({day.isoformat()}) -- the last", '--notes', notes,
+               *(['--draft'] if args.stage else ['--latest']))
+            if not args.stage:                           # (staged, the end is written down when it's released)
+                with open(os.path.join(HERE, 'FINISHED'), 'w', encoding='utf-8') as f:
+                    f.write(f"{tag}\n{number:04d}\n{day.isoformat()} {made_at} UTC\n")
         else:
             gh('release', 'create', tag, *files, '--repo', args.repo, '--title', f"{name} ({day.isoformat()})",
-               '--notes', notes, '--prerelease')
+               '--notes', notes, '--draft' if args.stage else '--prerelease')
         print(f"  released {len(files)} files as {tag}")
         shutil.rmtree(media, ignore_errors=True)         # uploaded: the local copies can go
 
@@ -505,7 +515,8 @@ def main():
         'seed': str(seed), 'generated_from': os.path.basename(album),
         'published': datetime.datetime.now().isoformat(timespec='seconds'),
     }
-    with open(os.path.join(args.site, 'album.json'), 'w', encoding='utf-8') as f:
+    out = tempfile.mkdtemp(prefix='chance_stage_') if args.stage else args.site   # staged: kept back, not shown
+    with open(os.path.join(out, 'album.json'), 'w', encoding='utf-8') as f:
         json.dump(data, f, indent=1, ensure_ascii=False)
     # the score page: the written score, the album's own record (album.txt) and every song's score
     tidy = lambda t: re.sub(r'(?:[A-Za-z]:)?[\\/][^\s()]*[\\/](radio_cache|albums?|engine)\b', r'\1', t)
@@ -514,11 +525,24 @@ def main():
         sc = os.path.splitext(path)[0] + '.score.txt'
         song_scores.append({'n': t['n'], 'title': t['title'],
                             'score': tidy(open(sc, encoding='utf-8').read()) if os.path.exists(sc) else ''})
-    with open(os.path.join(args.site, 'score.json'), 'w', encoding='utf-8') as f:
+    with open(os.path.join(out, 'score.json'), 'w', encoding='utf-8') as f:
         json.dump({'title': name, 'number': number, 'day': day.isoformat(), 'written': written_score(),
                    'album_txt': tidy(record), 'songs': song_scores}, f, indent=1, ensure_ascii=False)
     if args.release:                                     # published for real: the next album gets the next number
-        keep_record(args.site, data, cover, heard)
+        keep_record(out, data, cover, heard)
+        if args.stage:                                   # the site's part, waiting in the draft beside the album
+            card = json.load(open(os.path.join(out, 'archive', 'index.json'), encoding='utf-8'))[-1]
+            with open(os.path.join(out, 'card.json'), 'w', encoding='utf-8') as f:
+                json.dump(card, f, indent=1, ensure_ascii=False)
+            staged = []
+            for src, nm in (('album.json', 'stage-album.json'), ('score.json', 'stage-score.json'),
+                            ('card.json', 'stage-card.json'),
+                            (os.path.join('archive', 'covers', f"{catno}.jpg"), 'stage-cover.jpg')):
+                shutil.copy(os.path.join(out, src), os.path.join(out, nm))
+                staged.append(os.path.join(out, nm))
+            gh('release', 'upload', tag, *staged, '--repo', args.repo)
+            shutil.rmtree(out, ignore_errors=True)
+            print(f"  staged as a draft on {tag}: released at midnight by --publish-staged {day.isoformat()}")
         with open(counter, 'w', encoding='utf-8') as f:
             f.write(f"{number + 1}\n")
     total = sum(t['bytes'] for t in tracks)
@@ -550,6 +574,59 @@ def keep_record(site, data, cover, heard=None):
     print(f"  kept {cat}'s catalogue card and cover in archive/ ({len(cards)} album{'s' if len(cards) != 1 else ''} so far)")
 
 
+def publish_staged(repo, site, day):
+    """release the album that was made earlier and left as a draft for DAY: publish the draft, then put its
+    album.json, score.json and catalogue card into the site, with the moment it was really released.
+    exits with 3 if there is no draft for that day (the workflow then makes one at once)."""
+    rels = json.loads(gh('api', f'repos/{repo}/releases?per_page=50').stdout or '[]')
+    draft = next((r for r in rels if r.get('draft') and r['tag_name'].startswith(f'chance-{day}')), None)
+    if not draft:
+        print(f"no album is waiting for {day}")
+        raise SystemExit(3)
+    assets = {a['name']: a['id'] for a in draft.get('assets', [])}
+    got = {}
+    for nm in ('stage-album.json', 'stage-score.json', 'stage-card.json', 'stage-cover.jpg'):
+        got[nm] = gh_raw('api', '-H', 'Accept: application/octet-stream', f'repos/{repo}/releases/assets/{assets[nm]}')
+    a = json.loads(got['stage-album.json'].decode('utf-8'))
+    now = datetime.datetime.now(datetime.timezone.utc)
+    at = now.strftime('%H:%M')
+    d = datetime.date.fromisoformat(a['day'])
+    a['credits'][0] = f"released {d.strftime('%B')} {d.day}, {d.year}, {at} UTC"   # when it really came out
+    a['time_utc'], a['published'] = at, datetime.datetime.now().isoformat(timespec='seconds')
+    rid = draft['id']
+    gh('api', '-X', 'PATCH', f"repos/{repo}/releases/{rid}", '-F', 'draft=false',
+       '-F', f"prerelease={'false' if a['last'] else 'true'}", '-f', f"make_latest={'true' if a['last'] else 'false'}")
+    with open(os.path.join(site, 'album.json'), 'w', encoding='utf-8') as f:
+        json.dump(a, f, indent=1, ensure_ascii=False)
+    with open(os.path.join(site, 'score.json'), 'wb') as f:
+        f.write(got['stage-score.json'])
+    card = json.loads(got['stage-card.json'].decode('utf-8'))
+    card['time_utc'] = at
+    arch = os.path.join(site, 'archive')
+    os.makedirs(os.path.join(arch, 'covers'), exist_ok=True)
+    with open(os.path.join(arch, 'covers', f"{card['catalog']}.jpg"), 'wb') as f:
+        f.write(got['stage-cover.jpg'])
+    path = os.path.join(arch, 'index.json')
+    cards = json.load(open(path, encoding='utf-8')) if os.path.exists(path) else []
+    cards = sorted([c for c in cards if c['catalog'] != card['catalog']] + [card], key=lambda c: c['number'])
+    with open(path, 'w', encoding='utf-8') as f:
+        json.dump(cards, f, indent=1, ensure_ascii=False)
+    for nm in got:                                       # the staging files were only for this moment
+        gh('api', '-X', 'DELETE', f'repos/{repo}/releases/assets/{assets[nm]}', check=False)
+    if a['last']:
+        with open(os.path.join(HERE, 'FINISHED'), 'w', encoding='utf-8') as f:
+            f.write(f"{draft['tag_name']}\n{a['number']:04d}\n{day} {at} UTC\n")
+    print(f"released '{a['title']}' ({draft['tag_name']}) at {at} UTC")
+
+
+def gh_raw(*args):
+    """the GitHub CLI, its output as bytes (for downloading a release's files)."""
+    p = subprocess.run([shutil.which('gh') or 'gh', *args], capture_output=True)
+    if p.returncode != 0:
+        raise SystemExit(f"gh {' '.join(args[:2])} failed: {p.stderr.decode('utf-8', 'replace').strip()[:300]}")
+    return p.stdout
+
+
 def gh(*args, check=True):
     """the GitHub CLI (on GitHub's runners it is already installed and GH_TOKEN is the job's token)."""
     exe = shutil.which('gh')
@@ -563,13 +640,13 @@ def gh(*args, check=True):
 
 def prune(repo, keep):
     """delete all but the `keep` most recent chance-* releases (and their tags)."""
-    p = gh('release', 'list', '--repo', repo, '--limit', '200', '--json', 'tagName,createdAt')
+    p = gh('release', 'list', '--repo', repo, '--limit', '200', '--json', 'tagName,createdAt,isDraft')
     try:                                                 # the last album's release is never let go
         keep_forever = open(os.path.join(HERE, 'FINISHED'), encoding='utf-8').readline().strip()
     except OSError:
         keep_forever = None
-    rels = sorted([r for r in json.loads(p.stdout or '[]') if r['tagName'].startswith('chance-')
-                   and r['tagName'] != keep_forever], key=lambda r: r['createdAt'], reverse=True)
+    rels = sorted([r for r in json.loads(p.stdout or '[]') if r['tagName'].startswith('chance-')   # (drafts wait)
+                   and r['tagName'] != keep_forever and not r.get('isDraft')], key=lambda r: r['createdAt'], reverse=True)
     for r in rels[max(1, keep):]:
         gh('release', 'delete', r['tagName'], '--repo', repo, '--cleanup-tag', '--yes')
         print(f"  let go of {r['tagName']}")

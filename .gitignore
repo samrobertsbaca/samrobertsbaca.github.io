@@ -14,3 +14,5 @@ hearth/.dev.vars
 /exp/chance/engine/radio_cache/
 /exp/chance/engine/album_*/
 /exp/chance/engine/__pycache__/
+chance-trigger/node_modules/
+chance-trigger/.wrangler/

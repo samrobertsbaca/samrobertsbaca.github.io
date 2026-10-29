@@ -1,34 +1,48 @@
 name: Daily Chance Album
-# once a day, at midnight mountain time: gather the world's radio fresh, make an album by chance (numbered
-# 0000, 0001 ...; any day may be the last), put its audio and cover on a GitHub release, and point
-# scorsby.us/exp/chance/ at it. the album is made in the evening and released on the stroke of midnight.
+# once a day: gather the world's radio fresh at a moment chosen by chance, make an album by chance (numbered
+# 0000, 0001 ...; any day may be the last), leave it waiting as a hidden draft release, and at midnight
+# mountain time release it and point scorsby.us/exp/chance/ at it.
+#
+# the timing comes from a small Cloudflare worker (chance-trigger/), which keeps time to the minute: at the
+# day's chance hour it asks for the album to be made (mode: make), at midnight for it to be released (mode:
+# release). GitHub's own schedule, below, is the backup: from 9 pm it makes sure tomorrow's album exists and
+# releases it at midnight itself, and any time of day it releases or makes an album that's late.
 concurrency:
-  group: daily-chance        # one run at a time; a run waiting its turn finds the day's album made, and stops
+  group: daily-chance        # one run at a time; a run waiting its turn finds the work done, and stops
   cancel-in-progress: false
 permissions:
   contents: write
   actions: write   # so that, when chance ends the series, the workflow can switch itself off
 on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'make (a draft, for release at midnight), release (the waiting draft), or both'
+        type: choice
+        options: [both, make, release]
+        default: both
+      day:
+        description: "the album's day, YYYY-MM-DD in mountain time (blank: the next midnight's)"
+        required: false
+        default: ''
   schedule:
-    # the evening before (UTC times: 9-10:30 pm mountain daylight time, 8-9:30 pm standard time), more than
-    # once, as GitHub drops scheduled runs when it's busy; and every hour, to catch up if all of them were lost
+    # the backup: in the evening (UTC times: 9-10:30 pm mountain daylight time, 8-9:30 pm standard), more than
+    # once, as GitHub drops scheduled runs when it's busy; and every hour, to catch up if everything was lost
     - cron: '5 3 * * *'
     - cron: '35 3 * * *'
     - cron: '5 4 * * *'
     - cron: '35 4 * * *'
     - cron: '17 * * * *'
-  workflow_dispatch: # run it by hand from the Actions tab (counts as the day's album)
   push:
     branches: [main]
     paths: ['.github/workflows/daily_chance.yml'] # and once whenever this file changes
 
 jobs:
-  # whose album is it? from 8 pm mountain time it's tomorrow's (made now, released at midnight); before
-  # that, today's (made at once, if somehow it wasn't). nothing is made if that album already exists.
+  # what's to be done, for which day? nothing, if it's done already.
   decide:
     runs-on: ubuntu-latest
     outputs:
-      go: ${{ steps.d.outputs.go }}
+      action: ${{ steps.d.outputs.action }}
       day: ${{ steps.d.outputs.day }}
       pure: ${{ steps.d.outputs.pure }}
     steps:
@@ -36,45 +50,70 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
-      - name: Is it time for today's album?
+      - name: What's to be done?
         id: d
         env:
           EVENT: ${{ github.event_name }}
+          MODE: ${{ github.event.inputs.mode }}
+          DAY: ${{ github.event.inputs.day }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           git fetch -q --depth 1 origin main
           python3 - <<'EOF' >> "$GITHUB_OUTPUT"
           import datetime, json, os, secrets, subprocess, sys
           from zoneinfo import ZoneInfo
           now = datetime.datetime.now(ZoneInfo('America/Denver'))     # mountain time, daylight or standard
-          day = (now.date() + datetime.timedelta(days=1 if now.hour >= 20 else 0)).isoformat()
-          shown = subprocess.run(['git', 'show', 'origin/main:exp/chance/album.json'],
-                                 capture_output=True, text=True).stdout
+          today = now.date().isoformat()
+          tomorrow = (now.date() + datetime.timedelta(days=1)).isoformat()
+          shown = subprocess.run(['git', 'show', 'origin/main:exp/chance/album.json'], capture_output=True, text=True).stdout
           try:
-              made = json.loads(shown or '{}').get('day')
+              released = json.loads(shown or '{}').get('day')          # the day of the album now on the page
           except ValueError:
-              made = None
+              released = None
           finished = subprocess.run(['git', 'cat-file', '-e', 'origin/main:exp/chance/engine/FINISHED'],
                                     capture_output=True).returncode == 0
-          # a run by hand always makes one; the scheduled checks, and a change to this file, only if it isn't made
-          go = not finished and (os.environ['EVENT'] == 'workflow_dispatch' or made != day)
+          rels = subprocess.run(['gh', 'api', f"repos/{os.environ['GITHUB_REPOSITORY']}/releases?per_page=30"],
+                                capture_output=True, text=True).stdout
+          drafts = [r['tag_name'] for r in json.loads(rels or '[]') if r.get('draft')]
+          waiting = lambda d: any(t.startswith(f'chance-{d}') for t in drafts)   # made, not yet released
+          event, mode, day = os.environ['EVENT'], os.environ.get('MODE') or 'both', os.environ.get('DAY') or ''
+          action = 'none'
           if finished:
               print("chance has ended the series: no more albums will be made", file=sys.stderr)
-          print(f"it is {now:%Y-%m-%d %H:%M} mountain time; the album for {day} "
-                f"{'exists' if made == day else 'is not made yet'} -> {'go' if go else 'wait'}", file=sys.stderr)
+          elif event == 'workflow_dispatch':                   # the cloudflare worker, or a run by hand
+              if mode == 'make':
+                  day = day or tomorrow
+                  action = 'none' if released == day or waiting(day) else 'make'
+              elif mode == 'release':
+                  day = day or today
+                  action = 'none' if released == day else ('release' if waiting(day) else 'both')
+              else:
+                  day = day or (tomorrow if now.hour >= 20 else today)
+                  action = 'none' if released == day else ('release' if waiting(day) else 'both')
+          else:                                                # GitHub's schedule: the backup
+              if released != today:                            # today's album is late: release or make it now
+                  day, action = today, ('release' if waiting(today) else 'both')
+              elif now.hour >= 21:                             # see tomorrow's album out at midnight, made or not
+                  day, action = tomorrow, ('release' if waiting(tomorrow) else 'both')
+          print(f"it is {now:%Y-%m-%d %H:%M} mountain time ({event}, {mode}); the album on the page is for {released}; "
+                f"waiting as drafts: {drafts or 'none'} -> {action} {day}", file=sys.stderr)
           # about one day in seven is a pure day: no taste anywhere, just the dice
-          pure = go and secrets.randbelow(7) == 0
+          pure = action in ('make', 'both') and secrets.randbelow(7) == 0
           if pure:
-              print("today is a pure day", file=sys.stderr)
-          print(f"go={'true' if go else 'false'}")
+              print("it is a pure day", file=sys.stderr)
+          print(f"action={action}")
           print(f"day={day}")
           print(f"pure={'1' if pure else '0'}")
           EOF
 
   album:
     needs: decide
-    if: needs.decide.outputs.go == 'true'
+    if: needs.decide.outputs.action != 'none'
     runs-on: ubuntu-latest
     timeout-minutes: 340
+    env:
+      MAKE: ${{ needs.decide.outputs.action == 'make' || needs.decide.outputs.action == 'both' }}
+      RELEASE: ${{ needs.decide.outputs.action == 'release' || needs.decide.outputs.action == 'both' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -85,6 +124,7 @@ jobs:
           python-version: '3.12'
 
       - name: Install ffmpeg and libraries
+        if: env.MAKE == 'true'
         run: |
           sudo apt-get update -q
           sudo apt-get install -y -q ffmpeg
@@ -95,7 +135,8 @@ jobs:
       # each shortwave receiver and each open microphone is visited at most once a day; the
       # station streams make up whatever the others can't give. usually under an hour.
       # on a pure day the dial is turned anywhere, with no listening first, and everything is kept
-      - name: Gather today's radio
+      - name: Gather the radio
+        if: env.MAKE == 'true'
         working-directory: exp/chance/engine
         timeout-minutes: 250
         env:
@@ -105,6 +146,7 @@ jobs:
           python chance_fontana.py --gather 365 --gather-only --workers 8 --dial "$DIAL" || echo "gathering fell short; making do"
 
       - name: Make the album
+        if: env.MAKE == 'true'
         working-directory: exp/chance/engine
         env:
           CHANCE_PURE: ${{ needs.decide.outputs.pure }}
@@ -112,39 +154,62 @@ jobs:
         # static, uses no palette, and follows only the Fontana-style score of curves and points.
         run: |
           N=$(python -c "import random; print(random.choices(range(5, 13), weights=[26, 28, 24, 9, 5, 3, 2, 3])[0])")
-          echo "today: $N songs"
+          echo "$N songs"
           if [ "$CHANCE_PURE" = "1" ]; then EXTRA="--form fontana --keep-static"; else EXTRA=""; fi
           python chance_fontana.py -n "$N" $EXTRA -o "$RUNNER_TEMP/albums"
 
-      # made in the evening, it waits for midnight in mountain time; made late (catching up), it goes at once
+      # it waits, unheard, as a draft release until midnight
+      - name: Leave it waiting as a draft
+        if: env.MAKE == 'true'
+        working-directory: exp/chance/engine
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CHANCE_DAY: ${{ needs.decide.outputs.day }}
+          CHANCE_PURE: ${{ needs.decide.outputs.pure }}
+        run: python publish_album.py --albums "$RUNNER_TEMP/albums" --stage
+
+      - name: Commit the album number
+        if: env.MAKE == 'true'
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add exp/chance/engine/titles.txt exp/chance/engine/album_number.txt
+          git commit -m "Daily chance album made (waiting for midnight)" || echo "No changes to commit"
+          git pull --rebase
+          git push
+
+      # made in the evening (by the backup), it waits for midnight; late, it goes at once
       - name: Wait for midnight
+        if: env.RELEASE == 'true'
         env:
           CHANCE_DAY: ${{ needs.decide.outputs.day }}
         run: |
           python - <<'EOF'
-          import datetime, time
+          import datetime, os, time
           from zoneinfo import ZoneInfo
           tz = ZoneInfo('America/Denver')
-          midnight = datetime.datetime.fromisoformat(__import__('os').environ['CHANCE_DAY']).replace(tzinfo=tz)
+          midnight = datetime.datetime.fromisoformat(os.environ['CHANCE_DAY']).replace(tzinfo=tz)
           wait = (midnight - datetime.datetime.now(tz)).total_seconds()
           print(f"releasing at {midnight:%Y-%m-%d %H:%M %Z}; waiting {max(0, wait) / 60:.0f} minutes")
           if wait > 0:
               time.sleep(wait)
           EOF
 
-      - name: Publish it to a release
+      - name: Release it
+        if: env.RELEASE == 'true'
         working-directory: exp/chance/engine
         env:
           GH_TOKEN: ${{ github.token }}
-          CHANCE_DAY: ${{ needs.decide.outputs.day }}
-          CHANCE_PURE: ${{ needs.decide.outputs.pure }}
-        run: python publish_album.py --albums "$RUNNER_TEMP/albums" --release
+        run: |
+          git pull -q --rebase
+          python publish_album.py --publish-staged "${{ needs.decide.outputs.day }}"
 
       - name: Commit album.json
+        if: env.RELEASE == 'true'
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add exp/chance/album.json exp/chance/score.json exp/chance/engine/titles.txt exp/chance/engine/album_number.txt
+          git add exp/chance/album.json exp/chance/score.json
           git add exp/chance/archive   # what stays: each album's catalogue card and a small copy of its cover
           if [ -f exp/chance/engine/FINISHED ]; then git add exp/chance/engine/FINISHED; fi
           git commit -m "Daily chance album" || echo "No changes to commit"
@@ -152,15 +217,16 @@ jobs:
           git push
 
       - name: Let go of older albums
+        if: env.RELEASE == 'true'
         working-directory: exp/chance/engine
         env:
           GH_TOKEN: ${{ github.token }}
         run: python publish_album.py --prune --keep 2
 
-      # each day there is a 1 in 365 chance that today's album is the last. if it was, the series
-      # is over: the last album's release stays for good, and this workflow switches itself off.
+      # each day there is a 1 in 365 chance that the album is the last. if it was, the series is over:
+      # the last album's release stays for good, and this workflow switches itself off.
       - name: If chance ended the series, stop
-        if: hashFiles('exp/chance/engine/FINISHED') != ''
+        if: env.RELEASE == 'true' && hashFiles('exp/chance/engine/FINISHED') != ''
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
