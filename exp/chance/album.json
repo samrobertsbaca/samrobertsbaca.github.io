@@ -13,7 +13,7 @@
   "",
   "In the hours before this album, ScorsBT4 listened to the world, gathering 363 moments of radio: shortwave from receivers around the world, FM and internet stations, open microphones on rooftops, in gardens and in canals, and old recordings from the Internet Archive. It kept only what had something in it. In the spirit of John Cage's aleatoric compositional methods, particularly inspired by his piece \"Fontana Mix\", it threw the dice: which sounds belong together, which patterns of data to fuse them with (cellular automata, bytebeat formulas, number sequences, sorting algorithms), how long each song should be, and where it should go. 31 of those moments are in these songs. Nothing was chosen by hand.",
   "",
-  "This album is impermanent. The broadcasts collected are gone. The recordings it gathered were thrown away once it was made. Tomorrow it will be replaced by another, which will never be heard again either. Each day the chance that it is the last grows: today's was 1 in 365, tomorrow's is 1 in 364. It exists for a day. Listen while it's here.",
+  "This album is impermanent. The broadcasts collected are gone. The recordings it gathered were thrown away once it was made. Tomorrow it will be replaced by another, which will never be heard again either. Each day the chance that it is the last grows: today's was 1 in 365, tomorrow's is 1 in 364. It exists for a day. Listen while it's here. Read here for more info about the project.",
   "",
   "open microphones: Locus Sonus Locustream (locusonus.org)",
   "archive recordings: the Internet Archive (archive.org), openly licensed collections"
@@ -140,5 +140,6 @@
  "published": "2026-10-29T06:38:13",
  "made_utc": "2026-10-29T06:36+00:00",
  "made_by_chance": false,
- "odds": 365
+ "odds": 365,
+ "more": "https://scorsby.us/blog/2026-10-29_the_medium,_the_mirror,_and_the_music.html"
 }

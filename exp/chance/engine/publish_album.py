@@ -53,6 +53,7 @@ SERIES, SERIES_CODE = "Impermanence Series A", "ISA"     # the series; each albu
 LABEL = "Scorsby Records"
 LAST_ODDS = int(os.environ.get('CHANCE_LAST_ODDS', 365))    # 001's chance of ending the series: 1 in this
 PURE = os.environ.get('CHANCE_PURE') == '1'                  # a pure day: no taste anywhere (about 1 in 7)
+MORE = "https://scorsby.us/blog/2026-10-29_the_medium,_the_mirror,_and_the_music.html"   # about the project
 QUOTE = "All computer programming is basically question asking, rather than choice making."
 INKS = ["#00B4FF", "#EB000E", "#B34777", "#100E0E"]       # the page's own colours
 PAPER = "#FDF9F8"
@@ -530,13 +531,14 @@ def main():
                   "discerned, classified, or judged.", ""] if PURE else []),
                ("This is the last album. The broadcasts collected are gone, and the recordings it gathered were "
                 f"thrown away once it was made, as on every day before. But no album will replace it: "
-                f"{ended[0].lower() + ended[1:]}, after {number + 1:,} album{'s' if number else ''}. This one will stay.")
+                f"{ended[0].lower() + ended[1:]}, after {number + 1:,} album{'s' if number else ''}. This one will stay. "
+                "Read here for more info about the project.")
                if last else
                ("This album is impermanent. The broadcasts collected are gone. The recordings it gathered were "
                 "thrown away once it was made. Tomorrow it will be replaced by another, which will never be heard "
                 f"again either. Each day the chance that it is the last grows: today's was 1 in {odds}, "
                 + (f"tomorrow's is 1 in {odds - 1}. " if odds > 2 else "tomorrow's is certain. ") +
-                "It exists for a day. Listen while it's here.")]
+                "It exists for a day. Listen while it's here. Read here for more info about the project.")]
     sources = []
     if any('live microphone' in h for h in heard):
         sources.append("open microphones: Locus Sonus Locustream (locusonus.org)")
@@ -561,7 +563,7 @@ def main():
         'title': name, 'artist': ARTIST, 'released': day.isoformat(),
         'about': QUOTE, 'about_by': "John Cage, 1985",
         'about_link': "https://www.youtube.com/watch?v=9GqHikJSQhQ",  # the interview it was said in
-        'credits': credits, 'heard': heard[:60], 'heard_total': len(heard),
+        'credits': credits, 'more': MORE, 'heard': heard[:60], 'heard_total': len(heard),
         'tags': ["chance", "radio", "data", "experimental", "Albuquerque"],
         'tracks': [{k: v for k, v in t.items() if k != 'bytes'} for t in tracks],
         'cover': base + "cover.jpg", 'cover_small': base + "cover_small.jpg", 'banner': base + "banner.jpg",

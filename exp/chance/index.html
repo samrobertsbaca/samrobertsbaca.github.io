@@ -603,14 +603,20 @@
     $('credits').innerHTML = '';
     // the programs that made it are open: each name in the credits links to its source
     const SRC = 'engine/';                                  // served from this site, beside the page
+    const MORE = '/blog/2026-10-29_the_medium,_the_mirror,_and_the_music.html';
     a.credits.forEach(line => {
       const p = document.createElement('div');
-      (line || ' ').split(/(chance_data\.py|chance_fontana\.py|publish_album\.py)/).forEach(part => {
+      (line || ' ').split(/(chance_data\.py|chance_fontana\.py|publish_album\.py|Read here for more info about the project\.)/).forEach(part => {
         if (/\.py$/.test(part)) {
           const x = document.createElement('a');
           x.href = SRC + part;
           x.textContent = part;
           p.appendChild(x);
+        } else if (part.startsWith('Read here')) {          // more about the project: the blog post
+          const x = document.createElement('a');
+          x.href = a.more || MORE;
+          x.textContent = 'here';
+          p.append('Read ', x, ' for more info about the project.');
         } else {
           p.appendChild(document.createTextNode(part));
         }
