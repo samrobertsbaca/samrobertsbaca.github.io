@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<!--
+  experiments: the things scorsby is trying out. some finished, some still wet.
+  only the ones that are ready to be wandered into are listed here.
+-->
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-F0TBFJSGJ9"></script>
+  <script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-F0TBFJSGJ9');
+  </script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="experiments from scorsby: a daily album made by chance, a memory wheel, sacred geometry, and other things being tried out.">
+  <link rel="canonical" href="https://scorsby.us/exp/">
+  <link rel="icon" href="/favicon.webp" type="image/webp">
+  <title>experiments | scorsby</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <style>
+    @font-face { font-family: 'Scheme'; src: url('/fonts/Scheme.otf') format('opentype'); font-display: swap; }
+    @font-face { font-family: 'Plex'; src: url('/fonts/IBMPlexMono-Regular.ttf') format('truetype'); font-display: swap; }
+    :root {
+      --paper: #ffffff; --ink: #1d1a5e; --dim: rgba(29, 26, 94, 0.62); --faint: rgba(29, 26, 94, 0.18);
+      --blue: #00b4ff; --pink: #ff3d8e;
+      --head: 'Scheme', 'Instrument Serif', 'Iowan Old Style', Georgia, serif;
+      --mono: 'Plex', ui-monospace, Menlo, Consolas, monospace;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --paper: #3e3478; --ink: #ffffff; --dim: rgba(255, 255, 255, 0.7); --faint: rgba(255, 255, 255, 0.22); }
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; background: var(--paper); color: var(--ink); }
+    body { font-family: var(--mono); font-size: 14px; line-height: 1.55; }
+    main { max-width: 680px; margin: 0 auto; padding: 40px 16px 64px; }
+    header { display: flex; align-items: center; gap: 14px; margin-bottom: 8px; }
+    header a.home { display: block; width: 46px; height: 46px; flex: none; }
+    header a.home img { width: 100%; height: 100%; display: block; }
+    h1 { font-family: var(--head); font-weight: 400; font-size: 34px; line-height: 1; margin: 0; letter-spacing: .01em; }
+    .intro { color: var(--dim); margin: 6px 0 30px; }
+    ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 16px; }
+    li a {
+      display: block; text-decoration: none; color: inherit; border: 1px solid var(--ink); border-radius: 3px;
+      box-shadow: 4px 4px 0 var(--ink); background: var(--paper); transition: transform .08s, box-shadow .08s;
+    }
+    li a:hover { transform: translate(-1px, -1px); box-shadow: 5px 5px 0 var(--ink); }
+    li a:active { transform: translate(4px, 4px); box-shadow: none; }
+    li a:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+    .bar {
+      display: flex; justify-content: space-between; gap: 12px; background: var(--ink); color: var(--paper);
+      font-size: 10px; letter-spacing: .1em; text-transform: uppercase; padding: 3px 8px;
+    }
+    .body { padding: 10px 14px 13px; }
+    .name { font-family: var(--head); font-size: 23px; line-height: 1.2; margin: 0 0 3px; }
+    .what { margin: 0; color: var(--dim); }
+    .new { color: var(--pink); }
+    footer { margin-top: 40px; color: var(--dim); font-size: 12px; }
+    footer a { color: inherit; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <a class="home" href="/" aria-label="world of scorsby"><img src="/favicon.webp" alt=""></a>
+      <h1>experiments</h1>
+    </header>
+    <p class="intro">things scorsby is trying out. some finished, some still wet.</p>
+
+    <ol>
+      <li><a href="/exp/chance/">
+        <div class="bar"><span>chance/</span><span class="new">every day</span></div>
+        <div class="body">
+          <p class="name">Impermanence Series A</p>
+          <p class="what">a new album every day, made by chance from the world's radio, gone the next day. any day could be the last.</p>
+        </div>
+      </a></li>
+      <li><a href="/exp/memorywheel/">
+        <div class="bar"><span>memorywheel/</span><span>drag</span></div>
+        <div class="body">
+          <p class="name">memory wheel</p>
+          <p class="what">rings of words remembered from the blog, turning around scorsby's face. drag them.</p>
+        </div>
+      </a></li>
+      <li><a href="/exp/sacred-geometry/">
+        <div class="bar"><span>sacred-geometry/</span><span>breathe</span></div>
+        <div class="body">
+          <p class="name">sacred geometry for meditation</p>
+          <p class="what">shapes that breathe with you, a soft drone, and a bell when the time is up.</p>
+        </div>
+      </a></li>
+      <li><a href="/exp/meltbg/">
+        <div class="bar"><span>meltbg/</span><span>watch</span></div>
+        <div class="body">
+          <p class="name">liquid marble</p>
+          <p class="what">pink and blue, slowly melting into each other.</p>
+        </div>
+      </a></li>
+      <li><a href="/exp/apr14/scorsby_vcr.html">
+        <div class="bar"><span>apr14/</span><span>wait</span></div>
+        <div class="body">
+          <p class="name">scorsby vcr</p>
+          <p class="what">scorsby drifting across the screen like an old screensaver. watch for the corner.</p>
+        </div>
+      </a></li>
+    </ol>
+
+    <footer>peace love and joy for everyone everywhere &middot; <a href="/">scorsby.us</a></footer>
+  </main>
+</body>
+</html>
