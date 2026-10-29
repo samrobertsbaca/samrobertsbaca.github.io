@@ -51,7 +51,7 @@ ARTIST = "ScorsBT4"                                 # the machine that plays the
 ASKER = "Samuel John Scorsby"                           # who asked it the questions
 SERIES, SERIES_CODE = "Impermanence Series A", "ISA"     # the series; each album's catalogue number is ISA0000, ...
 LABEL = "Scorsby Records"
-LAST_ODDS = int(os.environ.get('CHANCE_LAST_ODDS', 365))    # each day, a 1-in-this chance the series ends (about a year on average)
+LAST_ODDS = int(os.environ.get('CHANCE_LAST_ODDS', 365))    # 0001's chance of ending the series: 1 in this
 PURE = os.environ.get('CHANCE_PURE') == '1'                  # a pure day: no taste anywhere (about 1 in 7)
 QUOTE = "All computer programming is basically question asking, rather than choice making."
 INKS = ["#00B4FF", "#EB000E", "#B34777", "#100E0E"]       # the page's own colours
@@ -257,6 +257,12 @@ def album_title(track_titles, seed):
     return " ".join(w[:1].upper() + w[1:] for w in pick)
 
 
+def last_odds(number):
+    """album n's chance of being the last is 1 in this: 365 for 0001, one fewer each album after, so 0365, at
+    1 in 1, would surely be the last. the series ends within a year, every album as likely as any to be the end."""
+    return max(1, LAST_ODDS + 1 - number)
+
+
 def written_score():
     """the whole series as a score anyone can read, in the manner of Cage's instructions."""
     return ("Over the course of each day, listen to the world's radio, about fifteen moments every hour, 365 in all. "
@@ -264,7 +270,8 @@ def written_score():
             "to choose which sounds belong "
             "together and which patterns of data to fuse them with. Make between five and twelve songs. Title "
             "them with words cut from what was heard. Draw the album as a record, one groove spiralling in. Release it at midnight. Delete it the "
-            f"next day. Each day, with a chance of 1 in {LAST_ODDS}, stop forever.")
+            f"next day. Each day, stop forever by chance: 1 in {LAST_ODDS}, then 1 in {LAST_ODDS - 1} the next day, one fewer "
+            "each day, until the day it is certain.")
 
 
 def heard_on(score_texts):
@@ -382,11 +389,13 @@ def main():
         "peace love and joy for everyone everywhere", "",
         made_line, "", manifest])
     made_at = datetime.datetime.now(datetime.timezone.utc).strftime('%H:%M')     # when it was released, UTC
-    # each day, a tiny chance that this is the last album of the series. drawn from the system's
-    # own randomness, not the date, so no one can know it in advance.
-    last = bool(args.release and secrets.randbelow(max(1, LAST_ODDS)) == 0)
+    # each day, a chance that this is the last album of the series, a little greater each day. drawn from
+    # the system's own randomness, not the date, so no one can know it in advance.
+    odds = last_odds(number)
+    last = bool(args.release and secrets.randbelow(odds) == 0)
+    ended = "Chance ended the series here" if odds > 1 else "The series ended here, on the day it had to"
     if last:
-        print(f"  chance has ended the series: {number:04d} is the last album")
+        print(f"  the series ends: {number:04d} is the last album (its chance was 1 in {odds})")
     if args.release:                                     # media goes to a release; the site gets only json
         media = tempfile.mkdtemp(prefix='chance_release_')
         tag = f"chance-{day.isoformat()}"
@@ -466,7 +475,7 @@ def main():
                  f"Streams on https://scorsby.us/exp/chance/ ; replaced by the next day's album.")
         if last:
             notes = (f"{name} ({SERIES}, {catno}) -- the last album, {len(tracks)} songs made by chance on {day.isoformat()}. "
-                     f"Chance ended the series here. This one stays.")
+                     f"{ended}. This one stays.")
             gh('release', 'create', tag, *files, '--repo', args.repo, '--title',
                f"{name} ({day.isoformat()}) -- the last", '--notes', notes,
                *(['--draft'] if args.stage else ['--latest']))
@@ -505,12 +514,13 @@ def main():
                   "static and silence included, matched nothing for beauty, and asked no song to go anywhere. Nothing was "
                   "discerned, classified, or judged.", ""] if PURE else []),
                ("This is the last album. The broadcasts collected are gone, and the recordings it gathered were "
-                f"thrown away once it was made, as on every day before. But no album will replace it: chance "
-                f"ended the series here, after {number + 1:,} album{'s' if number else ''}. This one will stay.")
+                f"thrown away once it was made, as on every day before. But no album will replace it: "
+                f"{ended[0].lower() + ended[1:]}, after {number + 1:,} album{'s' if number else ''}. This one will stay.")
                if last else
                ("This album is impermanent. The broadcasts collected are gone. The recordings it gathered were "
                 "thrown away once it was made. Tomorrow it will be replaced by another, which will never be heard "
-                f"again either. Each day there is a 1 in {LAST_ODDS} chance that it is the last. "
+                f"again either. Each day the chance that it is the last grows: today's was 1 in {odds}, "
+                + (f"tomorrow's is 1 in {odds - 1}. " if odds > 2 else "tomorrow's is certain. ") +
                 "It exists for a day. Listen while it's here.")]
     sources = []
     if any('live microphone' in h for h in heard):
@@ -531,7 +541,7 @@ def main():
         'downloads': downloads,
         'mood': {k: round(v, 3) for k, v in mood.items()}, 'palette': inks + [paper_hex],
         'number': number, 'series': SERIES, 'catalog': catno, 'day': day.isoformat(), 'time_utc': made_at,
-        'made_utc': made.isoformat(timespec='minutes'), 'listened_hours': listened_hours, 'last': last, 'pure': PURE,
+        'made_utc': made.isoformat(timespec='minutes'), 'listened_hours': listened_hours, 'odds': odds, 'last': last, 'pure': PURE,
         'seed': str(seed), 'generated_from': os.path.basename(album),
         'published': datetime.datetime.now().isoformat(timespec='seconds'),
     }

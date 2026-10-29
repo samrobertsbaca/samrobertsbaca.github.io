@@ -356,7 +356,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: python publish_album.py --prune --keep 2
 
-      # each day there is a 1 in 365 chance that the album is the last. if it was, the series is over:
+      # each day there is a chance that the album is the last: 1 in 365 for 0001, one fewer each day after
+      # (0002: 1 in 364 ... 0365: 1 in 1), so it ends within a year. if it was the last, the series is over:
       # the last album's release stays for good, and this workflow switches itself off.
       - name: If chance ended the series, stop
         if: env.RELEASE == 'true' && hashFiles('exp/chance/engine/FINISHED') != ''

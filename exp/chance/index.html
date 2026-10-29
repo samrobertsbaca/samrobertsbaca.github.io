@@ -550,8 +550,10 @@
     $('discoTitle').textContent = a.title;
     const d = new Date(a.released + 'T12:00:00');
     $('discoDate').textContent = d.toLocaleString('en-US', { month: 'short', year: 'numeric' });
-    if (a.last) {                                         // chance ended the series with this album
-      $('seriesNote').textContent = 'Impermanence Series A: this was the last album. Chance ended the series here; no more will be made. This one will stay.';
+    if (a.last) {                                         // the series ended with this album (by chance, or, at 1 in 1, surely)
+      $('seriesNote').textContent = 'Impermanence Series A: this was the last album. ' +
+        (a.odds === 1 ? 'The series ended here, on the day it had to' : 'Chance ended the series here') +
+        '; no more will be made. This one will stay.';
     }
     if (a.downloads && a.downloads.length) {
       $('formatLine').textContent = 'Streaming + Download';
