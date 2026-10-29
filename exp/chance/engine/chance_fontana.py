@@ -143,9 +143,9 @@ TITLES
     Each track is titled with a cut-up of its own material: words from the stations
     it heard, their frequencies and where they were received, and the techniques and
     data patterns that shaped it (a rule number, a bytebeat formula, Kolakoski...).
-    Every title ever made is kept in titles.txt next to this script; a title that
-    would repeat one takes on more of its material until it doesn't. --no-titles
-    numbers the tracks plainly.
+    Every album published is kept in titles.txt next to this script, its title and
+    then its tracks, numbered; a title that would repeat one there takes on more of
+    its material until it doesn't. --no-titles numbers the tracks plainly.
 
 THE FONTANA FORM (--form fontana)
     A score made the way Fontana Mix's materials suggest, though not a copy of it:
@@ -1410,7 +1410,8 @@ def src_radio(rng, n, hint=None):
 # ------------------------------------------------------------------- titles
 # each track is named with a cut-up of its own material: the stations and frequencies it
 # heard, where they were heard, and the techniques and data patterns that shaped them.
-# every title ever made is kept in titles.txt beside this script, so none repeats.
+# every published album's titles are kept in titles.txt beside this script (publish_album.py
+# writes them: the album's title, then its tracks, numbered), so none repeats.
 
 TRACK_NOTES = {'clips': [], 'tech': []}
 TITLE_FILE = os.path.join(HERE, "titles.txt")
@@ -1549,7 +1550,7 @@ def make_title(rng, log, tag, voices, taken):
 
     try:
         with open(TITLE_FILE, encoding='utf-8') as f:
-            ever = {ln.strip() for ln in f if ln.strip()}
+            ever = {re.sub(r'^\d+\.\s+', '', ln.strip()) for ln in f if ln.strip()}
     except OSError:
         ever = set()
     spare = [w for b in ('tech', 'freq', 'place', 'name') for w in buckets[b]]
@@ -1560,11 +1561,6 @@ def make_title(rng, log, tag, voices, taken):
         else:
             title = f"{' '.join(words)} {k}"
             k += 1
-    try:
-        with open(TITLE_FILE, 'a', encoding='utf-8') as f:
-            f.write(title + "\n")
-    except OSError:
-        pass
     TRACK_NOTES['clips'].clear()
     TRACK_NOTES['tech'].clear()
     return title

@@ -1,23 +1,28 @@
-BBC 13417.8 WWV a->cd Estonia
-Barrington Hills Chaner 13417.8 Rule 110
-7280.1 a->cda Euope Sohina
-Hír BBC 1413 a->ba
-Playhead Barranquilla New York NY
-91.1 Life Obseure Antigua And Barbuda CeL
-Vermont China Thue-Morse data
-Washington DC Area USA data 7047.5 a->ac
-14080 1/1409 FT8
-7340 beacons 130 BPM
-Morph 24915 Odd-Even Santa Catarina Fata
-14095.6 NSS Barcelona Inverse NAU
-CH13 Rule 126 2004
-County Donegal Slovaesti gzip.py
-Florida Rule 153 92.3
-FUG Rudin-Shapiro FSK Spectral Fukushima JAPAN
-Rule 99 Portugal rokazil) libehrain
-Netherlands 17615 Logistic Ch8
-Poland a->cbb 97.1 ItaolFM TGON
-102 BPM 13527.7 Channel
-LFSR 0x7463 Honan XEFR-AM Grupo
-Fibonacci word Misread Wrackin Corrn 2007
-Loop Adio You Thue-Morse
+test albums, before the series
+1. BBC 13417.8 WWV a->cd Estonia
+2. Barrington Hills Chaner 13417.8 Rule 110
+3. 7280.1 a->cda Euope Sohina
+4. Hír BBC 1413 a->ba
+5. Playhead Barranquilla New York NY
+6. 91.1 Life Obseure Antigua And Barbuda CeL
+7. Vermont China Thue-Morse data
+8. Washington DC Area USA data 7047.5 a->ac
+9. 14080 1/1409 FT8
+10. 7340 beacons 130 BPM
+11. Morph 24915 Odd-Even Santa Catarina Fata
+12. 14095.6 NSS Barcelona Inverse NAU
+
+ISA000 Libehrain Slovaesti Donegal
+1. CH13 Rule 126 2004
+2. County Donegal Slovaesti gzip.py
+3. Florida Rule 153 92.3
+4. FUG Rudin-Shapiro FSK Spectral Fukushima JAPAN
+5. Rule 99 Portugal rokazil) libehrain
+
+ISA001 102 Thue-Morse Wrackin BPM
+1. Netherlands 17615 Logistic Ch8
+2. Poland a->cbb 97.1 ItaolFM TGON
+3. 102 BPM 13527.7 Channel
+4. LFSR 0x7463 Honan XEFR-AM Grupo
+5. Fibonacci word Misread Wrackin Corrn 2007
+6. Loop Adio You Thue-Morse

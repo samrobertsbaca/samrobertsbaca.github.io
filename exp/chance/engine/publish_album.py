@@ -600,6 +600,10 @@ def main():
             print(f"  staged as a draft on {tag}: released at midnight by --publish-staged {day.isoformat()}")
         with open(counter, 'w', encoding='utf-8') as f:
             f.write(f"{number + 1}\n")
+        # the album's titles, kept for good beside the engine: its title, then its tracks, numbered
+        # (chance_fontana.py reads them so no title is ever made twice)
+        with open(os.path.join(HERE, 'titles.txt'), 'a', encoding='utf-8') as f:
+            f.write(f"\n{name}\n" + "".join(f"{t['n']}. {t['title']}\n" for t in tracks))
     total = sum(t['bytes'] for t in tracks)
     print(f"'{name}' -- {len(tracks)} tracks, {sum(t['duration'] for t in tracks) / 60:.1f} min, "
           f"{total / 1e6:.1f} MB of MP3; album.json written" + (f"; media on release {tag}" if args.release else ""))
