@@ -1,8 +1,8 @@
 [
  {
-  "catalog": "ISA0000",
+  "catalog": "ISA000",
   "number": 0,
-  "title": "0000 Libehrain Slovaesti Donegal",
+  "title": "000 Libehrain Slovaesti Donegal",
   "artist": "ScorsBT4",
   "series": "Impermanence Series A",
   "day": "2026-10-28",
@@ -35,7 +35,7 @@
     "duration": 194.21
    }
   ],
-  "cover": "archive/covers/ISA0000.jpg",
+  "cover": "archive/covers/ISA000.jpg",
   "palette": [
    "#A82DAE",
    "#C34072",
@@ -76,9 +76,9 @@
   "made_by_chance": false
  },
  {
-  "catalog": "ISA0001",
+  "catalog": "ISA001",
   "number": 1,
-  "title": "0001 102 Thue-Morse Wrackin BPM",
+  "title": "001 102 Thue-Morse Wrackin BPM",
   "artist": "ScorsBT4",
   "series": "Impermanence Series A",
   "day": "2026-10-29",
@@ -116,7 +116,7 @@
     "duration": 309.29
    }
   ],
-  "cover": "archive/covers/ISA0001.jpg",
+  "cover": "archive/covers/ISA001.jpg",
   "palette": [
    "#194FAA",
    "#2738C4",

@@ -1,5 +1,5 @@
 {
- "title": "0001 102 Thue-Morse Wrackin BPM",
+ "title": "001 102 Thue-Morse Wrackin BPM",
  "artist": "ScorsBT4",
  "released": "2026-10-29",
  "about": "All computer programming is basically question asking, rather than choice making.",
@@ -7,7 +7,7 @@
  "about_link": "https://www.youtube.com/watch?v=9GqHikJSQhQ",
  "credits": [
   "created October 29, 2026, 06:36 UTC",
-  "Impermanence Series A · ISA0001",
+  "Impermanence Series A · ISA001",
   "",
   "questions by Samuel John Scorsby",
   "",
@@ -130,7 +130,7 @@
  ],
  "number": 1,
  "series": "Impermanence Series A",
- "catalog": "ISA0001",
+ "catalog": "ISA001",
  "day": "2026-10-29",
  "time_utc": "06:36",
  "last": false,

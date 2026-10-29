@@ -1,6 +1,6 @@
 name: Daily Chance Album
 # each day: listen to the world's radio over the course of the day, about fifteen moments every hour; in the
-# evening make an album from all of it by chance (numbered 0000, 0001 ...; any day may be the last), leave it
+# evening make an album from all of it by chance (numbered 000, 001 ...; any day may be the last), leave it
 # waiting as a hidden draft release, and at midnight mountain time release it and point scorsby.us/exp/chance/
 # at it.
 #
@@ -356,8 +356,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: python publish_album.py --prune --keep 2
 
-      # each day there is a chance that the album is the last: 1 in 365 for 0001, one fewer each day after
-      # (0002: 1 in 364 ... 0365: 1 in 1), so it ends within a year. if it was the last, the series is over:
+      # each day there is a chance that the album is the last: 1 in 365 for 001, one fewer each day after
+      # (002: 1 in 364 ... 365: 1 in 1), so it ends within a year. if it was the last, the series is over:
       # the last album's release stays for good, and this workflow switches itself off.
       - name: If chance ended the series, stop
         if: env.RELEASE == 'true' && hashFiles('exp/chance/engine/FINISHED') != ''
