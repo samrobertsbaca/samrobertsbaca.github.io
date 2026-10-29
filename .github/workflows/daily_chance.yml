@@ -189,7 +189,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           mkdir -p "$RUNNER_TEMP/listened"
-          PURE=$(python day_radio.py state "$CHANCE_DAY" "$RUNNER_TEMP/listened/today.json")
+          PURE=$(python day_radio.py state "$CHANCE_DAY" "$RUNNER_TEMP/listened/today.json" || echo 0)
           echo "CHANCE_PURE=$PURE" >> "$GITHUB_ENV"
           echo "pure day: $PURE"
 
@@ -266,9 +266,11 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           mkdir -p "$RUNNER_TEMP/listened"
-          PURE=$(python day_radio.py state "$CHANCE_DAY" "$RUNNER_TEMP/listened/today.json")
+          PURE=$(python day_radio.py state "$CHANCE_DAY" "$RUNNER_TEMP/listened/today.json" || echo 0)
           echo "CHANCE_PURE=$PURE" >> "$GITHUB_ENV"
-          GOT=$(python day_radio.py radio "$CHANCE_DAY" radio_cache)
+          # (if they can't all be fetched, whatever came is counted, and the rest made up below)
+          python day_radio.py radio "$CHANCE_DAY" radio_cache || echo "some of the day's clips could not be gathered up"
+          GOT=$(ls radio_cache/*.wav 2>/dev/null | wc -l)
           echo "$GOT moments of radio gathered over the day (pure day: $PURE)"
           if [ "$GOT" -lt 120 ]; then
             if [ "$PURE" = "1" ]; then DIAL=wild; else DIAL=stations; fi
