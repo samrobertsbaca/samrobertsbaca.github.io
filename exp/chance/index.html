@@ -556,10 +556,10 @@
     $('artist').textContent = a.artist;
     // each day's images live on that day's release (a new address every day); local ones get a stamp
     const fresh = u => /^(https?|data):/.test(u) ? u : u + '?' + encodeURIComponent(a.published);
-    $('cover').src = fresh(a.cover);
+    $('cover').src = fresh(a.cover_png || a.cover);              // the lossless cover, where there is one
     $('banner').src = fresh(a.banner);
-    $('discoCover').src = fresh(a.cover_small);
-    $('stickyArt').src = fresh(a.cover_small);
+    $('discoCover').src = fresh(a.cover_small_png || a.cover_small);
+    $('stickyArt').src = fresh(a.cover_small_png || a.cover_small);
     $('stickyTitle').textContent = a.title;
     $('discoTitle').textContent = a.title;
     const d = new Date(a.released + 'T12:00:00');
