@@ -26,3 +26,13 @@ ISA001 102 Thue-Morse Wrackin BPM
 4. LFSR 0x7463 Honan XEFR-AM Grupo
 5. Fibonacci word Misread Wrackin Corrn 2007
 6. Loop Adio You Thue-Morse
+
+ISA002 Clappum WSPR Morph
+1. beacons Rule 225 24915 France
+2. Odd-Even 5850 Slovakia Gqeberha
+3. rokli Varispeed prime gaps libmp
+4. Northwood 4608.1 Morph
+5. 1840 Hénon Clappum Bridge
+6. 6090 Stahara Rule 146
+7. Yarns Zieltogend Rudin-Shapiro tmth-00C 2018
+8. beacons Erosion Friedrichshafen WSPR √640
