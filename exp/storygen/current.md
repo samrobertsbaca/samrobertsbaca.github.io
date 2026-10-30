@@ -1,3 +1,3 @@
-### the smile-wager and the crisp beetle's bliss
+### the sprite, the princess, & the three echoes
 
-"rrombo dombo di di dai!" scorsby's pet beetle danced. the king's glum daughter giggled, startling the stolen skull—removed for a wager, it confessed an old slander, then dissolved to peace. a fox, nearby, ate a raw beetle, declaring it "perfectly crisp." scorsby's mouse then subtly redirected the prince's glong-speak, ensuring all smiles were real.
+a princess, banished and glum. scorsby, a sprite with his beetle, mouse, crayfish, made her laugh. her king-father appeared: "rrombo dombo di di dai! name these spirits: 'what was i? what am i? what will i be?'" scorsby's creatures replied: beetle-was, mouse-am, crayfish-will. the princess, blooming joy, hugged scorsby & her father. boundless smiles for all.
