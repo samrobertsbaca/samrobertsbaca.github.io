@@ -1,57 +1,67 @@
 {
- "title": "ISA001 102 Thue-Morse Wrackin BPM",
+ "title": "ISA002 Clappum WSPR Morph",
  "artist": "ScorsBT4",
- "released": "2026-10-29",
+ "released": "2026-10-30",
  "about": "All computer programming is basically question asking, rather than choice making.",
  "about_by": "John Cage, 1985",
  "about_link": "https://www.youtube.com/watch?v=9GqHikJSQhQ",
  "credits": [
-  "created October 29, 2026, 06:36 UTC",
-  "Impermanence Series A · ISA001",
+  "created October 30, 2026, 03:02 UTC",
+  "Impermanence Series A · ISA002",
   "",
   "questions by Samuel John Scorsby",
   "",
-  "In the hours before this album, ScorsBT4 listened to the world, gathering 363 moments of radio: shortwave from receivers around the world, FM and internet stations, open microphones on rooftops, in gardens and in canals, and old recordings from the Internet Archive. It kept only what had something in it. In the spirit of John Cage's aleatoric compositional methods, particularly inspired by his piece \"Fontana Mix\", it threw the dice: which sounds belong together, which patterns of data to fuse them with (cellular automata, bytebeat formulas, number sequences, sorting algorithms), how long each song should be, and where it should go. 31 of those moments are in these songs. Nothing was chosen by hand.",
+  "Over the course of a day, ScorsBT4 listened to the world, gathering 362 moments of radio: shortwave from receivers around the world, FM and internet stations, open microphones on rooftops, in gardens and in canals, hydrophones in the sea, the earth's own natural radio, and old recordings from the Internet Archive. It kept only what had something in it. In the spirit of John Cage's aleatoric compositional methods, particularly inspired by his piece \"Fontana Mix\", it threw the dice: which sounds belong together, which patterns of data to fuse them with (cellular automata, bytebeat formulas, number sequences, sorting algorithms), how long each song should be, and where it should go. 38 of those moments are in these songs. Nothing was chosen by hand.",
   "",
-  "This album is impermanent. The broadcasts collected are gone. The recordings it gathered were thrown away once it was made. Tomorrow it will be replaced by another, which will never be heard again either. Each day the chance that it is the last grows: today's was 1 in 365, tomorrow's is 1 in 364. It exists for a day. Listen while it's here. More info on the project.",
+  "This album is impermanent. The broadcasts collected are gone. The recordings it gathered were thrown away once it was made. Tomorrow it will be replaced by another, which will never be heard again either. Each day the chance that it is the last grows: today's was 1 in 364, tomorrow's is 1 in 363. It exists for a day. Listen while it's here. More info on the project.",
   "",
   "open microphones: Locus Sonus Locustream (locusonus.org)",
-  "archive recordings: the Internet Archive (archive.org), openly licensed collections"
+  "archive recordings: the Internet Archive (archive.org), openly licensed collections",
+  "natural radio: live VLF receivers kept by Stefan Schäfer (DK7FC, Heidelberg), Renato Romero (vlf.it, Cumiana), Jonathan Rizzo (Pennsylvania) and the Leon Mow Radio Observatory (Victoria), shared through dk7fc.info",
+  "hydrophones: Orcasound (orcasound.net), live from the Salish Sea, CC BY-NC-SA 4.0; songs 3, 5 use it and are shared under the same licence"
  ],
+ "more": "https://scorsby.us/blog/2026-10-29_the_medium,_the_mirror,_and_the_music.html",
  "heard": [
-  "Radio Teemaneng (South Africa), internet radio, Oct 29, 06:27 UTC",
-  "Flava FM 100.7 (Antigua And Barbuda), 100.7 MHz FM, Oct 29, 06:35 UTC",
-  "XD RADIO 90.2 FM (Indonesia), 90.2 MHz FM, Oct 29, 06:29 UTC",
-  "China Radio Int. (D to WEu), 17615.0 kHz AM via 1.7-30 MHz SDR, HG5ACZ, Hungary, JN87pq, FD4 windom, Oct 29, 06:17 UTC",
-  "Donderschoer Radio (Gelderland, Eerbeek, The Netherlands), internet radio, Oct 29, 06:28 UTC",
-  "China Radio Int. (D to WEu), 17615.0 kHz AM via 10 kHz-30 MHz SDR, SM2BYC, Sweden, Oct 29, 06:13 UTC",
-  "FT8 data, 20 m, 14074.0 kHz USB via Dokkum Friesland NL, Oct 29, 06:13 UTC",
-  "Sound of Hope (M to FE), 21780.0 kHz AM via 0-30 MHz SDR, VU24DX, Kozhikode ,Kerala,India, Oct 29, 06:18 UTC",
-  "Radio Blue Romania (Romania), internet radio, Oct 29, 06:27 UTC",
-  "Radio Kampus 97,1 FM (Warsaw, Poland), 97.1 MHz FM, Oct 29, 06:30 UTC",
-  "TGON koolFM 99.5 (Manila, The Philippines), 99.5 MHz FM, Oct 29, 06:27 UTC",
-  "浦东综合广播 东上海之声FM106.5 (Shanghai, China), 106.5 MHz FM, Oct 29, 06:27 UTC",
-  "Rádio Itapoan FM 97.5 (Bahia, Brazil), 97.5 MHz FM, Oct 29, 06:28 UTC",
-  "Channel Marker D, 13527.7 kHz CW via 0-30 MHz SDR, HB9RYZ-1, JN47GA - Rigi Scheidegg",
-  "89.5 DWIZ EASTERN VISAYAS TACLOBAN (The Philippines), 89.5 MHz FM",
-  "The One 98.1 FM (The Pine, Barbados), 98.1 MHz FM",
-  "格莱美音乐台 (Honan, China), internet radio, Oct 29, 06:36 UTC",
-  "Radio Fatih (Montenegro), internet radio, Oct 29, 06:27 UTC",
-  "radio.earth - Brno Lužánky, live microphone, Oct 29, 06:33 UTC",
-  "Radio Nostalgia Estonia (Estonia), internet radio, Oct 29, 06:27 UTC",
-  "noiq22.17 BENONI - radionoise (distorted) (), archive, Oct 29, 06:32 UTC",
-  "DamarTurk FM (Türkiye), internet radio, Oct 29, 06:28 UTC",
-  "Radio Felicidad Ciudad de México - 1180 AM - XEFR-AM - Grupo ACIR - Ciudad de México (Ciudad de México, Mexico), internet radio, Oct 29, 06:29 UTC",
-  "ZZRock (Belgium), internet radio, Oct 29, 06:29 UTC",
-  "Star Born (Andre Norton, 2007), archive, 2007, Oct 29, 06:31 UTC",
-  "CMR - Correio da Manhã Rádio (Lisboa, Portugal), internet radio, Oct 29, 06:28 UTC",
-  "Aljazeera Arabic (Qatar), internet radio, Oct 29, 06:35 UTC",
-  "Lord Blood-Rah's Nerve Wrackin' Auditorium - Eloises Whereabouts (), archive, Oct 29, 06:31 UTC",
-  "A11_T882_HR1L_CH5_02-54-30_11-14-48-2015-09-15Recording.wav (john.l.stoll@nasa.gov, 2018), archive, 2018, Oct 29, 06:31 UTC",
-  "You Bet Your Life - TV audio 1959-1960 (), archive",
-  "Aus 164 - The Adventures of Hop Harrigan (), archive"
+  "FT8 data, 12 m, 24915.0 kHz USB via 0-30 MHz SDR#1, LA2G, Norway, Oct 29, 13:01 UTC",
+  "Channel Marker S, 13527.9 kHz CW via DE2HJW SDR JO53CN DL nr Hamburg, Oct 29, 11:02 UTC",
+  "FT8 data, 80 m, 3573.0 kHz USB via 0-30 MHz SDR, KG4OXS, USA, Oct 29, 11:02 UTC",
+  "WSPR beacons, 20 m, 14095.6 kHz USB via 0-30 MHz SDR, DK0TE, DHBW Ravensburg Campus Friedrichshafen, Germany, Oct 29, 10:03 UTC",
+  "WSPR beacons, 40 m, 7038.6 kHz USB via 0-30 MHz SDR, France (Belgium border), Oct 29, 10:03 UTC",
+  "Sound of Hope (M to FE), 10870.0 kHz AM via 0-30 MHz SDR, DARC OV D10 | Berlin, Germany, Oct 29, 12:01 UTC",
+  "Sveriges Radio - P4 Sjuhärad (Sweden), internet radio, Oct 30, 02:02 UTC",
+  "Christmas Time Aircheck (), archive, Oct 29, 21:02 UTC",
+  "Amhara State Radio (AH to EAf), 6090.0 kHz AM via ZS2JB - KiwiSDR | Gqeberha, South Africa, Oct 29, 19:01 UTC",
+  "Radio Slovakia Int. (SK to WNA), 5850.0 kHz AM via Northern Utah Kiwisdr #1 (0-30 MHz, TCI-530 Omni), Oct 30, 00:01 UTC",
+  "Quality X - 89.7 FM (Córdoba(Argentina), Argentina), 89.7 MHz FM, Oct 30, 02:02 UTC",
+  "Bridges Buildings EVENN Ep (Steve Preston & Sasa Vojvodic, 2005), archive, 2005, Oct 29, 13:02 UTC",
+  "Radio Cadena Hispana (Santo Domingo Este, The Dominican Republic), internet radio, Oct 30, 00:02 UTC",
+  "Tropicana Estéreo FM (Bogotá) (Bogotá, Colombia), internet radio, Oct 29, 22:02 UTC",
+  "liberec - v rokli liberec, live microphone, Oct 29, 10:07 UTC",
+  "Beach Camp at Sunset Bay hydrophone (the Salish Sea), live hydrophone, Oct 29, 11:05 UTC",
+  "Antenna Web Tonga (Nuku'alofa, Tonga), internet radio, Oct 29, 17:02 UTC",
+  "Mohanlal hits (India), internet radio, Oct 29, 22:02 UTC",
+  "Exa FM Ensenada - 104.1 FM - XHADA-FM - MVS Radio - Ensenada, BC (Baja California, Mexico), 104.1 MHz FM, Oct 29, 23:04 UTC",
+  "Calm Radio - Tibet (Canada), internet radio, Oct 29, 19:02 UTC",
+  "GYA Northwood Meteo Fax, 4608.1 kHz USB via DG3SDK | 0-30 MHz SDR | Esslingen, Germany, Oct 29, 16:01 UTC",
+  "FT8 data, 160 m, 1840.0 kHz USB via 0-30 MHZ-KiwiSDR, IZ6BYY - 🇮🇹 Magnetic Loop Antenna in Central Italy 📶, Oct 30, 02:01 UTC",
+  "Merry Clappum Junction (Arnold Kennedy, 2010), archive, 2010, Oct 29, 10:06 UTC",
+  "VLF receiver (Cumiana, Italy), natural radio via Renato Romero, vlf.it, Oct 29, 23:04 UTC",
+  "North San Juan Channel hydrophone (the Salish Sea), live hydrophone, Oct 29, 14:04 UTC",
+  "Tom Stoppard - Albert’s Bridge (), archive, Oct 29, 20:06 UTC",
+  "LA TIPIK (Panama), internet radio, Oct 29, 23:03 UTC",
+  "RWM Moscow, 9996.0 kHz AM via 0-30 MHz SDR | Wels AT, Oct 29, 17:01 UTC",
+  "Sonnets (George Graham Currie, 2018), archive, 2018, Oct 29, 11:04 UTC",
+  "Drocht [tmth-00C",
+  "Nightcap Yarns 06 Eps (), archive, Oct 29, 11:04 UTC",
+  "104.3 Boss FM (Guam), 104.3 MHz FM, Oct 29, 11:03 UTC",
+  "knepp - air, live microphone, Oct 29, 10:07 UTC",
+  "FT8 data, 30 m, 10136.0 kHz USB via Kernow - G8JNJ - 10KHz-30MHz SDR - Cornwall - South West UK, Oct 29, 10:03 UTC",
+  "UWALA Radio (Lilongwe, Malawi), internet radio, Oct 29, 11:03 UTC",
+  "Upstate Radio Theatre 2010 (Quality Radio Productions), archive, Oct 29, 19:03 UTC",
+  "RAF Volmet Military 1 (E to Eu), 5450.0 kHz USB via 13RF029📶📻0-30 MHz SDR📻📶 | Bülzig JO61jv, Oct 30, 01:01 UTC",
+  "Fred Allen 1940 03 27 Guest T Hee Who Killed Mack Borden (), archive, Oct 29, 13:02 UTC"
  ],
- "heard_total": 31,
+ "heard_total": 38,
  "tags": [
   "chance",
   "radio",
@@ -62,84 +72,96 @@
  "tracks": [
   {
    "n": 1,
-   "title": "Netherlands 17615 Logistic Ch8",
-   "duration": 560.96,
-   "src": "https://github.com/samrobertsbaca/samrobertsbaca.github.io/releases/download/chance-2026-10-29/01.mp3"
+   "title": "beacons Rule 225 24915 France",
+   "duration": 574.64,
+   "src": "https://github.com/samrobertsbaca/samrobertsbaca.github.io/releases/download/chance-2026-10-30/01.mp3"
   },
   {
    "n": 2,
-   "title": "Poland a->cbb 97.1 ItaolFM TGON",
-   "duration": 317.04,
-   "src": "https://github.com/samrobertsbaca/samrobertsbaca.github.io/releases/download/chance-2026-10-29/02.mp3"
+   "title": "Odd-Even 5850 Slovakia Gqeberha",
+   "duration": 261.79,
+   "src": "https://github.com/samrobertsbaca/samrobertsbaca.github.io/releases/download/chance-2026-10-30/02.mp3"
   },
   {
    "n": 3,
-   "title": "102 BPM 13527.7 Channel",
-   "duration": 113.28,
-   "src": "https://github.com/samrobertsbaca/samrobertsbaca.github.io/releases/download/chance-2026-10-29/03.mp3"
+   "title": "rokli Varispeed prime gaps libmp",
+   "duration": 267.49,
+   "src": "https://github.com/samrobertsbaca/samrobertsbaca.github.io/releases/download/chance-2026-10-30/03.mp3"
   },
   {
    "n": 4,
-   "title": "LFSR 0x7463 Honan XEFR-AM Grupo",
-   "duration": 249.43,
-   "src": "https://github.com/samrobertsbaca/samrobertsbaca.github.io/releases/download/chance-2026-10-29/04.mp3"
+   "title": "Northwood 4608.1 Morph",
+   "duration": 194.39,
+   "src": "https://github.com/samrobertsbaca/samrobertsbaca.github.io/releases/download/chance-2026-10-30/04.mp3"
   },
   {
    "n": 5,
-   "title": "Fibonacci word Misread Wrackin Corrn 2007",
-   "duration": 332.69,
-   "src": "https://github.com/samrobertsbaca/samrobertsbaca.github.io/releases/download/chance-2026-10-29/05.mp3"
+   "title": "1840 Hénon Clappum Bridge",
+   "duration": 163.24,
+   "src": "https://github.com/samrobertsbaca/samrobertsbaca.github.io/releases/download/chance-2026-10-30/05.mp3"
   },
   {
    "n": 6,
-   "title": "Loop Adio You Thue-Morse",
-   "duration": 309.29,
-   "src": "https://github.com/samrobertsbaca/samrobertsbaca.github.io/releases/download/chance-2026-10-29/06.mp3"
+   "title": "6090 Stahara Rule 146",
+   "duration": 400.37,
+   "src": "https://github.com/samrobertsbaca/samrobertsbaca.github.io/releases/download/chance-2026-10-30/06.mp3"
+  },
+  {
+   "n": 7,
+   "title": "Yarns Zieltogend Rudin-Shapiro tmth-00C 2018",
+   "duration": 290.93,
+   "src": "https://github.com/samrobertsbaca/samrobertsbaca.github.io/releases/download/chance-2026-10-30/07.mp3"
+  },
+  {
+   "n": 8,
+   "title": "beacons Erosion Friedrichshafen WSPR √640",
+   "duration": 331.78,
+   "src": "https://github.com/samrobertsbaca/samrobertsbaca.github.io/releases/download/chance-2026-10-30/08.mp3"
   }
  ],
- "cover": "https://github.com/samrobertsbaca/samrobertsbaca.github.io/releases/download/chance-2026-10-29/cover.jpg",
- "cover_small": "https://github.com/samrobertsbaca/samrobertsbaca.github.io/releases/download/chance-2026-10-29/cover_small.jpg",
- "banner": "https://github.com/samrobertsbaca/samrobertsbaca.github.io/releases/download/chance-2026-10-29/banner.jpg",
- "cover_png": "https://github.com/samrobertsbaca/samrobertsbaca.github.io/releases/download/chance-2026-10-29/cover.png",
+ "cover": "https://github.com/samrobertsbaca/samrobertsbaca.github.io/releases/download/chance-2026-10-30/cover.jpg",
+ "cover_small": "https://github.com/samrobertsbaca/samrobertsbaca.github.io/releases/download/chance-2026-10-30/cover_small.jpg",
+ "banner": "https://github.com/samrobertsbaca/samrobertsbaca.github.io/releases/download/chance-2026-10-30/banner.jpg",
+ "cover_png": "https://github.com/samrobertsbaca/samrobertsbaca.github.io/releases/download/chance-2026-10-30/cover.png",
+ "cover_small_png": "https://github.com/samrobertsbaca/samrobertsbaca.github.io/releases/download/chance-2026-10-30/cover_small.png",
  "downloads": [
   {
    "format": "MP3",
    "note": "320 kbps",
-   "url": "https://github.com/samrobertsbaca/samrobertsbaca.github.io/releases/download/chance-2026-10-29/SBT4-ISA0001-2026-10-29-mp3.zip",
-   "bytes": 76445317
+   "url": "https://github.com/samrobertsbaca/samrobertsbaca.github.io/releases/download/chance-2026-10-30/SBT4-ISA002-2026-10-30-mp3.zip",
+   "bytes": 102246269
   },
   {
    "format": "WAV",
    "note": "24-bit/48kHz",
-   "url": "https://github.com/samrobertsbaca/samrobertsbaca.github.io/releases/download/chance-2026-10-29/SBT4-ISA0001-2026-10-29-wav.zip",
-   "bytes": 542662099
+   "url": "https://github.com/samrobertsbaca/samrobertsbaca.github.io/releases/download/chance-2026-10-30/SBT4-ISA002-2026-10-30-wav.zip",
+   "bytes": 717652698
   }
  ],
  "mood": {
-  "brightness": 0.01,
-  "energy": 0.719,
-  "noise": 0.028,
-  "motion": 0.01
+  "brightness": 0.652,
+  "energy": 0.467,
+  "noise": 0.421,
+  "motion": 0.176
  },
  "palette": [
-  "#194FAA",
-  "#2738C4",
-  "#255E8F",
-  "#16263F",
-  "#F5F7FB"
+  "#AB713F",
+  "#B0BA58",
+  "#954C45",
+  "#47321F",
+  "#FAF8F6"
  ],
- "number": 1,
+ "number": 2,
  "series": "Impermanence Series A",
- "catalog": "ISA001",
- "day": "2026-10-29",
- "time_utc": "06:36",
+ "catalog": "ISA002",
+ "day": "2026-10-30",
+ "time_utc": "06:21",
+ "made_utc": "2026-10-30T03:02+00:00",
+ "listened_hours": 17,
+ "odds": 364,
  "last": false,
  "pure": false,
- "seed": "9350224380275500",
- "generated_from": "album_2026-10-29_063622_fontana",
- "published": "2026-10-29T06:38:13",
- "made_utc": "2026-10-29T06:36+00:00",
- "made_by_chance": false,
- "odds": 365,
- "more": "https://scorsby.us/blog/2026-10-29_the_medium,_the_mirror,_and_the_music.html"
+ "seed": "4504066113185214578",
+ "generated_from": "album_2026-10-30_030223_fontana",
+ "published": "2026-10-30T06:21:59"
 }

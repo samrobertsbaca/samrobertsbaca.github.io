@@ -165,5 +165,112 @@
   "heard_total": 31,
   "made_utc": "2026-10-29T06:36+00:00",
   "made_by_chance": false
+ },
+ {
+  "catalog": "ISA002",
+  "number": 2,
+  "title": "ISA002 Clappum WSPR Morph",
+  "artist": "ScorsBT4",
+  "series": "Impermanence Series A",
+  "day": "2026-10-30",
+  "time_utc": "06:21",
+  "made_utc": "2026-10-30T03:02+00:00",
+  "listened_hours": 17,
+  "length": 2484.63,
+  "tracks": [
+   {
+    "n": 1,
+    "title": "beacons Rule 225 24915 France",
+    "duration": 574.64
+   },
+   {
+    "n": 2,
+    "title": "Odd-Even 5850 Slovakia Gqeberha",
+    "duration": 261.79
+   },
+   {
+    "n": 3,
+    "title": "rokli Varispeed prime gaps libmp",
+    "duration": 267.49
+   },
+   {
+    "n": 4,
+    "title": "Northwood 4608.1 Morph",
+    "duration": 194.39
+   },
+   {
+    "n": 5,
+    "title": "1840 Hénon Clappum Bridge",
+    "duration": 163.24
+   },
+   {
+    "n": 6,
+    "title": "6090 Stahara Rule 146",
+    "duration": 400.37
+   },
+   {
+    "n": 7,
+    "title": "Yarns Zieltogend Rudin-Shapiro tmth-00C 2018",
+    "duration": 290.93
+   },
+   {
+    "n": 8,
+    "title": "beacons Erosion Friedrichshafen WSPR √640",
+    "duration": 331.78
+   }
+  ],
+  "cover": "archive/covers/ISA002.jpg",
+  "cover_png": "archive/covers/ISA002.png",
+  "palette": [
+   "#AB713F",
+   "#B0BA58",
+   "#954C45",
+   "#47321F",
+   "#FAF8F6"
+  ],
+  "seed": "4504066113185214578",
+  "pure": false,
+  "last": false,
+  "heard": [
+   "FT8 data, 12 m, 24915.0 kHz USB via 0-30 MHz SDR#1, LA2G, Norway, Oct 29, 13:01 UTC",
+   "Channel Marker S, 13527.9 kHz CW via DE2HJW SDR JO53CN DL nr Hamburg, Oct 29, 11:02 UTC",
+   "FT8 data, 80 m, 3573.0 kHz USB via 0-30 MHz SDR, KG4OXS, USA, Oct 29, 11:02 UTC",
+   "WSPR beacons, 20 m, 14095.6 kHz USB via 0-30 MHz SDR, DK0TE, DHBW Ravensburg Campus Friedrichshafen, Germany, Oct 29, 10:03 UTC",
+   "WSPR beacons, 40 m, 7038.6 kHz USB via 0-30 MHz SDR, France (Belgium border), Oct 29, 10:03 UTC",
+   "Sound of Hope (M to FE), 10870.0 kHz AM via 0-30 MHz SDR, DARC OV D10 | Berlin, Germany, Oct 29, 12:01 UTC",
+   "Sveriges Radio - P4 Sjuhärad (Sweden), internet radio, Oct 30, 02:02 UTC",
+   "Christmas Time Aircheck (), archive, Oct 29, 21:02 UTC",
+   "Amhara State Radio (AH to EAf), 6090.0 kHz AM via ZS2JB - KiwiSDR | Gqeberha, South Africa, Oct 29, 19:01 UTC",
+   "Radio Slovakia Int. (SK to WNA), 5850.0 kHz AM via Northern Utah Kiwisdr #1 (0-30 MHz, TCI-530 Omni), Oct 30, 00:01 UTC",
+   "Quality X - 89.7 FM (Córdoba(Argentina), Argentina), 89.7 MHz FM, Oct 30, 02:02 UTC",
+   "Bridges Buildings EVENN Ep (Steve Preston & Sasa Vojvodic, 2005), archive, 2005, Oct 29, 13:02 UTC",
+   "Radio Cadena Hispana (Santo Domingo Este, The Dominican Republic), internet radio, Oct 30, 00:02 UTC",
+   "Tropicana Estéreo FM (Bogotá) (Bogotá, Colombia), internet radio, Oct 29, 22:02 UTC",
+   "liberec - v rokli liberec, live microphone, Oct 29, 10:07 UTC",
+   "Beach Camp at Sunset Bay hydrophone (the Salish Sea), live hydrophone, Oct 29, 11:05 UTC",
+   "Antenna Web Tonga (Nuku'alofa, Tonga), internet radio, Oct 29, 17:02 UTC",
+   "Mohanlal hits (India), internet radio, Oct 29, 22:02 UTC",
+   "Exa FM Ensenada - 104.1 FM - XHADA-FM - MVS Radio - Ensenada, BC (Baja California, Mexico), 104.1 MHz FM, Oct 29, 23:04 UTC",
+   "Calm Radio - Tibet (Canada), internet radio, Oct 29, 19:02 UTC",
+   "GYA Northwood Meteo Fax, 4608.1 kHz USB via DG3SDK | 0-30 MHz SDR | Esslingen, Germany, Oct 29, 16:01 UTC",
+   "FT8 data, 160 m, 1840.0 kHz USB via 0-30 MHZ-KiwiSDR, IZ6BYY - 🇮🇹 Magnetic Loop Antenna in Central Italy 📶, Oct 30, 02:01 UTC",
+   "Merry Clappum Junction (Arnold Kennedy, 2010), archive, 2010, Oct 29, 10:06 UTC",
+   "VLF receiver (Cumiana, Italy), natural radio via Renato Romero, vlf.it, Oct 29, 23:04 UTC",
+   "North San Juan Channel hydrophone (the Salish Sea), live hydrophone, Oct 29, 14:04 UTC",
+   "Tom Stoppard - Albert’s Bridge (), archive, Oct 29, 20:06 UTC",
+   "LA TIPIK (Panama), internet radio, Oct 29, 23:03 UTC",
+   "RWM Moscow, 9996.0 kHz AM via 0-30 MHz SDR | Wels AT, Oct 29, 17:01 UTC",
+   "Sonnets (George Graham Currie, 2018), archive, 2018, Oct 29, 11:04 UTC",
+   "Drocht [tmth-00C",
+   "Nightcap Yarns 06 Eps (), archive, Oct 29, 11:04 UTC",
+   "104.3 Boss FM (Guam), 104.3 MHz FM, Oct 29, 11:03 UTC",
+   "knepp - air, live microphone, Oct 29, 10:07 UTC",
+   "FT8 data, 30 m, 10136.0 kHz USB via Kernow - G8JNJ - 10KHz-30MHz SDR - Cornwall - South West UK, Oct 29, 10:03 UTC",
+   "UWALA Radio (Lilongwe, Malawi), internet radio, Oct 29, 11:03 UTC",
+   "Upstate Radio Theatre 2010 (Quality Radio Productions), archive, Oct 29, 19:03 UTC",
+   "RAF Volmet Military 1 (E to Eu), 5450.0 kHz USB via 13RF029📶📻0-30 MHz SDR📻📶 | Bülzig JO61jv, Oct 30, 01:01 UTC",
+   "Fred Allen 1940 03 27 Guest T Hee Who Killed Mack Borden (), archive, Oct 29, 13:02 UTC"
+  ],
+  "heard_total": 38
  }
 ]
