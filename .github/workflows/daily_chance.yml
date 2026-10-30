@@ -249,12 +249,14 @@ jobs:
         with:
           python-version: '3.12'
 
+      # the libraries always (publish_album.py needs them even just to release); ffmpeg only to make an album
       - name: Install ffmpeg and libraries
-        if: env.MAKE == 'true'
         run: |
-          sudo apt-get update -q
-          sudo apt-get install -y -q ffmpeg
           pip install -q numpy pillow websocket-client
+          if [ "$MAKE" = "true" ]; then
+            sudo apt-get update -q
+            sudo apt-get install -y -q ffmpeg
+          fi
 
       # every hour's clips (thrown away when the job ends). if almost nothing came (the hours were lost),
       # a quick fresh listen makes up the day's 365 now
