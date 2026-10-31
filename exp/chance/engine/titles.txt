@@ -36,3 +36,10 @@ ISA002 Clappum WSPR Morph
 6. 6090 Stahara Rule 146
 7. Yarns Zieltogend Rudin-Shapiro tmth-00C 2018
 8. beacons Erosion Friedrichshafen WSPR √640
+
+ISA003 Loop 4651 Soul
+1. 4651 Mosaic FT8
+2. Opening Rock 21150
+3. g频道 Soul Mosaic 12030
+4. Maze US Tonga Mosaic Szil)
+5. Russian 5004.5 Loop
