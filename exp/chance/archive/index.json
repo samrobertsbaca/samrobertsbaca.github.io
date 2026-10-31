@@ -272,5 +272,96 @@
    "Fred Allen 1940 03 27 Guest T Hee Who Killed Mack Borden (), archive, Oct 29, 13:02 UTC"
   ],
   "heard_total": 38
+ },
+ {
+  "catalog": "ISA003",
+  "number": 3,
+  "title": "ISA003 Loop 4651 Soul",
+  "artist": "ScorsBT4",
+  "series": "Impermanence Series A",
+  "day": "2026-10-31",
+  "time_utc": "06:01",
+  "made_utc": "2026-10-31T03:02+00:00",
+  "listened_hours": 24,
+  "length": 870.72,
+  "tracks": [
+   {
+    "n": 1,
+    "title": "4651 Mosaic FT8",
+    "duration": 97.88
+   },
+   {
+    "n": 2,
+    "title": "Opening Rock 21150",
+    "duration": 323.09
+   },
+   {
+    "n": 3,
+    "title": "g频道 Soul Mosaic 12030",
+    "duration": 77.03
+   },
+   {
+    "n": 4,
+    "title": "Maze US Tonga Mosaic Szil)",
+    "duration": 311.98
+   },
+   {
+    "n": 5,
+    "title": "Russian 5004.5 Loop",
+    "duration": 60.74
+   }
+  ],
+  "cover": "archive/covers/ISA003.jpg",
+  "cover_png": "archive/covers/ISA003.png",
+  "palette": [
+   "#2D4A8D",
+   "#5E3DA6",
+   "#326279",
+   "#1A243D",
+   "#F5F7FB"
+  ],
+  "seed": "3398135393772194989",
+  "pure": false,
+  "last": false,
+  "heard": [
+   "FT8 data, 20 m, 14074.0 kHz USB via 0-30 MHz SDR | Niendorf a.d.St., Oct 30, 10:01 UTC",
+   "FT8 data, 160 m, 1840.0 kHz USB via 0-30 MHz SDR, Northern Kentucky, USA, Oct 30, 20:01 UTC",
+   "Shannon Aeradio J (E to NAO), 4651.0 kHz USB via HF Web SDR Halle ( Saale ) Germany 0-30 MHz, Oct 30, 18:02 UTC",
+   "NCDXF beacons, 15 m, 21150.0 kHz CW via ███ 0-30 MHz SDR #4, VK5PH, Ironstone Range, South Australia ███, Oct 30, 09:03 UTC",
+   "Tempo Naxi Radio (Serbia), internet radio, Oct 30, 04:02 UTC",
+   "Radio Exterior España (S to ME), 12030.0 kHz AM via 0-30 MHz SDR | Wildmountain (Wildberg), Switzerland, Oct 30, 19:03 UTC",
+   "Radio Cidade de Campinas 92,5 (Brazil), 92.5 MHz FM, Oct 31, 02:03 UTC",
+   "Soul Rhythms Radio UK (Kent, The United Kingdom Of Great Britain And Northern Ireland), internet radio, Oct 30, 15:03 UTC",
+   "focus fm 103.6  .gr (Thessaloniki, Greece), 103.6 MHz FM, Oct 31, 01:03 UTC",
+   "蝠声综合频道 (China), internet radio, Oct 30, 23:03 UTC",
+   "radio los andes 99.5 fm (Lima, Peru), 99.5 MHz FM, Oct 30, 13:03 UTC",
+   "Radio Cer (Serbia), internet radio, Oct 30, 15:03 UTC",
+   "BBC (E to ME), 1413.0 kHz AM via 0-30 MHz SDR, TF3GZ Kopavogur Iceland, Oct 30, 03:02 UTC",
+   "Radio El Sembrador (Chile), internet radio, Oct 30, 22:04 UTC",
+   "Rebel Radio (Jamaica), internet radio, Oct 30, 20:07 UTC",
+   "Radio Folha (Roraima, Brazil), internet radio, Oct 31, 01:04 UTC",
+   "Eurodance Classic ... Pure - Classic - Addictive (Canada), internet radio, Oct 30, 05:02 UTC",
+   "Bruce Bedford Carnival King (), archive, Oct 31, 00:03 UTC",
+   "إذاعة القرآن الكريم (Egypt), internet radio, Oct 30, 22:03 UTC",
+   "WSPR beacons, 40 m, 7038.6 kHz USB via 10 kHz-30 MHz SDR, SM2BYC, Sweden , 2nd Receiver, Oct 30, 14:02 UTC",
+   "Radyo Natin Kiamba (The Philippines), internet radio, Oct 30, 20:07 UTC",
+   "Letio Tonga (Nuku'alofa, Tonga), internet radio, Oct 30, 05:02 UTC",
+   "Nemzetiségi Rádió (HR to HNG), 873.0 kHz AM via SUOMEN DX-LIITTO (SDXL-LOH1) - FINNISH DX-ASSOCIATION - 400m beverage 308 degrees | Lohja, Finland, Oct 30, 07:01 UTC",
+   "VCP Placentia NL (E to ENA), 2582.0 kHz AM via K3GMQ - Bucks County, PA USA, Oct 30, 07:01 UTC",
+   "FT8 data, 80 m, 3573.0 kHz USB via 0-30 MHz SDR, K2ZN, USA | Rochester, NY, Oct 30, 03:01 UTC",
+   "FT8 data, 40 m, 7074.0 kHz USB via VE4ACE Listening Post | Winnipeg Manitoba Canada, Oct 30, 12:01 UTC",
+   "Radio Vaticana Deutsch (The Holy See), internet radio, Oct 30, 11:02 UTC",
+   "Aus 85 - Tribute To Nelson Eddy Parts 1 and 2 (), archive, Oct 30, 16:03 UTC",
+   "Stalingrad clock, 6911.0 kHz AM via 0-30 MHz SDR | Fordham, Cambridgeshire, UK, Oct 30, 20:02 UTC",
+   "Sci Fi Industries - Orpheus's Walk [enrmp376",
+   "XSG Shanghai Radio Fax (M to FE), 4168.1 kHz USB via 0-30 MHz KIWI SDR( 8ch ), HL5NTR, Daegu_City Republic of Korea. 85M Loop-type Antenna., Oct 30, 08:02 UTC",
+   "Thou art my rock (Scottish Border Quartet, 1959), archive, 1959, Oct 30, 07:03 UTC",
+   "Shannon HFDL (ID7), 3453.5 kHz USB via PD0DH - KiwiSDR - The Netherlands, Oct 30, 16:02 UTC",
+   "NAU US Navy, 16121.5 kHz USB via 0-30 MHz SDR, VE3HOA | Ottawa, Canada, Oct 30, 12:01 UTC",
+   "Port Townsend hydrophone (the Salish Sea), live hydrophone, Oct 31, 02:03 UTC",
+   "Radio Piepzender (NL to Eu), 13585.0 kHz AM via 0-30 MHz SDR | Bad Schönborn, Germany, Oct 30, 09:03 UTC",
+   "Black Radio Mistura Certa (Sao Paulo (Brazil), Brazil), internet radio, Oct 30, 20:04 UTC"
+  ],
+  "heard_total": 37
  }
 ]
