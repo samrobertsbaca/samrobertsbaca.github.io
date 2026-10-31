@@ -1,3 +1,3 @@
-### the sprite, the princess, & the three echoes
+h3. the chuckle-key caper
 
-a princess, banished and glum. scorsby, a sprite with his beetle, mouse, crayfish, made her laugh. her king-father appeared: "rrombo dombo di di dai! name these spirits: 'what was i? what am i? what will i be?'" scorsby's creatures replied: beetle-was, mouse-am, crayfish-will. the princess, blooming joy, hugged scorsby & her father. boundless smiles for all.
+scorsby, a free-spirited apprentice, was sent by the arch-chortle for a "left-handed chuckle-key" and a "bag of true smiles." scorsby returned with a pocket of nebulae-dust in their boot, declaring, "rrombo dombo di di dai! these smiles bloom only on astral plains!" the arch-chortle's aide, bewildered, found three identical, giggling smiles hiding in a cosmic chest. "dispose of these non-local delights!" ordered the chortle. the aide tossed one, but another identical smile beamed back. then another. finally, seeing scorsby's ever-present grin, the aide, convinced it was *yet another* returning smile, gently scooped scorsby away too. all were returned to the astral plains.
